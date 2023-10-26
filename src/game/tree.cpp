@@ -14,8 +14,8 @@
 //     transform.scale = glm::vec3(width, height, width);
 // }
 
-Tree::Tree(std::string name, Resource* geometry, Resource* material, float wind_offset, float wind_speed, float wind_strength, Game* game)
-: SceneNode(name, geometry, material), wind_offset(wind_offset), wind_speed(wind_speed), wind_strength(wind_strength), game(game){
+Tree::Tree(std::string name, Resource* geometry, Shader* shader, float wind_offset, float wind_speed, float wind_strength, Game* game)
+: SceneNode(name, geometry, shader), wind_offset(wind_offset), wind_speed(wind_speed), wind_strength(wind_strength), game(game){
 
 }
 

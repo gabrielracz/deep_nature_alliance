@@ -17,7 +17,7 @@ void View::Render(SceneGraph& scene) {
     }
 
     camera.Update();
-    scene.Draw(camera);
+    scene.Draw(&camera);
 
     // Push buffer drawn in the background onto the display
     glfwSwapBuffers(win.ptr);

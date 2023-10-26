@@ -8,6 +8,9 @@
 #include <iostream>
 
 #include "resource_manager.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 #define APPEND_VEC2(vector, glm_vec2) vector.insert(vector.end(), {glm_vec2.x, glm_vec2.y})
 
 template <typename T>
@@ -20,6 +23,69 @@ ResourceManager::ResourceManager(void){
 
 
 ResourceManager::~ResourceManager(){
+}
+
+
+void ResourceManager::LoadShader(const std::string& name, const std::string& vert_path, const std::string& frag_path){
+    shaders.emplace(name, Shader(vert_path.c_str(), frag_path.c_str()));
+}
+
+void ResourceManager::LoadMesh(const std::string& name, const std::string& path) {
+    // meshes.emplace(name, Mesh(path));
+}
+
+void ResourceManager::AddMesh(const std::string& name, std::vector<float> verts, std::vector<unsigned int> inds, Layout layout) {
+    // meshes.emplace(name, Mesh(verts, inds, layout));
+}
+
+Shader* ResourceManager::GetShader(const std::string &name) {
+    auto it = shaders.find(name);
+    if(it == shaders.end()) {
+        return nullptr;
+    }
+    return &it->second;
+}
+
+void ResourceManager::LoadTexture(const std::string& name, const std::string& file_path) {
+ 	stbi_set_flip_vertically_on_load(1);
+	//Texture
+	int width, height, n_channels;
+	unsigned char* data = stbi_load(file_path.c_str(), &width, &height, &n_channels, 0);
+	if (!data) {
+		printf("ERROR: failed to load image %s\n", file_path.c_str());
+        return;
+	}
+
+    GLenum format;
+    switch(n_channels) {
+        case 3:
+            format = GL_RGB;
+            break;
+        case 4:
+            format = GL_RGBA;
+            break;
+        default:
+            format = GL_RGB;
+            break;
+    }
+
+	unsigned int tex_id;
+	glGenTextures(1, &tex_id);
+	glBindTexture(GL_TEXTURE_2D, tex_id);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+	//Wrapping
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    //Filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+	stbi_image_free(data);
+
+    // textures.emplace(name, Texture(tex_id));
 }
 
 
@@ -124,6 +190,8 @@ void ResourceManager::LoadMaterial(const std::string name, const char *prefix){
     // and linked
     glDeleteShader(vs);
     glDeleteShader(fs);
+
+
 
     // Add a resource for the shader program
     AddResource(Material, name, sp, 0);

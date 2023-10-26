@@ -4,8 +4,8 @@
 #include "scene_node.h"
 class Player : public SceneNode {
 public:
-    Player(const std::string name, const Resource *geometry, const Resource *material)
-    : SceneNode(name, geometry, material) {}
+    Player(const std::string name, const Resource *geometry, Shader* shader)
+    : SceneNode(name, geometry, shader) {}
 
     virtual void Update(double dt) override;
 

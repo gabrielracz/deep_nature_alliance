@@ -10,7 +10,7 @@
 
 #include "scene_node.h"
 
-SceneNode::SceneNode(const std::string name, const Resource *geometry, const Resource *material){
+SceneNode::SceneNode(const std::string name, const Resource *geometry, Shader* shd){
 
     // Set name of scene node
     name_ = name;
@@ -29,11 +29,12 @@ SceneNode::SceneNode(const std::string name, const Resource *geometry, const Res
     size_ = geometry->GetSize();
 
     // Set material (shader program)
-    if (material->GetType() != Material){
-        throw(std::invalid_argument(std::string("Invalid type of material")));
-    }
+    // if (material->GetType() != Material){
+    //     throw(std::invalid_argument(std::string("Invalid type of material")));
+    // }
 
-    material_ = material->GetResource();
+    // material_ = material->GetResource();
+    shader = shd;
 
     // Other attributes
     transform.scale = glm::vec3(1.0, 1.0, 1.0);
@@ -138,31 +139,24 @@ GLuint SceneNode::GetMaterial(void) const {
 }
 
 
-void SceneNode::Draw(Camera& camera, const glm::mat4& parent_matrix){
+void SceneNode::Draw(Camera* camera, const glm::mat4& parent_matrix){
     if(!active || !visible) {return;}
 
-    // Select proper material (shader program)
-    glUseProgram(material_);
+    shader->Use();
+    // texture->Bind();
+    // mesh->Draw();
 
     // Set geometry to draw
     glBindBuffer(GL_ARRAY_BUFFER, array_buffer_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_array_buffer_);
 
-    // Set globals for camera
-    camera.SetupShader(material_);
+    camera->SetUniforms(shader);
+    SetUniforms(shader->id, parent_matrix);
 
-    // Set world matrix and other shader input variables
-    SetupShader(material_, parent_matrix);
-
-    // Draw geometry
-    // if (mode_ == GL_POINTS){
-    //     glDrawArrays(mode_, 0, size_);
-    // } else {
-    //     glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
-    // }
-        glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
+    glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
 
     // remove the scaling factor from our cached transf matrix (children shouldnt scale with parent)
+
     glm::mat4 t = transf_matrix;
     t[0] = glm::normalize(t[0]);
     t[1] = glm::normalize(t[1]);
@@ -185,11 +179,10 @@ void SceneNode::Update(double dt){
     for(auto child : children) {
         child->Update(dt);
     }
-    // Do nothing for this generic type of scene node
 }
 
 
-void SceneNode::SetupShader(GLuint program, const glm::mat4& parent_matrix){
+void SceneNode::SetUniforms(GLuint program, const glm::mat4& parent_matrix){
 
     // Set attributes for shaders
     GLint vertex_att = glGetAttribLocation(program, "vertex");

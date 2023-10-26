@@ -4,10 +4,10 @@
 Shader::Shader(const char* vertex_path, const char* fragment_path) {
 	vert_path = vertex_path;
 	frag_path = fragment_path;
-    load();
+    Load();
 }
 
-bool Shader::load() {
+bool Shader::Load() {
 	//Read Files
 	std::string vertex_code;
 	std::string frag_code;
@@ -86,7 +86,7 @@ bool Shader::load() {
 	return true;
 }
 
-void Shader::use() {
+void Shader::Use() {
 	glUseProgram(id);
 }
 

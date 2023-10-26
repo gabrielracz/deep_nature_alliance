@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "transform.h"
+#include "shader.h"
 
     // Abstraction of a camera
 class Camera {
@@ -26,6 +27,7 @@ class Camera {
         void SetProjection(GLfloat fov, GLfloat near, GLfloat far, GLfloat w, GLfloat h);
         // Set all camera-related variables in shader program
         void SetupShader(GLuint program);
+        void SetUniforms(Shader* shd);
 
         void Attach(Transform* parent_transform);
 

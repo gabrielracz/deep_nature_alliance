@@ -11,6 +11,8 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "resource.h"
+#include "mesh.h"
+#include "shader.h"
 #include "camera.h"
 
 // Class that manages one object in a scene 
@@ -18,7 +20,7 @@ class SceneNode {
 
     public:
         // Create scene node from given resources
-        SceneNode(const std::string name, const Resource *geometry, const Resource *material);
+        SceneNode(const std::string name, const Resource *geometry, Shader* shader);
 
         // Destructor
         ~SceneNode();
@@ -43,7 +45,7 @@ class SceneNode {
 
         // Draw the node according to scene parameters in 'camera'
         // variable
-        virtual void Draw(Camera& camera, const glm::mat4& parent_transform = glm::mat4(1.0));
+        virtual void Draw(Camera* camera, const glm::mat4& parent_transform = glm::mat4(1.0));
 
         // Update the node
         virtual void Update(double dt);
@@ -65,6 +67,16 @@ class SceneNode {
     private:
         glm::mat4 transf_matrix;
         std::string name_; // Name of the scene node
+
+        // std::string mesh_id    = "";
+        // std::string shader_id  = "";
+        // std::string texture_id = "";
+
+        Mesh* mesh       {nullptr};
+        Shader* shader   {nullptr};
+        Texture* texture {nullptr};
+
+
         GLuint array_buffer_; // References to geometry: vertex and array buffers
         GLuint element_array_buffer_;
         GLenum mode_; // Type of geometry
@@ -76,7 +88,7 @@ class SceneNode {
         // glm::vec3 scale_; // Scale of node
 
         // Set matrices that transform the node in a shader program
-        void SetupShader(GLuint program, const glm::mat4& parent_matrix);
+        void SetUniforms(GLuint program, const glm::mat4& parent_matrix);
 
 }; // class SceneNode
 

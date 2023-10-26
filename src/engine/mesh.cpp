@@ -5,10 +5,9 @@
 #include <string>
 #include <array>
 
-//Texture::Texture(unsigned int i, std::string t) {
-	//id = i;
-	//type = t;
-//}
+void Texture::Bind() {
+    glBindTexture(GL_TEXTURE_2D, id);
+}
 
 LayoutEntry::LayoutEntry(LAYOUT_TYPE t, std::string n) {
 	type = t;
@@ -152,7 +151,7 @@ void Mesh::SetupBuffers() {
 	glBindVertexArray(0);
 }
 
-void Mesh::Draw(Shader& shader) {
+void Mesh::Draw() {
 	//potential check if shader is already in use to avoid call
 	// shader.use();
 

@@ -21,9 +21,9 @@ public:
 	Shader(const char* vertex_path, const char* frag_path);
 	Shader() = default;
 	~Shader() = default;
-	bool load();
-	void reload();
-	void use();
+	bool Load();
+	void Reload();
+	void Use();
 
 	void SetUniform1f(float u, const std::string& name);
 	void SetUniform3f(const glm::vec3& u, const std::string& name);

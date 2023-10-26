@@ -59,6 +59,11 @@ void Camera::SetupShader(GLuint program){
     glUniformMatrix4fv(projection_mat, 1, GL_FALSE, glm::value_ptr(projection_matrix_));
 }
 
+void Camera::SetUniforms(Shader* shd){
+    shd->SetUniform4m(view_matrix_,       "view_mat");
+    shd->SetUniform4m(projection_matrix_, "projection_mat");
+}
+
 
 void Camera::SetupViewMatrix(void){
 

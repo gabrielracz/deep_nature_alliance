@@ -43,7 +43,7 @@ class SceneGraph {
 
 
         // Draw the entire scene
-        void Draw(Camera& camera);
+        void Draw(Camera* camera);
 
         // Update entire scene
         void Update(double dt);

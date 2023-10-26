@@ -39,6 +39,7 @@ class ResourceManager {
 
         void LoadShader(const std::string& name, const std::string& vert_path, const std::string& frag_path);
         void LoadMesh(const std::string& name, const std::string& path);
+        void AddMesh(const std::string& name, std::vector<float> verts, std::vector<unsigned int> inds, Layout layout);
         void LoadTexture(const std::string& name, const std::string& path);
 
         void CreateTorus(std::string object_name, float loop_radius = 0.6, float circle_radius = 0.2, int num_loop_samples = 90, int num_circle_samples = 30);

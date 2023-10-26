@@ -36,12 +36,12 @@ glm::vec3 SceneGraph::GetBackgroundColor(void) const {
 SceneNode *SceneGraph::CreateNode(std::string node_name, Resource *geometry, Resource *material){
 
     // Create scene node with the specified resources
-    SceneNode *scn = new SceneNode(node_name, geometry, material);
+    // SceneNode *scn = new SceneNode(node_name, geometry, material);
 
-    // Add node to the scene
-    node_.push_back(scn);
+    // // Add node to the scene
+    // node_.push_back(scn);
 
-    return scn;
+    // return scn;
 }
 
 
@@ -76,7 +76,7 @@ std::vector<SceneNode *>::const_iterator SceneGraph::end() const {
 }
 
 
-void SceneGraph::Draw(Camera& camera){
+void SceneGraph::Draw(Camera* camera){
 
     // Clear background
     glClearColor(background_color_[0], 

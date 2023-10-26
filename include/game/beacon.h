@@ -3,10 +3,10 @@
 
 #include "asteroid.h"
 
-class Beacon : public SceneNode {
-public:
-    Beacon(const std::string name, const Resource *geometry, const Resource *material)
-        : SceneNode(name, geometry, material) {}
-};
+// class Beacon : public SceneNode {
+// public:
+//     Beacon(const std::string name, const Resource *geometry, const Resource *material)
+//         : SceneNode(name, geometry, material) {}
+// };
 
 #endif
