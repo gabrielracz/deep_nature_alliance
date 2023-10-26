@@ -17,7 +17,8 @@ class Asteroid : public SceneNode {
 
     public:
         // Create asteroid from given resources
-        Asteroid(const std::string name, const Resource *geometry, Shader* shader);
+        Asteroid(const std::string name, Mesh* mesh, Shader* shader)
+        : SceneNode(name, mesh, shader) {};
 
         // Destructor
         ~Asteroid();

@@ -10,23 +10,24 @@
 
 #include "scene_node.h"
 
-SceneNode::SceneNode(const std::string name, const Resource *geometry, Shader* shd){
+SceneNode::SceneNode(const std::string name, Mesh* m, Shader* shd){
 
     // Set name of scene node
     name_ = name;
 
     // Set geometry
-    if (geometry->GetType() == PointSet){
-        mode_ = GL_POINTS;
-    } else if (geometry->GetType() == MeshH){
-        mode_ = GL_TRIANGLES;
-    } else {
-        throw(std::invalid_argument(std::string("Invalid type of geometry")));
-    }
+    // if (geometry->GetType() == PointSet){
+    //     mode_ = GL_POINTS;
+    // } else if (geometry->GetType() == MeshH){
+    //     mode_ = GL_TRIANGLES;
+    // } else {
+    //     throw(std::invalid_argument(std::string("Invalid type of geometry")));
+    // }
 
-    array_buffer_ = geometry->GetArrayBuffer();
-    element_array_buffer_ = geometry->GetElementArrayBuffer();
-    size_ = geometry->GetSize();
+    // array_buffer_ = geometry->GetArrayBuffer();
+    // element_array_buffer_ = geometry->GetElementArrayBuffer();
+    // size_ = geometry->GetSize();
+    mesh = m;
 
     // Set material (shader program)
     // if (material->GetType() != Material){
@@ -143,17 +144,18 @@ void SceneNode::Draw(Camera* camera, const glm::mat4& parent_matrix){
     if(!active || !visible) {return;}
 
     shader->Use();
+    camera->SetUniforms(shader);
+    SetUniforms(shader, parent_matrix);
     // texture->Bind();
-    // mesh->Draw();
+    mesh->Draw();
 
     // Set geometry to draw
-    glBindBuffer(GL_ARRAY_BUFFER, array_buffer_);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_array_buffer_);
+    // glBindBuffer(GL_ARRAY_BUFFER, array_buffer_);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_array_buffer_);
 
-    camera->SetUniforms(shader);
-    SetUniforms(shader->id, parent_matrix);
+    // SetUniforms(shader, parent_matrix);
 
-    glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
+    // glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
 
     // remove the scaling factor from our cached transf matrix (children shouldnt scale with parent)
 
@@ -182,36 +184,38 @@ void SceneNode::Update(double dt){
 }
 
 
-void SceneNode::SetUniforms(GLuint program, const glm::mat4& parent_matrix){
+void SceneNode::SetUniforms(Shader* shader, const glm::mat4& parent_matrix){
 
-    // Set attributes for shaders
-    GLint vertex_att = glGetAttribLocation(program, "vertex");
-    glVertexAttribPointer(vertex_att, 3, GL_FLOAT, GL_FALSE, 11*sizeof(GLfloat), 0);    // glm::mat4 t = transf_matrix;
-    glEnableVertexAttribArray(vertex_att);
+    // int program = shader->id;
+    // // Set attributes for shaders
+    // GLint vertex_att = glGetAttribLocation(program, "vertex");
+    // glVertexAttribPointer(vertex_att, 3, GL_FLOAT, GL_FALSE, 11*sizeof(GLfloat), 0);    // glm::mat4 t = transf_matrix;
+    // glEnableVertexAttribArray(vertex_att);
 
-    GLint normal_att = glGetAttribLocation(program, "normal");
-    glVertexAttribPointer(normal_att, 3, GL_FLOAT, GL_FALSE, 11*sizeof(GLfloat), (void *) (3*sizeof(GLfloat)));
-    glEnableVertexAttribArray(normal_att);
+    // GLint normal_att = glGetAttribLocation(program, "normal");
+    // glVertexAttribPointer(normal_att, 3, GL_FLOAT, GL_FALSE, 11*sizeof(GLfloat), (void *) (3*sizeof(GLfloat)));
+    // glEnableVertexAttribArray(normal_att);
 
-    GLint color_att = glGetAttribLocation(program, "color");
-    glVertexAttribPointer(color_att, 3, GL_FLOAT, GL_FALSE, 11*sizeof(GLfloat), (void *) (6*sizeof(GLfloat)));
-    glEnableVertexAttribArray(color_att);
+    // GLint color_att = glGetAttribLocation(program, "color");
+    // glVertexAttribPointer(color_att, 3, GL_FLOAT, GL_FALSE, 11*sizeof(GLfloat), (void *) (6*sizeof(GLfloat)));
+    // glEnableVertexAttribArray(color_att);
 
-    GLint tex_att = glGetAttribLocation(program, "uv");
-    glVertexAttribPointer(tex_att, 2, GL_FLOAT, GL_FALSE, 11*sizeof(GLfloat), (void *) (9*sizeof(GLfloat)));
-    glEnableVertexAttribArray(tex_att);
+    // GLint tex_att = glGetAttribLocation(program, "uv");
+    // glVertexAttribPointer(tex_att, 2, GL_FLOAT, GL_FALSE, 11*sizeof(GLfloat), (void *) (9*sizeof(GLfloat)));
+    // glEnableVertexAttribArray(tex_att);
 
 
     // transf_matrix = parent_matrix * transform.ScaledMatrix();
 
-    GLint world_mat = glGetUniformLocation(program, "world_mat");
-    glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(parent_matrix * transf_matrix));
+    shader->SetUniform4m(parent_matrix * transf_matrix, "world_mat");
+    // GLint world_mat = glGetUniformLocation(program, "world_mat");
+    // glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(parent_matrix * transf_matrix));
 
     // Timer
-    GLint timer_var = glGetUniformLocation(program, "timer");
-    double current_time = glfwGetTime();
-    glUniform1f(timer_var, (float) current_time);
+    // double current_time = glfwGetTime();
+    shader->SetUniform1f(glfwGetTime(), "timer");
 
-    GLint inverted_var = glGetUniformLocation(program, "inverted");
-    glUniform1i(inverted_var, inverted);
+    shader->SetUniform1i(0, "inverted");
+    // GLint inverted_var = glGetUniformLocation(program, "inverted");
+    // glUniform1i(inverted_var, inverted);
 }

@@ -259,29 +259,30 @@ Game::~Game(){
 Asteroid *Game::CreateAsteroidInstance(std::string entity_name, std::string object_name, std::string material_name){
 
     // Get resources
-    Resource *geom = resman.GetResource(object_name);
-    if (!geom){
-        throw(GameException(std::string("Could not find resource \"")+object_name+std::string("\"")));
-    }
+    // Resource *geom = resman.GetResource(object_name);
+    // if (!geom){
+    //     throw(GameException(std::string("Could not find resource \"")+object_name+std::string("\"")));
+    // }
 
     // Resource *mat = resman.GetResource(material_name);
     // if (!mat){
     //     throw(GameException(std::string("Could not find resource \"")+material_name+std::string("\"")));
     // }
 
+    Mesh* mesh = resman.GetMesh(object_name);
     Shader* shd = resman.GetShader(material_name);
 
     // Create asteroid instance
-    Asteroid *ast = new Asteroid(entity_name, geom, shd);
+    Asteroid *ast = new Asteroid(entity_name, mesh, shd);
     scene.AddNode(ast);
     return ast;
 }
 
 
 void Game::CreatePlayer() {
-    Resource* geom = resman.GetResource("Player");
+    Mesh* mesh = resman.GetMesh("Player");
     Shader* shd = resman.GetShader("ObjectMaterial");
-    player = new Player("PlayerObj", geom, shd);
+    player = new Player("PlayerObj", mesh, shd);
     player->transform.position = player_position_g;
     // player->visible = false;
     app.GetCamera().Attach(&player->transform); // Attach the camera to the player
@@ -290,14 +291,14 @@ void Game::CreatePlayer() {
 
 int tcount = 0;
 void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width) {
-    Resource* geom = resman.GetResource("Leaf");
+    Mesh* mesh = resman.GetMesh("Leaf");
     Shader* shd = resman.GetShader("ObjectMaterial");
     for(int j = 0; j < leaves; j++) {
         // position
         float woff = rng.randfloat(0.0f, 2*PI);
         float wspd = 2.5f;
         float wstr = rng.randfloat(0.006, 0.015);
-        Tree* leaf = new Tree("Leaf", geom, shd, woff, wspd, wstr, this);
+        Tree* leaf = new Tree("Leaf", mesh, shd, woff, wspd, wstr, this);
 
         float p = rng.randfloat(0.0f, parent_length/1.25f);
         float x = rng.randfloat(0.0f, 1.0f);
@@ -327,7 +328,7 @@ void Game::GrowTree(SceneNode* root, int branches, float parent_height, float pa
         return;
     }
  
-    Resource* geom = resman.GetResource("Branch");
+    Mesh* mesh = resman.GetMesh("Branch");
     Shader* shd = resman.GetShader("ObjectMaterial");
     level++;
     for(int j = 0; j < branches; j++) {
@@ -337,7 +338,7 @@ void Game::GrowTree(SceneNode* root, int branches, float parent_height, float pa
         float wstr = rng.randfloat(0.0004, 0.001);
         float wspd = rng.randfloat(1.0, 2.0);
 
-        Tree* branch = new Tree("Branch", geom, shd, woff, wspd, wstr, this);
+        Tree* branch = new Tree("Branch", mesh, shd, woff, wspd, wstr, this);
 
         float p = rng.randfloat(0.0f, parent_height/2.0f);
         float l = rng.randfloat(5.0f, parent_height - 1);
@@ -360,9 +361,9 @@ void Game::GrowTree(SceneNode* root, int branches, float parent_height, float pa
 }
 
 void Game::CreateTree() {
-    Resource* geom = resman.GetResource("Branch");
+    Mesh* mesh = resman.GetMesh("Branch");
     Shader* shd = resman.GetShader("ObjectMaterial");
-    Tree* tree = new Tree("Tree", geom, shd, 0, 0, 0, this);
+    Tree* tree = new Tree("Tree", mesh, shd, 0, 0, 0, this);
 
 
     int branches = 3;
@@ -400,12 +401,12 @@ void Game::CreateRaceTrack() {
 
 
 
-    Resource* geom = resman.GetResource("Beacon");
+    Mesh* mesh = resman.GetMesh("Beacon");
     Shader* shd = resman.GetShader("ObjectMaterial");
     for(int i = 0; i < num_beacons_g; i++) {
         glm::vec3& pos = beacon_positions_g[i];
         glm::quat& ori = beacon_orientations[i];
-        SceneNode* b = new SceneNode("Beacon" + std::to_string(i), geom, shd);
+        SceneNode* b = new SceneNode("Beacon" + std::to_string(i), mesh, shd);
         b->transform.position = pos;
         b->transform.orientation = ori;
         // b->SetAngM(glm::normalize(glm::angleAxis(0.05f*glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
@@ -426,11 +427,11 @@ void Game::CreateEnemies() {
         {73.5702        , 85.7602       , 379.409},
     };
 
-    Resource* geom = resman.GetResource("Enemy");
+    Mesh* mesh = resman.GetMesh("Enemy");
     Shader* shd = resman.GetShader("ObjectMaterial");
     int cnt = 0;
     for(auto p : enemy_positions) {
-        Enemy* e = new Enemy("Enemy" + std::to_string(cnt++), geom, shd);
+        Enemy* e = new Enemy("Enemy" + std::to_string(cnt++), mesh, shd);
         e->transform.position = p;
         e->target = &player->transform;
         scene.AddNode(e);
@@ -440,7 +441,7 @@ void Game::CreateEnemies() {
 }
 
 void Game::CreatePowerups() {
-    Resource* geom = resman.GetResource("Powerup");
+    Mesh* mesh = resman.GetMesh("Powerup");
     Shader* shd = resman.GetShader("ObjectMaterial");
     std::vector<glm::vec3> powerup_positions(beacon_positions_g, std::end(beacon_positions_g));
     powerup_positions.push_back({-39.1208       , 77.1831       , 524.026});
@@ -448,7 +449,7 @@ void Game::CreatePowerups() {
     powerup_positions.push_back({101.604        , 8.05086       , 365.088});
 
     for(auto bp : powerup_positions) {
-        SceneNode* p = new SceneNode("Powerup", geom, shd);
+        SceneNode* p = new SceneNode("Powerup", mesh, shd);
         p->transform.position = bp;
         scene.AddNode(p);
         powerups.push_back(p);

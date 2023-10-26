@@ -20,7 +20,7 @@ class SceneNode {
 
     public:
         // Create scene node from given resources
-        SceneNode(const std::string name, const Resource *geometry, Shader* shader);
+        SceneNode(const std::string name,  Mesh* mesh, Shader* shader);
 
         // Destructor
         ~SceneNode();
@@ -88,7 +88,7 @@ class SceneNode {
         // glm::vec3 scale_; // Scale of node
 
         // Set matrices that transform the node in a shader program
-        void SetUniforms(GLuint program, const glm::mat4& parent_matrix);
+        void SetUniforms(Shader* shader, const glm::mat4& parent_matrix);
 
 }; // class SceneNode
 

@@ -117,6 +117,21 @@ Mesh::Mesh(std::vector<float> verts, std::vector<unsigned int> inds, Layout lay)
     SetupBuffers();
 }
 
+//do this copying outside ^^^
+Mesh::Mesh(const float* verts, size_t num_verts, const unsigned int* inds, size_t num_inds, Layout lay) {
+
+	vertices.resize(num_verts);
+	memcpy(&vertices[0], verts, num_verts*sizeof(float));
+
+	if(inds != nullptr && num_inds > 0) {
+		indices.resize(num_inds);
+		memcpy(&indices[0], inds, num_inds*sizeof(unsigned int));
+	}
+	layout = lay;
+
+	SetupBuffers();
+}
+
 void Mesh::SetupBuffers() {
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);

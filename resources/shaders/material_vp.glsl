@@ -1,10 +1,12 @@
 // Material with no illumination simulation
 
-#version 130
+#version 330 core
 
 // Vertex buffer
-in vec3 vertex;
-in vec3 color;
+layout (location = 0) in vec3 vertex;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec3 color;
+layout (location = 3) in vec2 uv;
 
 // Uniform (global) buffer
 uniform mat4 world_mat;

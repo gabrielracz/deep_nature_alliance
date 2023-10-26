@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 
+#include "mesh.h"
 #include "resource_manager.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -26,21 +27,35 @@ ResourceManager::~ResourceManager(){
 }
 
 
+// const Layout generator_layout = Layout(
+//     {{FLOAT3, "vertex"},{FLOAT3, "normal"}, {FLOAT3, "color"}, {FLOAT2, "uv"}});
+
+const Layout generator_layout = Layout(
+    {{FLOAT3, "vertex"},{FLOAT3, "normal"}, {FLOAT3, "color"}, {FLOAT2, "uv"}});
+
 void ResourceManager::LoadShader(const std::string& name, const std::string& vert_path, const std::string& frag_path){
     shaders.emplace(name, Shader(vert_path.c_str(), frag_path.c_str()));
 }
 
 void ResourceManager::LoadMesh(const std::string& name, const std::string& path) {
-    // meshes.emplace(name, Mesh(path));
+    meshes.emplace(name, Mesh(path));
 }
 
 void ResourceManager::AddMesh(const std::string& name, std::vector<float> verts, std::vector<unsigned int> inds, Layout layout) {
-    // meshes.emplace(name, Mesh(verts, inds, layout));
+    meshes.emplace(name, Mesh(verts, inds, layout));
 }
 
 Shader* ResourceManager::GetShader(const std::string &name) {
     auto it = shaders.find(name);
     if(it == shaders.end()) {
+        return nullptr;
+    }
+    return &it->second;
+}
+
+Mesh* ResourceManager::GetMesh(const std::string &name) {
+    auto it = meshes.find(name);
+    if(it == meshes.end()) {
         return nullptr;
     }
     return &it->second;
@@ -360,22 +375,23 @@ void ResourceManager::CreateCylinder(std::string object_name, float height, floa
     }
 
     // Create OpenGL buffer for vertices
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertex_num * vertex_att * sizeof(GLfloat), vertex, GL_STATIC_DRAW);
+    // glGenBuffers(1, &vbo);
+    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    // glBufferData(GL_ARRAY_BUFFER, vertex_num * vertex_att * sizeof(GLfloat), vertex, GL_STATIC_DRAW);
 
-    // Create OpenGL buffer for faces
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_num * face_att * sizeof(GLuint), face, GL_STATIC_DRAW);
+    // // Create OpenGL buffer for faces
+    // glGenBuffers(1, &ebo);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_num * face_att * sizeof(GLuint), face, GL_STATIC_DRAW);
 
     // Free data buffers
-    delete[] vertex;
-    delete[] face;
 
 
     // Create resource
-    AddResource(MeshH, object_name, vbo, ebo, face_num * face_att);
+    meshes.emplace(object_name, Mesh(vertex, vertex_num * vertex_att, face, face_num * face_att, generator_layout));
+    // AddResource(MeshH, object_name, vbo, ebo, face_num * face_att);
+    delete[] vertex;
+    delete[] face;
 
 }
 
@@ -423,6 +439,7 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
                     (float)j / (float)num_circle_samples,
                     1.0f
                 };
+                // color =  {1.0f, 1.0f, 1.0f, 1.0f};
             }
 
             glm::vec2 uv {
@@ -509,16 +526,17 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
 	std::cout << "verts: " << vertices.size() / vertex_att << " indices: " << faces.size() << std::endl;
 
 	// Create OpenGL buffer for vertices
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
+	// glGenBuffers(1, &vbo);
+	// glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	// glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
 
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size() * sizeof(GLuint), faces.data(), GL_STATIC_DRAW);
+	// glGenBuffers(1, &ebo);
+	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	// glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size() * sizeof(GLuint), faces.data(), GL_STATIC_DRAW);
 
+    meshes.emplace(object_name, Mesh(vertices, faces, generator_layout));
     // Create resource
-    AddResource(MeshH, object_name, vbo, ebo, faces.size() * face_att);
+    // AddResource(MeshH, object_name, vbo, ebo, faces.size() * face_att);
 
 }
 
@@ -735,6 +753,7 @@ void ResourceManager::CreateTorus(std::string object_name, float loop_radius, fl
             vertex_color = glm::vec3(1.0 - ((float) i / (float) num_loop_samples), 
                                             (float) i / (float) num_loop_samples, 
                                             (float) j / (float) num_circle_samples);
+            // vertex_color = {1.0f, 0.0f, 0.0f};
             vertex_coord = glm::vec2(theta / (2.0*glm::pi<GLfloat>()),
                                      phi / (2.0*glm::pi<GLfloat>()));
 
@@ -772,21 +791,23 @@ void ResourceManager::CreateTorus(std::string object_name, float loop_radius, fl
     //glGenVertexArrays(1, &vao);
     //glBindVertexArray(vao);
 
-    GLuint vbo, ebo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertex_num * vertex_att * sizeof(GLfloat), vertex, GL_STATIC_DRAW);
+    // GLuint vbo, ebo;
+    // glGenBuffers(1, &vbo);
+    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    // glBufferData(GL_ARRAY_BUFFER, vertex_num * vertex_att * sizeof(GLfloat), vertex, GL_STATIC_DRAW);
 
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_num * face_att * sizeof(GLuint), face, GL_STATIC_DRAW);
+    // glGenBuffers(1, &ebo);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_num * face_att * sizeof(GLuint), face, GL_STATIC_DRAW);
 
     // Free data buffers
-    delete [] vertex;
-    delete [] face;
 
     // Create resource
-    AddResource(MeshH, object_name, vbo, ebo, face_num * face_att);
+
+    meshes.emplace(object_name, Mesh(vertex, vertex_num * vertex_att, face, face_num * face_att, generator_layout));
+    // AddResource(MeshH, object_name, vbo, ebo, face_num * face_att);
+    delete [] vertex;
+    delete [] face;
 }
 
 
@@ -838,6 +859,7 @@ void ResourceManager::CreateSphere(std::string object_name, float radius, int nu
                                         vertex_normal.y*radius, 
                                         vertex_normal.z*radius),
             vertex_color = glm::vec3(((float)i)/((float)num_samples_theta), 1.0-((float)j)/((float)num_samples_phi), ((float)j)/((float)num_samples_phi));
+            // vertex_color = {1.0f, 1.0f, 0.0f};
             vertex_coord = glm::vec2(((float)i)/((float)num_samples_theta), 1.0-((float)j)/((float)num_samples_phi));
 
             // Add vectors to the data buffer
@@ -874,19 +896,21 @@ void ResourceManager::CreateSphere(std::string object_name, float radius, int nu
     //glGenVertexArrays(1, &vao);
     //glBindVertexArray(vao);
 
-    GLuint vbo, ebo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertex_num * vertex_att * sizeof(GLfloat), vertex, GL_STATIC_DRAW);
+    // GLuint vbo, ebo;
+    // glGenBuffers(1, &vbo);
+    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    // glBufferData(GL_ARRAY_BUFFER, vertex_num * vertex_att * sizeof(GLfloat), vertex, GL_STATIC_DRAW);
 
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_num * face_att * sizeof(GLuint), face, GL_STATIC_DRAW);
+    // glGenBuffers(1, &ebo);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_num * face_att * sizeof(GLuint), face, GL_STATIC_DRAW);
 
     // Free data buffers
+
+    meshes.emplace(object_name, Mesh(vertex, vertex_num * vertex_att, face, face_num * face_att, generator_layout));
     delete [] vertex;
     delete [] face;
 
     // Create resource
-    AddResource(MeshH, object_name, vbo, ebo, face_num * face_att);
+    // AddResource(MeshH, object_name, vbo, ebo, face_num * face_att);
 }

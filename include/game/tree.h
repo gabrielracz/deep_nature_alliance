@@ -7,7 +7,7 @@ class Game;
 class Tree : public SceneNode {
 public:
 
-    Tree(std::string name, Resource* geometry, Shader* material, float wind_offset, float wind_speed, float wind_strength, Game* game);
+    Tree(std::string name, Mesh* geometry, Shader* material, float wind_offset, float wind_speed, float wind_strength, Game* game);
     // : SceneNode(name, geometry, material){}
 
     virtual void Update(double dt) override;

@@ -1,9 +1,5 @@
 #include "asteroid.h"
 
-Asteroid::Asteroid(const std::string name, const Resource *geometry, Shader* shd) : SceneNode(name, geometry, shd) {
-}
-
-
 Asteroid::~Asteroid(){
 }
 
