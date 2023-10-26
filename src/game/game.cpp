@@ -28,14 +28,8 @@ const unsigned int window_height_g = 600;
 const bool window_full_screen_g = false;
 
 // Viewport and camera settings
-float camera_near_clip_distance_g = 0.01;
-float camera_far_clip_distance_g = 1000.0;
-float camera_fov_g = 60.0; // Field-of-view of camera (degrees)
 const glm::vec3 viewport_background_color_g(0.0, 0.0, 0.0);
-glm::vec3 player_position_g(0.0, 0.0, 800.0);
-glm::vec3 camera_position_g(0.0, 0.0, 10.0);
-glm::vec3 camera_look_at_g(0.0, 0.0, 0.0);
-glm::vec3 camera_up_g(0.0, 1.0, 0.0);
+glm::vec3 player_position_g(0.0, 0.0, 0.0);
 
 const float beacon_radius_g = 20.0f;
 const float beacon_hitbox_g = 15.0f;
@@ -110,7 +104,7 @@ void Game::SetupScene(void){
     // Create asteroid field
     CreatePlayer();
     CreateTree();
-    CreateAsteroidField(500);
+    CreateAsteroidField(1500);
 
     // CreateRaceTrack();
     // CreateEnemies();
@@ -219,9 +213,24 @@ void Game::CheckControls(KeyMap& keys) {
     toggle(player->angular_velocity.y, look_sens, GLFW_KEY_LEFT, GLFW_KEY_RIGHT);
     toggle(player->angular_velocity.z, look_sens, GLFW_KEY_Q, GLFW_KEY_E);
 
-    toggle(player->velocity.x, player->move_speed, GLFW_KEY_D, GLFW_KEY_A);
-    toggle(player->velocity.y, player->move_speed, GLFW_KEY_Z, GLFW_KEY_X);
-    toggle(player->velocity.z, player->move_speed, GLFW_KEY_S, GLFW_KEY_W);
+    // toggle(player->velocity.x, player->move_speed, GLFW_KEY_D, GLFW_KEY_A);
+    // toggle(player->velocity.y, player->move_speed, GLFW_KEY_Z, GLFW_KEY_X);
+    // toggle(player->velocity.z, player->move_speed, GLFW_KEY_S, GLFW_KEY_W);
+
+    if(keys[GLFW_KEY_W]) {
+        player->ShipControl(Player::Controls::THRUST);
+    };
+    if(keys[GLFW_KEY_S]) {
+        player->ShipControl(Player::Controls::BRAKE);
+    };
+
+    if(keys[GLFW_KEY_I]) {
+        app.GetCamera().transform.position.z -= 0.1;
+    }
+    if(keys[GLFW_KEY_J]) {
+        app.GetCamera().transform.position.z += 0.1;
+    }
+
     // if(keys[GLFW_KEY_W]) {
     //     player->Thrust(1);
     // } else if(keys[GLFW_KEY_S]) {
@@ -432,6 +441,8 @@ void Game::CreatePowerups() {
 
 void Game::CreateAsteroidField(int num_asteroids){
 
+    float size = 600;
+
     // Create a number of asteroid instances
     for (int i = 0; i < num_asteroids; i++){
         // Create instance name
@@ -445,7 +456,11 @@ void Game::CreateAsteroidField(int num_asteroids){
 
         // Set attributes of asteroid: random position, orientation, and
         // angular momentum
-        ast->transform.position = (glm::vec3(-300.0 + 600.0*((float) rand() / RAND_MAX), -300.0 + 600.0*((float) rand() / RAND_MAX), 600.0*((float) rand() / RAND_MAX)));
+        float x = -size/2 + size*((float) rand() / RAND_MAX);
+        float y = -size/2 + size*((float) rand() / RAND_MAX);
+        float z = -size/2 + size*((float) rand() / RAND_MAX);
+
+        ast->transform.position = glm::vec3(x, y, z);
         ast->transform.orientation = (glm::normalize(glm::angleAxis(glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
         ast->SetAngM(glm::normalize(glm::angleAxis(0.05f*glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
     }

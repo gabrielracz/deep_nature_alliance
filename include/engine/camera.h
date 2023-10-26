@@ -37,8 +37,8 @@ class Camera {
         glm::vec3 angular_velocity {0.0f, 0.0f, 0.0f};
         glm::vec3 velocity {0.0f, 0.0f, 0.0f};
 
-    private:
         Transform transform; 
+    private:
         Transform* parent_transform {nullptr};
 
         glm::mat4 view_matrix_; // View matrix
