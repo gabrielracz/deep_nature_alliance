@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.6)
 set(PROJ_NAME "a3")
 project(${PROJ_NAME})
 
-SET(COMPILER_FLAGS "-g")
+set(COMPILER_FLAGS "-g")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Specify project files: header files and source files
@@ -18,6 +18,7 @@ set(HDRS
     include/engine/scene_node.h 
     include/engine/transform.h 
     include/engine/random.h
+    include/engine/defines.h
     include/game/game.h 
     include/game/asteroid.h
     include/game/player.h
@@ -49,6 +50,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/engine/path_config.h.in ${CMA
 
 # Add executable based on the header and source files
 add_executable(${PROJ_NAME} ${HDRS} ${SRCS})
+add_definitions(${COMPILER_FLAGS})
 target_include_directories(${PROJ_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/engine)
 target_include_directories(${PROJ_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/game)
 

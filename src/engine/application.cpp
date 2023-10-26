@@ -1,8 +1,11 @@
+#include <iostream>
+
 #include "application.h"
 
-Application::Application() : view("[] Lost Horizon", 800, 600, this) {}
+Application::Application() : view(*this), game(*this, resman){}
 
 void Application::Init() {
+    view.Init("view test", 420, 420);
     game.Init();
     // Setup the main resources and scene in the game
     game.SetupResources();
@@ -11,5 +14,35 @@ void Application::Init() {
 
 void Application::Start() {
     // Run game
-    game.MainLoop();
+    running = true;
+	float last_time = glfwGetTime();
+	float current_time = 0;
+	float dt = 0;
+	float acc_delta_time = 0;
+	unsigned int frame_counter = 0;
+    int frame_window = 60;
+	while(running){
+		//Get frame rate
+		frame_counter++;
+		current_time = glfwGetTime();
+		dt = current_time - last_time;
+		acc_delta_time += dt;
+		if(frame_counter % frame_window == 0){
+            std::cout << std::to_string(frame_window/acc_delta_time) << std::endl;
+			acc_delta_time = 0;
+		}
+		last_time = current_time;
+
+        view.Render(game.Scene());
+        game.Update(dt, view.GetKeys(), view.GetMouse());
+    }
+
+}
+
+void Application::Quit() {
+    running = false;
+}
+
+void Application::Pause() {
+    view.ToggleMouseCapture();
 }

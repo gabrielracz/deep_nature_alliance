@@ -3,11 +3,28 @@
 
 #include <string>
 #include <memory>
-#include "scene_graph.h"
+#include <unordered_map>
+#include <functional>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "resource_manager.h"
+#include "scene_graph.h"
+#include "defines.h"
+
 class Application;
+
+namespace config {
+    const float camera_near_clip_distance = 0.01;
+    const float camera_far_clip_distance = 1000.0;
+    const float camera_fov = 60.0; // Field-of-view of camera (degrees)
+    const glm::vec3 viewport_background_color(0.0, 0.0, 0.0);
+    const glm::vec3 camera_position(0.0, 0.0, 10.0);
+    const glm::vec3 camera_look_at(0.0, 0.0, 0.0);
+    const glm::vec3 camera_up(0.0, 1.0, 0.0);
+};
+
 class View {
 
 typedef struct {
@@ -17,33 +34,42 @@ typedef struct {
     int height;
 } Window;
 
-typedef struct MouseType{
-    bool first_captured = true;
-    bool captured = true;
-    double xprev, yprev;
-} Mouse;
-
 private:
+
     Application& app;
+    // ResourceManager& resman;
+
     Window win;
     Camera camera;
     Mouse mouse;
+    KeyMap key_controls;
 
-    void InitWindow();
+    void InitWindow(const std::string& title, int width, int height);
     void InitView();
     void InitEventHandlers();
     void InitControls();
 
-    void Render(SceneGraph& scene);
 
     static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void ResizeCallback(GLFWwindow* window, int width, int height);
     static void MouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
 
+    std::function<void(Mouse& mouse)> mouse_handler;
+
 public:
-	View(const std::string& title, unsigned int width, unsigned int height, Application* app);	
-    void Init();
+	View(Application& app);	
+    ~View();
+    void Init(const std::string& title, int width, int height);
     void Update(double dt);
+    void Render(SceneGraph& scene);
+
+    void ToggleMouseCapture();
+    void SetMouseHandler(MouseHandler h) {mouse_handler = h;}
+
+    KeyMap& GetKeys() {return key_controls;}
+    Mouse& GetMouse() {return mouse;}
+    Camera& GetCamera() {return camera;}
+
 };
 
 #endif

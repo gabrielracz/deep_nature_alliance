@@ -16,84 +16,13 @@ Camera::~Camera(){
 }
 
 
-void Camera::Update(float dt) {
+void Camera::Update() {
     transform.Pitch(angular_velocity.x);
     transform.Yaw(angular_velocity.y);
     transform.Roll(angular_velocity.z);
     transform.Translate(velocity);
+    SetupViewMatrix();
 }
-
-glm::vec3 Camera::GetPosition(void) const {
-
-    return transform.position;
-}
-
-
-glm::quat Camera::GetOrientation(void) const {
-
-    return transform.orientation;
-}
-
-
-void Camera::SetPosition(glm::vec3 position){
-    transform.position = position;
-}
-
-
-void Camera::SetOrientation(glm::quat orientation){
-    transform.orientation = orientation;
-}
-
-
-void Camera::Translate(glm::vec3 trans){
-    transform.position += transform.orientation * trans;
-}
-
-
-void Camera::Rotate(glm::quat rot){
-    // apply this rotation to the camera's current orientation
-    transform.Rotate(rot);
-}
-
-
-glm::vec3 Camera::GetForward(void) const {
-
-    return -transform.LocalAxis(Axis::FORWARD); // Return -forward since the camera coordinate system points in the opposite direction
-}
-
-
-glm::vec3 Camera::GetSide(void) const {
-    // how do you get the side vector?
-    return transform.LocalAxis(Axis::SIDE);
-}
-
-
-glm::vec3 Camera::GetUp(void) const {
-    // how do you get the up vector?
-    return transform.LocalAxis(Axis::UP);
-}
-
-
-// void Camera::Pitch(float angle){
-//     // put the proper functionality in here
-//     glm::quat rotation = glm::angleAxis(angle, transform.LocalAxis(SIDE)); // not the correct axis
-//     transform.Rotate(rotation);
-// }
-
-
-// void Camera::Yaw(float angle){
-
-//     glm::quat rotation = glm::angleAxis(angle, transform.LocalAxis(UP)); // not the correct axis
-//     transform.Rotate(rotation);
-// }
-
-
-// void Camera::Roll(float angle){
-
-//     glm::quat rotation = glm::angleAxis(angle, transform.LocalAxis(FORWARD)); // what axis is used for rolling?
-//     transform.Rotate(rotation);
-// }
-
 
 void Camera::SetView(glm::vec3 position, glm::vec3 look_at, glm::vec3 up){
 
@@ -120,9 +49,6 @@ void Camera::SetProjection(GLfloat fov, GLfloat near, GLfloat far, GLfloat w, GL
 
 
 void Camera::SetupShader(GLuint program){
-
-    // Update view matrix
-    SetupViewMatrix();
 
     // Set view matrix in shader
     GLint view_mat = glGetUniformLocation(program, "view_mat");

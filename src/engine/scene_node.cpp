@@ -138,7 +138,7 @@ GLuint SceneNode::GetMaterial(void) const {
 }
 
 
-void SceneNode::Draw(Camera *camera, const glm::mat4& parent_matrix){
+void SceneNode::Draw(Camera& camera, const glm::mat4& parent_matrix){
     if(!active || !visible) {return;}
 
     // Select proper material (shader program)
@@ -149,23 +149,20 @@ void SceneNode::Draw(Camera *camera, const glm::mat4& parent_matrix){
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_array_buffer_);
 
     // Set globals for camera
-    camera->SetupShader(material_);
+    camera.SetupShader(material_);
 
     // Set world matrix and other shader input variables
     SetupShader(material_, parent_matrix);
 
     // Draw geometry
-    if (mode_ == GL_POINTS){
-        glDrawArrays(mode_, 0, size_);
-    } else {
+    // if (mode_ == GL_POINTS){
+    //     glDrawArrays(mode_, 0, size_);
+    // } else {
+    //     glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
+    // }
         glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
-    }
 
-    glm::mat4 rotation = glm::mat4_cast(transform.orientation);
-    glm::mat4 translation = glm::translate(glm::mat4(1.0), transform.position);
-    glm::mat4 joint_translate = glm::translate(glm::mat4(1.0), -transform.joint);
-    glm::mat4 orbit = glm::inverse(joint_translate) * glm::mat4_cast(transform.orbit) * joint_translate;
-    glm::mat4 t = parent_matrix * translation * orbit * rotation; //temporary hack to avoid sending scale to children, better way coming soon
+    glm::mat4 t = parent_matrix * transform.Matrix(); //temporary hack to avoid sending scale to children, better way coming soon
     for(auto child : children) {
         child->Draw(camera, t);
     }
@@ -175,6 +172,9 @@ void SceneNode::Draw(Camera *camera, const glm::mat4& parent_matrix){
 void SceneNode::Update(double dt){
     elapsed += dt;
     if(!active) {return;}
+
+    transformation_matrix = transform.Matrix();
+
     for(auto child : children) {
         child->Update(dt);
     }
@@ -201,15 +201,8 @@ void SceneNode::SetupShader(GLuint program, const glm::mat4& parent_matrix){
     glVertexAttribPointer(tex_att, 2, GL_FLOAT, GL_FALSE, 11*sizeof(GLfloat), (void *) (9*sizeof(GLfloat)));
     glEnableVertexAttribArray(tex_att);
 
-    // World transformation
-    glm::mat4 scaling = glm::scale(glm::mat4(1.0), transform.scale);
-    glm::mat4 rotation = glm::mat4_cast(transform.orientation);
-    glm::mat4 translation = glm::translate(glm::mat4(1.0), transform.position);
 
-    glm::mat4 joint_translate = glm::translate(glm::mat4(1.0), -transform.joint);
-    glm::mat4 orbit = glm::inverse(joint_translate) * glm::mat4_cast(transform.orbit) * joint_translate;
-
-    glm::mat4 transf = parent_matrix * translation * orbit * rotation * scaling;
+    glm::mat4 transf = parent_matrix * transform.ScaledMatrix();
 
     GLint world_mat = glGetUniformLocation(program, "world_mat");
     glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));

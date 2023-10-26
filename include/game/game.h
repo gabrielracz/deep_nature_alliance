@@ -16,9 +16,9 @@
 #include "beacon.h"
 #include "enemy.h"
 #include "random.h"
+#include "defines.h"
 
-#define PI glm::pi<float>()
-#define PI_2 glm::pi<float>()/2.0f
+class Application;
 
 // Exception type for the game
 class GameException: public std::exception
@@ -30,12 +30,6 @@ class GameException: public std::exception
         virtual const char* what() const throw() { return message_.c_str(); };
         virtual ~GameException() throw() {};
 };
-
-typedef struct MouseType{
-    bool first_captured = true;
-    bool captured = true;
-    double xprev, yprev;
-} Mouse;
 
 typedef struct {
     GLFWwindow* ptr;
@@ -52,13 +46,14 @@ enum GameState {
 
 // Game application
 class Game {
+    int rng_seed = 1804289383;
     public:
 
         RandGenerator rng {rng_seed};
         float wind_speed = 1.5f;
 
         // Constructor and destructor
-        Game(void);
+        Game(Application& app, ResourceManager& resman) : app(app), resman(resman) {};
         ~Game();
         // Call Init() before calling any other method
         void Init(void); 
@@ -69,25 +64,20 @@ class Game {
         // Run the game: keep the application active
         void MainLoop(void); 
 
+        void Update(double dt, KeyMap& keys, Mouse& mouse);
+
+        SceneGraph& Scene() {return scene;}
+
     private:
-        // GLFW window
-        Window win;
 
-        // Scene graph containing all nodes to render
-        SceneGraph scene_;
+        Application& app;
+        ResourceManager& resman;
 
-        // Resources available to the game
-        ResourceManager resman_;
-
-        // Camera abstraction
-        Camera camera_;
-
-        Mouse mouse;
+        SceneGraph scene;
 
         Player* player;
 
         // int rng_seed = rand();
-        int rng_seed = 1804289383;
 
 
         std::vector<SceneNode*> beacons;
@@ -100,17 +90,8 @@ class Game {
 
         bool game_state = RUNNING;
 
-        // Flag to turn animation on/off
-        bool animating_;
-
-        std::unordered_map<int, bool> key_controls;
-
-        // Methods to initialize the game
-        void InitWindow(void);
-        void InitView(void);
-        void InitEventHandlers(void);
-        void InitControls();
-        void CheckControls();
+        void CheckControls(KeyMap& keys);
+        void MouseControls(Mouse& mouse);
         void CheckCollisions();
 
         // Methods to handle events

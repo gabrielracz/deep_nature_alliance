@@ -12,32 +12,10 @@
 class Camera {
 
     public:
-        Camera(void);
+        Camera();
         ~Camera();
 
-        void Update(float dt);
-
-        // Get global camera attributes
-        glm::vec3 GetPosition(void) const;
-        glm::quat GetOrientation(void) const;
-
-        // Set global camera attributes
-        void SetPosition(glm::vec3 position);
-        void SetOrientation(glm::quat orientation);
-        
-        // Perform global transformations of camera
-        void Translate(glm::vec3 trans);
-        void Rotate(glm::quat rot);
-
-        // Get relative attributes of camera
-        glm::vec3 GetForward(void) const;
-        glm::vec3 GetSide(void) const;
-        glm::vec3 GetUp(void) const;
-
-        // Perform relative transformations of camera
-        // void Pitch(float angle);
-        // void Yaw(float angle);
-        // void Roll(float angle);
+        void Update();
 
         // Set the view from camera parameters: initial position of camera,
         // point looking at, and up vector

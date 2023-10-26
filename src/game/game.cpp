@@ -1,4 +1,5 @@
 #include "scene_graph.h"
+#include "application.h"
 #include <glm/gtx/string_cast.hpp>
 #define GLM_FORCE_RADIANS
 #include <glm/ext/quaternion_trigonometric.hpp>
@@ -19,9 +20,6 @@
 
 // Some configuration constants
 // They are written here as global variables, but ideally they should be loaded from a configuration file
-
-#define PI glm::pi<float>()
-#define PI_2 glm::pi<float>()/2.0f
 
 // Main window settings
 const std::string window_title_g = "[] Asteroid Field";
@@ -68,177 +66,71 @@ glm::vec3 beacon_positions_g[] = {
 
 int num_beacons_g = sizeof(beacon_positions_g) / sizeof(beacon_positions_g[0]);
 
-Game::Game(void){
-    // Don't do work in the constructor, leave it for the Init() function
-}
+// Game::Game(void){
+//     // Don't do work in the constructor, leave it for the Init() function
+// }
 
 
 void Game::Init(void){
     
     std::cout << "RNG seed: " << rng_seed << std::endl;
+    app.SetMouseHandler(std::bind(&Game::MouseControls, this, std::placeholders::_1));
     // Run all initialization steps
-    InitWindow();
-    InitView();
-    InitEventHandlers();
-    InitControls();
+    // InitWindow();
+    // InitView();
+    // InitEventHandlers();
+    // InitControls();
 
     // Set variables
-    animating_ = true;
+    // animating_ = true;
 }
 
        
-void Game::InitWindow(void){
-
-    // Initialize the window management library (GLFW)
-    if (!glfwInit()){
-        throw(GameException(std::string("Could not initialize the GLFW library")));
-    }
-
-    // Create a window and its OpenGL context
-    win.width = window_width_g;
-    win.height = window_height_g;
-    win.title = window_title_g;
-
-
-    if (window_full_screen_g){
-        win.ptr = glfwCreateWindow(win.width, win.height, win.title.c_str(), glfwGetPrimaryMonitor(), NULL);
-    } else {
-        win.ptr = glfwCreateWindow(win.width, win.height, win.title.c_str(), NULL, NULL);
-    }
-    if (!win.ptr){
-        glfwTerminate();
-        throw(GameException(std::string("Could not create window")));
-    }
-
-    // Make the window's context the current 
-    glfwMakeContextCurrent(win.ptr);
-
-    // Initialize the GLEW library to access OpenGL extensions
-    // Need to do it after initializing an OpenGL context
-    glewExperimental = GL_TRUE;
-    GLenum err = glewInit();
-    if (err != GLEW_OK){
-        throw(GameException(std::string("Could not initialize the GLEW library: ")+std::string((const char *) glewGetErrorString(err))));
-    }
-}
-
-
-void Game::InitView(void){
-
-    // Set up z-buffer
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-
-    glViewport(0, 0, win.width, win.height);
-
-    // Set up camera
-    // Set current view
-    camera_.SetView(camera_position_g, camera_look_at_g, camera_up_g);
-    // Set projection
-    camera_.SetProjection(camera_fov_g, camera_near_clip_distance_g, camera_far_clip_distance_g, win.width, win.height);
-}
-
-
-void Game::InitEventHandlers(void){
-
-    // Set event callbacks
-    glfwSetKeyCallback(win.ptr, KeyCallback);
-    glfwSetFramebufferSizeCallback(win.ptr, ResizeCallback);
-    glfwSetCursorPosCallback(win.ptr, MouseCallback);
-
-    // Set pointer to game object, so that callbacks can access it
-    glfwSetWindowUserPointer(win.ptr, (void *) this);
-}
-
-
 void Game::SetupResources(void){
 
     // Create a simple object to represent the asteroids
-    resman_.CreateSphere("SimpleObject", 0.8, 5, 5);
-    resman_.CreateTorus("Beacon", beacon_radius_g, beacon_radius_g - beacon_hitbox_g, 20, 20);
-    resman_.CreateTorus("Player", player_hitbox_g, 0.1, 15, 15);
-    resman_.CreateSphere("Enemy", enemy_hitbox_g, 5, 5);
-    resman_.CreateCylinder("Powerup", powerup_hitbox_g, powerup_hitbox_g, 10);
-    resman_.CreateCone("Branch", 1.0, 1.0, 2, 10);
-    resman_.CreateSphere("Leaf", 1.0, 4, 10);
-    // resman_.CreateCylinder("Branch", 1.0, 1.0, 2, 10);
-    // resman_.CreateSphere("Branch", 1, 10, 10);
+    resman.CreateSphere("SimpleObject", 0.8, 5, 5);
+    resman.CreateTorus("Beacon", beacon_radius_g, beacon_radius_g - beacon_hitbox_g, 20, 20);
+    resman.CreateTorus("Player", player_hitbox_g, 0.1, 15, 15);
+    resman.CreateSphere("Enemy", enemy_hitbox_g, 5, 5);
+    resman.CreateCylinder("Powerup", powerup_hitbox_g, powerup_hitbox_g, 10);
+    resman.CreateCone("Branch", 1.0, 1.0, 2, 10);
+    resman.CreateSphere("Leaf", 1.0, 4, 10);
+    // resman.CreateCylinder("Branch", 1.0, 1.0, 2, 10);
+    // resman.CreateSphere("Branch", 1, 10, 10);
 
 
 
     // Load material to be applied to asteroids
     std::string filename = std::string(SHADER_DIRECTORY) + std::string("/material");
-    resman_.LoadResource(Material, "ObjectMaterial", filename.c_str());
+    resman.LoadResource(Material, "ObjectMaterial", filename.c_str());
 }
 
 
 void Game::SetupScene(void){
 
     // Set background color for the scene
-    scene_ = SceneGraph();
-    scene_.SetBackgroundColor(viewport_background_color_g);
+    scene = SceneGraph();
+    scene.SetBackgroundColor(viewport_background_color_g);
 
     // Create asteroid field
     CreatePlayer();
     CreateTree();
     CreateAsteroidField(500);
+
     // CreateRaceTrack();
     // CreateEnemies();
     // CreatePowerups();
 }
 
-void Game::InitControls() {
-	mouse.xprev = (float) win.width / 2;
-	mouse.yprev = (float) win.height / 2;
-    mouse.captured = true;
-    mouse.first_captured = true;
-	glfwSetInputMode(win.ptr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+void Game::Update(double dt, KeyMap &keys, Mouse &mouse) {
+    CheckControls(keys);
 
-    key_controls.insert({GLFW_KEY_ESCAPE, false});
-    key_controls.insert({GLFW_KEY_W, false});
-    key_controls.insert({GLFW_KEY_A, false});
-    key_controls.insert({GLFW_KEY_S, false});
-    key_controls.insert({GLFW_KEY_D, false});
-    key_controls.insert({GLFW_KEY_Q, false});
-    key_controls.insert({GLFW_KEY_E, false});
-    key_controls.insert({GLFW_KEY_UP, false});
-    key_controls.insert({GLFW_KEY_DOWN, false});
-    key_controls.insert({GLFW_KEY_LEFT, false});
-    key_controls.insert({GLFW_KEY_RIGHT, false});
-    key_controls.insert({GLFW_KEY_P, false});
-    key_controls.insert({GLFW_KEY_T,false});
-}
+    scene.Update(dt);
 
+    // CheckCollisions();
 
-void Game::MainLoop(void){
-
-    // Loop while the user did not close the window
-    while (!glfwWindowShouldClose(win.ptr) && game_state == RUNNING){
-        // Animate the scene
-        CheckControls();
-
-        if (animating_){
-            static double last_time = 0;
-            double current_time = glfwGetTime();
-            double dt = current_time - last_time;
-            if (dt > 0.05){
-                scene_.Update(dt);
-                last_time = current_time;
-            }
-        }
-        // CheckCollisions();
-
-        camera_.Update(0.0f);
-        // Draw the scene
-        scene_.Draw(&camera_);
-
-
-        // Push buffer drawn in the background onto the display
-        glfwSwapBuffers(win.ptr);
-
-        // Update other events like input handling
-        glfwPollEvents();
-    }
+    // camera_.Update();
 }
 
 void Game::CheckCollisions() {
@@ -250,7 +142,7 @@ void Game::CheckCollisions() {
         active_beacon_index++;
         if(active_beacon_index == beacons.size()) {
             // game_state = WIN;
-            scene_.SetBackgroundColor(glm::vec3(0.0f, 1.0f, 0.0f));
+            scene.SetBackgroundColor(glm::vec3(0.0f, 1.0f, 0.0f));
             std::cout << "WINNER!" << std::endl;
         }
         beacons[active_beacon_index]->inverted = 1;
@@ -264,7 +156,7 @@ void Game::CheckCollisions() {
             player->move_speed -= speed_upgrade_g;
             e->active = false;
             if(player->lives < 1) {
-                scene_.SetBackgroundColor(glm::vec3(1.0f, 0.0f, 0.0f));
+                scene.SetBackgroundColor(glm::vec3(1.0f, 0.0f, 0.0f));
                 std::cout << "LOSER!" << std::endl;
             }
         }
@@ -282,54 +174,51 @@ void Game::CheckCollisions() {
 
 }
 
-void Game::CheckControls() {
+void Game::CheckControls(KeyMap& keys) {
     // Get user data with a pointer to the game class
     // Quit game if 'q' is pressed
-    if (key_controls[GLFW_KEY_ESCAPE]){
-        glfwSetWindowShouldClose(win.ptr, true);
-        key_controls[GLFW_KEY_ESCAPE] = false;
+    if (keys[GLFW_KEY_ESCAPE]){
+        app.Quit();
+        return;
     }
 
     // Stop animation if space bar is pressed
-    if (key_controls[GLFW_KEY_SPACE]){
-        animating_ = !animating_;
-        mouse.captured = animating_;
-        mouse.first_captured = true;
-        glfwSetInputMode(win.ptr, GLFW_CURSOR, animating_ ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-        key_controls[GLFW_KEY_SPACE] = false;
+    if (keys[GLFW_KEY_SPACE]){
+        app.Pause();
+        keys[GLFW_KEY_SPACE] = false;
     }
 
     // Debug print the player's location
-    if(key_controls[GLFW_KEY_P]) {
+    if(keys[GLFW_KEY_P]) {
         glm::vec3& p = player->transform.position;
         glm::quat& o = player->transform.orientation;
         std::cout << "Player Trace:\t{" << p.x << "\t, " << p.y << "\t, " << p.z << "}" 
         << "\t{" << o.w << "\t, " << o.x << "\t, " << o.y << "\t, " << o.z << "}" << std::endl;
-        key_controls[GLFW_KEY_P] = false;
+        keys[GLFW_KEY_P] = false;
     }
 
-    if(key_controls[GLFW_KEY_T]) {
+    if(keys[GLFW_KEY_T]) {
         SetupScene();
-        key_controls[GLFW_KEY_T] = false;
+        keys[GLFW_KEY_T] = false;
     }
 
     // View control
     float look_sens = 0.035; // amount the ship turns per keypress
 
-    auto toggle = [this](float& target, float val, int ctrl1, int ctrl2) {
-        if(key_controls[ctrl1]) {
+    auto toggle = [&keys](float& target, float val, int ctrl1, int ctrl2) {
+        if(keys[ctrl1]) {
             target = val;
-        } else if(key_controls[ctrl2]) {
+        } else if(keys[ctrl2]) {
             target = -val;
         } else {
             target = 0.0f;
         }
     };
 
-    auto toggle_func = [this](float& target, std::function<void(int)> f, int ctrl1, int ctrl2) {
-        if(key_controls[ctrl1]) {
+    auto toggle_func = [&keys](float& target, std::function<void(int)> f, int ctrl1, int ctrl2) {
+        if(keys[ctrl1]) {
             f(1);
-        } else if(key_controls[ctrl2]) {
+        } else if(keys[ctrl2]) {
             f(-1);
         }
     };
@@ -343,80 +232,19 @@ void Game::CheckControls() {
     toggle(player->velocity.x, player->move_speed, GLFW_KEY_D, GLFW_KEY_A);
     toggle(player->velocity.y, player->move_speed, GLFW_KEY_Z, GLFW_KEY_X);
     toggle(player->velocity.z, player->move_speed, GLFW_KEY_S, GLFW_KEY_W);
-    // if(key_controls[GLFW_KEY_W]) {
+    // if(keys[GLFW_KEY_W]) {
     //     player->Thrust(1);
-    // } else if(key_controls[GLFW_KEY_S]) {
+    // } else if(keys[GLFW_KEY_S]) {
     //     player->Thrust(-1);
     // }
-       
 }
 
+void Game::MouseControls(Mouse& mouse) {
+    float mouse_sens = -0.001f;
+	glm::vec2 look = mouse.move * mouse_sens;
 
-void Game::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods){
-
-    // Get user data with a pointer to the game class
-    void* ptr = glfwGetWindowUserPointer(window);
-    Game *game = (Game *) ptr;
-
-	if(action == GLFW_PRESS) {
-		game->key_controls[key] = true;
-	}else if(action == GLFW_RELEASE) {
-		game->key_controls[key] = false;
-	}
-}
-
-
-void Game::ResizeCallback(GLFWwindow* window, int width, int height){
-
-    // Set up viewport and camera projection based on new window size
-    glViewport(0, 0, width, height);
-    void* ptr = glfwGetWindowUserPointer(window);
-    Game *game = (Game *) ptr;
-    game->win.width = width;
-    game->win.height = height;
-    game->camera_.SetProjection(camera_fov_g, camera_near_clip_distance_g, camera_far_clip_distance_g, width, height);
-    game->mouse.first_captured = true;
-}
-
-void Game::MouseCallback(GLFWwindow* window, double xpos, double ypos) {
-    void* ptr = glfwGetWindowUserPointer(window);
-    Game *game = (Game *) ptr;
-
-    if(!game->mouse.captured) {
-        return;
-    }
-
-	Mouse& mouse = game->mouse;
-	if (mouse.first_captured) {
-		mouse.xprev = xpos;
-		mouse.yprev = ypos;
-		mouse.first_captured = false;
-	}
-	double xoffset = xpos - mouse.xprev;
-	double yoffset = ypos - mouse.yprev;
-
-	mouse.xprev = xpos;
-	mouse.yprev = ypos;
-
-	const float look_sens = -0.001f;
-	xoffset *= look_sens;
-	yoffset *= look_sens;
-
-    if(yoffset > 0.0f) {
-        game->player->transform.Pitch(yoffset);
-    }
-    else if(yoffset <= 0.0f) {
-        game->player->transform.Pitch(yoffset);
-    }
-    if(xoffset > 0.0f) {
-        game->player->transform.Yaw(xoffset);
-    }
-    else if(xoffset <= 0.0f) {
-        game->player->transform.Yaw(xoffset);
-    }
-
-    // v->camera.StepYaw(xoffset);
-	// v->camera.StepPitch(-yoffset);
+    player->transform.Pitch(look.y);
+    player->transform.Yaw(look.x);
 }
 
 
@@ -429,36 +257,37 @@ Game::~Game(){
 Asteroid *Game::CreateAsteroidInstance(std::string entity_name, std::string object_name, std::string material_name){
 
     // Get resources
-    Resource *geom = resman_.GetResource(object_name);
+    Resource *geom = resman.GetResource(object_name);
     if (!geom){
         throw(GameException(std::string("Could not find resource \"")+object_name+std::string("\"")));
     }
 
-    Resource *mat = resman_.GetResource(material_name);
+    Resource *mat = resman.GetResource(material_name);
     if (!mat){
         throw(GameException(std::string("Could not find resource \"")+material_name+std::string("\"")));
     }
 
     // Create asteroid instance
     Asteroid *ast = new Asteroid(entity_name, geom, mat);
-    scene_.AddNode(ast);
+    scene.AddNode(ast);
     return ast;
 }
 
 
 void Game::CreatePlayer() {
-    Resource* geom = resman_.GetResource("Player");
-    Resource* mat = resman_.GetResource("ObjectMaterial");
+    Resource* geom = resman.GetResource("Player");
+    Resource* mat = resman.GetResource("ObjectMaterial");
     player = new Player("PlayerObj", geom, mat);
     player->transform.position = player_position_g;
     player->visible = false;
-    camera_.Attach(&player->transform); // Attach the camera to the player
-    scene_.AddNode(player);
+    app.GetCamera().Attach(&player->transform); // Attach the camera to the player
+    scene.AddNode(player);
 }
 
+int tcount = 0;
 void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width) {
-    Resource* geom = resman_.GetResource("Leaf");
-    Resource* mat = resman_.GetResource("ObjectMaterial");
+    Resource* geom = resman.GetResource("Leaf");
+    Resource* mat = resman.GetResource("ObjectMaterial");
     for(int j = 0; j < leaves; j++) {
         // position
         float woff = rng.randfloat(0.0f, 2*PI);
@@ -467,6 +296,8 @@ void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float pa
         Tree* leaf = new Tree("Leaf", geom, mat, woff, wspd, wstr, this);
 
         float p = rng.randfloat(0.0f, parent_length/1.25f);
+        float x = rng.randfloat(0.0f, 1.0f);
+        float z = rng.randfloat(0.0f, 1.0f);
         float l = rng.randfloat(0.5,1.0);
         float w = rng.randfloat(0.05f, 0.1);
 
@@ -475,22 +306,25 @@ void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float pa
 
         leaf->transform.scale = {w, l, w};
         leaf->transform.position = {0.0f, p, 0.0f};
+        // leaf->transform.position = {x, p, z};
         
         leaf->transform.orbit = glm::angleAxis(rng.randfloat(0, 2*PI), glm::vec3(0, 1, 0)); // yaw
         leaf->transform.orbit *= glm::angleAxis(rng.randsign() * r, glm::vec3(0, 0, 1)); // roll
         leaf->transform.joint = glm::vec3(0, -l/2, 0); // base of the leaf
  
         root->children.push_back(leaf);
+        tcount++;
     }
 }
 
 void Game::GrowTree(SceneNode* root, int branches, float parent_height, float parent_width, int level, int max_iterations) {
     if(level >= max_iterations) {
-        GrowLeaves(root, branches*branches*branches*branches, parent_height, parent_width);
+        GrowLeaves(root, branches*branches, parent_height, parent_width);
         return;
     }
-    Resource* geom = resman_.GetResource("Branch");
-    Resource* mat = resman_.GetResource("ObjectMaterial");
+ 
+    Resource* geom = resman.GetResource("Branch");
+    Resource* mat = resman.GetResource("ObjectMaterial");
     level++;
     for(int j = 0; j < branches; j++) {
         // position
@@ -516,15 +350,16 @@ void Game::GrowTree(SceneNode* root, int branches, float parent_height, float pa
         branch->transform.joint = glm::vec3(0, -l/2, 0); // base of the cone
  
         root->children.push_back(branch);
+        tcount++;
         GrowTree(branch, branches, l, w, level, max_iterations);
     }
 }
 
 void Game::CreateTree() {
-    Resource* bgeom = resman_.GetResource("Branch");
-    Resource* bmat = resman_.GetResource("ObjectMaterial");
-    Resource* lgeom = resman_.GetResource("Leaf");
-    Resource* lmat = resman_.GetResource("ObjectMaterial");
+    Resource* bgeom = resman.GetResource("Branch");
+    Resource* bmat = resman.GetResource("ObjectMaterial");
+    Resource* lgeom = resman.GetResource("Leaf");
+    Resource* lmat = resman.GetResource("ObjectMaterial");
     Tree* tree = new Tree("Tree", bgeom, bmat, 0, 0, 0, this);
 
 
@@ -535,10 +370,11 @@ void Game::CreateTree() {
     SceneNode* root = tree;
 
     GrowTree(tree, branches, height, width, 0, iterations);
+    std::cout << tcount << std::endl;
     // Tree* tree = new Tree("Tree", bgeom, bmat, lgeom, lmat, branches, height, width, 0, iterations, this);
     tree->transform.position = player_position_g - glm::vec3(0, 0, 20);
     tree->transform.scale = {width, height, width};
-    scene_.AddNode(tree);
+    scene.AddNode(tree);
 }
 
 void Game::CreateRaceTrack() {
@@ -562,8 +398,8 @@ void Game::CreateRaceTrack() {
 
 
 
-    Resource* geom = resman_.GetResource("Beacon");
-    Resource* mat = resman_.GetResource("ObjectMaterial");
+    Resource* geom = resman.GetResource("Beacon");
+    Resource* mat = resman.GetResource("ObjectMaterial");
     for(int i = 0; i < num_beacons_g; i++) {
         glm::vec3& pos = beacon_positions_g[i];
         glm::quat& ori = beacon_orientations[i];
@@ -571,7 +407,7 @@ void Game::CreateRaceTrack() {
         b->transform.position = pos;
         b->transform.orientation = ori;
         // b->SetAngM(glm::normalize(glm::angleAxis(0.05f*glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
-        scene_.AddNode(b);
+        scene.AddNode(b);
         beacons.push_back(b);
     }
 
@@ -588,22 +424,22 @@ void Game::CreateEnemies() {
         {73.5702        , 85.7602       , 379.409},
     };
 
-    Resource* geom = resman_.GetResource("Enemy");
-    Resource* mat = resman_.GetResource("ObjectMaterial");
+    Resource* geom = resman.GetResource("Enemy");
+    Resource* mat = resman.GetResource("ObjectMaterial");
     int cnt = 0;
     for(auto p : enemy_positions) {
         Enemy* e = new Enemy("Enemy" + std::to_string(cnt++), geom, mat);
         e->transform.position = p;
         e->target = &player->transform;
-        scene_.AddNode(e);
+        scene.AddNode(e);
         enemies.push_back(e);
     }
 
 }
 
 void Game::CreatePowerups() {
-    Resource* geom = resman_.GetResource("Powerup");
-    Resource* mat = resman_.GetResource("ObjectMaterial");
+    Resource* geom = resman.GetResource("Powerup");
+    Resource* mat = resman.GetResource("ObjectMaterial");
     std::vector<glm::vec3> powerup_positions(beacon_positions_g, std::end(beacon_positions_g));
     powerup_positions.push_back({-39.1208       , 77.1831       , 524.026});
     powerup_positions.push_back({6.96003        , 85.8356       , 427.861});
@@ -612,7 +448,7 @@ void Game::CreatePowerups() {
     for(auto bp : powerup_positions) {
         SceneNode* p = new SceneNode("Powerup", geom, mat);
         p->transform.position = bp;
-        scene_.AddNode(p);
+        scene.AddNode(p);
         powerups.push_back(p);
         p->inverted = true;
     }

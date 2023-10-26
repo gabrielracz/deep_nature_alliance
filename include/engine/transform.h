@@ -6,6 +6,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 typedef enum {
     SIDE = 0,
@@ -27,9 +28,14 @@ struct Transform {
     glm::vec3& forward = axes[Axis::FORWARD];
     glm::vec3& up      = axes[Axis::UP];
 
+private:
+    glm::mat4 cached_matrix;
+    bool changed = false;
+
+public:
     Transform() = default;
     Transform(const glm::vec3& p, const glm::quat o, const glm::vec3& s)
-        : position(s), orientation(o), scale(s) {}
+        : position(s), orientation(o), scale(s) {Matrix();}
 
     glm::vec3 LocalAxis(Axis a) const {
         return orientation * axes[a];
@@ -60,12 +66,29 @@ struct Transform {
     }
 
     glm::mat4 Matrix() {
-        glm::mat4 t;
-        glm::scale(t, scale);
-        t *= glm::mat4_cast(orientation);
-        glm::translate(t, position);
-        return t;
+
+        glm::mat4 rotation = glm::mat4_cast(orientation);
+        glm::mat4 translation = glm::translate(glm::mat4(1.0), position);
+        glm::mat4 joint_translate = glm::translate(glm::mat4(1.0), -joint);
+        glm::mat4 orb= glm::inverse(joint_translate) * glm::mat4_cast(orbit) * joint_translate;
+
+        glm::mat4 transf = translation * orb* rotation;
+
+        return transf;
     }
+
+    glm::mat4 ScaledMatrix() {
+        glm::mat4 scaling = glm::scale(glm::mat4(1.0), scale);
+        glm::mat4 rotation = glm::mat4_cast(orientation);
+        glm::mat4 translation = glm::translate(glm::mat4(1.0), position);
+        glm::mat4 joint_translate = glm::translate(glm::mat4(1.0), -joint);
+        glm::mat4 orb= glm::inverse(joint_translate) * glm::mat4_cast(orbit) * joint_translate;
+
+        glm::mat4 transf = translation * orb * rotation * scaling;
+
+        return transf;
+    }
+
 };
 
 #endif

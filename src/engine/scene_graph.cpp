@@ -76,7 +76,7 @@ std::vector<SceneNode *>::const_iterator SceneGraph::end() const {
 }
 
 
-void SceneGraph::Draw(Camera *camera){
+void SceneGraph::Draw(Camera& camera){
 
     // Clear background
     glClearColor(background_color_[0], 
