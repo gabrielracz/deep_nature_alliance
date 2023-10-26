@@ -18,8 +18,9 @@ struct Vertex {
 
 class Texture {
     public:
-	unsigned int id;
-    Texture(unsigned int id) : id(id){}
+	int id = -1;
+    Texture() = default;
+    Texture(int id) : id(id){}
     void Bind();
 };
 

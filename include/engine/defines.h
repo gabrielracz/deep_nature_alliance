@@ -6,6 +6,7 @@
 
 #define PI glm::pi<float>()
 #define PI_2 glm::pi<float>()/2.0f
+#define PRINT_FIXED_FLOAT(x) std::fixed <<std::setprecision(2)<<(x)
 
 typedef std::unordered_map<int, bool> KeyMap;
 

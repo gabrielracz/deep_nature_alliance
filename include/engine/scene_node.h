@@ -39,9 +39,9 @@ class SceneNode {
         void SetScale(glm::vec3 scale);
         
         // Perform transformations on node
-        void Translate(glm::vec3 trans);
-        void Rotate(glm::quat rot);
-        void Scale(glm::vec3 scale);
+        // void Translate(glm::vec3 trans);
+        // void Rotate(glm::quat rot);
+        // void Scale(glm::vec3 scale);
 
         // Draw the node according to scene parameters in 'camera'
         // variable
@@ -49,13 +49,6 @@ class SceneNode {
 
         // Update the node
         virtual void Update(double dt);
-
-        // OpenGL variables
-        GLenum GetMode(void) const;
-        GLuint GetArrayBuffer(void) const;
-        GLuint GetElementArrayBuffer(void) const;
-        GLsizei GetSize(void) const;
-        GLuint GetMaterial(void) const;
 
         Transform transform;
         int inverted = 0;
@@ -68,24 +61,9 @@ class SceneNode {
         glm::mat4 transf_matrix;
         std::string name_; // Name of the scene node
 
-        // std::string mesh_id    = "";
-        // std::string shader_id  = "";
-        // std::string texture_id = "";
-
         Mesh* mesh       {nullptr};
         Shader* shader   {nullptr};
         Texture* texture {nullptr};
-
-
-        GLuint array_buffer_; // References to geometry: vertex and array buffers
-        GLuint element_array_buffer_;
-        GLenum mode_; // Type of geometry
-        GLsizei size_; // Number of primitives in geometry
-        GLuint material_; // Reference to shader program
-
-        // glm::vec3 position_; // Position of node
-        // glm::quat orientation_; // Orientation of node
-        // glm::vec3 scale_; // Scale of node
 
         // Set matrices that transform the node in a shader program
         void SetUniforms(Shader* shader, const glm::mat4& parent_matrix);

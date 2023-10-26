@@ -1,6 +1,8 @@
 #include <iostream>
+#include <iomanip>
 
 #include "application.h"
+#include "defines.h"
 
 Application::Application() : view(*this), game(*this, resman){}
 
@@ -28,7 +30,7 @@ void Application::Start() {
 		dt = current_time - last_time;
 		acc_delta_time += dt;
 		if(frame_counter % frame_window == 0){
-            std::cout << std::to_string(frame_window/acc_delta_time) << std::endl;
+            std::cout << "fps: " << PRINT_FIXED_FLOAT(frame_window/acc_delta_time) << std::endl;
 			acc_delta_time = 0;
 		}
 		last_time = current_time;

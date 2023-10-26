@@ -18,6 +18,6 @@ void Asteroid::SetAngM(glm::quat angm){
 
 void Asteroid::Update(void){
 
-    Rotate(angm_);
+    transform.Rotate(angm_);
 }
             

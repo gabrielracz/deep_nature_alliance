@@ -13,22 +13,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #define APPEND_VEC2(vector, glm_vec2) vector.insert(vector.end(), {glm_vec2.x, glm_vec2.y})
+#define APPEND_VEC3(vector, glm_vec3) vector.insert(vector.end(), {glm_vec3.x, glm_vec3.y, glm_vec3.z})
 
-template <typename T>
-static inline void APPEND_VEC3(std::vector<T>& vector, const glm::vec3& glm_vec3) {
-    vector.insert(vector.end(), {(T)glm_vec3.x, (T)glm_vec3.y, (T)glm_vec3.z});
-}
-
-ResourceManager::ResourceManager(void){
-}
-
-
-ResourceManager::~ResourceManager(){
-}
-
-
-// const Layout generator_layout = Layout(
-//     {{FLOAT3, "vertex"},{FLOAT3, "normal"}, {FLOAT3, "color"}, {FLOAT2, "uv"}});
+// template <typename T>
+// static inline void APPEND_VEC3(std::vector<T>& vector, const glm::vec3& glm_vec3) {
+//     vector.insert(vector.end(), {(T)glm_vec3.x, (T)glm_vec3.y, (T)glm_vec3.z});
+// }
 
 const Layout generator_layout = Layout(
     {{FLOAT3, "vertex"},{FLOAT3, "normal"}, {FLOAT3, "color"}, {FLOAT2, "uv"}});
@@ -100,140 +90,9 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
 
-    // textures.emplace(name, Texture(tex_id));
+    textures.emplace(name, Texture(tex_id));
 }
 
-
-void ResourceManager::AddResource(ResourceType type, const std::string name, GLuint resource, GLsizei size){
-
-    Resource *res;
-
-    res = new Resource(type, name, resource, size);
-
-    resource_.push_back(res);
-}
-
-
-void ResourceManager::AddResource(ResourceType type, const std::string name, GLuint array_buffer, GLuint element_array_buffer, GLsizei size){
-
-    Resource *res;
-
-    res = new Resource(type, name, array_buffer, element_array_buffer, size);
-
-    resource_.push_back(res);
-}
-
-
-void ResourceManager::LoadResource(ResourceType type, const std::string name, const char *filename){
-
-    // Call appropriate method depending on type of resource
-    if (type == Material){
-        LoadMaterial(name, filename);
-    } else {
-        throw(std::invalid_argument(std::string("Invalid type of resource")));
-    }
-}
-
-
-Resource *ResourceManager::GetResource(const std::string name) const {
-
-    // Find resource with the specified name
-    for (int i = 0; i < resource_.size(); i++){
-        if (resource_[i]->GetName() == name){
-            return resource_[i];
-        }
-    }
-    return NULL;
-}
-
-
-void ResourceManager::LoadMaterial(const std::string name, const char *prefix){
-
-    // Load vertex program source code
-    std::string filename = std::string(prefix) + std::string(VERTEX_PROGRAM_EXTENSION);
-    std::string vp = LoadTextFile(filename.c_str());
-
-    // Load fragment program source code
-    filename = std::string(prefix) + std::string(FRAGMENT_PROGRAM_EXTENSION);
-    std::string fp = LoadTextFile(filename.c_str());
-
-    // Create a shader from the vertex program source code
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    const char *source_vp = vp.c_str();
-    glShaderSource(vs, 1, &source_vp, NULL);
-    glCompileShader(vs);
-
-    // Check if shader compiled successfully
-    GLint status;
-    glGetShaderiv(vs, GL_COMPILE_STATUS, &status);
-    if (status != GL_TRUE){
-        char buffer[512];
-        glGetShaderInfoLog(vs, 512, NULL, buffer);
-        throw(std::ios_base::failure(std::string("Error compiling vertex shader: ")+std::string(buffer)));
-    }
-
-    // Create a shader from the fragment program source code
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    const char *source_fp = fp.c_str();
-    glShaderSource(fs, 1, &source_fp, NULL);
-    glCompileShader(fs);
-
-    // Check if shader compiled successfully
-    glGetShaderiv(fs, GL_COMPILE_STATUS, &status);
-    if (status != GL_TRUE){
-        char buffer[512];
-        glGetShaderInfoLog(fs, 512, NULL, buffer);
-        throw(std::ios_base::failure(std::string("Error compiling fragment shader: ")+std::string(buffer)));
-    }
-
-    // Create a shader program linking both vertex and fragment shaders
-    // together
-    GLuint sp = glCreateProgram();
-    glAttachShader(sp, vs);
-    glAttachShader(sp, fs);
-    glLinkProgram(sp);
-
-    // Check if shaders were linked successfully
-    glGetProgramiv(sp, GL_LINK_STATUS, &status);
-    if (status != GL_TRUE){
-        char buffer[512];
-        glGetShaderInfoLog(sp, 512, NULL, buffer);
-        throw(std::ios_base::failure(std::string("Error linking shaders: ")+std::string(buffer)));
-    }
-
-    // Delete memory used by shaders, since they were already compiled
-    // and linked
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-
-
-
-    // Add a resource for the shader program
-    AddResource(Material, name, sp, 0);
-}
-
-
-std::string ResourceManager::LoadTextFile(const char *filename){
-
-    // Open file
-    std::ifstream f;
-    f.open(filename);
-    if (f.fail()){
-        throw(std::ios_base::failure(std::string("Error opening file ")+std::string(filename)));
-    }
-
-    // Read file
-    std::string content;
-    std::string line;
-    while(std::getline(f, line)){
-        content += line + "\n";
-    }
-
-    // Close file
-    f.close();
-
-    return content;
-}
 
 // Create the geometry for a cylinder
 void ResourceManager::CreateCylinder(std::string object_name, float height, float circle_radius, int num_height_samples, int num_circle_samples) {
@@ -374,25 +233,11 @@ void ResourceManager::CreateCylinder(std::string object_name, float height, floa
         }
     }
 
-    // Create OpenGL buffer for vertices
-    // glGenBuffers(1, &vbo);
-    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    // glBufferData(GL_ARRAY_BUFFER, vertex_num * vertex_att * sizeof(GLfloat), vertex, GL_STATIC_DRAW);
-
-    // // Create OpenGL buffer for faces
-    // glGenBuffers(1, &ebo);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_num * face_att * sizeof(GLuint), face, GL_STATIC_DRAW);
-
-    // Free data buffers
-
-
     // Create resource
     meshes.emplace(object_name, Mesh(vertex, vertex_num * vertex_att, face, face_num * face_att, generator_layout));
-    // AddResource(MeshH, object_name, vbo, ebo, face_num * face_att);
+
     delete[] vertex;
     delete[] face;
-
 }
 
 
@@ -464,13 +309,13 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
     // make sure to wrap around by one to close the ring
 	for (int i = 0; i < num_height_samples - 2; i++) {
 		for (int j = 0; j < num_circle_samples; j++) {
-            glm::vec3 t1 {
+            glm::uvec3 t1 {
                 num_circle_samples*i + j,
                 num_circle_samples*(i+1) + j, 
                 num_circle_samples*(i+1) + ((j+1) % (num_circle_samples)),
             };
 
-            glm::vec3 t2 {
+            glm::uvec3 t2 {
                 num_circle_samples*i + j,
                 num_circle_samples*(i+1) + ((j+1) % (num_circle_samples)),
                 num_circle_samples*i + ((j+1) % (num_circle_samples)),
@@ -490,7 +335,7 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
 
     // attach the last vertex ring to this center cap to create a solid bottom
     for(int j = 0; j < num_circle_samples; j++) {
-        glm::vec3 t(
+        glm::uvec3 t(
             cap_index,
             ((num_height_samples-2)*num_circle_samples + (j+1) % num_circle_samples),
             (num_height_samples-2)*num_circle_samples + j
@@ -512,7 +357,7 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
 
     // attach the first ring to this tip
     for(int i = 0; i < num_circle_samples; i++) {
-        glm::vec3 t {
+        glm::uvec3 t {
             (vertices.size() - 1) / vertex_att,
             i,
             (i+1) % num_circle_samples
@@ -520,24 +365,7 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
         APPEND_VEC3(faces, t);
     }
 
-	// Create model 
-    unsigned int vbo, ebo;
-
-	std::cout << "verts: " << vertices.size() / vertex_att << " indices: " << faces.size() << std::endl;
-
-	// Create OpenGL buffer for vertices
-	// glGenBuffers(1, &vbo);
-	// glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	// glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
-
-	// glGenBuffers(1, &ebo);
-	// glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	// glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size() * sizeof(GLuint), faces.data(), GL_STATIC_DRAW);
-
     meshes.emplace(object_name, Mesh(vertices, faces, generator_layout));
-    // Create resource
-    // AddResource(MeshH, object_name, vbo, ebo, faces.size() * face_att);
-
 }
 
 /*
@@ -786,26 +614,8 @@ void ResourceManager::CreateTorus(std::string object_name, float loop_radius, fl
         }
     }
 
-    // Create OpenGL buffers and copy data
-    //GLuint vao;
-    //glGenVertexArrays(1, &vao);
-    //glBindVertexArray(vao);
-
-    // GLuint vbo, ebo;
-    // glGenBuffers(1, &vbo);
-    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    // glBufferData(GL_ARRAY_BUFFER, vertex_num * vertex_att * sizeof(GLfloat), vertex, GL_STATIC_DRAW);
-
-    // glGenBuffers(1, &ebo);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_num * face_att * sizeof(GLuint), face, GL_STATIC_DRAW);
-
-    // Free data buffers
-
-    // Create resource
-
     meshes.emplace(object_name, Mesh(vertex, vertex_num * vertex_att, face, face_num * face_att, generator_layout));
-    // AddResource(MeshH, object_name, vbo, ebo, face_num * face_att);
+
     delete [] vertex;
     delete [] face;
 }
@@ -891,26 +701,30 @@ void ResourceManager::CreateSphere(std::string object_name, float radius, int nu
         }
     }
 
-    // Create OpenGL buffers and copy data
-    //GLuint vao;
-    //glGenVertexArrays(1, &vao);
-    //glBindVertexArray(vao);
-
-    // GLuint vbo, ebo;
-    // glGenBuffers(1, &vbo);
-    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    // glBufferData(GL_ARRAY_BUFFER, vertex_num * vertex_att * sizeof(GLfloat), vertex, GL_STATIC_DRAW);
-
-    // glGenBuffers(1, &ebo);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, face_num * face_att * sizeof(GLuint), face, GL_STATIC_DRAW);
-
-    // Free data buffers
-
     meshes.emplace(object_name, Mesh(vertex, vertex_num * vertex_att, face, face_num * face_att, generator_layout));
+
     delete [] vertex;
     delete [] face;
+}
 
-    // Create resource
-    // AddResource(MeshH, object_name, vbo, ebo, face_num * face_att);
+std::string ResourceManager::LoadTextFile(const char *filename){
+
+    // Open file
+    std::ifstream f;
+    f.open(filename);
+    if (f.fail()){
+        throw(std::ios_base::failure(std::string("Error opening file ")+std::string(filename)));
+    }
+
+    // Read file
+    std::string content;
+    std::string line;
+    while(std::getline(f, line)){
+        content += line + "\n";
+    }
+
+    // Close file
+    f.close();
+
+    return content;
 }

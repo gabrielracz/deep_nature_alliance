@@ -94,20 +94,24 @@ Mesh::Mesh(const std::string& obj_file_path)
                 vertices.push_back(verts[v_ix][0]);
                 vertices.push_back(verts[v_ix][1]);
                 vertices.push_back(verts[v_ix][2]);
-                vertices.push_back(uv_selected.x);
-                vertices.push_back(uv_selected.y);
                 vertices.push_back(normals[n_ix][0]);
                 vertices.push_back(normals[n_ix][1]);
                 vertices.push_back(normals[n_ix][2]);
+                vertices.push_back(uv_selected.x);
+                vertices.push_back(uv_selected.y);
+                vertices.push_back(1.0f);
+                vertices.push_back(uv_selected.x);
+                vertices.push_back(uv_selected.y);
                 indices.push_back(f_count++);
             }
         }
     }
 
     layout = Layout({
-        {FLOAT3, "position"},
+        {FLOAT3, "vertex"},
+        {FLOAT3, "normal"},
+        {FLOAT3, "color"},
         {FLOAT2, "uv"},
-        {FLOAT3, "normal"}
     });
     SetupBuffers();
 }

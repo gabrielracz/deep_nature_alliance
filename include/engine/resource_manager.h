@@ -22,16 +22,8 @@
 class ResourceManager {
 
     public:
-        // Constructor and destructor
-        ResourceManager(void);
-        ~ResourceManager();
-        // Add a resource that was already loaded and allocated to memory
-        void AddResource(ResourceType type, const std::string name, GLuint resource, GLsizei size);
-        void AddResource(ResourceType type, const std::string name, GLuint array_buffer, GLuint element_array_buffer, GLsizei size);
-        // Load a resource from a file, according to the specified type
-        void LoadResource(ResourceType type, const std::string name, const char *filename);
-        // Get the resource with the specified name
-        Resource *GetResource(const std::string name) const;
+        ResourceManager() = default;
+        ~ResourceManager() = default;
 
         Mesh* GetMesh(const std::string& name);
         Shader* GetShader(const std::string& name);
@@ -50,19 +42,12 @@ class ResourceManager {
 
         
     private:
-        
-        // List storing all resources
-        std::vector<Resource*> resource_; 
 
         std::unordered_map<std::string, Mesh>         meshes;
         std::unordered_map<std::string, Shader>       shaders;
-        std::unordered_map<std::string, unsigned int> textures;
+        std::unordered_map<std::string, Texture> textures;
         // std::unordered_map<std::string, Sound>     sounds;
 
-        // Methods to load specific types of resources
-        // Load shaders programs
-        void LoadMaterial(const std::string name, const char *prefix);
-        // Load a text file into memory (could be source code)
         std::string LoadTextFile(const char *filename);
 
 }; // class ResourceManager

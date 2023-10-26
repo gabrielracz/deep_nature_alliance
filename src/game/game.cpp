@@ -91,19 +91,11 @@ void Game::SetupResources(void){
     // Create a simple object to represent the asteroids
     resman.CreateSphere("SimpleObject", 0.8, 5, 5);
     resman.CreateTorus("Beacon", beacon_radius_g, beacon_radius_g - beacon_hitbox_g, 20, 20);
-    resman.CreateTorus("Player", player_hitbox_g, 0.1, 15, 15);
+    resman.LoadMesh("Player", RESOURCES_DIRECTORY"/h2.obj");
     resman.CreateSphere("Enemy", enemy_hitbox_g, 5, 5);
     resman.CreateCylinder("Powerup", powerup_hitbox_g, powerup_hitbox_g, 10);
     resman.CreateCone("Branch", 1.0, 1.0, 2, 10);
     resman.CreateSphere("Leaf", 1.0, 4, 10);
-    // resman.CreateCylinder("Branch", 1.0, 1.0, 2, 10);
-    // resman.CreateSphere("Branch", 1, 10, 10);
-
-
-
-    // Load material to be applied to asteroids
-    // std::string filename = std::string(SHADER_DIRECTORY) + std::string("/material");
-    // resman.LoadResource(Material, "ObjectMaterial", filename.c_str());
 
     resman.LoadShader("ObjectMaterial", SHADER_DIRECTORY"/material_vp.glsl", SHADER_DIRECTORY"/material_fp.glsl");
 }
@@ -127,12 +119,8 @@ void Game::SetupScene(void){
 
 void Game::Update(double dt, KeyMap &keys, Mouse &mouse) {
     CheckControls(keys);
-
     scene.Update(dt);
-
     // CheckCollisions();
-
-    // camera_.Update();
 }
 
 void Game::CheckCollisions() {
@@ -258,17 +246,6 @@ Game::~Game(){
 
 Asteroid *Game::CreateAsteroidInstance(std::string entity_name, std::string object_name, std::string material_name){
 
-    // Get resources
-    // Resource *geom = resman.GetResource(object_name);
-    // if (!geom){
-    //     throw(GameException(std::string("Could not find resource \"")+object_name+std::string("\"")));
-    // }
-
-    // Resource *mat = resman.GetResource(material_name);
-    // if (!mat){
-    //     throw(GameException(std::string("Could not find resource \"")+material_name+std::string("\"")));
-    // }
-
     Mesh* mesh = resman.GetMesh(object_name);
     Shader* shd = resman.GetShader(material_name);
 
@@ -289,7 +266,6 @@ void Game::CreatePlayer() {
     scene.AddNode(player);
 }
 
-int tcount = 0;
 void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width) {
     Mesh* mesh = resman.GetMesh("Leaf");
     Shader* shd = resman.GetShader("ObjectMaterial");
@@ -318,7 +294,6 @@ void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float pa
         leaf->transform.joint = glm::vec3(0, -l/2, 0); // base of the leaf
  
         root->children.push_back(leaf);
-        tcount++;
     }
 }
 
@@ -355,7 +330,6 @@ void Game::GrowTree(SceneNode* root, int branches, float parent_height, float pa
         branch->transform.joint = glm::vec3(0, -l/2, 0); // base of the cone
  
         root->children.push_back(branch);
-        tcount++;
         GrowTree(branch, branches, l, w, level, max_iterations);
     }
 }
@@ -373,10 +347,9 @@ void Game::CreateTree() {
     SceneNode* root = tree;
 
     GrowTree(tree, branches, height, width, 0, iterations);
-    std::cout << tcount << std::endl;
-    // Tree* tree = new Tree("Tree", bgeom, bmat, lgeom, lmat, branches, height, width, 0, iterations, this);
     tree->transform.position = player_position_g - glm::vec3(0, 0, 20);
     tree->transform.scale = {width, height, width};
+
     scene.AddNode(tree);
 }
 
@@ -472,8 +445,8 @@ void Game::CreateAsteroidField(int num_asteroids){
 
         // Set attributes of asteroid: random position, orientation, and
         // angular momentum
-        ast->SetPosition(glm::vec3(-300.0 + 600.0*((float) rand() / RAND_MAX), -300.0 + 600.0*((float) rand() / RAND_MAX), 600.0*((float) rand() / RAND_MAX)));
-        ast->SetOrientation(glm::normalize(glm::angleAxis(glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
+        ast->transform.position = (glm::vec3(-300.0 + 600.0*((float) rand() / RAND_MAX), -300.0 + 600.0*((float) rand() / RAND_MAX), 600.0*((float) rand() / RAND_MAX)));
+        ast->transform.orientation = (glm::normalize(glm::angleAxis(glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
         ast->SetAngM(glm::normalize(glm::angleAxis(0.05f*glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
     }
 }
