@@ -243,8 +243,8 @@ void Game::MouseControls(Mouse& mouse) {
     float mouse_sens = -0.001f;
 	glm::vec2 look = mouse.move * mouse_sens;
 
-    player->transform.Pitch(look.y);
     player->transform.Yaw(look.x);
+    player->transform.Pitch(look.y);
 }
 
 
@@ -279,7 +279,7 @@ void Game::CreatePlayer() {
     Resource* mat = resman.GetResource("ObjectMaterial");
     player = new Player("PlayerObj", geom, mat);
     player->transform.position = player_position_g;
-    player->visible = false;
+    // player->visible = false;
     app.GetCamera().Attach(&player->transform); // Attach the camera to the player
     scene.AddNode(player);
 }

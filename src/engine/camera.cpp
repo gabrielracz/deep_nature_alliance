@@ -64,10 +64,14 @@ void Camera::SetupViewMatrix(void){
 
     //view_matrix_ = glm::lookAt(position, look_at, up);
     if(parent_transform) {
-        glm::vec3 eye = parent_transform->position + (parent_transform->orientation * transform.position);
-        glm::vec3 look_at = (transform.orientation * parent_transform->orientation * transform.axes[FORWARD]) + parent_transform->position;
+        // glm::vec3 eye = parent_transform->position + (parent_transform->orientation * transform.position);
+        // glm::vec3 look_at = (transform.orientation * parent_transform->orientation * transform.axes[FORWARD]) + parent_transform->position;
+        // view_matrix_ = glm::lookAt(eye, look_at, up);
+        glm::vec3 eye = parent_transform->position + parent_transform->orientation * transform.position;
+        glm::vec3 look_at = parent_transform->position;// + glm::vec3(target->rotm * glm::vec4(0.0f, 0.0f, -13.0f, 0.0f));
         glm::vec3 up = (transform.orientation * parent_transform->orientation * transform.axes[UP]);
         view_matrix_ = glm::lookAt(eye, look_at, up);
+
     } else {
         glm::vec3 eye = transform.position;
         glm::vec3 look_at = transform.LocalAxis(FORWARD);

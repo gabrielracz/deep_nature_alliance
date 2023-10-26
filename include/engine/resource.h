@@ -7,7 +7,7 @@
 #include <GLFW/glfw3.h>
 
 // Possible resource types
-typedef enum Type { Material, PointSet, Mesh, Texture } ResourceType;
+typedef enum Type { Material, PointSet, MeshH, Texture } ResourceType;
 
 // Class that holds one resource
 class Resource {

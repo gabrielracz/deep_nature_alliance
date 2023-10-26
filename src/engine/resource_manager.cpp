@@ -307,7 +307,7 @@ void ResourceManager::CreateCylinder(std::string object_name, float height, floa
 
 
     // Create resource
-    AddResource(Mesh, object_name, vbo, ebo, face_num * face_att);
+    AddResource(MeshH, object_name, vbo, ebo, face_num * face_att);
 
 }
 
@@ -450,7 +450,7 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size() * sizeof(GLuint), faces.data(), GL_STATIC_DRAW);
 
     // Create resource
-    AddResource(Mesh, object_name, vbo, ebo, faces.size() * face_att);
+    AddResource(MeshH, object_name, vbo, ebo, faces.size() * face_att);
 
 }
 
@@ -718,7 +718,7 @@ void ResourceManager::CreateTorus(std::string object_name, float loop_radius, fl
     delete [] face;
 
     // Create resource
-    AddResource(Mesh, object_name, vbo, ebo, face_num * face_att);
+    AddResource(MeshH, object_name, vbo, ebo, face_num * face_att);
 }
 
 
@@ -820,5 +820,5 @@ void ResourceManager::CreateSphere(std::string object_name, float radius, int nu
     delete [] face;
 
     // Create resource
-    AddResource(Mesh, object_name, vbo, ebo, face_num * face_att);
+    AddResource(MeshH, object_name, vbo, ebo, face_num * face_att);
 }

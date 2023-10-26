@@ -18,7 +18,7 @@ SceneNode::SceneNode(const std::string name, const Resource *geometry, const Res
     // Set geometry
     if (geometry->GetType() == PointSet){
         mode_ = GL_POINTS;
-    } else if (geometry->GetType() == Mesh){
+    } else if (geometry->GetType() == MeshH){
         mode_ = GL_TRIANGLES;
     } else {
         throw(std::invalid_argument(std::string("Invalid type of geometry")));
@@ -162,9 +162,16 @@ void SceneNode::Draw(Camera& camera, const glm::mat4& parent_matrix){
     // }
         glDrawElements(mode_, size_, GL_UNSIGNED_INT, 0);
 
-    glm::mat4 t = parent_matrix * transform.Matrix(); //temporary hack to avoid sending scale to children, better way coming soon
+    // remove the scaling factor from our cached transf matrix (children shouldnt scale with parent)
+    glm::mat4 t = transf_matrix;
+    t[0] = glm::normalize(t[0]);
+    t[1] = glm::normalize(t[1]);
+    t[2] = glm::normalize(t[2]);
+
+    // glm::mat4 tm = parent_matrix * transform.Matrix(); //temporary hack to avoid sending scale to children, better way coming soon
+    glm::mat4 tm = parent_matrix * t; //temporary hack to avoid sending scale to children, better way coming soon
     for(auto child : children) {
-        child->Draw(camera, t);
+        child->Draw(camera, tm);
     }
 }
 
@@ -173,7 +180,7 @@ void SceneNode::Update(double dt){
     elapsed += dt;
     if(!active) {return;}
 
-    transformation_matrix = transform.Matrix();
+    transf_matrix = transform.ScaledMatrix();
 
     for(auto child : children) {
         child->Update(dt);
@@ -186,7 +193,7 @@ void SceneNode::SetupShader(GLuint program, const glm::mat4& parent_matrix){
 
     // Set attributes for shaders
     GLint vertex_att = glGetAttribLocation(program, "vertex");
-    glVertexAttribPointer(vertex_att, 3, GL_FLOAT, GL_FALSE, 11*sizeof(GLfloat), 0);
+    glVertexAttribPointer(vertex_att, 3, GL_FLOAT, GL_FALSE, 11*sizeof(GLfloat), 0);    // glm::mat4 t = transf_matrix;
     glEnableVertexAttribArray(vertex_att);
 
     GLint normal_att = glGetAttribLocation(program, "normal");
@@ -202,10 +209,10 @@ void SceneNode::SetupShader(GLuint program, const glm::mat4& parent_matrix){
     glEnableVertexAttribArray(tex_att);
 
 
-    glm::mat4 transf = parent_matrix * transform.ScaledMatrix();
+    // transf_matrix = parent_matrix * transform.ScaledMatrix();
 
     GLint world_mat = glGetUniformLocation(program, "world_mat");
-    glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(transf));
+    glUniformMatrix4fv(world_mat, 1, GL_FALSE, glm::value_ptr(parent_matrix * transf_matrix));
 
     // Timer
     GLint timer_var = glGetUniformLocation(program, "timer");

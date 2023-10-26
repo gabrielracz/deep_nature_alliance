@@ -63,7 +63,7 @@ class SceneNode {
 
         std::vector<SceneNode*> children;
     private:
-        glm::mat4 transformation_matrix;
+        glm::mat4 transf_matrix;
         std::string name_; // Name of the scene node
         GLuint array_buffer_; // References to geometry: vertex and array buffers
         GLuint element_array_buffer_;

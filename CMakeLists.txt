@@ -14,6 +14,8 @@ set(HDRS
     include/engine/camera.h 
     include/engine/resource.h 
     include/engine/resource_manager.h 
+    include/engine/mesh.h
+    include/engine/shader.h
     include/engine/scene_graph.h 
     include/engine/scene_node.h 
     include/engine/transform.h 
@@ -33,6 +35,8 @@ set(SRCS
     src/engine/camera.cpp 
     src/engine/resource.cpp 
     src/engine/resource_manager.cpp 
+    src/engine/mesh.cpp
+    src/engine/shader.cpp
     src/engine/scene_graph.cpp 
     src/engine/scene_node.cpp 
     src/engine/random.cpp 

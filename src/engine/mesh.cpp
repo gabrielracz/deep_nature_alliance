@@ -24,6 +24,7 @@ Layout::Layout(std::initializer_list<LayoutEntry> ents)
 
     //TODO: refactor all of the constructors
 
+// load obj from file
 Mesh::Mesh(const std::string& obj_file_path)
 {
 
@@ -109,48 +110,15 @@ Mesh::Mesh(const std::string& obj_file_path)
         {FLOAT2, "uv"},
         {FLOAT3, "normal"}
     });
-    Setup();
-}
-//pass by value to copy the const shape arrays
-Mesh::Mesh(std::vector<Vertex> verts, std::vector<unsigned int> inds, std::vector<Texture> texts, Layout lay)
-	: indices(inds), textures(texts), layout(lay){
-		
-		//TODO fix this disgusting shit
-	for(auto v : verts) {
-		vertices.push_back(v.pos.x);
-		vertices.push_back(v.pos.y);
-		vertices.push_back(v.pos.z);
-
-		vertices.push_back(v.uv.x);
-		vertices.push_back(v.uv.y);
-
-		vertices.push_back(v.normal.x);
-		vertices.push_back(v.normal.y);
-		vertices.push_back(v.normal.z);
-	}
-	Setup();
+    SetupBuffers();
 }
 
-//do this copying outside ^^^
-Mesh::Mesh(const float* verts, size_t num_verts, const unsigned int* inds, size_t num_inds, const Texture* tex, unsigned int num_tex, Layout lay) {
-
-	vertices.resize(num_verts);
-	memcpy(&vertices[0], verts, num_verts*sizeof(float));
-
-	if(inds != nullptr && num_inds > 0) {
-		indices.resize(num_inds);
-		memcpy(&indices[0], inds, num_inds*sizeof(unsigned int));
-	}
-	if(tex != nullptr && num_tex > 0) {
-		textures.resize(num_tex);
-		memcpy(&textures[0], tex, num_tex*sizeof(Texture));
-	}
-
-	layout = lay;
-	Setup();
+Mesh::Mesh(std::vector<float> verts, std::vector<unsigned int> inds, Layout lay)
+: vertices(verts), indices(inds), layout(lay) {
+    SetupBuffers();
 }
 
-void Mesh::Setup() {
+void Mesh::SetupBuffers() {
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
@@ -186,14 +154,7 @@ void Mesh::Setup() {
 
 void Mesh::Draw(Shader& shader) {
 	//potential check if shader is already in use to avoid call
-	shader.use();
-	if(textures.size() > 0) {
-//		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, textures[0].id);
-	}
-
-    if(View::DRAW_WIREFRAME)
-        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	// shader.use();
 
     glBindVertexArray(VAO);
 	if(indices.size() > 0) {
@@ -201,8 +162,6 @@ void Mesh::Draw(Shader& shader) {
 	} else {
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 	}
-    if(View::DRAW_WIREFRAME)
-        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 
 	glBindVertexArray(0);
 }
