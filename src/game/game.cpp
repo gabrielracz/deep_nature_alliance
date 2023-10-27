@@ -18,6 +18,7 @@
 #include "resource.h"
 #include "scene_node.h"
 #include "tree.h"
+#include "text.h"
 
 // Some configuration constants
 // They are written here as global variables, but ideally they should be loaded from a configuration file
@@ -61,11 +62,6 @@ glm::vec3 beacon_positions_g[] = {
 
 int num_beacons_g = sizeof(beacon_positions_g) / sizeof(beacon_positions_g[0]);
 
-// Game::Game(void){
-//     // Don't do work in the constructor, leave it for the Init() function
-// }
-
-
 void Game::Init(void){
     
     std::cout << "RNG seed: " << rng_seed << std::endl;
@@ -84,6 +80,8 @@ void Game::Init(void){
 void Game::SetupResources(void){
 
     resman.LoadMesh("Player", RESOURCES_DIRECTORY"/h2.obj");
+    resman.CreateQuad("TextQuad");
+
 
     // Create a simple object to represent the asteroids
     resman.CreateSphere("SimpleObject", 0.8, 5, 5);
@@ -96,6 +94,9 @@ void Game::SetupResources(void){
 
     resman.LoadShader("ObjectMaterial", SHADER_DIRECTORY"/material_vp.glsl", SHADER_DIRECTORY"/material_fp.glsl");
     resman.LoadShader("ShipShader", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/ship_fp.glsl");
+    resman.LoadShader("TextShader", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
+
+    resman.LoadTexture("Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
 }
 
 
@@ -109,6 +110,7 @@ void Game::SetupScene(void){
     CreatePlayer();
     CreateTree();
     CreateAsteroidField(1500);
+    CreateHUD();
 
     // CreateRaceTrack();
     // CreateEnemies();
@@ -310,6 +312,17 @@ void Game::CreatePlayer() {
     // player->visible = false;
     app.GetCamera().Attach(&player->transform); // Attach the camera to the player
     scene.AddNode(player);
+}
+
+void Game::CreateHUD() {
+    Mesh* mtxt = resman.GetMesh("TextQuad");
+    Shader* stxt = resman.GetShader("TextShader");
+    Texture* ttxt = resman.GetTexture("Charmap");
+    Text* txt = new Text("hello", mtxt, stxt, this, "This is a game about flying through space");
+    txt->transform.SetPosition({0.0f, 0.2f, 0.0f});
+    txt->SetTexture(ttxt);
+    txt->anchor = Text::Anchor::CENTER;
+    scene.AddNode(txt);
 }
 
 void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width) {

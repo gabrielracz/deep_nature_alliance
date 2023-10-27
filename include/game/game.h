@@ -49,6 +49,8 @@ class Game {
     int rng_seed = 1804289383;
     public:
 
+        Application& app;
+        ResourceManager& resman;
         RandGenerator rng {rng_seed};
         float wind_speed = 1.5f;
 
@@ -69,10 +71,6 @@ class Game {
         SceneGraph& Scene() {return scene;}
 
     private:
-
-        Application& app;
-        ResourceManager& resman;
-
         SceneGraph scene;
 
         std::vector<SceneNode*> beacons;
@@ -91,6 +89,7 @@ class Game {
         Asteroid *CreateAsteroidInstance(std::string entity_name, std::string object_name, std::string material_name);
         // Create entire random asteroid field
         void CreatePlayer();
+        void CreateHUD();
         void CreateTree();
         void GrowTree(SceneNode* root, int branches, float height, float width, int level, int max_iterations);
         void GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width);

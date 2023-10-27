@@ -28,6 +28,7 @@ set(HDRS
     include/game/player.h
     include/game/enemy.h
     include/game/tree.h
+    include/game/text.h
 )
  
 set(SRCS
@@ -43,6 +44,7 @@ set(SRCS
     src/engine/scene_node.cpp 
     src/engine/random.cpp 
     src/engine/control.cpp
+    src/game/text.cpp
     src/game/game.cpp 
     src/game/asteroid.cpp
     src/game/player.cpp

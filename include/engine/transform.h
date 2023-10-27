@@ -98,6 +98,14 @@ public:
         return transf;
     }
 
+    static glm::mat4 RemoveScaling(const glm::mat4 m) {
+        glm::mat4 n = m;
+        n[0] = glm::normalize(n[0]);
+        n[1] = glm::normalize(n[1]);
+        n[2] = glm::normalize(n[2]);
+        return n;
+    }
+
 };
 
 #endif

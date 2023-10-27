@@ -43,17 +43,25 @@ void Camera::SetView(glm::vec3 position, glm::vec3 look_at, glm::vec3 up){
 }
 
 
-void Camera::SetProjection(GLfloat fov, GLfloat near, GLfloat far, GLfloat w, GLfloat h){
-
+void Camera::SetPerspective(GLfloat fov, GLfloat near, GLfloat far, GLfloat w, GLfloat h){
     // Set projection based on field-of-view
     float top = tan((fov/2.0)*(glm::pi<float>()/180.0))*near;
     float right = top * w/h;
-    projection_matrix_ = glm::frustum(-right, right, -top, top, near, far);
+    perspective_matrix = glm::frustum(-right, right, -top, top, near, far);
 }
 
-void Camera::SetUniforms(Shader* shd){
+void Camera::SetOrtho(GLfloat winwidth, GLfloat winheight){
+    float w = (float)winwidth/2.0f;
+    float h = (float)winheight/2.0f;
+    ortho_matrix = glm::ortho<float>(-w, w, -h, h, -1.0f, 1.0f);
+}
+
+
+void Camera::SetProjectionUniforms(Shader* shd, Projection projtype){
     shd->SetUniform4m(view_matrix_,       "view_mat");
-    shd->SetUniform4m(projection_matrix_, "projection_mat");
+
+    glm::mat4& projection = projtype == Projection::PERSPECTIVE ? perspective_matrix : ortho_matrix;
+    shd->SetUniform4m(projection, "projection_mat");
 }
 
 

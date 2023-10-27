@@ -27,11 +27,6 @@ class SceneNode {
         
         // Get name of node
         const std::string GetName(void) const;
-
-        // Set node attributes
-        void SetPosition(glm::vec3 position);
-        void SetOrientation(glm::quat orientation);
-        void SetScale(glm::vec3 scale);
         
         // Draw the node according to scene parameters in 'camera'
         // variable
@@ -47,7 +42,10 @@ class SceneNode {
         double elapsed = 0;
 
         std::vector<SceneNode*> children;
-    private:
+
+        void SetTexture(Texture* newtex) {texture = newtex;}
+    protected:
+        virtual void SetUniforms(Shader* shader, Camera* camera, const glm::mat4& parent_matrix);
         glm::mat4 transf_matrix;
         std::string name_; // Name of the scene node
 
@@ -55,8 +53,10 @@ class SceneNode {
         Shader* shader   {nullptr};
         Texture* texture {nullptr};
 
+        Camera::Projection camera_projection = Camera::Projection::PERSPECTIVE;
+        bool alpha_enabled = false;
+
         // Set matrices that transform the node in a shader program
-        void SetUniforms(Shader* shader, const glm::mat4& parent_matrix);
 
 }; // class SceneNode
 
