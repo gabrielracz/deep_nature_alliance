@@ -90,6 +90,7 @@ void Game::SetupResources(void){
     resman.CreateCylinder("Powerup", powerup_hitbox_g, powerup_hitbox_g, 10);
     resman.CreateCone("Branch", 1.0, 1.0, 2, 10);
     resman.CreateSphere("Leaf", 1.0, 4, 10);
+    resman.CreatePointCloud("PointCloud", 100000, 600);
 
     resman.LoadShader("ObjectMaterial", SHADER_DIRECTORY"/material_vp.glsl", SHADER_DIRECTORY"/material_fp.glsl");
 }
@@ -440,7 +441,11 @@ void Game::CreatePowerups() {
 }
 
 void Game::CreateAsteroidField(int num_asteroids){
-
+    
+    Shader* shd = resman.GetShader("ObjectMaterial");
+    Mesh* mesh = resman.GetMesh("PointCloud");
+    scene.AddNode(new SceneNode("Stars", mesh, shd));
+    /*
     float size = 600;
 
     // Create a number of asteroid instances
@@ -464,5 +469,6 @@ void Game::CreateAsteroidField(int num_asteroids){
         ast->transform.orientation = (glm::normalize(glm::angleAxis(glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
         ast->SetAngM(glm::normalize(glm::angleAxis(0.05f*glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
     }
+    */
 }
 

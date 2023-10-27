@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.6)
 set(PROJ_NAME "a3")
 project(${PROJ_NAME})
 
-set(COMPILER_FLAGS "-g")
+set(COMPILER_FLAGS "-O2")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Specify project files: header files and source files
