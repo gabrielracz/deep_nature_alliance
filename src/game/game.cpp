@@ -30,7 +30,7 @@ const bool window_full_screen_g = false;
 
 // Viewport and camera settings
 const glm::vec3 viewport_background_color_g(0.0, 0.0, 0.0);
-glm::vec3 player_position_g(0.0, 0.0, 0.0);
+glm::vec3 player_position_g(0.0, 0.0, 4.0);
 
 const float beacon_radius_g = 20.0f;
 const float beacon_hitbox_g = 15.0f;
@@ -221,16 +221,16 @@ void Game::CheckControls(KeyMap& keys) {
     // toggle(player->velocity.y, player->move_speed, GLFW_KEY_Z, GLFW_KEY_X);
     // toggle(player->velocity.z, player->move_speed, GLFW_KEY_S, GLFW_KEY_W);
 
-    if(keys[GLFW_KEY_W]) {
+    if(keys[GLFW_KEY_LEFT_SHIFT]) {
         player->ShipControl(Player::Controls::THRUST);
     };
-    if(keys[GLFW_KEY_S]) {
+    if(keys[GLFW_KEY_LEFT_CONTROL]) {
         player->ShipControl(Player::Controls::BRAKE);
     };
-    if(keys[GLFW_KEY_LEFT_SHIFT]) {
+    if(keys[GLFW_KEY_S]) {
         player->ShipControl(Player::Controls::PITCHU);
     };
-    if(keys[GLFW_KEY_LEFT_CONTROL]) {
+    if(keys[GLFW_KEY_W]) {
         player->ShipControl(Player::Controls::PITCHD);
     };
     if(keys[GLFW_KEY_Q]) {
@@ -393,7 +393,7 @@ void Game::CreateTree() {
     float cnt = 0;
     float spread = 20;
 
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < 1; i++) {
 
         Tree* tree = new Tree("Tree", mesh, shd, 0, 0, 0, this);
         SceneNode* root = tree;

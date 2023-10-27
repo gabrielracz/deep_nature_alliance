@@ -75,29 +75,16 @@ class Game {
 
         SceneGraph scene;
 
-        Player* player;
-
-        // int rng_seed = rand();
-
-
         std::vector<SceneNode*> beacons;
         int active_beacon_index = 0;
-
         std::vector<SceneNode*> powerups;
-
         std::vector<Enemy*> enemies;
+        Player* player;
 
-
-        bool game_state = RUNNING;
 
         void CheckControls(KeyMap& keys);
         void MouseControls(Mouse& mouse);
         void CheckCollisions();
-
-        // Methods to handle events
-        static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-        static void ResizeCallback(GLFWwindow* window, int width, int height);
-        static void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 
         // Asteroid field
         // Create instance of one asteroid

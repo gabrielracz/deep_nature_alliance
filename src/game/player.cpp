@@ -83,7 +83,7 @@ void Player::Thrust(int d) {
 }
 
 void Player::ShipControl(Controls c, float damping) {
-    const float rot_force = damping * 1000.0f;
+    const float rot_force = damping * 2000.0f;
     const float thrust_force = damping * move_speed * 17550.0f;
     switch(c) {
         case Controls::THRUST:
@@ -105,10 +105,10 @@ void Player::ShipControl(Controls c, float damping) {
             torque += transform.LocalAxis(UP) * -rot_force;
             break;
         case Controls::ROLLL:
-            torque += -transform.LocalAxis(FORWARD) * -rot_force;
+            torque += -transform.LocalAxis(FORWARD) * -rot_force * 2.0f;
             break;
         case Controls::ROLLR:
-            torque += -transform.LocalAxis(FORWARD) * rot_force;
+            torque += -transform.LocalAxis(FORWARD) * rot_force * 2.0f;
             break;
         default:
             break;

@@ -9,7 +9,6 @@
 #include "transform.h"
 #include "shader.h"
 
-    // Abstraction of a camera
 class Camera {
 
     public:
@@ -25,8 +24,6 @@ class Camera {
         // Set projection from frustum parameters: field-of-view,
         // near and far planes, and width and height of viewport
         void SetProjection(GLfloat fov, GLfloat near, GLfloat far, GLfloat w, GLfloat h);
-        // Set all camera-related variables in shader program
-        void SetupShader(GLuint program);
         void SetUniforms(Shader* shd);
 
         void Attach(Transform* parent_transform);
@@ -48,7 +45,7 @@ class Camera {
         glm::mat4 view_matrix_; // View matrix
         glm::mat4 projection_matrix_; // Projection matrix
 
-        glm::vec3 original_pos;
+        glm::vec3 original_pos = {0.0, 0.0, 0.0};
 
         // Create view matrix from current camera parameters
 

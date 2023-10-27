@@ -17,11 +17,13 @@ uniform mat4 projection_mat;
 
 // Attributes forwarded to the fragment shader
 out vec4 color_interp;
+out vec4 normal_interp;
 
 
 void main()
 {
     gl_Position = projection_mat * view_mat * world_mat * vec4(vertex, 1.0);
+    normal_interp = world_mat * vec4(normal, 0.0f);
 
-    color_interp = vec4(normal.x, normal.y, normal.z, 1.0);
+    color_interp = vec4(normal.z, normal.y, normal.x, 1.0);
 }
