@@ -1,5 +1,6 @@
 #include "scene_graph.h"
 #include "application.h"
+#include <GLFW/glfw3.h>
 #include <glm/gtx/string_cast.hpp>
 #define GLM_FORCE_RADIANS
 #include <glm/ext/quaternion_trigonometric.hpp>
@@ -82,16 +83,19 @@ void Game::Init(void){
        
 void Game::SetupResources(void){
 
+    resman.LoadMesh("Player", RESOURCES_DIRECTORY"/h2.obj");
+
     // Create a simple object to represent the asteroids
     resman.CreateSphere("SimpleObject", 0.8, 5, 5);
     resman.CreateTorus("Beacon", beacon_radius_g, beacon_radius_g - beacon_hitbox_g, 20, 20);
-    resman.LoadMesh("Player", RESOURCES_DIRECTORY"/h2.obj");
     resman.CreateSphere("Enemy", enemy_hitbox_g, 5, 5);
     resman.CreateCylinder("Powerup", powerup_hitbox_g, powerup_hitbox_g, 10);
     resman.CreateCone("Branch", 1.0, 1.0, 2, 10);
     resman.CreateSphere("Leaf", 1.0, 4, 10);
+    resman.CreatePointCloud("PointCloud", 200000, 600);
 
     resman.LoadShader("ObjectMaterial", SHADER_DIRECTORY"/material_vp.glsl", SHADER_DIRECTORY"/material_fp.glsl");
+    resman.LoadShader("ShipShader", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/ship_fp.glsl");
 }
 
 
@@ -209,9 +213,9 @@ void Game::CheckControls(KeyMap& keys) {
 
 
 
-    toggle(player->angular_velocity.x, look_sens, GLFW_KEY_DOWN, GLFW_KEY_UP);
-    toggle(player->angular_velocity.y, look_sens, GLFW_KEY_LEFT, GLFW_KEY_RIGHT);
-    toggle(player->angular_velocity.z, look_sens, GLFW_KEY_Q, GLFW_KEY_E);
+    // toggle(player->angular_velocity.x, look_sens, GLFW_KEY_DOWN, GLFW_KEY_UP);
+    // toggle(player->angular_velocity.y, look_sens, GLFW_KEY_LEFT, GLFW_KEY_RIGHT);
+    // toggle(player->angular_velocity.z, look_sens, GLFW_KEY_Q, GLFW_KEY_E);
 
     // toggle(player->velocity.x, player->move_speed, GLFW_KEY_D, GLFW_KEY_A);
     // toggle(player->velocity.y, player->move_speed, GLFW_KEY_Z, GLFW_KEY_X);
@@ -223,12 +227,42 @@ void Game::CheckControls(KeyMap& keys) {
     if(keys[GLFW_KEY_S]) {
         player->ShipControl(Player::Controls::BRAKE);
     };
+    if(keys[GLFW_KEY_LEFT_SHIFT]) {
+        player->ShipControl(Player::Controls::PITCHU);
+    };
+    if(keys[GLFW_KEY_LEFT_CONTROL]) {
+        player->ShipControl(Player::Controls::PITCHD);
+    };
+    if(keys[GLFW_KEY_Q]) {
+        player->ShipControl(Player::Controls::ROLLL);
+    };
+    if(keys[GLFW_KEY_E]) {
+        player->ShipControl(Player::Controls::ROLLR);
+    };
+    if(keys[GLFW_KEY_A]) {
+        player->ShipControl(Player::Controls::YAWL);
+    };
+    if(keys[GLFW_KEY_D]) {
+        player->ShipControl(Player::Controls::YAWR);
+    };
+
 
     if(keys[GLFW_KEY_I]) {
         app.GetCamera().transform.position.z -= 0.1;
     }
     if(keys[GLFW_KEY_J]) {
         app.GetCamera().transform.position.z += 0.1;
+    }
+
+    if(keys[GLFW_KEY_0]) {
+        // app.GetCamera().transform.SetPosition({0.0f, 0.1f, 3.0f});
+        if(app.GetCamera().IsAttached()) {
+            app.GetCamera().Drop();
+        } else {
+            app.GetCamera().Attach(&player->transform);
+        }
+        keys[GLFW_KEY_0] = false;
+        // app.GetCamera().Attach(&player->transform);
     }
 
     // if(keys[GLFW_KEY_W]) {
@@ -239,11 +273,14 @@ void Game::CheckControls(KeyMap& keys) {
 }
 
 void Game::MouseControls(Mouse& mouse) {
-    float mouse_sens = -0.001f;
+    // float mouse_sens = -0.001f;
+    float mouse_sens = -0.2f;
 	glm::vec2 look = mouse.move * mouse_sens;
 
-    player->transform.Yaw(look.x);
-    player->transform.Pitch(look.y);
+    // player->transform.Yaw(look.x);
+    player->ShipControl(Player::Controls::YAWL, look.x);
+    player->ShipControl(Player::Controls::PITCHU, look.y);
+    
 }
 
 
@@ -267,7 +304,7 @@ Asteroid *Game::CreateAsteroidInstance(std::string entity_name, std::string obje
 
 void Game::CreatePlayer() {
     Mesh* mesh = resman.GetMesh("Player");
-    Shader* shd = resman.GetShader("ObjectMaterial");
+    Shader* shd = resman.GetShader("ShipShader");
     player = new Player("PlayerObj", mesh, shd);
     player->transform.position = player_position_g;
     // player->visible = false;
@@ -346,20 +383,25 @@ void Game::GrowTree(SceneNode* root, int branches, float parent_height, float pa
 void Game::CreateTree() {
     Mesh* mesh = resman.GetMesh("Branch");
     Shader* shd = resman.GetShader("ObjectMaterial");
-    Tree* tree = new Tree("Tree", mesh, shd, 0, 0, 0, this);
 
 
     int branches = 3;
     int iterations = 4;
     float height = rng.randfloat(10.0, 20.0);
     float width = 0.25f;
-    SceneNode* root = tree;
 
-    GrowTree(tree, branches, height, width, 0, iterations);
-    tree->transform.position = player_position_g - glm::vec3(0, 0, 20);
-    tree->transform.scale = {width, height, width};
+    float cnt = 0;
+    float spread = 20;
 
-    scene.AddNode(tree);
+    for(int i = 0; i < 5; i++) {
+
+        Tree* tree = new Tree("Tree", mesh, shd, 0, 0, 0, this);
+        SceneNode* root = tree;
+        GrowTree(tree, branches, height, width, 0, iterations);
+        tree->transform.position = player_position_g - glm::vec3(i*spread, 0, 40);
+        tree->transform.scale = {width, height, width};
+        scene.AddNode(tree);
+    }
 }
 
 void Game::CreateRaceTrack() {
@@ -440,7 +482,11 @@ void Game::CreatePowerups() {
 }
 
 void Game::CreateAsteroidField(int num_asteroids){
-
+    
+    Shader* shd = resman.GetShader("ObjectMaterial");
+    Mesh* mesh = resman.GetMesh("PointCloud");
+    scene.AddNode(new SceneNode("Stars", mesh, shd));
+    /*
     float size = 600;
 
     // Create a number of asteroid instances
@@ -464,5 +510,6 @@ void Game::CreateAsteroidField(int num_asteroids){
         ast->transform.orientation = (glm::normalize(glm::angleAxis(glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
         ast->SetAngM(glm::normalize(glm::angleAxis(0.05f*glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
     }
+    */
 }
 

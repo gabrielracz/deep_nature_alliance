@@ -30,7 +30,7 @@ const std::string SceneNode::GetName(void) const {
 }
 
 void SceneNode::Draw(Camera* camera, const glm::mat4& parent_matrix){
-    if(!active || !visible) {return;}
+    if(!visible) {return;}
 
     shader->Use();
     camera->SetUniforms(shader);

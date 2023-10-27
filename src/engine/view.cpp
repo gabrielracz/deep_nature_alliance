@@ -73,7 +73,7 @@ void View::InitView(){
     glDepthFunc(GL_LESS);
 
 	//Use this to disable vsync
-	glfwSwapInterval(0);
+	// glfwSwapInterval(0);
 
     glViewport(0, 0, win.width, win.height);
 

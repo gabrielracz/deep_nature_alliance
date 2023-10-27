@@ -4,6 +4,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <iostream>
 
 #include "camera.h"
@@ -36,6 +37,7 @@ void Camera::SetView(glm::vec3 position, glm::vec3 look_at, glm::vec3 up){
     // Reset orientation and position of camera
     transform.position = position;
     transform.orientation = glm::quat();
+    original_pos = position;
 }
 
 
@@ -85,6 +87,22 @@ void Camera::SetupViewMatrix(void){
     }
 }
 
+bool Camera::IsAttached() {
+    return parent_transform != nullptr;
+}
+
 void Camera::Attach(Transform *p) {
     parent_transform = p;
+    SetupViewMatrix();
+}
+
+void Camera::Detach() {
+    parent_transform = nullptr;
+}
+
+void Camera::Drop() {
+    transform.SetPosition(parent_transform->position + original_pos);
+    std::cout << glm::to_string(transform.position) << std::endl;
+    parent_transform = nullptr;
+    SetupViewMatrix();
 }

@@ -97,9 +97,11 @@ Mesh::Mesh(const std::string& obj_file_path)
                 vertices.push_back(normals[n_ix][0]);
                 vertices.push_back(normals[n_ix][1]);
                 vertices.push_back(normals[n_ix][2]);
+
                 vertices.push_back(uv_selected.x);
-                vertices.push_back(uv_selected.y);
-                vertices.push_back(1.0f);
+                vertices.push_back(uv_selected.x);
+                vertices.push_back(uv_selected.x);
+
                 vertices.push_back(uv_selected.x);
                 vertices.push_back(uv_selected.y);
                 indices.push_back(f_count++);
@@ -178,7 +180,7 @@ void Mesh::Draw() {
 	if(indices.size() > 0) {
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	} else {
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+		glDrawArrays(GL_POINTS, 0, vertices.size());
 	}
 
 	glBindVertexArray(0);

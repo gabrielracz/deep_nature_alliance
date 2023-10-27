@@ -30,6 +30,10 @@ class Camera {
         void SetUniforms(Shader* shd);
 
         void Attach(Transform* parent_transform);
+        void Detach();
+        void Drop();
+        bool IsAttached();
+        void SetupViewMatrix(void);
 
         float pitch_speed = 0.0f;
         float yaw_speed = 0.0f;
@@ -44,9 +48,9 @@ class Camera {
         glm::mat4 view_matrix_; // View matrix
         glm::mat4 projection_matrix_; // Projection matrix
 
+        glm::vec3 original_pos;
 
         // Create view matrix from current camera parameters
-        void SetupViewMatrix(void);
 
 }; // class Camera
 

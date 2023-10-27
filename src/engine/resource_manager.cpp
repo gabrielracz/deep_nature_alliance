@@ -2,6 +2,8 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtc/random.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <stdexcept>
 #include <fstream>
 #include <sstream>
@@ -38,6 +40,7 @@ void ResourceManager::AddMesh(const std::string& name, std::vector<float> verts,
 Shader* ResourceManager::GetShader(const std::string &name) {
     auto it = shaders.find(name);
     if(it == shaders.end()) {
+        std::cout << "RESMAN ERROR: loading shader\t" << name << std::endl;
         return nullptr;
     }
     return &it->second;
@@ -46,6 +49,7 @@ Shader* ResourceManager::GetShader(const std::string &name) {
 Mesh* ResourceManager::GetMesh(const std::string &name) {
     auto it = meshes.find(name);
     if(it == meshes.end()) {
+        std::cout << "RESMAN ERROR: loading mesh\t" << name << std::endl;
         return nullptr;
     }
     return &it->second;
@@ -284,7 +288,6 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
                     (float)j / (float)num_circle_samples,
                     1.0f
                 };
-                // color =  {1.0f, 1.0f, 1.0f, 1.0f};
             }
 
             glm::vec2 uv {
@@ -706,6 +709,25 @@ void ResourceManager::CreateSphere(std::string object_name, float radius, int nu
     delete [] vertex;
     delete [] face;
 }
+
+void ResourceManager::CreatePointCloud(std::string object_name, int num_points, float size, glm::vec3 color) {
+    std::vector<float> vertices;
+    std::vector<unsigned int> inds;
+    srand(1447);
+    for(int i = 0 ; i < num_points; i++ ) {
+        glm::vec3 pos = glm::ballRand(size);
+        glm::vec3 c = glm::ballRand(1.0);
+
+
+        APPEND_VEC3(vertices, pos);
+        APPEND_VEC3(vertices, glm::vec3(1.0, 0.0, 0.0));
+        APPEND_VEC3(vertices, c);
+        APPEND_VEC2(vertices, glm::vec2(1.0, 1.0));
+    }
+
+    meshes.emplace(object_name, Mesh(vertices, inds, generator_layout));
+}
+
 
 std::string ResourceManager::LoadTextFile(const char *filename){
 
