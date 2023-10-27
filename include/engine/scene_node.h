@@ -28,21 +28,11 @@ class SceneNode {
         // Get name of node
         const std::string GetName(void) const;
 
-        // Get node attributes
-        glm::vec3 GetPosition(void) const;
-        glm::quat GetOrientation(void) const;
-        glm::vec3 GetScale(void) const;
-
         // Set node attributes
         void SetPosition(glm::vec3 position);
         void SetOrientation(glm::quat orientation);
         void SetScale(glm::vec3 scale);
         
-        // Perform transformations on node
-        // void Translate(glm::vec3 trans);
-        // void Rotate(glm::quat rot);
-        // void Scale(glm::vec3 scale);
-
         // Draw the node according to scene parameters in 'camera'
         // variable
         virtual void Draw(Camera* camera, const glm::mat4& parent_transform = glm::mat4(1.0));

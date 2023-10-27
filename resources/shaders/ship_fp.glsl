@@ -4,6 +4,7 @@
 
 // Attributes passed from the vertex shader
 in vec4 color_interp;
+in vec4 normal_interp;
 uniform int inverted;
 uniform float timer;
 
@@ -15,6 +16,7 @@ void main()
                     abs(sin(timer*6.0)*inverted - color_interp.z),
                     1.0f);
     // vec4 col = color_interp;
-	gl_FragColor = col;
+	// gl_FragColor = col;
+	gl_FragColor = vec4(normalize(normal_interp.xyz), 1.0);
 	//gl_FragColor = vec4(0.6, 0.6, 0.6, 1.0);
 }

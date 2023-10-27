@@ -1,4 +1,6 @@
+#include "defines.h"
 #include "transform.h"
+#include <glm/ext/quaternion_trigonometric.hpp>
 #include <stdexcept>
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/quaternion.hpp>
@@ -49,18 +51,6 @@ void Camera::SetProjection(GLfloat fov, GLfloat near, GLfloat far, GLfloat w, GL
     projection_matrix_ = glm::frustum(-right, right, -top, top, near, far);
 }
 
-
-void Camera::SetupShader(GLuint program){
-
-    // Set view matrix in shader
-    GLint view_mat = glGetUniformLocation(program, "view_mat");
-    glUniformMatrix4fv(view_mat, 1, GL_FALSE, glm::value_ptr(view_matrix_));
-    
-    // Set projection matrix in shader
-    GLint projection_mat = glGetUniformLocation(program, "projection_mat");
-    glUniformMatrix4fv(projection_mat, 1, GL_FALSE, glm::value_ptr(projection_matrix_));
-}
-
 void Camera::SetUniforms(Shader* shd){
     shd->SetUniform4m(view_matrix_,       "view_mat");
     shd->SetUniform4m(projection_matrix_, "projection_mat");
@@ -81,7 +71,7 @@ void Camera::SetupViewMatrix(void){
 
     } else {
         glm::vec3 eye = transform.position;
-        glm::vec3 look_at = transform.LocalAxis(FORWARD);
+        glm::vec3 look_at = transform.position + -transform.LocalAxis(FORWARD) * 10.0f;
         glm::vec3 up = transform.LocalAxis(UP);
         view_matrix_ = glm::lookAt(eye, look_at, up);
     }
@@ -92,6 +82,8 @@ bool Camera::IsAttached() {
 }
 
 void Camera::Attach(Transform *p) {
+    transform.SetOrientation(glm::quat(0, 0, 0, 0)); //reset local camera orientation
+    transform.SetPosition(original_pos); // reset local lock point
     parent_transform = p;
     SetupViewMatrix();
 }
@@ -101,8 +93,9 @@ void Camera::Detach() {
 }
 
 void Camera::Drop() {
-    transform.SetPosition(parent_transform->position + original_pos);
-    std::cout << glm::to_string(transform.position) << std::endl;
+    glm::vec3 eye = glm::vec4(parent_transform->position, 1.0f) + parent_transform->orientation * glm::vec4(transform.position, 1.0f); // get world pos of camera (not relative)
+    transform.SetOrientation(parent_transform->orientation); // take the parent's orientation as we will no longer get it from the 'inheritance'
+    transform.SetPosition(eye); 
     parent_transform = nullptr;
     SetupViewMatrix();
 }

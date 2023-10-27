@@ -36,6 +36,7 @@ public:
     Transform() = default;
     Transform(const glm::vec3& p, const glm::quat o, const glm::vec3& s)
         : position(s), orientation(o), scale(s) {Matrix();}
+    Transform(Transform&) = default;
 
     glm::vec3 LocalAxis(Axis a) const {
         return orientation * axes[a];
@@ -43,6 +44,10 @@ public:
 
     void SetPosition(const glm::vec3& newpos) {
         position = newpos;
+    } 
+
+    void SetOrientation(const glm::quat& newori) {
+        orientation = newori;
     } 
 
     void Rotate(const glm::quat& rot) {
