@@ -78,7 +78,8 @@ void View::InitView(){
     glViewport(0, 0, win.width, win.height);
 
     camera.SetView(config::camera_position, config::camera_look_at, config::camera_up);
-    camera.SetProjection(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, win.width, win.height);
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, win.width, win.height);
+    camera.SetOrtho(win.width, win.height);
 }
 
 void View::InitEventHandlers(void){
@@ -125,7 +126,8 @@ void View::ResizeCallback(GLFWwindow* window, int width, int height){
     View *view = (View *) ptr;
     view->win.width = width;
     view->win.height = height;
-    view->camera.SetProjection(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, width, height);
+    view->camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, width, height);
+    view->camera.SetOrtho(width, height);
     view->mouse.first_captured = true;
 }
 

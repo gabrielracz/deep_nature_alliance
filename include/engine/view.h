@@ -69,6 +69,9 @@ public:
     Mouse& GetMouse() {return mouse;}
     Camera& GetCamera() {return camera;}
 
+    int GetWidth() {return win.width;}
+    int GetHeight() {return win.height;}
+
 };
 
 #endif

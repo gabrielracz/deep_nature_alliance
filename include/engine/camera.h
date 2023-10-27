@@ -12,6 +12,11 @@
 class Camera {
 
     public:
+        enum class Projection {
+            PERSPECTIVE,
+            ORTHOGRAPHIC
+        };
+
         Camera();
         ~Camera();
 
@@ -23,8 +28,9 @@ class Camera {
         void SetView(glm::vec3 position, glm::vec3 look_at, glm::vec3 up);
         // Set projection from frustum parameters: field-of-view,
         // near and far planes, and width and height of viewport
-        void SetProjection(GLfloat fov, GLfloat near, GLfloat far, GLfloat w, GLfloat h);
-        void SetUniforms(Shader* shd);
+        void SetPerspective(GLfloat fov, GLfloat near, GLfloat far, GLfloat w, GLfloat h);
+        void SetOrtho(GLfloat w, GLfloat h);
+        void SetProjectionUniforms(Shader* shd, Projection = Projection::PERSPECTIVE);
 
         void Attach(Transform* parent_transform);
         void Detach();
@@ -43,7 +49,9 @@ class Camera {
         Transform* parent_transform {nullptr};
 
         glm::mat4 view_matrix_; // View matrix
-        glm::mat4 projection_matrix_; // Projection matrix
+
+        glm::mat4 perspective_matrix; // Projection matrix
+        glm::mat4 ortho_matrix; // Projection matrix
 
         glm::vec3 original_pos = {0.0, 0.0, 0.0};
 

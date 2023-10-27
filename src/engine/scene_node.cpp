@@ -32,20 +32,24 @@ const std::string SceneNode::GetName(void) const {
 void SceneNode::Draw(Camera* camera, const glm::mat4& parent_matrix){
     if(!visible) {return;}
 
+    // might be bad performance
+
     shader->Use();
-    camera->SetUniforms(shader);
-    SetUniforms(shader, parent_matrix);
-    // texture->Bind();
+    SetUniforms(shader, camera, parent_matrix);
+    if(texture != nullptr) {
+        texture->Bind();
+    }
+
+    if(alpha_enabled) {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+    } else {
+        glDisable(GL_BLEND);
+    }
+
     mesh->Draw();
 
-    // remove the scaling factor from our cached transf matrix (children shouldnt scale with parent)
-    glm::mat4 t = transf_matrix;
-    t[0] = glm::normalize(t[0]);
-    t[1] = glm::normalize(t[1]);
-    t[2] = glm::normalize(t[2]);
-
-    // glm::mat4 tm = parent_matrix * transform.Matrix(); //temporary hack to avoid sending scale to children, better way coming soon
-    glm::mat4 tm = parent_matrix * t; //temporary hack to avoid sending scale to children, better way coming soon
+    glm::mat4 tm = parent_matrix * Transform::RemoveScaling(transf_matrix);  // don't pass scaling to children
     for(auto child : children) {
         child->Draw(camera, tm);
     }
@@ -64,9 +68,9 @@ void SceneNode::Update(double dt){
 }
 
 
-void SceneNode::SetUniforms(Shader* shader, const glm::mat4& parent_matrix){
+void SceneNode::SetUniforms(Shader* shader, Camera* camera, const glm::mat4& parent_matrix){
+    camera->SetProjectionUniforms(shader, camera_projection);
     shader->SetUniform4m(parent_matrix * transf_matrix, "world_mat");
-
     shader->SetUniform1f(glfwGetTime(), "timer");
     shader->SetUniform1i(0, "inverted");
 }

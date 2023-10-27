@@ -19,6 +19,7 @@ struct Vertex {
 class Texture {
     public:
 	int id = -1;
+    bool alpha_enabled = false;
     Texture() = default;
     Texture(int id) : id(id){}
     void Bind();
@@ -76,10 +77,10 @@ class Mesh {
 		// Mesh(std::vector<Vertex> verts, std::vector<unsigned int> inds, std::vector<Texture> textures, Layout = default_layout);
 		Mesh(const float* verts, size_t num_verts, const unsigned int* indices, size_t num_indices, Layout = default_layout);
 		void Draw();
-		//void SetLayout(Layout& l);
 
 	private:
 		unsigned int VBO, EBO, VAO;
+
 		void SetupBuffers();
 		static size_t sz(LayoutEntry t);
 		static unsigned int cnt(LayoutEntry t);

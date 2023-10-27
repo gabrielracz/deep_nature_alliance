@@ -55,7 +55,16 @@ Mesh* ResourceManager::GetMesh(const std::string &name) {
     return &it->second;
 }
 
-void ResourceManager::LoadTexture(const std::string& name, const std::string& file_path) {
+Texture* ResourceManager::GetTexture(const std::string &name) {
+    auto it = textures.find(name);
+    if(it == textures.end()) {
+        std::cout << "RESMAN ERROR: loading texture\t" << name << std::endl;
+        return nullptr;
+    }
+    return &it->second;
+}
+
+void ResourceManager::LoadTexture(const std::string& name, const std::string& file_path, int wrap_option) {
  	stbi_set_flip_vertically_on_load(1);
 	//Texture
 	int width, height, n_channels;
@@ -85,8 +94,8 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
 	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
 	//Wrapping
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_option);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_option);
     //Filtering
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -710,22 +719,44 @@ void ResourceManager::CreateSphere(std::string object_name, float radius, int nu
     delete [] face;
 }
 
-void ResourceManager::CreatePointCloud(std::string object_name, int num_points, float size, glm::vec3 color) {
+void ResourceManager::CreatePointCloud(std::string object_name, int num_points, float size, glm::vec4 color) {
     std::vector<float> vertices;
     std::vector<unsigned int> inds;
-    srand(1447);
     for(int i = 0 ; i < num_points; i++ ) {
         glm::vec3 pos = glm::ballRand(size);
-        glm::vec3 c = glm::ballRand(1.0);
-
-
+        // if(color == glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)) {
+            color = glm::vec4(glm::ballRand(2.0), 1.0f);
+        // }
+        
+        // hack to use the same shader as other objects (really only need pos and color)
         APPEND_VEC3(vertices, pos);
         APPEND_VEC3(vertices, glm::vec3(1.0, 0.0, 0.0));
-        APPEND_VEC3(vertices, c);
+        APPEND_VEC3(vertices, color);
         APPEND_VEC2(vertices, glm::vec2(1.0, 1.0));
     }
 
     meshes.emplace(object_name, Mesh(vertices, inds, generator_layout));
+}
+
+void ResourceManager::CreateQuad(std::string name) {
+    std::vector<float> vertices = {
+		 1.0f,  1.0f, 0.0f,  1.0f, 1.0f,
+         1.0f, -1.0f, 0.0f,  1.0f, 0.0f,
+		-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,
+		-1.0f,  1.0f, 0.0f,  0.0f, 1.0f
+	};
+
+	std::vector<unsigned int> indices = {
+		0, 1, 2,
+		0, 2, 3
+	};
+
+    Layout l = Layout({
+        {FLOAT3, "vertex"},
+        {FLOAT2, "uv"}
+    });
+    
+    meshes.emplace(name, Mesh(vertices, indices, l));
 }
 
 

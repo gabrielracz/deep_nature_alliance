@@ -23,6 +23,9 @@ public:
     Camera& GetCamera() {return view.GetCamera();}
     void SetMouseHandler(MouseHandler h) {view.SetMouseHandler(h);}
 
+    int GetWinWidth() {return view.GetWidth();}
+    int GetWinHeight() {return view.GetHeight();}
+
 };
 
 #endif
