@@ -21,6 +21,7 @@ set(HDRS
     include/engine/transform.h 
     include/engine/random.h
     include/engine/defines.h
+    include/engine/control.h
     include/lib/stb_image.h
     include/game/game.h 
     include/game/asteroid.h
@@ -41,6 +42,7 @@ set(SRCS
     src/engine/scene_graph.cpp 
     src/engine/scene_node.cpp 
     src/engine/random.cpp 
+    src/engine/control.cpp
     src/game/game.cpp 
     src/game/asteroid.cpp
     src/game/player.cpp
