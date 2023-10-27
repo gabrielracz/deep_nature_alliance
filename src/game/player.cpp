@@ -18,9 +18,9 @@ void Player::Update(double dt) {
 	if (glm::length(velocity) > 0.0f) {
         glm::vec3 vdir = glm::normalize(velocity);
         float vmag = glm::length(velocity);
-        float drag_constant = 2.0f;
+        float drag_constant = 1.0f;
         float fuselage_length = 10.0f;
-        float cross_section = fuselage_length - fuselage_length*glm::dot(vdir, transform.LocalAxis(FORWARD)) + 3.0f;
+        float cross_section = fuselage_length - fuselage_length*glm::dot(vdir, transform.LocalAxis(FORWARD)) + 0.5f;
         glm::vec3 fuselage_drag = -vdir * vmag*vmag * drag_constant * cross_section;
         force += fuselage_drag;
 
@@ -52,18 +52,22 @@ void Player::Thrust(int d) {
 }
 
 void Player::ShipControl(Controls c) {
+    const float rot_force = 10.0f;
     switch(c) {
         case Controls::THRUST:
-            force += -transform.LocalAxis(FORWARD) * move_speed * 7550.0f;
+            force += -transform.LocalAxis(FORWARD) * move_speed * 17550.0f;
             break;
         case Controls::BRAKE:
             force += transform.LocalAxis(FORWARD) * move_speed * 250.0f;
             break;
         case Controls::PITCH:
+            torque += transform.LocalAxis(SIDE) * rot_force;
             break;
         case Controls::YAW:
+            torque += transform.LocalAxis(UP) * rot_force;
             break;
         case Controls::ROLL:
+            torque += -transform.LocalAxis(FORWARD) * rot_force;
             break;
         default:
             break;

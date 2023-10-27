@@ -2,6 +2,8 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtc/random.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <stdexcept>
 #include <fstream>
 #include <sstream>
@@ -712,15 +714,32 @@ void ResourceManager::CreateSphere(std::string object_name, float radius, int nu
 void ResourceManager::CreatePointCloud(std::string object_name, int num_points, float size, glm::vec3 color) {
     std::vector<float> vertices;
     std::vector<unsigned int> inds;
+    srand(1447);
     for(int i = 0 ; i < num_points; i++ ) {
-        glm::vec3 pos = {
-            -size/2 + size*((float) rand() / RAND_MAX),
-            -size/2 + size*((float) rand() / RAND_MAX),
-            -size/2 + size*((float) rand() / RAND_MAX)
-        };
+        glm::vec3 pos = glm::ballRand(size);
+        // glm::vec3 pos = {
+        //     -size/2 + size*((float) rand() / RAND_MAX),
+        //     -size/2 + size*((float) rand() / RAND_MAX),
+        //     -size/2 + size*((float) rand() / RAND_MAX)
+        // };
+
+        int decider = rand() % 3;
+        glm::vec3 c;
+        switch(decider) {
+            case 0:
+                c = {1.0, 0.0, 0.0};
+                break;
+            case 1:
+                c = {0.0, 1.0, 0.0};
+                break;
+            case 2:
+                c = {0.0, 0.0, 1.0f};
+                break;
+        }
+
         APPEND_VEC3(vertices, pos);
         APPEND_VEC3(vertices, glm::vec3(1.0, 0.0, 0.0));
-        APPEND_VEC3(vertices, color);
+        APPEND_VEC3(vertices, c);
         APPEND_VEC2(vertices, glm::vec2(1.0, 1.0));
     }
 
