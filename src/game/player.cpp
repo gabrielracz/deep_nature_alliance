@@ -1,3 +1,4 @@
+#include <glm/ext/quaternion_trigonometric.hpp>
 #include <iostream>
 #include "player.h"
 #include "scene_node.h"
@@ -21,6 +22,10 @@ void Player::Update(double dt) {
         float drag_constant = 1.0f;
         float fuselage_length = 10.0f;
         float cross_section = fuselage_length - fuselage_length*glm::dot(vdir, transform.LocalAxis(FORWARD)) + 0.5f;
+        if(braking) {
+            cross_section += 100;;
+            braking = false;
+        }
         glm::vec3 fuselage_drag = -vdir * vmag*vmag * drag_constant * cross_section;
         force += fuselage_drag;
 
@@ -39,6 +44,32 @@ void Player::Update(double dt) {
     // transform.Translate(velocity);
 
     force = glm::vec3(0.0f);
+
+    // resistance
+    float angv = glm::length(ang_velocity);
+    if(angv > 0.000001) {
+        glm::vec3 axis = glm::normalize(ang_velocity);
+
+        float cross_section = 20.0f;
+        if(braking) {
+            cross_section += 10.0f;
+            braking = false;
+        }
+        float resist_constant = 300.0f;
+        glm::vec3 ang_resist = -axis * angv*angv * resist_constant * cross_section;
+        torque += ang_resist;
+    }
+
+    ang_acceleration = glm::inverse(inertia) * torque;
+
+    ang_velocity += ang_acceleration * (float)dt;
+
+    float theta = glm::length(ang_velocity * (float)dt);
+    if(theta > 0.0000001) {
+        transform.Rotate(glm::angleAxis(theta, glm::normalize(ang_velocity)));
+    }
+
+    torque = glm::vec3(0.0f);
     SceneNode::Update(dt);
 }
 
@@ -51,22 +82,32 @@ void Player::Thrust(int d) {
     }
 }
 
-void Player::ShipControl(Controls c) {
-    const float rot_force = 10.0f;
+void Player::ShipControl(Controls c, float damping) {
+    const float rot_force = damping * 1000.0f;
+    const float thrust_force = damping * move_speed * 17550.0f;
     switch(c) {
         case Controls::THRUST:
-            force += -transform.LocalAxis(FORWARD) * move_speed * 17550.0f;
+            force += -transform.LocalAxis(FORWARD) * thrust_force;
             break;
         case Controls::BRAKE:
-            force += transform.LocalAxis(FORWARD) * move_speed * 250.0f;
+            braking = true;
             break;
-        case Controls::PITCH:
+        case Controls::PITCHD:
+            torque += transform.LocalAxis(SIDE) * -rot_force;
+            break;
+        case Controls::PITCHU:
             torque += transform.LocalAxis(SIDE) * rot_force;
             break;
-        case Controls::YAW:
+        case Controls::YAWL:
             torque += transform.LocalAxis(UP) * rot_force;
             break;
-        case Controls::ROLL:
+        case Controls::YAWR:
+            torque += transform.LocalAxis(UP) * -rot_force;
+            break;
+        case Controls::ROLLL:
+            torque += -transform.LocalAxis(FORWARD) * -rot_force;
+            break;
+        case Controls::ROLLR:
             torque += -transform.LocalAxis(FORWARD) * rot_force;
             break;
         default:

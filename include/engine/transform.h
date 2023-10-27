@@ -41,6 +41,10 @@ public:
         return orientation * axes[a];
     };
 
+    void SetPosition(const glm::vec3& newpos) {
+        position = newpos;
+    } 
+
     void Rotate(const glm::quat& rot) {
         orientation = rot * orientation;
         orientation = glm::normalize(orientation);

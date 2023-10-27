@@ -18,7 +18,7 @@ class Application;
 namespace config {
     const float camera_near_clip_distance = 0.01;
     const float camera_far_clip_distance = 1000.0;
-    const float camera_fov = 60.0; // Field-of-view of camera (degrees)
+    const float camera_fov = 90.0; // Field-of-view of camera (degrees)
     const glm::vec3 viewport_background_color(0.0, 0.0, 0.0);
     const glm::vec3 camera_position(0.0, 1.0, 15.0);
     const glm::vec3 camera_look_at(0.0, 0.0, 0.0);

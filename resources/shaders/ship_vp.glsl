@@ -2,7 +2,6 @@
 
 #version 330 core
 
-// Vertex buffer
 layout (location = 0) in vec3 vertex;
 layout (location = 1) in vec3 normal;
 layout (location = 2) in vec3 color;
@@ -24,5 +23,5 @@ void main()
 {
     gl_Position = projection_mat * view_mat * world_mat * vec4(vertex, 1.0);
 
-    color_interp = vec4(color, 1.0);
+    color_interp = vec4(normal.x, normal.y, normal.z, 1.0);
 }

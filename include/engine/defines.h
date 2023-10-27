@@ -2,6 +2,7 @@
 #define DEFINES_H
 #include <unordered_map>
 #include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <functional>
 
 #define PI glm::pi<float>()

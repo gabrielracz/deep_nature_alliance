@@ -288,7 +288,6 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
                     (float)j / (float)num_circle_samples,
                     1.0f
                 };
-                // color =  {1.0f, 1.0f, 1.0f, 1.0f};
             }
 
             glm::vec2 uv {
@@ -717,25 +716,8 @@ void ResourceManager::CreatePointCloud(std::string object_name, int num_points, 
     srand(1447);
     for(int i = 0 ; i < num_points; i++ ) {
         glm::vec3 pos = glm::ballRand(size);
-        // glm::vec3 pos = {
-        //     -size/2 + size*((float) rand() / RAND_MAX),
-        //     -size/2 + size*((float) rand() / RAND_MAX),
-        //     -size/2 + size*((float) rand() / RAND_MAX)
-        // };
+        glm::vec3 c = glm::ballRand(1.0);
 
-        int decider = rand() % 3;
-        glm::vec3 c;
-        switch(decider) {
-            case 0:
-                c = {1.0, 0.0, 0.0};
-                break;
-            case 1:
-                c = {0.0, 1.0, 0.0};
-                break;
-            case 2:
-                c = {0.0, 0.0, 1.0f};
-                break;
-        }
 
         APPEND_VEC3(vertices, pos);
         APPEND_VEC3(vertices, glm::vec3(1.0, 0.0, 0.0));
