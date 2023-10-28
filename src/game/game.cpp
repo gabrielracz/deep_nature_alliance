@@ -256,14 +256,14 @@ void Game::CheckControls(KeyMap& keys) {
         app.GetCamera().transform.position.z += 0.1;
     }
 
-    if(keys[GLFW_KEY_0]) {
+    if(keys[GLFW_KEY_X]) {
         // app.GetCamera().transform.SetPosition({0.0f, 0.1f, 3.0f});
         if(app.GetCamera().IsAttached()) {
             app.GetCamera().Drop();
         } else {
             app.GetCamera().Attach(&player->transform);
         }
-        keys[GLFW_KEY_0] = false;
+        keys[GLFW_KEY_X] = false;
         // app.GetCamera().Attach(&player->transform);
     }
 
