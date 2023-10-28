@@ -2,11 +2,18 @@
 #include "game.h"
 #include "application.h"
 
+void Text::Update(double dt) {
+    if(update_callback) {
+        content = update_callback();
+    }
+
+    SceneNode::Update(dt);
+}
+
 void Text::SetUniforms(Shader* shd, Camera *camera, const glm::mat4 &parent_matrix) {
     int len = content.size();
     shd->SetUniform1i(len, "text_len");
 
-    float size = 13.125;
     //chars are 8x15 pixels
     float text_width = len*8/15.0f*(size);
 	float sx = text_width;
@@ -41,15 +48,19 @@ void Text::SetUniforms(Shader* shd, Camera *camera, const glm::mat4 &parent_matr
         case Anchor::CENTER:
             translation = glm::translate(glm::vec3(x, y, 0.0f));
             break;
+        case Anchor::TOPCENTER:
+            translation = glm::translate(glm::vec3(x, y - ndc_height_distance, 0.0f));
+            break;
+        case Anchor::BOTTOMCENTER:
+            translation = glm::translate(glm::vec3(x, y + ndc_height_distance, 0.0f));
+            break;
     }
 
     glm::mat4 transformation_matrix = translation * glm::scale(glm::vec3(sx, sy, 1.0f));
 
     shd->SetUniform4m(transformation_matrix, "world_mat");
 
-    color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     shd->SetUniform4f(color, "text_color");
-    background_color = glm::vec4(0.0f, 0.0f, 0.0f, 0.5f);
     shd->SetUniform4f(background_color, "background_color");
 
 	// Set the text data

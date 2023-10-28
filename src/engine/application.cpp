@@ -30,7 +30,8 @@ void Application::Start() {
 		dt = current_time - last_time;
 		acc_delta_time += dt;
 		if(frame_counter % frame_window == 0){
-            std::cout << "fps: " << PRINT_FIXED_FLOAT(frame_window/acc_delta_time) << std::endl;
+            fps = frame_window/acc_delta_time;
+            std::cout << "fps: " << PRINT_FIXED_FLOAT(fps) << std::endl;
 			acc_delta_time = 0;
 		}
 		last_time = current_time;

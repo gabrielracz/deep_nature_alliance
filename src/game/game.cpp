@@ -236,16 +236,16 @@ void Game::CheckControls(KeyMap& keys) {
         player->ShipControl(Player::Controls::PITCHD);
     };
     if(keys[GLFW_KEY_Q]) {
-        player->ShipControl(Player::Controls::ROLLL);
-    };
-    if(keys[GLFW_KEY_E]) {
-        player->ShipControl(Player::Controls::ROLLR);
-    };
-    if(keys[GLFW_KEY_A]) {
         player->ShipControl(Player::Controls::YAWL);
     };
-    if(keys[GLFW_KEY_D]) {
+    if(keys[GLFW_KEY_E]) {
         player->ShipControl(Player::Controls::YAWR);
+    };
+    if(keys[GLFW_KEY_A]) {
+        player->ShipControl(Player::Controls::ROLLL);
+    };
+    if(keys[GLFW_KEY_D]) {
+        player->ShipControl(Player::Controls::ROLLR);
     };
 
 
@@ -276,7 +276,7 @@ void Game::CheckControls(KeyMap& keys) {
 
 void Game::MouseControls(Mouse& mouse) {
     // float mouse_sens = -0.001f;
-    float mouse_sens = -0.2f;
+    float mouse_sens = -0.1f;
 	glm::vec2 look = mouse.move * mouse_sens;
 
     // player->transform.Yaw(look.x);
@@ -319,10 +319,21 @@ void Game::CreateHUD() {
     Shader* stxt = resman.GetShader("TextShader");
     Texture* ttxt = resman.GetTexture("Charmap");
     Text* txt = new Text("hello", mtxt, stxt, this, "This is a game about flying through space");
-    txt->transform.SetPosition({0.0f, 0.2f, 0.0f});
+    txt->transform.SetPosition({0.0f, 1.0f, 0.0f});
     txt->SetTexture(ttxt);
-    txt->anchor = Text::Anchor::CENTER;
+    txt->SetAnchor(Text::Anchor::TOPCENTER);
+    txt->SetSize(15);
     scene.AddNode(txt);
+
+    Text* fps = new Text("fps", mtxt, stxt, this, "FPS");
+    fps->transform.SetPosition({-1.0, 1.0, 0.0f});
+    fps->SetColor({0.0f, 1.0f, 0.0f, 1.0f});
+    fps->SetAnchor(Text::Anchor::TOPLEFT);
+    fps->SetCallback([this]() -> std::string {
+        return "fps: " + std::to_string(app.GetFPS());
+    });
+    scene.AddNode(fps);
+
 }
 
 void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width) {
@@ -406,7 +417,7 @@ void Game::CreateTree() {
     float cnt = 0;
     float spread = 20;
 
-    for(int i = 0; i < 1; i++) {
+    for(int i = 0; i < 5; i++) {
 
         Tree* tree = new Tree("Tree", mesh, shd, 0, 0, 0, this);
         SceneNode* root = tree;

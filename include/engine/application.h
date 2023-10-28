@@ -11,6 +11,7 @@ private:
     Game game;
     ResourceManager resman;
     bool running = false;
+    float fps = 0.0f;
 public:
     Application();
     void Init();
@@ -25,6 +26,7 @@ public:
 
     int GetWinWidth() {return view.GetWidth();}
     int GetWinHeight() {return view.GetHeight();}
+    float GetFPS() {return fps;}
 
 };
 
