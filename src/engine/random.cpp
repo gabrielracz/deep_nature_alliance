@@ -26,11 +26,21 @@ float RandGenerator::randfloat() {
 }
 
 int RandGenerator::randint(int min, int max) {
+	if (min > max) {
+		int tmp = min;
+		min = max;
+		max = tmp;
+	}
     setrange(min, max);
 	return int_distr(eng);
 }
 
 float RandGenerator::randfloat(float min, float max) {
+	if (min > max) {
+		float tmp = min;
+		min = max;
+		max = tmp;
+	}
     setrange(min, max);
 	return float_distr(eng);
 }

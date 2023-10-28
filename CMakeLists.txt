@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.6)
 set(PROJ_NAME "a3")
 project(${PROJ_NAME})
 
+set (CMAKE_CXX_STANDARD 17)
 set(COMPILER_FLAGS "-g")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -72,7 +73,7 @@ target_link_libraries(${PROJ_NAME} ${OPENGL_gl_LIBRARY})
 
 
 # Other libraries needed
-set(LIBRARY_PATH C:/Program\ Files/Libraries/Libraries)
+set(LIBRARY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/libs CACHE PATH "Folder with GLEW, GLFW, and GLM libraries")
 include_directories(${LIBRARY_PATH}/include)
 if(NOT WIN32)
     find_library(GLEW_LIBRARY GLEW)
@@ -85,7 +86,7 @@ elseif(WIN32)
 endif(NOT WIN32)
 target_link_libraries(${PROJ_NAME} ${GLEW_LIBRARY})
 target_link_libraries(${PROJ_NAME} ${GLFW_LIBRARY})
-target_link_libraries(${PROJ_NAME} ${SOIL_LIBRARY})
+# target_link_libraries(${PROJ_NAME} ${SOIL_LIBRARY})
 
 # The rules here are specific to Windows Systems
 if(WIN32)
