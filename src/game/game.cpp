@@ -63,27 +63,21 @@ glm::vec3 beacon_positions_g[] = {
 int num_beacons_g = sizeof(beacon_positions_g) / sizeof(beacon_positions_g[0]);
 
 void Game::Init(void){
-    
-    std::cout << "RNG seed: " << rng_seed << std::endl;
-    app.SetMouseHandler(std::bind(&Game::MouseControls, this, std::placeholders::_1));
-    // Run all initialization steps
-    // InitWindow();
-    // InitView();
-    // InitEventHandlers();
-    // InitControls();
+    SetupResources();
+    SetupScene();
 
-    // Set variables
-    // animating_ = true;
+    //callback for responsive mouse controls
+    app.SetMouseHandler(std::bind(&Game::MouseControls, this, std::placeholders::_1));
 }
 
        
 void Game::SetupResources(void){
 
+    // load .obj meshes
     resman.LoadMesh("Player", RESOURCES_DIRECTORY"/h2.obj");
+
+    // generate geometry
     resman.CreateQuad("TextQuad");
-
-
-    // Create a simple object to represent the asteroids
     resman.CreateSphere("SimpleObject", 0.8, 5, 5);
     resman.CreateTorus("Beacon", beacon_radius_g, beacon_radius_g - beacon_hitbox_g, 20, 20);
     resman.CreateSphere("Enemy", enemy_hitbox_g, 5, 5);
@@ -92,10 +86,12 @@ void Game::SetupResources(void){
     resman.CreateSphere("Leaf", 1.0, 4, 10);
     resman.CreatePointCloud("PointCloud", 200000, 600);
 
+    // load shader programs
     resman.LoadShader("ObjectMaterial", SHADER_DIRECTORY"/material_vp.glsl", SHADER_DIRECTORY"/material_fp.glsl");
-    resman.LoadShader("ShipShader", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/ship_fp.glsl");
+    resman.LoadShader("ShipShader", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
     resman.LoadShader("TextShader", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
 
+    // load textures
     resman.LoadTexture("Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
 }
 
@@ -110,58 +106,17 @@ void Game::SetupScene(void){
     CreatePlayer();
     CreateTree();
     CreateAsteroidField(1500);
+    CreateLights();
     CreateHUD();
-
-    // CreateRaceTrack();
-    // CreateEnemies();
-    // CreatePowerups();
 }
 
-void Game::Update(double dt, KeyMap &keys, Mouse &mouse) {
+void Game::Update(double dt, KeyMap &keys) {
     CheckControls(keys);
     scene.Update(dt);
     // CheckCollisions();
 }
 
 void Game::CheckCollisions() {
-    // check beacons
-    float beacon_distance = glm::length(player->transform.position - beacons[active_beacon_index]->transform.position);
-    if(beacon_distance < player_hitbox_g + beacon_hitbox_g) {
-        //collision
-        beacons[active_beacon_index]->inverted = 0;
-        active_beacon_index++;
-        if(active_beacon_index == beacons.size()) {
-            // game_state = WIN;
-            scene.SetBackgroundColor(glm::vec3(0.0f, 1.0f, 0.0f));
-            std::cout << "WINNER!" << std::endl;
-        }
-        beacons[active_beacon_index]->inverted = 1;
-    }
-
-    // check enemies
-    for(auto e : enemies) {
-        float dist = glm::length(player->transform.position - e->transform.position);
-        if(dist < player_hitbox_g + enemy_hitbox_g && e->active) {
-            player->lives -= 1;
-            player->move_speed -= speed_upgrade_g;
-            e->active = false;
-            if(player->lives < 1) {
-                scene.SetBackgroundColor(glm::vec3(1.0f, 0.0f, 0.0f));
-                std::cout << "LOSER!" << std::endl;
-            }
-        }
-    }
-
-    for(auto p : powerups) {
-        float dist = glm::length(player->transform.position - p->transform.position);
-        if(dist < player_hitbox_g + powerup_hitbox_g && p->active) {
-            player->lives += 1;
-            player->move_speed += speed_upgrade_g;
-            p->active = false;
-            p->inverted = false;
-        }
-    }   
-
 }
 
 void Game::CheckControls(KeyMap& keys) {
@@ -257,14 +212,30 @@ void Game::CheckControls(KeyMap& keys) {
     }
 
     if(keys[GLFW_KEY_X]) {
-        // app.GetCamera().transform.SetPosition({0.0f, 0.1f, 3.0f});
         if(app.GetCamera().IsAttached()) {
             app.GetCamera().Drop();
         } else {
             app.GetCamera().Attach(&player->transform);
         }
         keys[GLFW_KEY_X] = false;
-        // app.GetCamera().Attach(&player->transform);
+    }
+    if(keys[GLFW_KEY_X]) {
+        if(app.GetCamera().IsAttached()) {
+            app.GetCamera().Drop();
+        } else {
+            app.GetCamera().Attach(&player->transform);
+        }
+        keys[GLFW_KEY_X] = false;
+    }
+    if(keys[GLFW_KEY_Z]) {
+        if(app.GetCamera().IsAttached()) {
+            if(camera_mode++ % 2 == 0) {
+                app.GetCamera().MoveTo({0.0, 3.0f, -20.0f});
+            } else {
+                app.GetCamera().Reset();
+            }
+        }
+        keys[GLFW_KEY_Z] = false;
     }
 
     // if(keys[GLFW_KEY_W]) {
@@ -284,25 +255,6 @@ void Game::MouseControls(Mouse& mouse) {
     player->ShipControl(Player::Controls::PITCHU, look.y);
     
 }
-
-
-Game::~Game(){
-    
-    glfwTerminate();
-}
-
-
-Asteroid *Game::CreateAsteroidInstance(std::string entity_name, std::string object_name, std::string material_name){
-
-    Mesh* mesh = resman.GetMesh(object_name);
-    Shader* shd = resman.GetShader(material_name);
-
-    // Create asteroid instance
-    Asteroid *ast = new Asteroid(entity_name, mesh, shd);
-    scene.AddNode(ast);
-    return ast;
-}
-
 
 void Game::CreatePlayer() {
     Mesh* mesh = resman.GetMesh("Player");
@@ -333,9 +285,15 @@ void Game::CreateHUD() {
         return "fps: " + std::to_string(app.GetFPS());
     });
     scene.AddNode(fps);
-
 }
 
+void Game::CreateLights() {
+    Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
+    light->transform.SetPosition({0.0, 100, 0});
+    lights.push_back(light);
+}
+
+int tcount = 0;
 void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width) {
     Mesh* mesh = resman.GetMesh("Leaf");
     Shader* shd = resman.GetShader("ObjectMaterial");
@@ -356,7 +314,7 @@ void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float pa
 
 
         leaf->transform.scale = {w, l, w};
-        leaf->transform.position = {0.0f, p, 0.0f};
+        leaf->transform.SetPosition({0.0f, p, 0.0f});
         // leaf->transform.position = {x, p, z};
         
         leaf->transform.orbit = glm::angleAxis(rng.randfloat(0, 2*PI), glm::vec3(0, 1, 0)); // yaw
@@ -364,6 +322,7 @@ void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float pa
         leaf->transform.joint = glm::vec3(0, -l/2, 0); // base of the leaf
  
         root->children.push_back(leaf);
+        tcount++;
     }
 }
 
@@ -401,6 +360,7 @@ void Game::GrowTree(SceneNode* root, int branches, float parent_height, float pa
  
         root->children.push_back(branch);
         GrowTree(branch, branches, l, w, level, max_iterations);
+        tcount++;
     }
 }
 
@@ -417,7 +377,7 @@ void Game::CreateTree() {
     float cnt = 0;
     float spread = 20;
 
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < 2; i++) {
 
         Tree* tree = new Tree("Tree", mesh, shd, 0, 0, 0, this);
         SceneNode* root = tree;
@@ -425,115 +385,14 @@ void Game::CreateTree() {
         tree->transform.position = player_position_g - glm::vec3(i*spread, 0, 40);
         tree->transform.scale = {width, height, width};
         scene.AddNode(tree);
+        tcount++;
     }
-}
-
-void Game::CreateRaceTrack() {
-    glm::quat beacon_orientations[] = {
-        {1      , 0     , 0     , 0},
-        {0.921649       , 0.229045      , 0.3132        , -0.00270161},
-        {0.964975       , 0.227993      , 0.10694       , -0.0735319},
-        {0.990901       , 0.0835413     , -0.0349064    , -0.0995837},
-        {0.994095       , -0.033332     , -0.0190866    , -0.101492},
-        {0.831337       , 0.294662      , -0.470931     , -0.016675},
-        {0.281068       , 0.405307      , -0.863279     , -0.10713 },
-        {0.0346075      , 0.398591      , -0.910368     , -0.10563 },
-        {-0.194923      , 0.366005      , -0.892426     , -0.177824},
-        {-0.320758      , 0.455473      , -0.590345     , -0.584082},
-        {-0.442946      , 0.264096      , -0.297878     , -0.803319},
-        {-0.513011      , 0.030545      , -0.23939      , -0.823759},
-        {-0.567791      , -0.320068     , -0.0383407    , -0.75743 },
-        {-0.517779      , -0.576523     , 0.100737      , -0.624001},
-    };
-
-
-
-
-    Mesh* mesh = resman.GetMesh("Beacon");
-    Shader* shd = resman.GetShader("ObjectMaterial");
-    for(int i = 0; i < num_beacons_g; i++) {
-        glm::vec3& pos = beacon_positions_g[i];
-        glm::quat& ori = beacon_orientations[i];
-        SceneNode* b = new SceneNode("Beacon" + std::to_string(i), mesh, shd);
-        b->transform.position = pos;
-        b->transform.orientation = ori;
-        // b->SetAngM(glm::normalize(glm::angleAxis(0.05f*glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
-        scene.AddNode(b);
-        beacons.push_back(b);
-    }
-
-    beacons.front()->inverted = 1;
-}
-
-void Game::CreateEnemies() {
-    glm::vec3 enemy_positions[] = {
-        {108            , 0     , 689                    },
-        {34.1823        , 64.8259       , 525.166},
-        {13.7887        , 117.501       , 307.928},
-        {151.521        , -16.012       , 259.632},
-        {19.4067        , -17.1548      , 638.167},
-        {73.5702        , 85.7602       , 379.409},
-    };
-
-    Mesh* mesh = resman.GetMesh("Enemy");
-    Shader* shd = resman.GetShader("ObjectMaterial");
-    int cnt = 0;
-    for(auto p : enemy_positions) {
-        Enemy* e = new Enemy("Enemy" + std::to_string(cnt++), mesh, shd);
-        e->transform.position = p;
-        e->target = &player->transform;
-        scene.AddNode(e);
-        enemies.push_back(e);
-    }
-
-}
-
-void Game::CreatePowerups() {
-    Mesh* mesh = resman.GetMesh("Powerup");
-    Shader* shd = resman.GetShader("ObjectMaterial");
-    std::vector<glm::vec3> powerup_positions(beacon_positions_g, std::end(beacon_positions_g));
-    powerup_positions.push_back({-39.1208       , 77.1831       , 524.026});
-    powerup_positions.push_back({6.96003        , 85.8356       , 427.861});
-    powerup_positions.push_back({101.604        , 8.05086       , 365.088});
-
-    for(auto bp : powerup_positions) {
-        SceneNode* p = new SceneNode("Powerup", mesh, shd);
-        p->transform.position = bp;
-        scene.AddNode(p);
-        powerups.push_back(p);
-        p->inverted = true;
-    }
+    std::cout << "SceneNodes: " << tcount << std::endl;
 }
 
 void Game::CreateAsteroidField(int num_asteroids){
-    
     Shader* shd = resman.GetShader("ObjectMaterial");
     Mesh* mesh = resman.GetMesh("PointCloud");
     scene.AddNode(new SceneNode("Stars", mesh, shd));
-    /*
-    float size = 600;
-
-    // Create a number of asteroid instances
-    for (int i = 0; i < num_asteroids; i++){
-        // Create instance name
-        std::stringstream ss;
-        ss << i;
-        std::string index = ss.str();
-        std::string name = "AsteroidInstance" + index;
-
-        // Create asteroid instance
-        Asteroid *ast = CreateAsteroidInstance(name, "SimpleObject", "ObjectMaterial");
-
-        // Set attributes of asteroid: random position, orientation, and
-        // angular momentum
-        float x = -size/2 + size*((float) rand() / RAND_MAX);
-        float y = -size/2 + size*((float) rand() / RAND_MAX);
-        float z = -size/2 + size*((float) rand() / RAND_MAX);
-
-        ast->transform.position = glm::vec3(x, y, z);
-        ast->transform.orientation = (glm::normalize(glm::angleAxis(glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
-        ast->SetAngM(glm::normalize(glm::angleAxis(0.05f*glm::pi<float>()*((float) rand() / RAND_MAX), glm::vec3(((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX), ((float) rand() / RAND_MAX)))));
-    }
-    */
 }
 

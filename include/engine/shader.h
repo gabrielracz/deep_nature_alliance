@@ -23,7 +23,7 @@ public:
 	~Shader() = default;
 	bool Load();
 	void Reload();
-	void Use();
+	void Use() const;
 
 	void SetUniform1f(float u, const std::string& name);
 	void SetUniform3f(const glm::vec3& u, const std::string& name);

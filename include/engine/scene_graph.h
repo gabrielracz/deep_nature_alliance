@@ -10,6 +10,7 @@
 #include "scene_node.h"
 #include "resource.h"
 #include "camera.h"
+#include "light.h"
 
 // Class that manages all the objects in a scene
 class SceneGraph {
@@ -41,7 +42,7 @@ class SceneGraph {
 
 
         // Draw the entire scene
-        void Draw(Camera* camera);
+        void Draw(Camera* camera, std::vector<Light*>& lights);
 
         // Update entire scene
         void Update(double dt);

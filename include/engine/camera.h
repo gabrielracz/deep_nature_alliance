@@ -35,6 +35,8 @@ class Camera {
         void Attach(Transform* parent_transform);
         void Detach();
         void Drop();
+        void MoveTo(const glm::vec3 newpos);
+        void Reset();
         bool IsAttached();
         void SetupViewMatrix(void);
 

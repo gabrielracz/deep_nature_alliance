@@ -11,6 +11,8 @@
 
 #include "resource_manager.h"
 #include "scene_graph.h"
+#include "scene_node.h"
+#include "light.h"
 #include "defines.h"
 
 class Application;
@@ -60,7 +62,8 @@ public:
     ~View();
     void Init(const std::string& title, int width, int height);
     void Update(double dt);
-    void Render(SceneGraph& scene);
+    void Render(SceneGraph& scene, Camera& camera, std::vector<Light*>& lights);
+    void RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix = glm::mat4(1.0f));
 
     void ToggleMouseCapture();
     void SetMouseHandler(MouseHandler h) {mouse_handler = h;}

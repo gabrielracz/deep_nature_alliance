@@ -100,10 +100,21 @@ void Camera::Detach() {
     parent_transform = nullptr;
 }
 
+void Camera::Reset() {
+    transform.SetOrientation(glm::quat(0, 0, 0, 0)); //reset local camera orientation
+    transform.SetPosition(original_pos); // reset local lock point
+    SetupViewMatrix();
+}
+
 void Camera::Drop() {
     glm::vec3 eye = glm::vec4(parent_transform->position, 1.0f) + parent_transform->orientation * glm::vec4(transform.position, 1.0f); // get world pos of camera (not relative)
     transform.SetOrientation(parent_transform->orientation); // take the parent's orientation as we will no longer get it from the 'inheritance'
     transform.SetPosition(eye); 
     parent_transform = nullptr;
+    SetupViewMatrix();
+}
+
+void Camera::MoveTo(const glm::vec3 newpos) {
+    transform.SetPosition(newpos);
     SetupViewMatrix();
 }
