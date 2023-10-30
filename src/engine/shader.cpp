@@ -65,7 +65,7 @@ bool Shader::Load() {
 	glGetShaderiv(frag_shader, GL_COMPILE_STATUS, &success);
 	if (!success) {
 		glGetShaderInfoLog(frag_shader, 512, NULL, infolog);
-		std::cout << "[ERROR][SHADER] fragment compilation failed\n" << infolog << std::endl;
+		std::cout << "[ERROR][SHADER] fragment compilation failed " << frag_path << ":\n" << infolog << std::endl;
 		return false;
 	}
 
@@ -86,7 +86,7 @@ bool Shader::Load() {
 	return true;
 }
 
-void Shader::Use() {
+void Shader::Use() const{
 	glUseProgram(id);
 }
 

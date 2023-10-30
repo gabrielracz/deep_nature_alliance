@@ -2,7 +2,6 @@
 #include "application.h"
 #include <stdexcept>
 
-
 View::View(Application& app)
 : app(app) {}
 
@@ -10,21 +9,56 @@ View::~View() {
     glfwTerminate();
 }
 
-void View::Render(SceneGraph& scene) {
+void View::Render(SceneGraph& scene, Camera& cam, std::vector<Light*>& lights) {
+    // UPDATE
     if(glfwWindowShouldClose(win.ptr)) {
         app.Quit();
         return;
     }
-
     camera.Update();
-    scene.Draw(&camera);
+    // scene.Draw(&camera);
+    
+    // DRAW
+    const glm::vec4 background_color = {0.0f, 0.0f, 0.0f, 1.0f};
+    glClearColor(background_color[0], 
+                 background_color[1],
+                 background_color[2], 0.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Push buffer drawn in the background onto the display
+    for(auto node : scene) {
+        RenderNode(node, camera, lights);
+    }
+
     glfwSwapBuffers(win.ptr);
-
-    // Update other events like input handling
     glfwPollEvents();
+}
 
+void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix) {
+    node->GetShader()->Use();
+    camera.SetProjectionUniforms(node->GetShader(), node->GetDesiredProjection());
+
+    for(auto l : lights) {
+        l->SetUniforms(node->GetShader());
+    }
+
+    node->SetUniforms(cam, parent_matrix);
+
+    if(node->GetTexture() != nullptr) {
+        node->GetTexture()->Bind();
+    }
+
+    if(node->IsAlphaEnabled()) {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+    } else {
+        glDisable(GL_BLEND);
+    }
+    node->GetMesh()->Draw();
+
+    glm::mat4 tm = parent_matrix * Transform::RemoveScaling(node->GetCachedTransformMatrix());  // don't pass scaling to children
+    for(auto child : node->GetChildren()) {
+        RenderNode(child, cam, lights, tm);
+    }
 }
 
 void View::Init(const std::string& title, int width, int height) {
@@ -73,7 +107,7 @@ void View::InitView(){
     glDepthFunc(GL_LESS);
 
 	//Use this to disable vsync
-	// glfwSwapInterval(0);
+	glfwSwapInterval(0);
 
     glViewport(0, 0, win.width, win.height);
 

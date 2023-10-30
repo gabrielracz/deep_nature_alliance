@@ -63,18 +63,18 @@ std::vector<SceneNode *>::const_iterator SceneGraph::end() const {
 }
 
 
-void SceneGraph::Draw(Camera* camera){
+void SceneGraph::Draw(Camera* camera, std::vector<Light*>& lights){
 
     // Clear background
-    glClearColor(background_color_[0], 
-                 background_color_[1],
-                 background_color_[2], 0.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // glClearColor(background_color_[0], 
+    //              background_color_[1],
+    //              background_color_[2], 0.0);
+    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Draw all scene nodes
-    for (int i = 0; i < node_.size(); i++){
-        node_[i]->Draw(camera);
-    }
+    // // Draw all scene nodes
+    // for (int i = 0; i < node_.size(); i++){
+    //     node_[i]->Draw(camera);
+    // }
 }
 
 

@@ -16,6 +16,7 @@
 #include "beacon.h"
 #include "enemy.h"
 #include "random.h"
+#include "light.h"
 #include "defines.h"
 
 class Application;
@@ -31,13 +32,6 @@ class GameException: public std::exception
         virtual ~GameException() throw() {};
 };
 
-typedef struct {
-    GLFWwindow* ptr;
-    std::string title;
-    int width;
-    int height;
-} Window;
-
 enum GameState {
     RUNNING,
     WIN,
@@ -46,58 +40,46 @@ enum GameState {
 
 // Game application
 class Game {
-    int rng_seed = 1804289383;
     public:
+
+        Game(Application& app, ResourceManager& resman) : app(app), resman(resman) {};
+
+        void Init(void); 
+        void SetupResources(void);
+        void SetupScene(void);
+
+        void Update(double dt, KeyMap& keys);
+
+        SceneGraph& ActiveScene() {return scene;}
+        Camera& ActiveCamera() {return camera;}
+        std::vector<Light*>& ActiveLights() {return lights;}
 
         Application& app;
         ResourceManager& resman;
+        int rng_seed = 1804289383;
         RandGenerator rng {rng_seed};
-        float wind_speed = 1.5f;
-
-        // Constructor and destructor
-        Game(Application& app, ResourceManager& resman) : app(app), resman(resman) {};
-        ~Game();
-        // Call Init() before calling any other method
-        void Init(void); 
-        // Set up resources for the game
-        void SetupResources(void);
-        // Set up initial scene
-        void SetupScene(void);
-        // Run the game: keep the application active
-        void MainLoop(void); 
-
-        void Update(double dt, KeyMap& keys, Mouse& mouse);
-
-        SceneGraph& Scene() {return scene;}
 
     private:
         SceneGraph scene;
+        Camera camera;
 
-        std::vector<SceneNode*> beacons;
-        int active_beacon_index = 0;
-        std::vector<SceneNode*> powerups;
-        std::vector<Enemy*> enemies;
+        std::vector<Light*> lights;
         Player* player;
 
+        float wind_speed = 1.5f;
+        int camera_mode;
+
+        void CreatePlayer();
+        void CreateAsteroidField(int num_asteroids);
+        void CreateHUD();
+        void CreateTree();
+        void CreateLights();
+        void GrowTree(SceneNode* root, int branches, float height, float width, int level, int max_iterations);
+        void GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width);
 
         void CheckControls(KeyMap& keys);
         void MouseControls(Mouse& mouse);
         void CheckCollisions();
-
-        // Asteroid field
-        // Create instance of one asteroid
-        Asteroid *CreateAsteroidInstance(std::string entity_name, std::string object_name, std::string material_name);
-        // Create entire random asteroid field
-        void CreatePlayer();
-        void CreateHUD();
-        void CreateTree();
-        void GrowTree(SceneNode* root, int branches, float height, float width, int level, int max_iterations);
-        void GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width);
-        void CreateAsteroidField(int num_asteroids = 1500);
-        void CreateRaceTrack();
-        void CreateEnemies();
-        void CreatePowerups();
-
 
 }; // class Game
 

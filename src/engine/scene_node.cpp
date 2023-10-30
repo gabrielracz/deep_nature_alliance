@@ -29,33 +29,6 @@ const std::string SceneNode::GetName(void) const {
     return name_;
 }
 
-void SceneNode::Draw(Camera* camera, const glm::mat4& parent_matrix){
-    if(!visible) {return;}
-
-    // might be bad performance
-
-    shader->Use();
-    SetUniforms(shader, camera, parent_matrix);
-    if(texture != nullptr) {
-        texture->Bind();
-    }
-
-    if(alpha_enabled) {
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_BLEND);
-    } else {
-        glDisable(GL_BLEND);
-    }
-
-    mesh->Draw();
-
-    glm::mat4 tm = parent_matrix * Transform::RemoveScaling(transf_matrix);  // don't pass scaling to children
-    for(auto child : children) {
-        child->Draw(camera, tm);
-    }
-}
-
-
 void SceneNode::Update(double dt){
     elapsed += dt;
     if(!active) {return;}
@@ -68,8 +41,7 @@ void SceneNode::Update(double dt){
 }
 
 
-void SceneNode::SetUniforms(Shader* shader, Camera* camera, const glm::mat4& parent_matrix){
-    camera->SetProjectionUniforms(shader, camera_projection);
+void SceneNode::SetUniforms(Camera& camera, const glm::mat4& parent_matrix){
     shader->SetUniform4m(parent_matrix * transf_matrix, "world_mat");
     shader->SetUniform1f(glfwGetTime(), "timer");
     shader->SetUniform1i(0, "inverted");

@@ -25,27 +25,28 @@ class SceneNode {
         // Destructor
         ~SceneNode();
         
-        // Get name of node
         const std::string GetName(void) const;
-        
-        // Draw the node according to scene parameters in 'camera'
-        // variable
-        virtual void Draw(Camera* camera, const glm::mat4& parent_transform = glm::mat4(1.0));
-
-        // Update the node
         virtual void Update(double dt);
 
-        Transform transform;
-        int inverted = 0;
         bool active = true;
         bool visible = true;
         double elapsed = 0;
+        int inverted = 0;
 
         std::vector<SceneNode*> children;
-
         void SetTexture(Texture* newtex) {texture = newtex;}
+        virtual void SetUniforms(Camera& camera, const glm::mat4& parent_matrix);
+
+        Mesh* GetMesh() {return mesh;}
+        Shader* GetShader() {return shader;}
+        Texture* GetTexture() {return texture;}
+        Camera::Projection GetDesiredProjection() {return camera_projection;}
+        bool IsAlphaEnabled() {return alpha_enabled;}
+        const glm::mat4& GetCachedTransformMatrix(){return transf_matrix;}
+        std::vector<SceneNode*> GetChildren() {return children;}
+
+        Transform transform;
     protected:
-        virtual void SetUniforms(Shader* shader, Camera* camera, const glm::mat4& parent_matrix);
         glm::mat4 transf_matrix;
         std::string name_; // Name of the scene node
 

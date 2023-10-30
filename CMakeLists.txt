@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 # Name of project
-set(PROJ_NAME "a3")
+set(PROJ_NAME "dna")
 project(${PROJ_NAME})
 
 set (CMAKE_CXX_STANDARD 17)
@@ -23,6 +23,7 @@ set(HDRS
     include/engine/random.h
     include/engine/defines.h
     include/engine/control.h
+    include/engine/light.h
     include/lib/stb_image.h
     include/game/game.h 
     include/game/asteroid.h
@@ -45,6 +46,7 @@ set(SRCS
     src/engine/scene_node.cpp 
     src/engine/random.cpp 
     src/engine/control.cpp
+    src/engine/light.cpp
     src/game/text.cpp
     src/game/game.cpp 
     src/game/asteroid.cpp

@@ -2,6 +2,7 @@
 #define TEXT_H
 
 #include <functional>
+#include "camera.h"
 #include "scene_node.h"
 
 class Game;
@@ -18,8 +19,7 @@ public:
         BOTTOMCENTER
     };
 
-    Text(const std::string name, Mesh* Mesh, Shader* shader, Game* game, const std::string& content)
-    : SceneNode(name, Mesh, shader), content(content), game(game) {}
+    Text(const std::string name, Mesh* Mesh, Shader* shader, Game* game, const std::string& content);
 
     virtual void Update(double dt) override;
 
@@ -30,7 +30,7 @@ public:
     void SetAnchor(Anchor a) {anchor = a;}
     void SetSize(float newsize) {size = newsize;}
 protected:
-    virtual void SetUniforms(Shader* shader, Camera *camera, const glm::mat4 &parent_matrix) override;
+    virtual void SetUniforms(Camera& camera, const glm::mat4 &parent_matrix) override;
 
     float size = 13.125;
     std::string content = "";

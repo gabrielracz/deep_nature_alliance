@@ -9,9 +9,6 @@ Application::Application() : view(*this), game(*this, resman){}
 void Application::Init() {
     view.Init("view test", 800, 600);
     game.Init();
-    // Setup the main resources and scene in the game
-    game.SetupResources();
-    game.SetupScene();
 }
 
 void Application::Start() {
@@ -36,8 +33,8 @@ void Application::Start() {
 		}
 		last_time = current_time;
 
-        game.Update(dt, view.GetKeys(), view.GetMouse());
-        view.Render(game.Scene());
+        game.Update(dt, view.GetKeys());
+        view.Render(game.ActiveScene(), game.ActiveCamera(), game.ActiveLights());
     }
 
 }
