@@ -46,6 +46,10 @@ public:
         position = newpos;
     } 
 
+    void SetScale(const glm::vec3& newscale) {
+        scale = newscale;
+    } 
+
     void SetOrientation(const glm::quat& newori) {
         orientation = newori;
     } 

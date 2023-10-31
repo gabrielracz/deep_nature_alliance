@@ -692,6 +692,8 @@ void ResourceManager::CreateSphere(std::string object_name, float radius, int nu
             }
             vertex[(i*num_samples_phi+j)*vertex_att + 9] = vertex_coord[0];
             vertex[(i*num_samples_phi+j)*vertex_att + 10] = vertex_coord[1];
+            // vertex[(i*num_samples_phi+j)*vertex_att + 9] = theta/num_samples_theta;
+            // vertex[(i*num_samples_phi+j)*vertex_att + 10] = phi/num_samples_phi;
         }
     }
 
@@ -724,9 +726,9 @@ void ResourceManager::CreatePointCloud(std::string object_name, int num_points, 
     std::vector<unsigned int> inds;
     for(int i = 0 ; i < num_points; i++ ) {
         glm::vec3 pos = glm::ballRand(size);
-        // if(color == glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)) {
+        if(color == glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)) {
             color = glm::vec4(glm::ballRand(2.0), 1.0f);
-        // }
+        }
         
         // hack to use the same shader as other objects (really only need pos and color)
         APPEND_VEC3(vertices, pos);
