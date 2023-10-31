@@ -1,3 +1,4 @@
+#include "defines.h"
 #include "scene_graph.h"
 #include "application.h"
 #include <GLFW/glfw3.h>
@@ -84,15 +85,23 @@ void Game::SetupResources(void){
     resman.CreateCylinder("Powerup", powerup_hitbox_g, powerup_hitbox_g, 10);
     resman.CreateCone("Branch", 1.0, 1.0, 2, 10);
     resman.CreateSphere("Leaf", 1.0, 4, 10);
-    resman.CreatePointCloud("PointCloud", 200000, 600);
+    resman.CreatePointCloud("PointCloud", 50000, 600, {0.8, 0.8, 0.8, 0.8});
+    resman.CreateSphere("Planet", 1, 500, 500);
 
     // load shader programs
     resman.LoadShader("ObjectMaterial", SHADER_DIRECTORY"/material_vp.glsl", SHADER_DIRECTORY"/material_fp.glsl");
     resman.LoadShader("ShipShader", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
     resman.LoadShader("TextShader", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
+    resman.LoadShader("PlanetShader", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/textured_fp.glsl");
 
     // load textures
     resman.LoadTexture("Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
+    resman.LoadTexture("LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT);
+    resman.LoadTexture("SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_REPEAT);
+    resman.LoadTexture("MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
+    resman.LoadTexture("RockPlanet", RESOURCES_DIRECTORY"/mine_rocks.png", GL_REPEAT);
+    resman.LoadTexture("RedPlanet", RESOURCES_DIRECTORY"/red_rubble.png", GL_REPEAT);
+    resman.LoadTexture("AlpinePlanet", RESOURCES_DIRECTORY"/4k_eris.jpg", GL_REPEAT);
 }
 
 
@@ -104,8 +113,8 @@ void Game::SetupScene(void){
 
     // Create asteroid field
     CreatePlayer();
-    CreateTree();
-    CreateAsteroidField(1500);
+    // CreateTree();
+    CreateAsteroidField(500);
     CreateLights();
     CreateHUD();
 }
@@ -264,16 +273,25 @@ void Game::CreatePlayer() {
     // player->visible = false;
     app.GetCamera().Attach(&player->transform); // Attach the camera to the player
     scene.AddNode(player);
+
+
+    SceneNode* planet = new SceneNode("Lava", resman.GetMesh("Planet"), resman.GetShader("PlanetShader"));
+    planet->SetTexture(resman.GetTexture("MarsPlanet"));
+    planet->transform.SetScale({800, 800, 800});
+    planet->transform.SetPosition({200, 0, -2000});
+    planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
+    scene.AddNode(planet);
 }
 
 void Game::CreateHUD() {
     Mesh* mtxt = resman.GetMesh("TextQuad");
     Shader* stxt = resman.GetShader("TextShader");
     Texture* ttxt = resman.GetTexture("Charmap");
-    Text* txt = new Text("hello", mtxt, stxt, this, "This is a game about flying through space");
+    Text* txt = new Text("hello", mtxt, stxt, this, "DEEP NATURE ALLIANCE");
     txt->transform.SetPosition({0.0f, 1.0f, 0.0f});
     txt->SetTexture(ttxt);
     txt->SetAnchor(Text::Anchor::TOPCENTER);
+    txt->SetColor(Colors::SlimeGreen);
     txt->SetSize(15);
     scene.AddNode(txt);
 
@@ -289,7 +307,7 @@ void Game::CreateHUD() {
 
 void Game::CreateLights() {
     Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
-    light->transform.SetPosition({0.0, 100, 0});
+    light->transform.SetPosition({100, 0, 200});
     lights.push_back(light);
 }
 
