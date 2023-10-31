@@ -19,7 +19,7 @@ public:
         BOTTOMCENTER
     };
 
-    Text(const std::string name, Mesh* Mesh, Shader* shader, Game* game, const std::string& content);
+    Text(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, Game* game, const std::string& content = "");
 
     virtual void Update(double dt) override;
 
@@ -30,7 +30,7 @@ public:
     void SetAnchor(Anchor a) {anchor = a;}
     void SetSize(float newsize) {size = newsize;}
 protected:
-    virtual void SetUniforms(Camera& camera, const glm::mat4 &parent_matrix) override;
+    virtual void SetUniforms(Shader* shader, const glm::mat4 &parent_matrix) override;
 
     float size = 13.125;
     std::string content = "";

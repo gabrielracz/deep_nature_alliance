@@ -69,7 +69,12 @@ class Game {
         float wind_speed = 1.5f;
         int camera_mode;
 
+        void LoadMeshes();
+        void LoadShaders();
+        void LoadTextures();
+
         void CreatePlayer();
+        void CreatePlanets();
         void CreateAsteroidField(int num_asteroids);
         void CreateHUD();
         void CreateTree();

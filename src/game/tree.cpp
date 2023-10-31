@@ -14,9 +14,8 @@
 //     transform.scale = glm::vec3(width, height, width);
 // }
 
-Tree::Tree(std::string name, Mesh* mesh, Shader* shader, float wind_offset, float wind_speed, float wind_strength, Game* game)
-: SceneNode(name, mesh, shader), wind_offset(wind_offset), wind_speed(wind_speed), wind_strength(wind_strength), game(game){
-
+Tree::Tree(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, float wind_offset, float wind_speed, float wind_strength, Game* game)
+: SceneNode(name, mesh_id, shader_id, texture_id), wind_offset(wind_offset), wind_speed(wind_speed), wind_strength(wind_strength), game(game){
 }
 
 void Tree::Update(double dt) {

@@ -4,8 +4,8 @@
 #include "scene_node.h"
 class Enemy : public SceneNode {
 public:
-    Enemy(const std::string name, Mesh* Mesh, Shader* shader)
-    : SceneNode(name, Mesh, shader) {}
+    Enemy(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id = "")
+    : SceneNode(name, mesh_id, shader_id, texture_id) {}
 
     virtual void Update(double dt) override;
 

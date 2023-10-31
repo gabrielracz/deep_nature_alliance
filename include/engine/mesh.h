@@ -19,10 +19,11 @@ struct Vertex {
 class Texture {
     public:
 	int id = -1;
+    float texture_repetition = 1;
     bool alpha_enabled = false;
     Texture() = default;
-    Texture(int id) : id(id){}
-    void Bind();
+    Texture(int id, float rep) : id(id), texture_repetition(rep){}
+    void Bind(Shader* shader);
 };
 
 enum LAYOUT_TYPE {

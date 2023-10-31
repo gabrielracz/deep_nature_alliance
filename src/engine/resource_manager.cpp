@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iostream>
 
+#include "defines.h"
 #include "mesh.h"
 #include "resource_manager.h"
 
@@ -26,15 +27,15 @@ const Layout generator_layout = Layout(
     {{FLOAT3, "vertex"},{FLOAT3, "normal"}, {FLOAT3, "color"}, {FLOAT2, "uv"}});
 
 void ResourceManager::LoadShader(const std::string& name, const std::string& vert_path, const std::string& frag_path){
-    shaders.emplace(name, Shader(vert_path.c_str(), frag_path.c_str()));
+    overwrite_emplace(shaders, name, Shader(vert_path.c_str(), frag_path.c_str()));
 }
 
 void ResourceManager::LoadMesh(const std::string& name, const std::string& path) {
-    meshes.emplace(name, Mesh(path));
+    overwrite_emplace(meshes, name, Mesh(path));
 }
 
 void ResourceManager::AddMesh(const std::string& name, std::vector<float> verts, std::vector<unsigned int> inds, Layout layout) {
-    meshes.emplace(name, Mesh(verts, inds, layout));
+    overwrite_emplace(meshes, name, Mesh(verts, inds, layout));
 }
 
 Shader* ResourceManager::GetShader(const std::string &name) {
@@ -64,7 +65,7 @@ Texture* ResourceManager::GetTexture(const std::string &name) {
     return &it->second;
 }
 
-void ResourceManager::LoadTexture(const std::string& name, const std::string& file_path, int wrap_option) {
+void ResourceManager::LoadTexture(const std::string& name, const std::string& file_path, int wrap_option, float texture_repetition) {
  	stbi_set_flip_vertically_on_load(1);
 	//Texture
 	int width, height, n_channels;
@@ -103,9 +104,8 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
 
-    textures.emplace(name, Texture(tex_id));
+    overwrite_emplace(textures, name, Texture(tex_id, texture_repetition));
 }
-
 
 // Create the geometry for a cylinder
 void ResourceManager::CreateCylinder(std::string object_name, float height, float circle_radius, int num_height_samples, int num_circle_samples) {
@@ -247,7 +247,7 @@ void ResourceManager::CreateCylinder(std::string object_name, float height, floa
     }
 
     // Create resource
-    meshes.emplace(object_name, Mesh(vertex, vertex_num * vertex_att, face, face_num * face_att, generator_layout));
+    overwrite_emplace(meshes, object_name, Mesh(vertex, vertex_num * vertex_att, face, face_num * face_att, generator_layout));
 
     delete[] vertex;
     delete[] face;
@@ -377,7 +377,8 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
         APPEND_VEC3(faces, t);
     }
 
-    meshes.emplace(object_name, Mesh(vertices, faces, generator_layout));
+
+    overwrite_emplace(meshes, object_name, Mesh(vertices, faces, generator_layout));
 }
 
 /*
@@ -626,7 +627,7 @@ void ResourceManager::CreateTorus(std::string object_name, float loop_radius, fl
         }
     }
 
-    meshes.emplace(object_name, Mesh(vertex, vertex_num * vertex_att, face, face_num * face_att, generator_layout));
+    overwrite_emplace(meshes, object_name, Mesh(vertex, vertex_num * vertex_att, face, face_num * face_att, generator_layout));
 
     delete [] vertex;
     delete [] face;
@@ -715,7 +716,7 @@ void ResourceManager::CreateSphere(std::string object_name, float radius, int nu
         }
     }
 
-    meshes.emplace(object_name, Mesh(vertex, vertex_num * vertex_att, face, face_num * face_att, generator_layout));
+    overwrite_emplace(meshes, object_name, Mesh(vertex, vertex_num * vertex_att, face, face_num * face_att, generator_layout));
 
     delete [] vertex;
     delete [] face;
@@ -737,7 +738,7 @@ void ResourceManager::CreatePointCloud(std::string object_name, int num_points, 
         APPEND_VEC2(vertices, glm::vec2(1.0, 1.0));
     }
 
-    meshes.emplace(object_name, Mesh(vertices, inds, generator_layout));
+    overwrite_emplace(meshes, object_name, Mesh(vertices, inds, generator_layout));
 }
 
 void ResourceManager::CreateQuad(std::string name) {
@@ -758,7 +759,7 @@ void ResourceManager::CreateQuad(std::string name) {
         {FLOAT2, "uv"}
     });
     
-    meshes.emplace(name, Mesh(vertices, indices, l));
+    overwrite_emplace(meshes, name, Mesh(vertices, indices, l));
 }
 
 

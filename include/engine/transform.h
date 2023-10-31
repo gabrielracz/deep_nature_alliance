@@ -14,11 +14,11 @@ typedef enum {
     FORWARD = 2
 } Axis;
 struct Transform {
-    glm::vec3 position    {glm::vec3()};
-    glm::quat orientation {};//{0, 0, 0, 0};
-    glm::vec3 scale       {glm::vec3()};
+    glm::vec3 position    {glm::vec3(0.0f)};
+    glm::quat orientation {};
+    glm::vec3 scale       {glm::vec3(1.0f)};
     glm::quat orbit {};
-    glm::vec3 joint = {0, 0, 0};
+    glm::vec3 joint = {0.0f, 0.0f, 0.0f};
 
     glm::mat3 axes {{1.0f, 0.0f, 0.0f},
                    {0.0f, 1.0f, 0.0f},

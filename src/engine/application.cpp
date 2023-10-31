@@ -4,7 +4,7 @@
 #include "application.h"
 #include "defines.h"
 
-Application::Application() : view(*this), game(*this, resman){}
+Application::Application() : view(*this, resman), game(*this, resman){}
 
 void Application::Init() {
     view.Init("view test", 800, 600);
@@ -28,7 +28,7 @@ void Application::Start() {
 		acc_delta_time += dt;
 		if(frame_counter % frame_window == 0){
             fps = frame_window/acc_delta_time;
-            std::cout << "fps: " << PRINT_FIXED_FLOAT(fps) << std::endl;
+            // std::cout << "fps: " << PRINT_FIXED_FLOAT(fps) << std::endl;
 			acc_delta_time = 0;
 		}
 		last_time = current_time;

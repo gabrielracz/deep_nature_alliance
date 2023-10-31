@@ -9,12 +9,13 @@ in vec3 light_pos;
 
 // Uniform (global) buffer
 uniform sampler2D texture_map;
+uniform float texture_repetition = 1;
 
 
 void main() 
 {
     // Retrieve texture value
-	vec2 uv_use = uv_interp;
+	vec2 uv_use = texture_repetition*uv_interp;
     vec4 pixel = texture2D(texture_map, uv_use);
 
     // Use texture in determining fragment colour

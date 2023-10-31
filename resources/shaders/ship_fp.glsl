@@ -17,6 +17,6 @@ void main()
                     1.0f);
     // vec4 col = color_interp;
 	// gl_FragColor = col;
-	gl_FragColor = vec4(normalize(normal_interp.xyz), 1.0);
-	//gl_FragColor = vec4(0.6, 0.6, 0.6, 1.0);
+	// gl_FragColor = vec4(normalize(normal_interp.xyz), 1.0);
+	gl_FragColor = vec4(0.6, 0.6, 0.6, 1.0);
 }

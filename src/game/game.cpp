@@ -73,35 +73,41 @@ void Game::Init(void){
 
        
 void Game::SetupResources(void){
+    LoadMeshes();
+    LoadShaders();
+    LoadTextures();
+}
 
+void Game::LoadMeshes() {
     // load .obj meshes
-    resman.LoadMesh("Player", RESOURCES_DIRECTORY"/h2.obj");
-
+    resman.LoadMesh        ("M_Ship", RESOURCES_DIRECTORY"/h2.obj");
     // generate geometry
-    resman.CreateQuad("TextQuad");
-    resman.CreateSphere("SimpleObject", 0.8, 5, 5);
-    resman.CreateTorus("Beacon", beacon_radius_g, beacon_radius_g - beacon_hitbox_g, 20, 20);
-    resman.CreateSphere("Enemy", enemy_hitbox_g, 5, 5);
-    resman.CreateCylinder("Powerup", powerup_hitbox_g, powerup_hitbox_g, 10);
-    resman.CreateCone("Branch", 1.0, 1.0, 2, 10);
-    resman.CreateSphere("Leaf", 1.0, 4, 10);
-    resman.CreatePointCloud("PointCloud", 50000, 600, {0.8, 0.8, 0.8, 0.8});
-    resman.CreateSphere("Planet", 1, 500, 500);
+    resman.CreateQuad      ("M_Quad");
+    resman.CreateCone      ("M_Branch", 1.0, 1.0, 2, 10);
+    resman.CreateSphere    ("M_Leaf", 1.0, 4, 10);
+    resman.CreatePointCloud("M_StarCloud", 50000, 600, {0.8, 0.8, 0.8, 0.8});
+    resman.CreateSphere    ("M_Planet", 1, 500, 500);
+}
 
+void Game::LoadShaders() {
+    std::cout << "shaders loaded" << std::endl;
     // load shader programs
-    resman.LoadShader("ObjectMaterial", SHADER_DIRECTORY"/material_vp.glsl", SHADER_DIRECTORY"/material_fp.glsl");
-    resman.LoadShader("ShipShader", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
-    resman.LoadShader("TextShader", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
-    resman.LoadShader("PlanetShader", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/textured_fp.glsl");
+    resman.LoadShader("S_Default", SHADER_DIRECTORY"/material_vp.glsl", SHADER_DIRECTORY"/material_fp.glsl");
+    resman.LoadShader("S_Ship", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
+    resman.LoadShader("S_Text", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
+    resman.LoadShader("S_Planet", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/textured_fp.glsl");
+}
 
+void Game::LoadTextures() {
     // load textures
-    resman.LoadTexture("Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
-    resman.LoadTexture("LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT);
-    resman.LoadTexture("SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_REPEAT);
-    resman.LoadTexture("MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
-    resman.LoadTexture("RockPlanet", RESOURCES_DIRECTORY"/mine_rocks.png", GL_REPEAT);
-    resman.LoadTexture("RedPlanet", RESOURCES_DIRECTORY"/red_rubble.png", GL_REPEAT);
-    resman.LoadTexture("AlpinePlanet", RESOURCES_DIRECTORY"/4k_eris.jpg", GL_REPEAT);
+    resman.LoadTexture("T_Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
+    resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
+    resman.LoadTexture("T_SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_REPEAT);
+    resman.LoadTexture("T_MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
+    resman.LoadTexture("T_RockPlanet", RESOURCES_DIRECTORY"/mine_rocks.png", GL_REPEAT);
+    resman.LoadTexture("T_RedPlanet", RESOURCES_DIRECTORY"/red_rubble.png", GL_REPEAT);
+    resman.LoadTexture("T_AlpinePlanet", RESOURCES_DIRECTORY"/4k_eris.jpg", GL_REPEAT);
+    resman.LoadTexture("T_KaliaPlanet", RESOURCES_DIRECTORY"/kalia.png", GL_REPEAT);
 }
 
 
@@ -111,8 +117,8 @@ void Game::SetupScene(void){
     scene = SceneGraph();
     scene.SetBackgroundColor(viewport_background_color_g);
 
-    // Create asteroid field
     CreatePlayer();
+    CreatePlanets();
     // CreateTree();
     CreateAsteroidField(500);
     CreateLights();
@@ -156,37 +162,6 @@ void Game::CheckControls(KeyMap& keys) {
         keys[GLFW_KEY_T] = false;
     }
 
-    // View control
-    float look_sens = 0.035; // amount the ship turns per keypress
-
-    auto toggle = [&keys](float& target, float val, int ctrl1, int ctrl2) {
-        if(keys[ctrl1]) {
-            target = val;
-        } else if(keys[ctrl2]) {
-            target = -val;
-        } else {
-            target = 0.0f;
-        }
-    };
-
-    auto toggle_func = [&keys](float& target, std::function<void(int)> f, int ctrl1, int ctrl2) {
-        if(keys[ctrl1]) {
-            f(1);
-        } else if(keys[ctrl2]) {
-            f(-1);
-        }
-    };
-
-
-
-    // toggle(player->angular_velocity.x, look_sens, GLFW_KEY_DOWN, GLFW_KEY_UP);
-    // toggle(player->angular_velocity.y, look_sens, GLFW_KEY_LEFT, GLFW_KEY_RIGHT);
-    // toggle(player->angular_velocity.z, look_sens, GLFW_KEY_Q, GLFW_KEY_E);
-
-    // toggle(player->velocity.x, player->move_speed, GLFW_KEY_D, GLFW_KEY_A);
-    // toggle(player->velocity.y, player->move_speed, GLFW_KEY_Z, GLFW_KEY_X);
-    // toggle(player->velocity.z, player->move_speed, GLFW_KEY_S, GLFW_KEY_W);
-
     if(keys[GLFW_KEY_LEFT_SHIFT]) {
         player->ShipControl(Player::Controls::THRUST);
     };
@@ -212,6 +187,11 @@ void Game::CheckControls(KeyMap& keys) {
         player->ShipControl(Player::Controls::ROLLR);
     };
 
+    if(keys[GLFW_KEY_0]) {
+        LoadShaders();
+        keys[GLFW_KEY_0] = false;
+    }
+
 
     if(keys[GLFW_KEY_I]) {
         app.GetCamera().transform.position.z -= 0.1;
@@ -228,14 +208,7 @@ void Game::CheckControls(KeyMap& keys) {
         }
         keys[GLFW_KEY_X] = false;
     }
-    if(keys[GLFW_KEY_X]) {
-        if(app.GetCamera().IsAttached()) {
-            app.GetCamera().Drop();
-        } else {
-            app.GetCamera().Attach(&player->transform);
-        }
-        keys[GLFW_KEY_X] = false;
-    }
+
     if(keys[GLFW_KEY_Z]) {
         if(app.GetCamera().IsAttached()) {
             if(camera_mode++ % 2 == 0) {
@@ -246,12 +219,6 @@ void Game::CheckControls(KeyMap& keys) {
         }
         keys[GLFW_KEY_Z] = false;
     }
-
-    // if(keys[GLFW_KEY_W]) {
-    //     player->Thrust(1);
-    // } else if(keys[GLFW_KEY_S]) {
-    //     player->Thrust(-1);
-    // }
 }
 
 void Game::MouseControls(Mouse& mouse) {
@@ -266,17 +233,15 @@ void Game::MouseControls(Mouse& mouse) {
 }
 
 void Game::CreatePlayer() {
-    Mesh* mesh = resman.GetMesh("Player");
-    Shader* shd = resman.GetShader("ShipShader");
-    player = new Player("PlayerObj", mesh, shd);
+    player = new Player("Obj_Player", "M_Ship", "S_Ship");
     player->transform.position = player_position_g;
     // player->visible = false;
     app.GetCamera().Attach(&player->transform); // Attach the camera to the player
     scene.AddNode(player);
+}
 
-
-    SceneNode* planet = new SceneNode("Lava", resman.GetMesh("Planet"), resman.GetShader("PlanetShader"));
-    planet->SetTexture(resman.GetTexture("MarsPlanet"));
+void Game::CreatePlanets() {
+    SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_KaliaPlanet");
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetPosition({200, 0, -2000});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
@@ -284,20 +249,16 @@ void Game::CreatePlayer() {
 }
 
 void Game::CreateHUD() {
-    Mesh* mtxt = resman.GetMesh("TextQuad");
-    Shader* stxt = resman.GetShader("TextShader");
-    Texture* ttxt = resman.GetTexture("Charmap");
-    Text* txt = new Text("hello", mtxt, stxt, this, "DEEP NATURE ALLIANCE");
+    Text* txt = new Text("Obj_Banner", "M_Quad", "S_Text", "T_Charmap", this, "DEEP NATURE ALLIANCE");
     txt->transform.SetPosition({0.0f, 1.0f, 0.0f});
-    txt->SetTexture(ttxt);
     txt->SetAnchor(Text::Anchor::TOPCENTER);
     txt->SetColor(Colors::SlimeGreen);
     txt->SetSize(15);
     scene.AddNode(txt);
 
-    Text* fps = new Text("fps", mtxt, stxt, this, "FPS");
+    Text* fps = new Text("Obj_Fps", "M_Quad", "S_Text", "T_Charmap", this, "FPS");
     fps->transform.SetPosition({-1.0, 1.0, 0.0f});
-    fps->SetColor({0.0f, 1.0f, 0.0f, 1.0f});
+    fps->SetColor(Colors::Magenta);
     fps->SetAnchor(Text::Anchor::TOPLEFT);
     fps->SetCallback([this]() -> std::string {
         return "fps: " + std::to_string(app.GetFPS());
@@ -320,7 +281,7 @@ void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float pa
         float woff = rng.randfloat(0.0f, 2*PI);
         float wspd = 2.5f;
         float wstr = rng.randfloat(0.006, 0.015);
-        Tree* leaf = new Tree("Leaf", mesh, shd, woff, wspd, wstr, this);
+        Tree* leaf = new Tree("Leaf", "M_Branch", "S_Default", "", woff, wspd, wstr, this);
 
         float p = rng.randfloat(0.0f, parent_length/1.25f);
         float x = rng.randfloat(0.0f, 1.0f);
@@ -339,7 +300,7 @@ void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float pa
         leaf->transform.orbit *= glm::angleAxis(rng.randsign() * r, glm::vec3(0, 0, 1)); // roll
         leaf->transform.joint = glm::vec3(0, -l/2, 0); // base of the leaf
  
-        root->children.push_back(leaf);
+        root->AddChild(leaf);
         tcount++;
     }
 }
@@ -360,7 +321,7 @@ void Game::GrowTree(SceneNode* root, int branches, float parent_height, float pa
         float wstr = rng.randfloat(0.0004, 0.001);
         float wspd = rng.randfloat(1.0, 2.0);
 
-        Tree* branch = new Tree("Branch", mesh, shd, woff, wspd, wstr, this);
+        Tree* branch = new Tree("Branch", "M_Branch", "S_Default", "", woff, wspd, wstr, this);
 
         float p = rng.randfloat(0.0f, parent_height/2.0f);
         float l = rng.randfloat(5.0f, parent_height - 1);
@@ -376,7 +337,7 @@ void Game::GrowTree(SceneNode* root, int branches, float parent_height, float pa
         branch->transform.orbit *= glm::angleAxis(rng.randsign() * r, glm::vec3(0, 0, 1)); // roll
         branch->transform.joint = glm::vec3(0, -l/2, 0); // base of the cone
  
-        root->children.push_back(branch);
+        root->AddChild(branch);
         GrowTree(branch, branches, l, w, level, max_iterations);
         tcount++;
     }
@@ -397,7 +358,7 @@ void Game::CreateTree() {
 
     for(int i = 0; i < 2; i++) {
 
-        Tree* tree = new Tree("Tree", mesh, shd, 0, 0, 0, this);
+        Tree* tree = new Tree("Obj_TreeTrunk", "M_Branch", "S_Default", "", 0, 0, 0, this);
         SceneNode* root = tree;
         GrowTree(tree, branches, height, width, 0, iterations);
         tree->transform.position = player_position_g - glm::vec3(i*spread, 0, 40);
@@ -409,8 +370,6 @@ void Game::CreateTree() {
 }
 
 void Game::CreateAsteroidField(int num_asteroids){
-    Shader* shd = resman.GetShader("ObjectMaterial");
-    Mesh* mesh = resman.GetMesh("PointCloud");
-    scene.AddNode(new SceneNode("Stars", mesh, shd));
+    scene.AddNode(new SceneNode("Obj_Stars", "M_StarCloud", "S_Default"));
 }
 

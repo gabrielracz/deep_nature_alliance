@@ -24,8 +24,19 @@ namespace Colors {
     const glm::vec4 White      = HEXCOLOR(0xFFFFFF);
     const glm::vec4 Black      = HEXCOLOR(0x000000);
     const glm::vec4 SlimeGreen = HEXCOLOR(0xAFAF00);
+    const glm::vec4 Magenta = HEXCOLOR(0xFF00FF);
 }
 
 typedef std::function<void(Mouse& mouse)> MouseHandler;
+
+
+template <typename K, typename V>
+void overwrite_emplace(std::unordered_map<K, V>& map, K key, V&& val) {
+    auto it = map.find(key);
+    if(it != map.end()) {
+        map.erase(key);
+    }
+    map.emplace(key, val);
+}
 
 #endif
