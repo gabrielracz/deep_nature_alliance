@@ -4,7 +4,7 @@
 #include "application.h"
 #include "defines.h"
 
-Application::Application() : view(*this), game(*this, resman){}
+Application::Application() : view(*this, resman), game(*this, resman){}
 
 void Application::Init() {
     view.Init("view test", 800, 600);

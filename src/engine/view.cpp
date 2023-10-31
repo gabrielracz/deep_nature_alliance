@@ -1,9 +1,10 @@
 #include "view.h"
 #include "application.h"
+#include "resource_manager.h"
 #include <stdexcept>
 
-View::View(Application& app)
-: app(app) {}
+View::View(Application& app, ResourceManager& resman)
+: app(app), resman(resman) {}
 
 View::~View() {
     glfwTerminate();
@@ -15,8 +16,9 @@ void View::Render(SceneGraph& scene, Camera& cam, std::vector<Light*>& lights) {
         app.Quit();
         return;
     }
+
+    // temporary. use the game-owned camera eventually
     camera.Update();
-    // scene.Draw(&camera);
     
     // DRAW
     const glm::vec4 background_color = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -34,28 +36,34 @@ void View::Render(SceneGraph& scene, Camera& cam, std::vector<Light*>& lights) {
 }
 
 void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix) {
-    Shader* shd = node->GetShader();
+    std::string shd_id  = node->GetShaderID();
+    std::string tex_id  = node->GetTextureID();
+    std::string mesh_id = node->GetMeshID();
+
+    // SHADER
+    Shader* shd = resman.GetShader(shd_id);
     shd->Use();
     camera.SetProjectionUniforms(shd, node->GetDesiredProjection());
-
     for(auto l : lights) {
         l->SetUniforms(shd);
     }
+    node->SetUniforms(shd, parent_matrix);
 
-    node->SetUniforms(cam, parent_matrix);
-
-    if(node->GetTexture() != nullptr) {
-        node->GetTexture()->Bind(shd);
+    // TEXTURE
+    if(!tex_id.empty()) {
+        resman.GetTexture(tex_id)->Bind(shd);
     }
 
+    // MODEL
     if(node->IsAlphaEnabled()) {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
     } else {
         glDisable(GL_BLEND);
     }
-    node->GetMesh()->Draw();
+    resman.GetMesh(mesh_id)->Draw();
 
+    // HIERARCHY
     glm::mat4 tm = parent_matrix * Transform::RemoveScaling(node->GetCachedTransformMatrix());  // don't pass scaling to children
     for(auto child : node->GetChildren()) {
         RenderNode(child, cam, lights, tm);

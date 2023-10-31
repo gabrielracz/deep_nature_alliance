@@ -10,23 +10,10 @@
 
 #include "scene_node.h"
 
-SceneNode::SceneNode(const std::string name, Mesh* m, Shader* shd)
-: name_(name), mesh(m), shader(shd) {
-    // Other attributes
-    transform.scale = glm::vec3(1.0, 1.0, 1.0);
-}
-
-
 SceneNode::~SceneNode(){
     for(auto child : children) {
         delete child;
     }
-}
-
-
-const std::string SceneNode::GetName(void) const {
-
-    return name_;
 }
 
 void SceneNode::Update(double dt){
@@ -41,7 +28,7 @@ void SceneNode::Update(double dt){
 }
 
 
-void SceneNode::SetUniforms(Camera& camera, const glm::mat4& parent_matrix){
+void SceneNode::SetUniforms(Shader* shader, const glm::mat4& parent_matrix){
     shader->SetUniform4m(parent_matrix * transf_matrix, "world_mat");
     shader->SetUniform1f(glfwGetTime(), "timer");
     shader->SetUniform1i(0, "inverted");

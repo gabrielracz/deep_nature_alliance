@@ -20,45 +20,44 @@ class SceneNode {
 
     public:
         // Create scene node from given resources
-        SceneNode(const std::string name,  Mesh* mesh, Shader* shader);
+        SceneNode(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id = "")
+        : name(name), mesh_id(mesh_id), shader_id(shader_id), texture_id(texture_id) {};
 
         // Destructor
         ~SceneNode();
         
-        const std::string GetName(void) const;
         virtual void Update(double dt);
 
-        bool active = true;
-        bool visible = true;
-        double elapsed = 0;
-        int inverted = 0;
+        virtual void SetUniforms(Shader* shader, const glm::mat4& parent_matrix);
 
-        std::vector<SceneNode*> children;
-        void SetTexture(Texture* newtex) {texture = newtex;}
-        virtual void SetUniforms(Camera& camera, const glm::mat4& parent_matrix);
+        void SetTexture(std::string& new_tex_id) {texture_id = new_tex_id;}
+        void AddChild(SceneNode* n) {children.push_back(n);}
 
-        Mesh* GetMesh() {return mesh;}
-        Shader* GetShader() {return shader;}
-        Texture* GetTexture() {return texture;}
-        Camera::Projection GetDesiredProjection() {return camera_projection;}
-        bool IsAlphaEnabled() {return alpha_enabled;}
-        const glm::mat4& GetCachedTransformMatrix(){return transf_matrix;}
-        std::vector<SceneNode*> GetChildren() {return children;}
+        const std::string GetName(void) const              {return name;}
+        const std::string GetMeshID() const                {return mesh_id;}
+        const std::string GetShaderID() const              {return shader_id;}
+        const std::string GetTextureID() const             {return texture_id;}
+        Camera::Projection GetDesiredProjection() const    {return camera_projection;}
+        bool IsAlphaEnabled() const                        {return alpha_enabled;}
+        const glm::mat4& GetCachedTransformMatrix() const  {return transf_matrix;}
+        const std::vector<SceneNode*>& GetChildren() const {return children;}
 
         Transform transform;
+        bool active = true;
+        bool visible = true;
+        int inverted = 0;
     protected:
         glm::mat4 transf_matrix;
-        std::string name_; // Name of the scene node
+        std::string name; // Name of the scene node
+        std::vector<SceneNode*> children;
+        double elapsed = 0;
 
-        Mesh* mesh       {nullptr};
-        Shader* shader   {nullptr};
-        Texture* texture {nullptr};
+        std::string mesh_id;
+        std::string shader_id;
+        std::string texture_id;
 
         Camera::Projection camera_projection = Camera::Projection::PERSPECTIVE;
         bool alpha_enabled = false;
-
-        // Set matrices that transform the node in a shader program
-
 }; // class SceneNode
 
 #endif // SCENE_NODE_H_

@@ -14,6 +14,7 @@
 #include "resource.h"
 #include "mesh.h"
 #include "shader.h"
+#include "defines.h"
 
 // Default extensions for different shader source files
 #define VERTEX_PROGRAM_EXTENSION "_vp.glsl"

@@ -16,8 +16,8 @@ public:
         ROLLR
     };
 
-    Player(const std::string name, Mesh* mesh, Shader* shader)
-    : SceneNode(name, mesh, shader) {}
+    Player(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id = "")
+    : SceneNode(name, mesh_id, shader_id, texture_id) {}
 
     virtual void Update(double dt) override;
 

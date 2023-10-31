@@ -36,34 +36,12 @@ typedef struct {
     int height;
 } Window;
 
-private:
-
-    Application& app;
-
-    Window win;
-    Camera camera;
-    Mouse mouse;
-    KeyMap key_controls;
-
-    void InitWindow(const std::string& title, int width, int height);
-    void InitView();
-    void InitEventHandlers();
-    void InitControls();
-
-
-    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    static void ResizeCallback(GLFWwindow* window, int width, int height);
-    static void MouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
-
-    std::function<void(Mouse& mouse)> mouse_handler;
-
 public:
-	View(Application& app);	
+	View(Application& app, ResourceManager& resman);	
     ~View();
     void Init(const std::string& title, int width, int height);
     void Update(double dt);
     void Render(SceneGraph& scene, Camera& camera, std::vector<Light*>& lights);
-    void RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix = glm::mat4(1.0f));
 
     void ToggleMouseCapture();
     void SetMouseHandler(MouseHandler h) {mouse_handler = h;}
@@ -75,6 +53,27 @@ public:
     int GetWidth() {return win.width;}
     int GetHeight() {return win.height;}
 
+private:
+    Application& app;
+    ResourceManager& resman;
+
+    Window win;
+    Camera camera;
+    Mouse mouse;
+    KeyMap key_controls;
+
+    void InitWindow(const std::string& title, int width, int height);
+    void InitView();
+    void InitEventHandlers();
+    void InitControls();
+
+    void RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix = glm::mat4(1.0f));
+
+    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void ResizeCallback(GLFWwindow* window, int width, int height);
+    static void MouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
+
+    std::function<void(Mouse& mouse)> mouse_handler;
 };
 
 #endif

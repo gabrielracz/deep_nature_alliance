@@ -2,8 +2,8 @@
 #include "game.h"
 #include "application.h"
 
-Text::Text(const std::string name, Mesh* Mesh, Shader* shader, Game* game, const std::string& content)
-: SceneNode(name, Mesh, shader), content(content), game(game) {
+Text::Text(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, Game* game, const std::string& content)
+: SceneNode(name, mesh_id, shader_id, texture_id), content(content), game(game) {
     camera_projection = Camera::Projection::ORTHOGRAPHIC;
     alpha_enabled = true;
 }
@@ -16,7 +16,7 @@ void Text::Update(double dt) {
     SceneNode::Update(dt);
 }
 
-void Text::SetUniforms(Camera& camera, const glm::mat4 &parent_matrix) {
+void Text::SetUniforms(Shader* shader, const glm::mat4 &parent_matrix) {
     int len = content.size();
     shader->SetUniform1i(len, "text_len");
 

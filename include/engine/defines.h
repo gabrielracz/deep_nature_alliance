@@ -29,4 +29,14 @@ namespace Colors {
 
 typedef std::function<void(Mouse& mouse)> MouseHandler;
 
+
+template <typename K, typename V>
+void overwrite_emplace(std::unordered_map<K, V>& map, K key, V&& val) {
+    auto it = map.find(key);
+    if(it != map.end()) {
+        map.erase(key);
+    }
+    map.emplace(key, val);
+}
+
 #endif
