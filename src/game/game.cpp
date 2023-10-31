@@ -96,7 +96,7 @@ void Game::SetupResources(void){
 
     // load textures
     resman.LoadTexture("Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
-    resman.LoadTexture("LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT);
+    resman.LoadTexture("LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
     resman.LoadTexture("SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_REPEAT);
     resman.LoadTexture("MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
     resman.LoadTexture("RockPlanet", RESOURCES_DIRECTORY"/mine_rocks.png", GL_REPEAT);
@@ -276,7 +276,7 @@ void Game::CreatePlayer() {
 
 
     SceneNode* planet = new SceneNode("Lava", resman.GetMesh("Planet"), resman.GetShader("PlanetShader"));
-    planet->SetTexture(resman.GetTexture("MarsPlanet"));
+    planet->SetTexture(resman.GetTexture("LavaPlanet"));
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetPosition({200, 0, -2000});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
@@ -297,7 +297,7 @@ void Game::CreateHUD() {
 
     Text* fps = new Text("fps", mtxt, stxt, this, "FPS");
     fps->transform.SetPosition({-1.0, 1.0, 0.0f});
-    fps->SetColor({0.0f, 1.0f, 0.0f, 1.0f});
+    fps->SetColor(Colors::Magenta);
     fps->SetAnchor(Text::Anchor::TOPLEFT);
     fps->SetCallback([this]() -> std::string {
         return "fps: " + std::to_string(app.GetFPS());

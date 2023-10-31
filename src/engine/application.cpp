@@ -28,7 +28,7 @@ void Application::Start() {
 		acc_delta_time += dt;
 		if(frame_counter % frame_window == 0){
             fps = frame_window/acc_delta_time;
-            std::cout << "fps: " << PRINT_FIXED_FLOAT(fps) << std::endl;
+            // std::cout << "fps: " << PRINT_FIXED_FLOAT(fps) << std::endl;
 			acc_delta_time = 0;
 		}
 		last_time = current_time;

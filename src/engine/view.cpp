@@ -34,17 +34,18 @@ void View::Render(SceneGraph& scene, Camera& cam, std::vector<Light*>& lights) {
 }
 
 void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix) {
-    node->GetShader()->Use();
-    camera.SetProjectionUniforms(node->GetShader(), node->GetDesiredProjection());
+    Shader* shd = node->GetShader();
+    shd->Use();
+    camera.SetProjectionUniforms(shd, node->GetDesiredProjection());
 
     for(auto l : lights) {
-        l->SetUniforms(node->GetShader());
+        l->SetUniforms(shd);
     }
 
     node->SetUniforms(cam, parent_matrix);
 
     if(node->GetTexture() != nullptr) {
-        node->GetTexture()->Bind();
+        node->GetTexture()->Bind(shd);
     }
 
     if(node->IsAlphaEnabled()) {

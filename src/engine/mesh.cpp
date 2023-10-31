@@ -5,7 +5,8 @@
 #include <string>
 #include <array>
 
-void Texture::Bind() {
+void Texture::Bind(Shader* shader) {
+    shader->SetUniform1f(texture_repetition, "texture_repetition");
     glBindTexture(GL_TEXTURE_2D, id);
 }
 

@@ -64,7 +64,7 @@ Texture* ResourceManager::GetTexture(const std::string &name) {
     return &it->second;
 }
 
-void ResourceManager::LoadTexture(const std::string& name, const std::string& file_path, int wrap_option) {
+void ResourceManager::LoadTexture(const std::string& name, const std::string& file_path, int wrap_option, float texture_repetition) {
  	stbi_set_flip_vertically_on_load(1);
 	//Texture
 	int width, height, n_channels;
@@ -103,7 +103,7 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
 
-    textures.emplace(name, Texture(tex_id));
+    textures.emplace(name, Texture(tex_id, texture_repetition));
 }
 
 
