@@ -22,5 +22,6 @@ void main()
 
     // Pass attributes to fragment shader
     //color_interp = vec4(color, 1.0);
-    uv_interp = uv;
+    // uv_interp = uv;
+    uv_interp = vec2(uv.x, 1.0 - uv.y);
 }
