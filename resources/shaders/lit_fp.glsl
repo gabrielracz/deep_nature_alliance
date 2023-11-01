@@ -5,11 +5,10 @@ in vec3 position_interp;
 in vec3 normal_interp;
 in vec4 color_interp;
 // in vec2 uv_interp;
-// in vec3 light_pos;
+in vec3 light_pos;
 
 // Uniform (global) buffer
 uniform sampler2D texture_map;
-uniform vec3 light_pos;
 uniform vec4 light_col;
 
 

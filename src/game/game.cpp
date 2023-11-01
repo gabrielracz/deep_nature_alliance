@@ -81,6 +81,7 @@ void Game::SetupResources(void){
 void Game::LoadMeshes() {
     // load .obj meshes
     resman.LoadMesh        ("M_Ship", RESOURCES_DIRECTORY"/h2.obj");
+    // resman.CreateTorus     ("M_Ship", 3.0, 1.0, 100, 100); 
     // generate geometry
     resman.CreateQuad      ("M_Quad");
     resman.CreateCone      ("M_Branch", 1.0, 1.0, 2, 10);
@@ -93,7 +94,8 @@ void Game::LoadShaders() {
     std::cout << "shaders loaded" << std::endl;
     // load shader programs
     resman.LoadShader("S_Default", SHADER_DIRECTORY"/material_vp.glsl", SHADER_DIRECTORY"/material_fp.glsl");
-    resman.LoadShader("S_Ship", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
+    // resman.LoadShader("S_Ship", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
+    resman.LoadShader("S_Ship", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
     resman.LoadShader("S_Text", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
     resman.LoadShader("S_Planet", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/textured_fp.glsl");
 }
@@ -102,12 +104,12 @@ void Game::LoadTextures() {
     // load textures
     resman.LoadTexture("T_Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
     resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
-    resman.LoadTexture("T_SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_REPEAT);
-    resman.LoadTexture("T_MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
-    resman.LoadTexture("T_RockPlanet", RESOURCES_DIRECTORY"/mine_rocks.png", GL_REPEAT);
-    resman.LoadTexture("T_RedPlanet", RESOURCES_DIRECTORY"/red_rubble.png", GL_REPEAT);
-    resman.LoadTexture("T_AlpinePlanet", RESOURCES_DIRECTORY"/4k_eris.jpg", GL_REPEAT);
-    resman.LoadTexture("T_KaliaPlanet", RESOURCES_DIRECTORY"/kalia.png", GL_REPEAT);
+    // resman.LoadTexture("T_SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_REPEAT);
+    // resman.LoadTexture("T_MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
+    // resman.LoadTexture("T_RockPlanet", RESOURCES_DIRECTORY"/mine_rocks.png", GL_REPEAT);
+    // resman.LoadTexture("T_RedPlanet", RESOURCES_DIRECTORY"/red_rubble.png", GL_REPEAT);
+    // resman.LoadTexture("T_AlpinePlanet", RESOURCES_DIRECTORY"/4k_eris.jpg", GL_REPEAT);
+    // resman.LoadTexture("T_KaliaPlanet", RESOURCES_DIRECTORY"/kalia.png", GL_REPEAT);
 }
 
 
@@ -241,7 +243,7 @@ void Game::CreatePlayer() {
 }
 
 void Game::CreatePlanets() {
-    SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_KaliaPlanet");
+    SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_LavaPlanet");
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetPosition({200, 0, -2000});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
@@ -249,7 +251,7 @@ void Game::CreatePlanets() {
 }
 
 void Game::CreateHUD() {
-    Text* txt = new Text("Obj_Banner", "M_Quad", "S_Text", "T_Charmap", this, "DEEP NATURE ALLIANCE");
+    Text* txt = new Text("Obj_Banner", "M_Quad", "S_Text", "T_Charmap", this, "DEEP NATURE ALLIANCE\nA millenia ago, thousands of soldiers\nwere sent deep into the far reaches of space\nin search of life.\nOne of these soldiers is you...");
     txt->transform.SetPosition({0.0f, 1.0f, 0.0f});
     txt->SetAnchor(Text::Anchor::TOPCENTER);
     txt->SetColor(Colors::SlimeGreen);
@@ -263,12 +265,12 @@ void Game::CreateHUD() {
     fps->SetCallback([this]() -> std::string {
         return "fps: " + std::to_string(app.GetFPS());
     });
-    scene.AddNode(fps);
+    // scene.AddNode(fps);
 }
 
 void Game::CreateLights() {
     Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
-    light->transform.SetPosition({100, 0, 200});
+    light->transform.SetPosition({50.5, -0.5, 5005.5});
     lights.push_back(light);
 }
 
