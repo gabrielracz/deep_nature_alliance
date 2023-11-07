@@ -17,6 +17,8 @@
 #include "enemy.h"
 #include "random.h"
 #include "light.h"
+#include "trigger.h"
+#include "collision_manager.h"
 #include "defines.h"
 
 class Application;
@@ -42,7 +44,7 @@ enum GameState {
 class Game {
     public:
 
-        Game(Application& app, ResourceManager& resman) : app(app), resman(resman) {};
+        Game(Application& app, ResourceManager& resman) : app(app), resman(resman), colman() {};
 
         void Init(void); 
         void SetupResources(void);
@@ -50,7 +52,7 @@ class Game {
 
         void Update(double dt, KeyMap& keys);
 
-        SceneGraph& ActiveScene() {return scene;}
+        SceneGraph& ActiveScene() {return *scene;}
         Camera& ActiveCamera() {return camera;}
         std::vector<Light*>& ActiveLights() {return lights;}
 
@@ -60,10 +62,17 @@ class Game {
         RandGenerator rng {rng_seed};
 
     private:
-        SceneGraph scene;
+        SceneGraph* scene;
         Camera camera;
 
+        CollisionManager colman;
+
+        std::vector<SceneGraph> scenes;
+
         std::vector<Light*> lights;
+        // std::vector<SceneNode*> asteroids;
+        // std::vector<Trigger*> triggers;
+
         Player* player;
 
         float wind_speed = 1.5f;
@@ -79,12 +88,14 @@ class Game {
         void CreateHUD();
         void CreateTree();
         void CreateLights();
+        void CreateTriggers();
         void GrowTree(SceneNode* root, int branches, float height, float width, int level, int max_iterations);
         void GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width);
 
         void CheckControls(KeyMap& keys);
         void MouseControls(Mouse& mouse);
-        void CheckCollisions();
+
+        void ChangeScene(int sceneIndex);
 
 }; // class Game
 
