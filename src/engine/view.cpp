@@ -106,7 +106,6 @@ void View::InitWindow(const std::string& title, int width, int height) {
     if (err != GLEW_OK){
         throw(std::runtime_error(std::string("Could not initialize the GLEW library: ")+std::string((const char *) glewGetErrorString(err))));
     }
-
 }
 
 void View::InitView(){
@@ -116,7 +115,7 @@ void View::InitView(){
     glDepthFunc(GL_LESS);
 
 	//Use this to disable vsync
-	glfwSwapInterval(0);
+	// glfwSwapInterval(0);
 
     glViewport(0, 0, win.width, win.height);
 
