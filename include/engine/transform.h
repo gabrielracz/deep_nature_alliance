@@ -24,9 +24,9 @@ struct Transform {
                    {0.0f, 1.0f, 0.0f},
                    {0.0f, 0.0f, 1.0f}};
 
-    glm::vec3& side    = axes[Axis::SIDE];
-    glm::vec3& forward = axes[Axis::FORWARD];
-    glm::vec3& up      = axes[Axis::UP];
+    // glm::vec3& side    = axes[Axis::SIDE];
+    // glm::vec3& forward = axes[Axis::FORWARD];
+    // glm::vec3& up      = axes[Axis::UP];
 
 private:
     glm::mat4 cached_matrix;
@@ -36,7 +36,14 @@ public:
     Transform() = default;
     Transform(const glm::vec3& p, const glm::quat o, const glm::vec3& s)
         : position(s), orientation(o), scale(s) {Matrix();}
-    Transform(Transform&) = default;
+    Transform(Transform& o) = default;
+    //     position    = o.position;
+    //     orientation = o.orientation;
+    //     scale       = o.scale;
+    //     orbit       = o.orbit;
+    //     joint       = o.joint;
+    //     axes        = o.axes;
+    // }
 
     glm::vec3 LocalAxis(Axis a) const {
         return orientation * axes[a];
@@ -55,7 +62,7 @@ public:
     } 
 
     void Rotate(const glm::quat& rot) {
-        orientation = rot * orientation;
+        orientation = orientation * rot;
         orientation = glm::normalize(orientation);
     }
 

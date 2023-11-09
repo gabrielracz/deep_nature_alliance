@@ -32,9 +32,9 @@ void Camera::SetView(glm::vec3 position, glm::vec3 look_at, glm::vec3 up){
     // Store initial forward and side vectors
     // See slide in "Camera control" for details
     // probably will not be much used (directly setting view a rare occurrence in games)
-    transform.up = up;
-    transform.forward = -glm::normalize(look_at - position);
-    transform.side = glm::normalize(glm::cross(transform.up, transform.forward));
+    transform.axes[UP] = up;
+    transform.axes[FORWARD] = -glm::normalize(look_at - position);
+    transform.axes[SIDE] = glm::normalize(glm::cross(transform.axes[UP], transform.axes[FORWARD]));
 
     // Reset orientation and position of camera
     transform.position = position;
