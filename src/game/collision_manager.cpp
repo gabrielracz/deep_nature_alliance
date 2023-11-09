@@ -2,7 +2,7 @@
 #include "transform.h"
 
 #include <glm/glm.hpp>
-#include <glm/gtx/norm.hpp> // for glm::length2
+
 
 void CollisionManager::CheckCollisions(){
     for (auto trig : triggers){
@@ -23,10 +23,7 @@ bool CollisionManager::sphereToSphere(SceneNode *first, SceneNode *second) {
     float radius1 = first->GetCollision().GetSphereRadius();
     glm::vec3 pos2 = second->transform.position;
     float radius2 = second->GetCollision().GetSphereRadius();
-
-    float distanceSquared = glm::length2(pos1 - pos2);
-    float radiusSumSquared = (radius1 + radius2) * (radius1 + radius2);
-    return distanceSquared < radiusSumSquared;
+    return glm::distance(pos1, pos2) < radius1 + radius2;
 }
 
 bool CollisionManager::sphereToBox(SceneNode *sphereNode, SceneNode *boxNode) {
