@@ -13,6 +13,7 @@
 
 #include "resource.h"
 #include "mesh.h"
+#include "texture.h"
 #include "shader.h"
 #include "defines.h"
 

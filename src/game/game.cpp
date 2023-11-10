@@ -3,6 +3,7 @@
 #include "application.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtx/string_cast.hpp>
+#include <string>
 #define GLM_FORCE_RADIANS
 #include <glm/ext/quaternion_trigonometric.hpp>
 #include <glm/fwd.hpp>
@@ -103,12 +104,13 @@ void Game::LoadShaders() {
 void Game::LoadTextures() {
     // load textures
     resman.LoadTexture("T_Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
-    resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
+    // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
+    // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
     // resman.LoadTexture("T_SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_REPEAT);
     // resman.LoadTexture("T_MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
     // resman.LoadTexture("T_RockPlanet", RESOURCES_DIRECTORY"/mine_rocks.png", GL_REPEAT);
     // resman.LoadTexture("T_RedPlanet", RESOURCES_DIRECTORY"/red_rubble.png", GL_REPEAT);
-    // resman.LoadTexture("T_AlpinePlanet", RESOURCES_DIRECTORY"/4k_eris.jpg", GL_REPEAT);
+    resman.LoadTexture("T_MoonPlanet", RESOURCES_DIRECTORY"/4k_ceres.jpg", GL_REPEAT);
     // resman.LoadTexture("T_KaliaPlanet", RESOURCES_DIRECTORY"/kalia.png", GL_REPEAT);
 }
 
@@ -243,7 +245,7 @@ void Game::CreatePlayer() {
 }
 
 void Game::CreatePlanets() {
-    SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_LavaPlanet");
+    SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_MoonPlanet");
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetPosition({200, 0, -2000});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
@@ -256,7 +258,7 @@ void Game::CreateHUD() {
     txt->SetAnchor(Text::Anchor::TOPCENTER);
     txt->SetColor(Colors::SlimeGreen);
     txt->SetSize(15);
-    scene.AddNode(txt);
+    // scene.AddNode(txt);
 
     Text* fps = new Text("Obj_Fps", "M_Quad", "S_Text", "T_Charmap", this, "FPS");
     fps->transform.SetPosition({-1.0, 1.0, 0.0f});
@@ -265,9 +267,21 @@ void Game::CreateHUD() {
     fps->SetCallback([this]() -> std::string {
         return "fps: " + std::to_string(app.GetFPS());
     });
-    // scene.AddNode(fps);
-}
+    scene.AddNode(fps);
 
+    Text* speedo = new Text("Obj_Speedo", "M_Quad", "S_Text", "T_Charmap", this, "");
+    speedo->transform.SetPosition({0.0, -0.1, 0.0f});
+    speedo->SetColor(HEXCOLORALPH(0xFF00FF, 0.75));
+    speedo->SetAnchor(Text::Anchor::CENTER);
+    speedo->SetCallback([this]() -> std::string {
+        return std::to_string((glm::length(player->velocity)));
+    });
+    scene.AddNode(speedo);
+
+    
+
+}
+// 
 void Game::CreateLights() {
     Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
     light->transform.SetPosition({50.5, -0.5, 5005.5});

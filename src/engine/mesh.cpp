@@ -5,10 +5,6 @@
 #include <string>
 #include <array>
 
-void Texture::Bind(Shader* shader) {
-    shader->SetUniform1f(texture_repetition, "texture_repetition");
-    glBindTexture(GL_TEXTURE_2D, id);
-}
 
 LayoutEntry::LayoutEntry(LAYOUT_TYPE t, std::string n) {
 	type = t;

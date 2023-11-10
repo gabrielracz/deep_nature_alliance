@@ -75,36 +75,9 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
         return;
 	}
 
-    GLenum format;
-    switch(n_channels) {
-        case 3:
-            format = GL_RGB;
-            break;
-        case 4:
-            format = GL_RGBA;
-            break;
-        default:
-            format = GL_RGB;
-            break;
-    }
-
-	unsigned int tex_id;
-	glGenTextures(1, &tex_id);
-	glBindTexture(GL_TEXTURE_2D, tex_id);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-
-	//Wrapping
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_option);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_option);
-    //Filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	glGenerateMipmap(GL_TEXTURE_2D);
+    overwrite_emplace(textures, name, Texture(data, width, height, n_channels, wrap_option));
 	stbi_image_free(data);
 
-    overwrite_emplace(textures, name, Texture(tex_id, texture_repetition));
 }
 
 // Create the geometry for a cylinder
