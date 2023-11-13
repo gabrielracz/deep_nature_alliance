@@ -8,9 +8,9 @@ void Light::Update(float dt) {
 }
 
 void Light::SetUniforms(Shader* shader) {
-    glm::vec3 pos = transform.position;
+    glm::vec3 pos = transform.GetPosition();
     if(parent_transform){ 
-        pos += parent_transform->position;
+        pos += parent_transform->GetPosition();
     }
     shader->SetUniform3f(pos, "light_pos_world");
     shader->SetUniform4f(color, "light_col");

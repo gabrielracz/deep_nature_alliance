@@ -87,8 +87,8 @@ void Text::SetUniforms(Shader* shader, const glm::mat4 &parent_matrix) {
     float ndc_width_distance = (text_width/((float)(winwidth)/2));
     float ndc_height_distance = ((size*num_lines)/((float)winheight/2));
 
-    float& x = transform.position.x;
-    float& y = transform.position.y;
+    float x = transform.GetPosition().x;
+    float y = transform.GetPosition().y;
 
     // change the anchor point of the text quad
     glm::mat4 translation;

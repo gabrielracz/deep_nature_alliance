@@ -39,7 +39,7 @@ void Player::Update(double dt) {
 	// at this exact time step. acceleration = dv/dt
     acceleration += force / mass;
 	velocity += acceleration * (float)dt;
-	transform.position += velocity * (float)dt;
+	transform.Translate(velocity * (float)dt);
 
     transform.Pitch(angular_velocity.x);
     transform.Yaw(angular_velocity.y);
@@ -96,22 +96,22 @@ void Player::ShipControl(Controls c, float damping) {
             braking = true;
             break;
         case Controls::PITCHD:
-            torque += transform.axes[SIDE] * -rot_force;
+            torque += transform.GetAxis(SIDE) * -rot_force;
             break;
         case Controls::PITCHU:
-            torque += transform.axes[SIDE] * rot_force;
+            torque += transform.GetAxis(SIDE) * rot_force;
             break;
         case Controls::YAWL:
-            torque += transform.axes[UP] * rot_force;
+            torque += transform.GetAxis(UP) * rot_force;
             break;
         case Controls::YAWR:
-            torque += transform.axes[UP] * -rot_force;
+            torque += transform.GetAxis(UP) * -rot_force;
             break;
         case Controls::ROLLL:
-            torque += -transform.axes[FORWARD] * -rot_force * 2.0f;
+            torque += -transform.GetAxis(FORWARD) * -rot_force * 2.0f;
             break;
         case Controls::ROLLR:
-            torque += -transform.axes[FORWARD] * rot_force * 2.0f;
+            torque += -transform.GetAxis(FORWARD) * rot_force * 2.0f;
             break;
         default:
             break;

@@ -32,17 +32,17 @@ void CollisionManager::AddNode(SceneNode* node){
 }
 
 bool CollisionManager::sphereToSphere(SceneNode *first, SceneNode *second) {
-    glm::vec3 pos1 = first->transform.position;
+    glm::vec3 pos1 = first->transform.GetPosition();
     float radius1 = first->GetCollision().GetSphereRadius();
-    glm::vec3 pos2 = second->transform.position;
+    glm::vec3 pos2 = second->transform.GetPosition();
     float radius2 = second->GetCollision().GetSphereRadius();
     return glm::distance(pos1, pos2) < radius1 + radius2;
 }
 
 bool CollisionManager::sphereToBox(SceneNode *sphereNode, SceneNode *boxNode) {
-    glm::vec3 sphereCenter = sphereNode->transform.position;
+    glm::vec3 sphereCenter = sphereNode->transform.GetPosition();
     float sphereRadius = sphereNode->GetCollision().GetSphereRadius();
-    glm::vec3 boxCenter = boxNode->transform.position;
+    glm::vec3 boxCenter = boxNode->transform.GetPosition();
     glm::vec3 boxHalfSizes = boxNode->GetCollision().GetBoxHalfSizes();
 
     // Compute distance from the sphere center to the box
@@ -62,7 +62,7 @@ bool CollisionManager::sphereToBox(SceneNode *sphereNode, SceneNode *boxNode) {
 bool CollisionManager::rayToSphere(SceneNode *rayNode, SceneNode *sphereNode) {
     glm::vec3 rayOrigin = rayNode->GetCollision().GetRayOrigin();
     glm::vec3 rayDirection = rayNode->GetCollision().GetRayDirection();
-    glm::vec3 sphereCenter = sphereNode->transform.position;
+    glm::vec3 sphereCenter = sphereNode->transform.GetPosition();
     float sphereRadius = sphereNode->GetCollision().GetSphereRadius();
 
     glm::vec3 m = rayOrigin - sphereCenter;
