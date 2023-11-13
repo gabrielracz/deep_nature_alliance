@@ -78,9 +78,8 @@ void Camera::SetupViewMatrix(void){
 
         glm::mat4 p = parent_transform->GetWorldMatrix();
         glm::vec3 eye = transform.GetWorldPosition();
-        // glm::vec3 eye = p * glm::vec4(transform.GetPosition(), 1.0f);
-        glm::vec3 look_at = p * glm::vec4(0.0, 0.0, -2.0, 1.0);
-        glm::vec3 up = p * glm::vec4(transform.GetAxis(UP), 0.0f);
+        glm::vec3 look_at = p * glm::vec4(0.0, 0.0, -2.0, 1.0); // look slightly ahead of target
+        glm::vec3 up = transform.GetWorldMatrix() * glm::vec4(transform.GetAxis(UP), 0.0f);
         view_matrix_ = glm::lookAt(eye, look_at, up);
 
     } else {
