@@ -25,6 +25,11 @@ void Camera::Update() {
     transform.Roll(angular_velocity.z);
     // transform.Translate(velocity);
     SetupViewMatrix();
+    if(parent_transform) {
+        transform.Update(parent_transform->GetWorldMatrix());
+    } else {
+        transform.Update();
+    }
 }
 
 void Camera::SetView(glm::vec3 position, glm::vec3 look_at, glm::vec3 up){
@@ -70,10 +75,12 @@ void Camera::SetupViewMatrix(void){
     //view_matrix_ = glm::lookAt(position, look_at, up);
     if(parent_transform) {
         //TODO FIX THIS
-        
-        glm::vec3 eye = parent_transform->GetPosition() + parent_transform->GetOrientation() * transform.GetPosition();
-        glm::vec3 look_at = parent_transform->GetPosition();// + glm::vec3(target->rotm * glm::vec4(0.0f, 0.0f, -13.0f, 0.0f));
-        glm::vec3 up = (transform.GetOrientation() * parent_transform->GetOrientation() * transform.GetAxis(UP));
+
+        glm::mat4 p = parent_transform->GetWorldMatrix();
+        glm::vec3 eye = transform.GetWorldPosition();
+        // glm::vec3 eye = p * glm::vec4(transform.GetPosition(), 1.0f);
+        glm::vec3 look_at = p * glm::vec4(0.0, 0.0, -2.0, 1.0);
+        glm::vec3 up = p * glm::vec4(transform.GetAxis(UP), 0.0f);
         view_matrix_ = glm::lookAt(eye, look_at, up);
 
     } else {
@@ -106,8 +113,8 @@ void Camera::Reset() {
 }
 
 void Camera::Drop() {
-    glm::vec3 eye = glm::vec4(parent_transform->GetPosition(), 1.0f) + parent_transform->GetOrientation() * glm::vec4(transform.GetPosition(), 1.0f); // get world pos of camera (not relative)
-    transform.SetOrientation(parent_transform->GetOrientation()); // take the parent's orientation as we will no longer get it from the 'inheritance'
+    glm::vec3 eye = transform.GetWorldPosition();
+    transform.SetOrientation(transform.GetWorldOrientation()); // take the parent's orientation as we will no longer get it from the 'inheritance'
     transform.SetPosition(eye); 
     parent_transform = nullptr;
     SetupViewMatrix();

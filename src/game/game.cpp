@@ -115,8 +115,8 @@ void Game::LoadTextures() {
 void Game::SetupScene(void){
 
     // Set background color for the scene
-    scenes.push_back( new SceneGraph());
-    scenes.push_back( new SceneGraph());
+    scenes.push_back( new SceneGraph(app));
+    scenes.push_back( new SceneGraph(app));
     scene = scenes[0];
     scene->SetBackgroundColor(viewport_background_color_g);
 
@@ -157,8 +157,7 @@ void Game::CheckControls(KeyMap& keys) {
     if(keys[GLFW_KEY_P]) {
         glm::vec3 p = player->transform.GetPosition();
         glm::quat o = player->transform.GetOrientation();
-        std::cout << "Player Trace:\t{" << p.x << "\t, " << p.y << "\t, " << p.z << "}" 
-        << "\t{" << o.w << "\t, " << o.x << "\t, " << o.y << "\t, " << o.z << "}" << std::endl;
+        std::cout << glm::to_string(p) << " " << glm::to_string(o) << std::endl;
         keys[GLFW_KEY_P] = false;
     }
 
@@ -242,6 +241,10 @@ void Game::CreatePlayer() {
     Player* player = new Player("Obj_Player", "M_Ship", "S_Ship");
     player->transform.SetPosition(player_position_g);
     // player->visible = false;
+
+
+
+
     app.GetCamera().Attach(&player->transform); // Attach the camera to the player
     AddPlayerToScene(SceneEnum::ALL, player);
     // scenes[BEFORETRIGGER]->AddNode(player);

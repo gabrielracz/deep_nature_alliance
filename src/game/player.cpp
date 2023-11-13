@@ -87,7 +87,7 @@ void Player::Thrust(int d) {
 
 void Player::ShipControl(Controls c, float damping) {
     const float rot_force = damping * 2000.0f;
-    const float thrust_force = damping * move_speed * 17550.0f;
+    const float thrust_force = damping * move_speed * 25550.0f;
     switch(c) {
         case Controls::THRUST:
             force += -transform.LocalAxis(FORWARD) * thrust_force;

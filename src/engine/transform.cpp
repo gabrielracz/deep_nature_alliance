@@ -1,13 +1,15 @@
 #include "transform.h"
 
 void Transform::Update(const glm::mat4& parent) {
-    if(dirty) {
+    // if(dirty) {
         transf_local          = CalculateMatrix();
         transf_local_no_scale = RemoveScaling(transf_local);
         dirty = false;
-    }
-    transf_world          = transf_local * parent;
-    transf_world_no_scale = transf_local_no_scale * parent;
+    // }
+    transf_world          = parent * transf_local;
+    transf_world_no_scale = parent * transf_local_no_scale;
+    // world_pos = parent * transf_world * glm::vec4(position, 1.0f);
+
 }
 
 glm::vec3 Transform::LocalAxis(Axis a){
