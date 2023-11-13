@@ -25,6 +25,7 @@ set(HDRS
     include/engine/defines.h
     include/engine/control.h
     include/engine/light.h
+    include/engine/collision_data.h
     include/lib/stb_image.h
     include/game/game.h 
     include/game/asteroid.h
@@ -32,6 +33,8 @@ set(HDRS
     include/game/enemy.h
     include/game/tree.h
     include/game/text.h
+    include/game/trigger.h
+    include/game/collision_manager.h
 )
  
 set(SRCS
@@ -55,6 +58,8 @@ set(SRCS
     src/game/player.cpp
     src/game/enemy.cpp
     src/game/tree.cpp
+    src/game/trigger.cpp
+    src/game/collision_manager.cpp
 )
 
 # Add path name to configuration file

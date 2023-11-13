@@ -10,7 +10,7 @@ View::~View() {
     glfwTerminate();
 }
 
-void View::Render(SceneGraph& scene, Camera& cam, std::vector<Light*>& lights) {
+void View::Render(SceneGraph& scene) {
     // UPDATE
     if(glfwWindowShouldClose(win.ptr)) {
         app.Quit();
@@ -28,7 +28,7 @@ void View::Render(SceneGraph& scene, Camera& cam, std::vector<Light*>& lights) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for(auto node : scene) {
-        RenderNode(node, camera, lights);
+        RenderNode(node, scene.GetCamera(), scene.GetLights());
     }
 
     glfwSwapBuffers(win.ptr);
@@ -77,11 +77,22 @@ void View::Init(const std::string& title, int width, int height) {
     InitControls();
 }
 
+void error_callback(int error, const char* description)
+{
+    std::ofstream file("out.txt");
+    file << description << std::endl << glGetError() << std::endl;
+    fprintf(stderr, "Error: %s\n", description);
+}
+
+
 void View::InitWindow(const std::string& title, int width, int height) {
     // Initialize the window management library (GLFW)
     if (!glfwInit()) {
         throw((std::runtime_error(std::string("Could not initialize the GLFW library"))));
     }
+
+    glfwSetErrorCallback(error_callback);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
     // Create a window and its OpenGL context
     win.width = width;

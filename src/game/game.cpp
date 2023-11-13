@@ -27,9 +27,6 @@
 
 // Main window settings
 const std::string window_title_g = "[] Asteroid Field";
-const unsigned int window_width_g = 800;
-const unsigned int window_height_g = 600;
-const bool window_full_screen_g = false;
 
 // Viewport and camera settings
 const glm::vec3 viewport_background_color_g(0.0, 0.0, 0.0);
@@ -118,25 +115,28 @@ void Game::LoadTextures() {
 void Game::SetupScene(void){
 
     // Set background color for the scene
-    scene = SceneGraph();
-    scene.SetBackgroundColor(viewport_background_color_g);
+    scenes.push_back( new SceneGraph());
+    scenes.push_back( new SceneGraph());
+    scene = scenes[0];
+    scene->SetBackgroundColor(viewport_background_color_g);
 
     CreatePlayer();
     CreatePlanets();
+    CreateTriggers();
     // CreateTree();
     CreateAsteroidField(500);
     CreateLights();
-    CreateHUD();
+    // CreateHUD();
 }
 
 void Game::Update(double dt, KeyMap &keys) {
     CheckControls(keys);
-    scene.Update(dt);
+    scene->Update(dt);
+    scene->GetColman().CheckCollisions();
+    // colman.CheckCollisions();
     // CheckCollisions();
 }
 
-void Game::CheckCollisions() {
-}
 
 void Game::CheckControls(KeyMap& keys) {
     // Get user data with a pointer to the game class
@@ -241,7 +241,12 @@ void Game::CreatePlayer() {
     player->transform.position = player_position_g;
     // player->visible = false;
     app.GetCamera().Attach(&player->transform); // Attach the camera to the player
-    scene.AddNode(player);
+    scene->AddNode(player);
+    scene->GetColman().SetPlayer(player);
+
+    //temp
+    scenes[1]->AddNode(player);
+    scenes[1]->GetColman().SetPlayer(player);
 }
 
 void Game::CreatePlanets() {
@@ -249,7 +254,8 @@ void Game::CreatePlanets() {
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetPosition({200, 0, -2000});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
-    scene.AddNode(planet);
+    //temp
+    scenes[1]->AddNode(planet);
 }
 
 void Game::CreateHUD() {
@@ -267,7 +273,7 @@ void Game::CreateHUD() {
     fps->SetCallback([this]() -> std::string {
         return "fps: " + std::to_string(app.GetFPS());
     });
-    scene.AddNode(fps);
+    scene->AddNode(fps);
 
     Text* speedo = new Text("Obj_Speedo", "M_Quad", "S_Text", "T_Charmap", this, "");
     speedo->transform.SetPosition({0.0, -0.1, 0.0f});
@@ -276,7 +282,7 @@ void Game::CreateHUD() {
     speedo->SetCallback([this]() -> std::string {
         return std::to_string((glm::length(player->velocity)));
     });
-    scene.AddNode(speedo);
+    scene->AddNode(speedo);
 
     
 
@@ -285,7 +291,9 @@ void Game::CreateHUD() {
 void Game::CreateLights() {
     Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
     light->transform.SetPosition({50.5, -0.5, 5005.5});
-    lights.push_back(light);
+    scene->GetLights().push_back(light);
+    //temp
+    scenes[1]->GetLights().push_back(light);
 }
 
 int tcount = 0;
@@ -379,13 +387,65 @@ void Game::CreateTree() {
         GrowTree(tree, branches, height, width, 0, iterations);
         tree->transform.position = player_position_g - glm::vec3(i*spread, 0, 40);
         tree->transform.scale = {width, height, width};
-        scene.AddNode(tree);
+        scene->AddNode(tree);
         tcount++;
     }
     std::cout << "SceneNodes: " << tcount << std::endl;
 }
 
 void Game::CreateAsteroidField(int num_asteroids){
-    scene.AddNode(new SceneNode("Obj_Stars", "M_StarCloud", "S_Default"));
+    //temp
+    scenes[1]->AddNode(new SceneNode("Obj_Stars", "M_StarCloud", "S_Default"));
 }
+
+void Game::ChangeScene(int sceneIndex) {
+    std::cout << "changing scenes" << std::endl;
+    scene = scenes[sceneIndex];
+    return;
+}
+
+/*
+Using std::bind to defer the call to Game::ChangeScene as far as I can tell
+requires an actual defined member function which kinda defeats the main idea
+I had originally when I thought of this (easy and clutter free change of game state) 
+(see commented out func below)
+
+Still has the advantage we can initiate change of gamestate from internal state of one of the scene nodes
+however a similar thing could be done by just having a pointer to game in each scene node
+
+The use of something like this could also be used to implement all kinds of things within scene node or other classes
+idk lmk what u guys think
+*/
+void Game::CreateTriggers(){
+    glm::vec3 trigger_positions[] = {
+        player_position_g - glm::vec3(0, 0, 40)
+    };
+
+    for (int i = 0; i < 1; i++){
+        std::function<void()> triggerAction = std::bind(&Game::ChangeScene, this, 1);
+
+        Trigger* t = new Trigger("Trigger" + std::to_string(i), "M_Leaf", "S_Default", "", triggerAction);
+        t->transform.position = trigger_positions[i];
+        scene->AddNode(t);
+        scene->GetColman().AddTrigger(t);
+    }
+}
+
+
+//other option (storing a pointer to main (kinda hacky))
+// void Game::CreateTriggers(){
+//     glm::vec3 trigger_positions[] = {
+//         player_position_g - glm::vec3(0, 0, 40)
+//     };
+
+//     for (int i = 0; i < 1; i++){
+//         std::function<void(Game&)> triggerAction = [](Game& game) {
+//             game.scene = &game.scenes[1];
+//         };
+//         Trigger* t = new Trigger("Trigger" + std::to_string(i), "M_Leaf", "S_Default", "", game, triggerAction);
+//         t->transform.position = trigger_positions[i];
+//         scene->AddNode(t);
+//         triggers.push_back(t);
+//     }
+// }
 

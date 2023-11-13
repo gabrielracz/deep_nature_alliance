@@ -41,7 +41,7 @@ public:
     ~View();
     void Init(const std::string& title, int width, int height);
     void Update(double dt);
-    void Render(SceneGraph& scene, Camera& camera, std::vector<Light*>& lights);
+    void Render(SceneGraph& scene);
 
     void ToggleMouseCapture();
     void SetMouseHandler(MouseHandler h) {mouse_handler = h;}
