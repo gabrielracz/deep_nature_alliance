@@ -16,9 +16,11 @@ class CollisionManager{
 
         void CheckCollisions();
 
-        void AddTrigger(Trigger *newTrigger) { triggers.push_back(newTrigger); }
+        void AddNode(SceneNode* node);
 
-        void AddAsteroid(SceneNode *newAsteroid) { asteroids.push_back(newAsteroid); }
+        // void AddTrigger(Trigger *newTrigger) { triggers.push_back(newTrigger); }
+
+        // void AddAsteroid(SceneNode *newAsteroid) { asteroids.push_back(newAsteroid); }
 
         void SetPlayer(Player *newPlayer){ player = newPlayer; }
 

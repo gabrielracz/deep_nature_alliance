@@ -42,7 +42,8 @@ enum GameState {
 
 enum SceneEnum {
     BEFORETRIGGER,
-    AFTERTRIGGER
+    AFTERTRIGGER,
+    ALL = -1
 };
 
 // Game application
@@ -74,6 +75,10 @@ class Game {
         void LoadMeshes();
         void LoadShaders();
         void LoadTextures();
+
+        void AddToScene(SceneEnum sceneNum, SceneNode* node);
+        void AddPlayerToScene(SceneEnum sceneNum, Player* node);
+        void AddLightToScene(SceneEnum sceneNum, Light* l);
 
         void CreatePlayer();
         void CreatePlanets();

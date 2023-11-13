@@ -18,6 +18,19 @@ void CollisionManager::CheckCollisions(){
     }
 }
 
+void CollisionManager::AddNode(SceneNode* node){
+    if (Trigger* t = dynamic_cast<Trigger*>(node)) {
+        triggers.push_back(t);
+    } else if (Player* p = dynamic_cast<Player*>(node)) {
+        player = p;
+    } else {
+        asteroids.push_back(node);
+    }
+    // else {
+    //     throw std::runtime_error("Unsupported node type in CollisionManager::AddNode");
+    // }
+}
+
 bool CollisionManager::sphereToSphere(SceneNode *first, SceneNode *second) {
     glm::vec3 pos1 = first->transform.position;
     float radius1 = first->GetCollision().GetSphereRadius();

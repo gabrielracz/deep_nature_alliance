@@ -243,11 +243,45 @@ void Game::CreatePlayer() {
     player->transform.position = player_position_g;
     // player->visible = false;
     app.GetCamera().Attach(&player->transform); // Attach the camera to the player
-    scenes[BEFORETRIGGER]->AddNode(player);
-    scenes[BEFORETRIGGER]->SetPlayer(player);
+    AddPlayerToScene(SceneEnum::ALL, player);
+    // scenes[BEFORETRIGGER]->AddNode(player);
+    // scenes[BEFORETRIGGER]->SetPlayer(player);
 
-    scenes[AFTERTRIGGER]->AddNode(player);
-    scenes[AFTERTRIGGER]->SetPlayer(player);
+    // scenes[AFTERTRIGGER]->AddNode(player);
+    // scenes[AFTERTRIGGER]->SetPlayer(player);
+}
+
+void Game::AddLightToScene(SceneEnum sceneNum, Light* l){
+    if (sceneNum == SceneEnum::ALL){
+        for (auto s : scenes){
+            s->AddLight(l);
+        }
+    } else{
+        scenes[sceneNum]->AddLight(l);
+    }
+}
+
+void Game::AddPlayerToScene(SceneEnum sceneNum, Player* node) {
+    if (sceneNum == SceneEnum::ALL){
+        for (auto s : scenes){
+            s->SetPlayer(node);
+        }
+    } else{
+        scenes[sceneNum]->SetPlayer(node);
+    }
+    AddToScene(sceneNum, node);
+}
+
+void Game::AddToScene(SceneEnum sceneNum, SceneNode* node) {
+    if (sceneNum == SceneEnum::ALL){
+        for (auto s : scenes){
+            s->AddNode(node);
+            s->GetColman().AddNode(node);
+        }
+    } else{
+        scenes[sceneNum]->AddNode(node);
+        scenes[sceneNum]->GetColman().AddNode(node);
+    }
 }
 
 void Game::CreatePlanets() {
@@ -255,7 +289,7 @@ void Game::CreatePlanets() {
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetPosition({200, 0, -2000});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
-    scenes[AFTERTRIGGER]->AddNode(planet);
+    AddToScene(SceneEnum::AFTERTRIGGER, planet);
 }
 
 void Game::CreateHUD() {
@@ -289,6 +323,7 @@ void Game::CreateHUD() {
 void Game::CreateLights() {
     Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
     light->transform.SetPosition({50.5, -0.5, 5005.5});
+    AddLightToScene(SceneEnum::ALL, light);
     scenes[BEFORETRIGGER]->GetLights().push_back(light);
     scenes[AFTERTRIGGER]->GetLights().push_back(light);
 }
@@ -422,8 +457,9 @@ void Game::CreateTriggers(){
 
         Trigger* t = new Trigger("Trigger" + std::to_string(i), "M_Leaf", "S_Default", "", triggerAction);
         t->transform.position = trigger_positions[i];
-        scenes[BEFORETRIGGER]->AddNode(t);
-        scenes[BEFORETRIGGER]->GetColman().AddTrigger(t);
+        AddToScene(BEFORETRIGGER, t);
+        // scenes[BEFORETRIGGER]->AddNode(t);
+        // scenes[BEFORETRIGGER]->GetColman().AddTrigger(t);
     }
 }
 
