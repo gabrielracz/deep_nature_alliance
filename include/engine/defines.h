@@ -9,8 +9,8 @@
 #define PI_2 glm::pi<float>()/2.0f
 #define PRINT_FIXED_FLOAT(x) std::fixed <<std::setprecision(2)<<(x)
 
-const unsigned int window_width_g = 800;
-const unsigned int window_height_g = 600;
+const unsigned int window_width_g = 1280;
+const unsigned int window_height_g = 960;
 const bool window_full_screen_g = false;
 
 typedef std::unordered_map<int, bool> KeyMap;

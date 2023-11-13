@@ -139,6 +139,7 @@ void Game::Update(double dt, KeyMap &keys) {
 
 
 void Game::CheckControls(KeyMap& keys) {
+    Player* player = scene->GetPlayer();
     // Get user data with a pointer to the game class
     // Quit game if 'q' is pressed
     if (keys[GLFW_KEY_ESCAPE]){
@@ -231,22 +232,22 @@ void Game::MouseControls(Mouse& mouse) {
 	glm::vec2 look = mouse.move * mouse_sens;
 
     // player->transform.Yaw(look.x);
+    Player* player = scene->GetPlayer();
     player->ShipControl(Player::Controls::YAWL, look.x);
     player->ShipControl(Player::Controls::PITCHU, look.y);
     
 }
 
 void Game::CreatePlayer() {
-    player = new Player("Obj_Player", "M_Ship", "S_Ship");
+    Player* player = new Player("Obj_Player", "M_Ship", "S_Ship");
     player->transform.position = player_position_g;
     // player->visible = false;
     app.GetCamera().Attach(&player->transform); // Attach the camera to the player
-    scene->AddNode(player);
-    scene->GetColman().SetPlayer(player);
+    scenes[BEFORETRIGGER]->AddNode(player);
+    scenes[BEFORETRIGGER]->SetPlayer(player);
 
-    //temp
-    scenes[1]->AddNode(player);
-    scenes[1]->GetColman().SetPlayer(player);
+    scenes[AFTERTRIGGER]->AddNode(player);
+    scenes[AFTERTRIGGER]->SetPlayer(player);
 }
 
 void Game::CreatePlanets() {
@@ -254,8 +255,7 @@ void Game::CreatePlanets() {
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetPosition({200, 0, -2000});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
-    //temp
-    scenes[1]->AddNode(planet);
+    scenes[AFTERTRIGGER]->AddNode(planet);
 }
 
 void Game::CreateHUD() {
@@ -280,20 +280,17 @@ void Game::CreateHUD() {
     speedo->SetColor(HEXCOLORALPH(0xFF00FF, 0.75));
     speedo->SetAnchor(Text::Anchor::CENTER);
     speedo->SetCallback([this]() -> std::string {
-        return std::to_string((glm::length(player->velocity)));
+        return std::to_string((glm::length(scene->GetPlayer()->velocity)));
     });
     scene->AddNode(speedo);
 
-    
-
 }
-// 
+
 void Game::CreateLights() {
     Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
     light->transform.SetPosition({50.5, -0.5, 5005.5});
-    scene->GetLights().push_back(light);
-    //temp
-    scenes[1]->GetLights().push_back(light);
+    scenes[BEFORETRIGGER]->GetLights().push_back(light);
+    scenes[AFTERTRIGGER]->GetLights().push_back(light);
 }
 
 int tcount = 0;
@@ -394,8 +391,7 @@ void Game::CreateTree() {
 }
 
 void Game::CreateAsteroidField(int num_asteroids){
-    //temp
-    scenes[1]->AddNode(new SceneNode("Obj_Stars", "M_StarCloud", "S_Default"));
+    scenes[AFTERTRIGGER]->AddNode(new SceneNode("Obj_Stars", "M_StarCloud", "S_Default"));
 }
 
 void Game::ChangeScene(int sceneIndex) {
@@ -426,8 +422,8 @@ void Game::CreateTriggers(){
 
         Trigger* t = new Trigger("Trigger" + std::to_string(i), "M_Leaf", "S_Default", "", triggerAction);
         t->transform.position = trigger_positions[i];
-        scene->AddNode(t);
-        scene->GetColman().AddTrigger(t);
+        scenes[BEFORETRIGGER]->AddNode(t);
+        scenes[BEFORETRIGGER]->GetColman().AddTrigger(t);
     }
 }
 

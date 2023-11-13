@@ -40,6 +40,11 @@ enum GameState {
     LOSE
 };
 
+enum SceneEnum {
+    BEFORETRIGGER,
+    AFTERTRIGGER
+};
+
 // Game application
 class Game {
     public:
@@ -61,11 +66,7 @@ class Game {
 
     private:
         SceneGraph* scene;
-
         std::vector<SceneGraph *> scenes;
-
-
-        Player* player;
 
         float wind_speed = 1.5f;
         int camera_mode;
