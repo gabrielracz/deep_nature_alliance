@@ -191,13 +191,10 @@ void Game::CheckControls(KeyMap& keys) {
     if(keys[GLFW_KEY_D]) {
         player->ShipControl(Player::Controls::ROLLR);
     };
-
     if(keys[GLFW_KEY_0]) {
         LoadShaders();
         keys[GLFW_KEY_0] = false;
     }
-
-
     if(keys[GLFW_KEY_I]) {
         app.GetCamera().transform.position.z -= 0.1;
     }

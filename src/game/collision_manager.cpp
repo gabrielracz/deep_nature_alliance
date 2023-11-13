@@ -3,35 +3,40 @@
 
 #include <glm/glm.hpp>
 
+void CollisionManager::CheckCollisions() {
+    for (Collidable* c : things) {
+        for (Collidable* other : things) {
+            if (c == other) {
+            } else if (c->GetCollision().GetType() == CollisionType::SPHERE) {
+                if (other->GetCollision().GetType() == CollisionType::SPHERE) {
+                    sphereToSphere(c, other);
+                } else if (other->GetCollision().GetType() == CollisionType::BOX) {
+                    sphereToBox(c, other);
+                }
 
-void CollisionManager::CheckCollisions(){
-    for (auto trig : triggers){
-        if(sphereToSphere(player, trig)){
-            trig->ActivateTrigger();
+            } else if (c->GetCollision().GetType() == CollisionType::BOX) {
+            } else if (c->GetCollision().GetType() == CollisionType::RAY) {
+            }
         }
     }
+    // for (auto trig : triggers){
+    //     if(sphereToSphere(player, trig)){
+    //         trig->ActivateTrigger();
+    //     }
+    // }
 
-    for (auto ast : asteroids){
-        if (sphereToSphere(player, ast)){
-            //do stuff here
-        }
-    }
-}
-
-void CollisionManager::AddNode(SceneNode* node){
-    if (Trigger* t = dynamic_cast<Trigger*>(node)) {
-        triggers.push_back(t);
-    } else if (Player* p = dynamic_cast<Player*>(node)) {
-        player = p;
-    } else {
-        asteroids.push_back(node);
-    }
-    // else {
-    //     throw std::runtime_error("Unsupported node type in CollisionManager::AddNode");
+    // for (auto ast : asteroids){
+    //     if (sphereToSphere(player, ast)){
+    //         //do stuff here
+    //     }
     // }
 }
 
-bool CollisionManager::sphereToSphere(SceneNode *first, SceneNode *second) {
+void CollisionManager::AddNode(Collidable* node) {
+    things.push_back(node);
+}
+
+bool CollisionManager::sphereToSphere(Collidable* first, Collidable* second) {
     glm::vec3 pos1 = first->transform.position;
     float radius1 = first->GetCollision().GetSphereRadius();
     glm::vec3 pos2 = second->transform.position;
@@ -39,7 +44,7 @@ bool CollisionManager::sphereToSphere(SceneNode *first, SceneNode *second) {
     return glm::distance(pos1, pos2) < radius1 + radius2;
 }
 
-bool CollisionManager::sphereToBox(SceneNode *sphereNode, SceneNode *boxNode) {
+bool CollisionManager::sphereToBox(Collidable* sphereNode, Collidable* boxNode) {
     glm::vec3 sphereCenter = sphereNode->transform.position;
     float sphereRadius = sphereNode->GetCollision().GetSphereRadius();
     glm::vec3 boxCenter = boxNode->transform.position;
@@ -59,7 +64,7 @@ bool CollisionManager::sphereToBox(SceneNode *sphereNode, SceneNode *boxNode) {
     return distSquared <= (sphereRadius * sphereRadius);
 }
 
-bool CollisionManager::rayToSphere(SceneNode *rayNode, SceneNode *sphereNode) {
+bool CollisionManager::rayToSphere(Collidable* rayNode, Collidable* sphereNode) {
     glm::vec3 rayOrigin = rayNode->GetCollision().GetRayOrigin();
     glm::vec3 rayDirection = rayNode->GetCollision().GetRayDirection();
     glm::vec3 sphereCenter = sphereNode->transform.position;
@@ -74,13 +79,13 @@ bool CollisionManager::rayToSphere(SceneNode *rayNode, SceneNode *sphereNode) {
         return false;
     float discr = b * b - c;
     // A negative discriminant corresponds to ray missing sphere
-    if (discr < 0.f) 
+    if (discr < 0.f)
         return false;
 
     // Ray now found to intersect sphere, compute smallest t value of intersection
     float t = -b - glm::sqrt(discr);
     // If t is negative, ray started inside sphere so clamp t to zero
-    if (t < 0.f) 
+    if (t < 0.f)
         t = 0.f;
     return true;
 }
