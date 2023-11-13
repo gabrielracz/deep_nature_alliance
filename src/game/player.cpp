@@ -58,7 +58,7 @@ void Player::Update(double dt) {
             cross_section += 10.0f;
             braking = false;
         }
-        float resist_constant = 300.0f;
+        float resist_constant = 250.0f;
         glm::vec3 ang_resist = -axis * angv*angv * resist_constant * cross_section;
         torque += ang_resist;
     }

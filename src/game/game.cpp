@@ -126,7 +126,7 @@ void Game::SetupScene(void){
     // CreateTree();
     CreateAsteroidField(500);
     CreateLights();
-    // CreateHUD();
+    CreateHUD();
 }
 
 void Game::Update(double dt, KeyMap &keys) {
@@ -293,12 +293,13 @@ void Game::CreatePlanets() {
 }
 
 void Game::CreateHUD() {
+
     Text* txt = new Text("Obj_Banner", "M_Quad", "S_Text", "T_Charmap", this, "DEEP NATURE ALLIANCE\nA millenia ago, thousands of soldiers\nwere sent deep into the far reaches of space\nin search of life.\nOne of these soldiers is you...");
     txt->transform.SetPosition({0.0f, 1.0f, 0.0f});
     txt->SetAnchor(Text::Anchor::TOPCENTER);
     txt->SetColor(Colors::SlimeGreen);
     txt->SetSize(15);
-    // scene.AddNode(txt);
+    AddToScene(SceneEnum::AFTERTRIGGER, txt);
 
     Text* fps = new Text("Obj_Fps", "M_Quad", "S_Text", "T_Charmap", this, "FPS");
     fps->transform.SetPosition({-1.0, 1.0, 0.0f});
@@ -307,7 +308,7 @@ void Game::CreateHUD() {
     fps->SetCallback([this]() -> std::string {
         return "fps: " + std::to_string(app.GetFPS());
     });
-    scene->AddNode(fps);
+    AddToScene(SceneEnum::AFTERTRIGGER, fps);
 
     Text* speedo = new Text("Obj_Speedo", "M_Quad", "S_Text", "T_Charmap", this, "");
     speedo->transform.SetPosition({0.0, -0.1, 0.0f});
@@ -316,8 +317,16 @@ void Game::CreateHUD() {
     speedo->SetCallback([this]() -> std::string {
         return std::to_string((glm::length(scene->GetPlayer()->velocity)));
     });
-    scene->AddNode(speedo);
+    // scene->AddNode(speedo);
+    AddToScene(SceneEnum::AFTERTRIGGER, speedo);
 
+    Text* crosshair = new Text("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", this, "[ ]");
+    crosshair->transform.SetPosition({0.0, 0.1, 0.0});
+    crosshair->SetSize(8.0f);
+    crosshair->SetColor(HEXCOLORALPH(0xFF00FF, 0.75));
+    crosshair->SetBackgroundColor(Colors::Transparent);
+    crosshair->SetAnchor(Text::Anchor::CENTER);
+    AddToScene(SceneEnum::AFTERTRIGGER, crosshair);
 }
 
 void Game::CreateLights() {

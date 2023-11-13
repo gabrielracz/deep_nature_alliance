@@ -47,7 +47,7 @@ public:
     glm::mat3 inertia = glm::mat3(
              1000.0f,   0.0f,   0.0f,
                0.0f, 1700.0f,   0.0f,
-               0.0f,     0.0,    800.0f);
+               0.0f,     0.0,    1000.0f);
     glm::mat3 inv_inertia = glm::inverse(inertia);
 };
 
