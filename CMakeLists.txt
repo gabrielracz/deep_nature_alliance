@@ -12,6 +12,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(HDRS
     include/engine/application.h
     include/engine/view.h
+    include/engine/transform.h
     include/engine/camera.h 
     include/engine/resource.h 
     include/engine/resource_manager.h 
@@ -20,7 +21,6 @@ set(HDRS
     include/engine/texture.h
     include/engine/scene_graph.h 
     include/engine/scene_node.h 
-    include/engine/transform.h 
     include/engine/random.h
     include/engine/defines.h
     include/engine/control.h
@@ -41,6 +41,7 @@ set(SRCS
     src/main.cpp
     src/engine/application.cpp
     src/engine/view.cpp
+    src/engine/transform.cpp
     src/engine/camera.cpp 
     src/engine/resource.cpp 
     src/engine/resource_manager.cpp 

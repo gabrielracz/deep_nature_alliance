@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "glm/gtx/quaternion.hpp"
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -13,109 +14,61 @@ typedef enum {
     UP = 1,
     FORWARD = 2
 } Axis;
-struct Transform {
+
+class Transform { 
+private:
     glm::vec3 position    {glm::vec3(0.0f)};
     glm::quat orientation {};
     glm::vec3 scale       {glm::vec3(1.0f)};
     glm::quat orbit {};
     glm::vec3 joint = {0.0f, 0.0f, 0.0f};
-
     glm::mat3 axes {{1.0f, 0.0f, 0.0f},
                    {0.0f, 1.0f, 0.0f},
                    {0.0f, 0.0f, 1.0f}};
 
-    // glm::vec3& side    = axes[Axis::SIDE];
-    // glm::vec3& forward = axes[Axis::FORWARD];
-    // glm::vec3& up      = axes[Axis::UP];
+    glm::mat4 transf_local_no_scale;
+    glm::mat4 transf_local;
+    glm::mat4 transf_world;
+    glm::mat4 transf_world_no_scale;
 
-private:
+    Transform* parent;
     glm::mat4 cached_matrix;
-    bool changed = false;
+    bool dirty = true;
 
 public:
     Transform() = default;
     Transform(const glm::vec3& p, const glm::quat o, const glm::vec3& s)
-        : position(s), orientation(o), scale(s) {Matrix();}
+        : position(s), orientation(o), scale(s) {Update();}
     Transform(Transform& o) = default;
-    //     position    = o.position;
-    //     orientation = o.orientation;
-    //     scale       = o.scale;
-    //     orbit       = o.orbit;
-    //     joint       = o.joint;
-    //     axes        = o.axes;
-    // }
 
-    glm::vec3 LocalAxis(Axis a) const {
-        return orientation * axes[a];
-    };
+    void Update(const glm::mat4& parent = glm::mat4(1.0f));
+    glm::vec3 LocalAxis(Axis a);
+    void Rotate(const glm::quat& rot);
+    void RotateOrbit(const glm::quat& rot);
+    void Translate(const glm::vec3& trans);
+    void Pitch(float angle);
+    void Yaw(float angle);
+    void Roll(float angle);
+    glm::mat4 CalculateMatrix();
+    // glm::mat4 ScaledMatrix();
 
-    void SetPosition(const glm::vec3& newpos) {
-        position = newpos;
-    } 
+    void SetPosition(const glm::vec3& newpos) { position = newpos; dirty = true;} 
+    void SetScale(const glm::vec3& newscale) { scale = newscale; dirty = true;} 
+    void SetOrientation(const glm::quat& newori) { orientation = newori; dirty = true;} 
+    void SetAxis(Axis a, const glm::vec3& v ) {axes[a] = v;}
 
-    void SetScale(const glm::vec3& newscale) {
-        scale = newscale;
-    } 
+    const glm::mat4& GetLocalMatrix() const {return transf_local;}
+    const glm::mat4& GetWorldMatrix() const {return transf_world;}
+    const glm::mat4& GetWorldMatrixNoScale() const {return transf_world;}
+    const glm::vec3& GetPosition() const { return position;}
+    glm::vec3 GetWorldPosition() const {return transf_world * glm::vec4(0.0, 0.0, 0.0, 1.0f);}
+    const glm::quat& GetOrientation() const { return orientation;}
+    glm::quat GetWorldOrientation() const {return glm::normalize(glm::toQuat(transf_world));}
+    const glm::quat& GetOrbit() const { return orbit;}
+    const glm::vec3& GetJoint() const { return joint;}
+    const glm::vec3& GetAxis(Axis a) const { return axes[a];}
 
-    void SetOrientation(const glm::quat& newori) {
-        orientation = newori;
-    } 
-
-    void Rotate(const glm::quat& rot) {
-        orientation = orientation * rot;
-        orientation = glm::normalize(orientation);
-    }
-
-    void Translate(const glm::vec3& trans) {
-        position += orientation * trans;
-    }
-
-    void Pitch(float angle) {
-        glm::quat rotation = glm::angleAxis(angle, LocalAxis(SIDE)); // not the correct axis
-        Rotate(rotation);
-    }
-
-    void Yaw(float angle) {
-        glm::quat rotation = glm::angleAxis(angle, LocalAxis(UP)); // not the correct axis
-        Rotate(rotation);
-    }
-
-    void Roll(float angle) {
-        glm::quat rotation = glm::angleAxis(angle, LocalAxis(FORWARD)); // what axis is used for rolling?
-        Rotate(rotation);
-    }
-
-    glm::mat4 Matrix() {
-
-        glm::mat4 rotation = glm::mat4_cast(orientation);
-        glm::mat4 translation = glm::translate(glm::mat4(1.0), position);
-        glm::mat4 joint_translate = glm::translate(glm::mat4(1.0), -joint);
-        glm::mat4 orb= glm::inverse(joint_translate) * glm::mat4_cast(orbit) * joint_translate;
-
-        glm::mat4 transf = translation * orb* rotation;
-
-        return transf;
-    }
-
-    glm::mat4 ScaledMatrix() {
-        glm::mat4 scaling = glm::scale(glm::mat4(1.0), scale);
-        glm::mat4 rotation = glm::mat4_cast(orientation);
-        glm::mat4 translation = glm::translate(glm::mat4(1.0), position);
-        glm::mat4 joint_translate = glm::translate(glm::mat4(1.0), -joint);
-        glm::mat4 orb= glm::inverse(joint_translate) * glm::mat4_cast(orbit) * joint_translate;
-
-        glm::mat4 transf = translation * orb * rotation * scaling;
-
-        return transf;
-    }
-
-    static glm::mat4 RemoveScaling(const glm::mat4 m) {
-        glm::mat4 n = m;
-        n[0] = glm::normalize(n[0]);
-        n[1] = glm::normalize(n[1]);
-        n[2] = glm::normalize(n[2]);
-        return n;
-    }
+    static glm::mat4 RemoveScaling(const glm::mat4 m);
 
 };
 

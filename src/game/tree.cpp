@@ -20,6 +20,6 @@ Tree::Tree(const std::string name, const std::string& mesh_id, const std::string
 
 void Tree::Update(double dt) {
     // elapsed += dt*wind_speed;
-    transform.orbit *= glm::angleAxis((float)sin(wind_offset + elapsed*wind_speed) * wind_strength, glm::vec3(0.0, 0.0, 1.0));
+    transform.RotateOrbit(glm::angleAxis((float)sin(wind_offset + elapsed*wind_speed) * wind_strength, glm::vec3(0.0, 0.0, 1.0)));
     SceneNode::Update(dt);
 }
