@@ -44,7 +44,7 @@ enum GameState {
 class Game {
     public:
 
-        Game(Application& app, ResourceManager& resman) : app(app), resman(resman), colman() {};
+        Game(Application& app, ResourceManager& resman) : app(app), resman(resman) {};
 
         void Init(void); 
         void SetupResources(void);
@@ -52,9 +52,7 @@ class Game {
 
         void Update(double dt, KeyMap& keys);
 
-        SceneGraph& ActiveScene() {return *scene;}
-        Camera& ActiveCamera() {return camera;}
-        std::vector<Light*>& ActiveLights() {return lights;}
+        SceneGraph& ActiveScene() { return *scene; }
 
         Application& app;
         ResourceManager& resman;
@@ -63,15 +61,9 @@ class Game {
 
     private:
         SceneGraph* scene;
-        Camera camera;
 
-        CollisionManager colman;
+        std::vector<SceneGraph *> scenes;
 
-        std::vector<SceneGraph> scenes;
-
-        std::vector<Light*> lights;
-        // std::vector<SceneNode*> asteroids;
-        // std::vector<Trigger*> triggers;
 
         Player* player;
 

@@ -7,7 +7,7 @@
 Application::Application() : view(*this, resman), game(*this, resman){}
 
 void Application::Init() {
-    view.Init("view test", 800, 600);
+    view.Init("view test", window_width_g, window_height_g);
     game.Init();
 }
 
@@ -34,7 +34,7 @@ void Application::Start() {
 		last_time = current_time;
 
         game.Update(dt, view.GetKeys());
-        view.Render(game.ActiveScene(), game.ActiveCamera(), game.ActiveLights());
+        view.Render(game.ActiveScene());
     }
 
 }

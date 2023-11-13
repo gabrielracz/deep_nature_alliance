@@ -26,9 +26,6 @@
 
 // Main window settings
 const std::string window_title_g = "[] Asteroid Field";
-const unsigned int window_width_g = 800;
-const unsigned int window_height_g = 600;
-const bool window_full_screen_g = false;
 
 // Viewport and camera settings
 const glm::vec3 viewport_background_color_g(0.0, 0.0, 0.0);
@@ -116,16 +113,16 @@ void Game::LoadTextures() {
 void Game::SetupScene(void){
 
     // Set background color for the scene
-    scenes.push_back(SceneGraph());
-    scenes.push_back(SceneGraph());
-    scene = &scenes[0];
+    scenes.push_back( new SceneGraph());
+    scenes.push_back( new SceneGraph());
+    scene = scenes[0];
     scene->SetBackgroundColor(viewport_background_color_g);
 
     CreatePlayer();
-    // CreatePlanets();
+    CreatePlanets();
     CreateTriggers();
     // CreateTree();
-    // CreateAsteroidField(500);
+    CreateAsteroidField(500);
     CreateLights();
     // CreateHUD();
 }
@@ -133,7 +130,8 @@ void Game::SetupScene(void){
 void Game::Update(double dt, KeyMap &keys) {
     CheckControls(keys);
     scene->Update(dt);
-    colman.CheckCollisions();
+    scene->GetColman().CheckCollisions();
+    // colman.CheckCollisions();
     // CheckCollisions();
 }
 
@@ -242,7 +240,11 @@ void Game::CreatePlayer() {
     // player->visible = false;
     app.GetCamera().Attach(&player->transform); // Attach the camera to the player
     scene->AddNode(player);
-    colman.SetPlayer(player);
+    scene->GetColman().SetPlayer(player);
+
+    //temp
+    scenes[1]->AddNode(player);
+    scenes[1]->GetColman().SetPlayer(player);
 }
 
 void Game::CreatePlanets() {
@@ -250,7 +252,8 @@ void Game::CreatePlanets() {
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetPosition({200, 0, -2000});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
-    scene->AddNode(planet);
+    //temp
+    scenes[1]->AddNode(planet);
 }
 
 void Game::CreateHUD() {
@@ -274,7 +277,9 @@ void Game::CreateHUD() {
 void Game::CreateLights() {
     Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
     light->transform.SetPosition({50.5, -0.5, 5005.5});
-    lights.push_back(light);
+    scene->GetLights().push_back(light);
+    //temp
+    scenes[1]->GetLights().push_back(light);
 }
 
 int tcount = 0;
@@ -375,16 +380,14 @@ void Game::CreateTree() {
 }
 
 void Game::CreateAsteroidField(int num_asteroids){
-    scene->AddNode(new SceneNode("Obj_Stars", "M_StarCloud", "S_Default"));
+    //temp
+    scenes[1]->AddNode(new SceneNode("Obj_Stars", "M_StarCloud", "S_Default"));
 }
 
 void Game::ChangeScene(int sceneIndex) {
     std::cout << "changing scenes" << std::endl;
-    scene = &scenes[sceneIndex];
-
-    //temporary thing colman should be stored within scenegraph so it changes when scene changes
-    colman = CollisionManager();
-
+    scene = scenes[sceneIndex];
+    return;
 }
 
 /*
@@ -410,7 +413,7 @@ void Game::CreateTriggers(){
         Trigger* t = new Trigger("Trigger" + std::to_string(i), "M_Leaf", "S_Default", "", triggerAction);
         t->transform.position = trigger_positions[i];
         scene->AddNode(t);
-        colman.AddTrigger(t);
+        scene->GetColman().AddTrigger(t);
     }
 }
 

@@ -8,8 +8,7 @@
 
 #include "scene_graph.h"
 
-SceneGraph::SceneGraph(void){
-
+SceneGraph::SceneGraph(void) : colman(){
     background_color_ = glm::vec3(0.0, 0.0, 0.0);
 }
 
@@ -52,13 +51,11 @@ SceneNode *SceneGraph::GetNode(std::string node_name) const {
 
 
 std::vector<SceneNode *>::const_iterator SceneGraph::begin() const {
-
     return node_.begin();
 }
 
 
 std::vector<SceneNode *>::const_iterator SceneGraph::end() const {
-
     return node_.end();
 }
 
