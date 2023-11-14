@@ -9,6 +9,9 @@
 #define PI_2 glm::pi<float>()/2.0f
 #define PRINT_FIXED_FLOAT(x) std::fixed <<std::setprecision(2)<<(x)
 
+#define APPEND_VEC2(vector, glm_vec2) vector.insert(vector.end(), {glm_vec2.x, glm_vec2.y})
+#define APPEND_VEC3(vector, glm_vec3) vector.insert(vector.end(), {glm_vec3.x, glm_vec3.y, glm_vec3.z})
+
 const unsigned int window_width_g = 1280;
 const unsigned int window_height_g = 960;
 const bool window_full_screen_g = false;

@@ -21,6 +21,7 @@
 #include "scene_node.h"
 #include "tree.h"
 #include "text.h"
+#include "terrain.h"
 
 // Some configuration constants
 // They are written here as global variables, but ideally they should be loaded from a configuration file
@@ -101,7 +102,7 @@ void Game::LoadShaders() {
 void Game::LoadTextures() {
     // load textures
     resman.LoadTexture("T_Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
-    // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
+    resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
     // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
     // resman.LoadTexture("T_SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_REPEAT);
     // resman.LoadTexture("T_MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
@@ -121,6 +122,7 @@ void Game::SetupScene(void){
     scene->SetBackgroundColor(viewport_background_color_g);
 
     CreatePlayer();
+    CreateTerrain();
     CreatePlanets();
     CreateTriggers();
     // CreateTree();
@@ -164,6 +166,11 @@ void Game::CheckControls(KeyMap& keys) {
     if(keys[GLFW_KEY_T]) {
         SetupScene();
         keys[GLFW_KEY_T] = false;
+    }
+
+    if(keys[GLFW_KEY_RIGHT_BRACKET]) {
+        app.ToggleRenderMode();
+        keys[GLFW_KEY_RIGHT_BRACKET] = false;
     }
 
     if(keys[GLFW_KEY_LEFT_SHIFT]) {
@@ -242,9 +249,6 @@ void Game::CreatePlayer() {
     player->transform.SetPosition(player_position_g);
     // player->visible = false;
 
-
-
-
     app.GetCamera().Attach(&player->transform); // Attach the camera to the player
     AddPlayerToScene(SceneEnum::ALL, player);
     // scenes[BEFORETRIGGER]->AddNode(player);
@@ -288,11 +292,21 @@ void Game::AddToScene(SceneEnum sceneNum, SceneNode* node) {
 }
 
 void Game::CreatePlanets() {
-    SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_MoonPlanet");
+    SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_LavaPlanet");
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetPosition({200, 0, -2000});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
     AddToScene(SceneEnum::AFTERTRIGGER, planet);
+}
+
+void Game::CreateTerrain() {
+    // this generates its own terrain.
+    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Default", "T_MoonPlanet", 200, 100, 1.0, this);
+    AddToScene(SceneEnum::AFTERTRIGGER, t);
+
+    // std::vector<float> verts = Terrain::GenerateHeightmap(100.0, 200.0, 1.0);
+
+
 }
 
 void Game::CreateHUD() {

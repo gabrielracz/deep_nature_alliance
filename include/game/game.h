@@ -82,6 +82,7 @@ class Game {
 
         void CreatePlayer();
         void CreatePlanets();
+        void CreateTerrain();
         void CreateAsteroidField(int num_asteroids);
         void CreateHUD();
         void CreateTree();

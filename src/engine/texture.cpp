@@ -1,6 +1,6 @@
 #include "texture.h"
 
-Texture::Texture(unsigned char* data, int width, int height, int n_channels, int wrap_option) {
+Texture::Texture(unsigned char* data, int width, int height, int n_channels, int wrap_option, float repitition) : texture_repetition(repitition) {
     GLenum format;
     switch(n_channels) {
         case 3:

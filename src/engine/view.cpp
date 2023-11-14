@@ -27,6 +27,15 @@ void View::Render(SceneGraph& scene) {
                  background_color[2], 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    switch(render_mode) {
+        case RenderMode::FILL:
+            glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+            break;
+        case RenderMode::WIREFRAME:
+            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+            break;
+    }
+
     for(auto node : scene) {
         RenderNode(node, scene.GetCamera(), scene.GetLights());
     }
@@ -200,4 +209,9 @@ void View::ToggleMouseCapture() {
     mouse.captured = !mouse.captured;
     mouse.first_captured = true;
     glfwSetInputMode(win.ptr, GLFW_CURSOR, mouse.captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+}
+
+
+void View::ToggleRenderMode() {
+    render_mode = (render_mode + 1) % RenderMode::NUM_RENDERMODES;
 }
