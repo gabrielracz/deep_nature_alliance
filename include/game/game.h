@@ -42,6 +42,7 @@ enum GameState {
 
 enum SceneEnum {
     BEFORETRIGGER,
+    SUPERFUCKINGCOOLLOADINGSCENE,
     AFTERTRIGGER,
     ALL = -1
 };
@@ -87,6 +88,7 @@ class Game {
         void CreateTree();
         void CreateLights();
         void CreateTriggers();
+        void CreateSpaceStation();
         void GrowTree(SceneNode* root, int branches, float height, float width, int level, int max_iterations);
         void GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width);
 

@@ -79,6 +79,7 @@ void Game::SetupResources(void){
 void Game::LoadMeshes() {
     // load .obj meshes
     resman.LoadMesh        ("M_Ship", RESOURCES_DIRECTORY"/h2.obj");
+    resman.LoadMesh        ("M_Station", RESOURCES_DIRECTORY"/dcs2.obj");
     // resman.CreateTorus     ("M_Ship", 3.0, 1.0, 100, 100); 
     // generate geometry
     resman.CreateQuad      ("M_Quad");
@@ -104,7 +105,7 @@ void Game::LoadTextures() {
     // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
     // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
     // resman.LoadTexture("T_SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_REPEAT);
-    // resman.LoadTexture("T_MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
+    resman.LoadTexture("T_MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
     // resman.LoadTexture("T_RockPlanet", RESOURCES_DIRECTORY"/mine_rocks.png", GL_REPEAT);
     // resman.LoadTexture("T_RedPlanet", RESOURCES_DIRECTORY"/red_rubble.png", GL_REPEAT);
     resman.LoadTexture("T_MoonPlanet", RESOURCES_DIRECTORY"/4k_ceres.jpg", GL_REPEAT);
@@ -117,6 +118,7 @@ void Game::SetupScene(void){
     // Set background color for the scene
     scenes.push_back( new SceneGraph());
     scenes.push_back( new SceneGraph());
+    scenes.push_back( new SceneGraph());
     scene = scenes[0];
     scene->SetBackgroundColor(viewport_background_color_g);
 
@@ -127,6 +129,7 @@ void Game::SetupScene(void){
     CreateAsteroidField(500);
     CreateLights();
     CreateHUD();
+    CreateSpaceStation();
 }
 
 void Game::Update(double dt, KeyMap &keys) {
@@ -136,7 +139,6 @@ void Game::Update(double dt, KeyMap &keys) {
     // colman.CheckCollisions();
     // CheckCollisions();
 }
-
 
 void Game::CheckControls(KeyMap& keys) {
     Player* player = scene->GetPlayer();
@@ -284,8 +286,15 @@ void Game::AddToScene(SceneEnum sceneNum, SceneNode* node) {
     }
 }
 
+void Game::CreateSpaceStation(){
+    SceneNode* station = new SceneNode("Obj_Station", "M_Station", "S_Ship", "T_MarsPlanet");
+    station->transform.SetPosition(player_position_g);
+    station->transform.SetScale(glm::vec3(0.01));
+    AddToScene(SceneEnum::SUPERFUCKINGCOOLLOADINGSCENE, station);
+}
+
 void Game::CreatePlanets() {
-    SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_MoonPlanet");
+    SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_MarsPlanet");
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetPosition({200, 0, -2000});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
@@ -456,22 +465,24 @@ however a similar thing could be done by just having a pointer to game in each s
 The use of something like this could also be used to implement all kinds of things within scene node or other classes
 idk lmk what u guys think
 */
-void Game::CreateTriggers(){
+void Game::CreateTriggers() {
     glm::vec3 trigger_positions[] = {
-        player_position_g - glm::vec3(0, 0, 40)
     };
 
-    for (int i = 0; i < 1; i++){
-        std::function<void()> triggerAction = std::bind(&Game::ChangeScene, this, 1);
+    std::function<void()> triggerAction = std::bind(&Game::ChangeScene, this, SUPERFUCKINGCOOLLOADINGSCENE);
+    Trigger* t = new Trigger("Trigger1", "M_Leaf", "S_Default", "", triggerAction);
+    t->transform.position = player_position_g - glm::vec3(0, 0, 40);
+    AddToScene(BEFORETRIGGER, t);
 
-        Trigger* t = new Trigger("Trigger" + std::to_string(i), "M_Leaf", "S_Default", "", triggerAction);
-        t->transform.position = trigger_positions[i];
-        AddToScene(BEFORETRIGGER, t);
-        // scenes[BEFORETRIGGER]->AddNode(t);
-        // scenes[BEFORETRIGGER]->GetColman().AddTrigger(t);
-    }
+    std::function<void()> triggerAction2 = std::bind(&Game::ChangeScene, this, AFTERTRIGGER);
+    t = new Trigger("Trigger1", "M_Leaf", "S_Default", "", triggerAction2);
+    t->SetTimer(10);
+    t->StartTimer(); //actually start when loaded and update is called
+    t->transform.position = glm::vec3(MAXFLOAT, MAXFLOAT, MAXFLOAT);
+    AddToScene(SUPERFUCKINGCOOLLOADINGSCENE, t);
+    // scenes[BEFORETRIGGER]->AddNode(t);
+    // scenes[BEFORETRIGGER]->GetColman().AddTrigger(t);
 }
-
 
 //other option (storing a pointer to main (kinda hacky))
 // void Game::CreateTriggers(){

@@ -9,6 +9,14 @@ void Trigger::ActivateTrigger(){
 // }
 
 void Trigger::Update(double dt) {
-    //stuff
+    if (timerActive) {
+        elapsedTime += dt;
+        // Check if the timer has reached its duration
+        if (elapsedTime >= timerDuration) {
+            ActivateTrigger();
+        }
+    }
+
+    // Other update logic
     SceneNode::Update(dt);
 }
