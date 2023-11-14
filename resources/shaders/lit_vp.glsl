@@ -29,11 +29,10 @@ void main()
 {
     position_interp = vec3(view_mat * world_mat * vec4(vertex, 1.0));
     gl_Position = projection_mat * vec4(position_interp, 1.0f);
-    normal_interp = vec3(normal_mat * vec4(normal, 0.0f));
-    color_interp = vec4(0.7, 0.7, 0.8, 1.0f);
-    // color_interp.a = 1.0f;
-    // color_interp = vec4(color, 1.0f);
+
+    normal_interp = vec3(normal_mat * vec4(normal, 0.0));
+    color_interp = vec4(color, 1.0f);
     uv_interp = uv;
-    vec3 light_pos_w = vec3(0, 0, 0);
-    light_pos = vec3(view_mat * vec4(light_pos_w, 1.0));
+
+    light_pos = vec3(view_mat * vec4(light_pos_world, 1.0));
 }

@@ -94,7 +94,7 @@ void Game::LoadShaders() {
     // load shader programs
     resman.LoadShader("S_Default", SHADER_DIRECTORY"/material_vp.glsl", SHADER_DIRECTORY"/material_fp.glsl");
     // resman.LoadShader("S_Ship", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
-    resman.LoadShader("S_Ship", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
+    resman.LoadShader("S_Lit", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
     resman.LoadShader("S_Text", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
     resman.LoadShader("S_Planet", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/textured_fp.glsl");
 }
@@ -245,7 +245,7 @@ void Game::MouseControls(Mouse& mouse) {
 }
 
 void Game::CreatePlayer() {
-    Player* player = new Player("Obj_Player", "M_Ship", "S_Ship");
+    Player* player = new Player("Obj_Player", "M_Ship", "S_Lit");
     player->transform.SetPosition(player_position_g);
     // player->visible = false;
 
@@ -301,7 +301,7 @@ void Game::CreatePlanets() {
 
 void Game::CreateTerrain() {
     // this generates its own terrain.
-    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Default", "T_MoonPlanet", 200, 100, 1.0, this);
+    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Lit", "T_MoonPlanet", 1000, 1000, 0.25, this);
     AddToScene(SceneEnum::AFTERTRIGGER, t);
 
     // std::vector<float> verts = Terrain::GenerateHeightmap(100.0, 200.0, 1.0);
@@ -348,7 +348,7 @@ void Game::CreateHUD() {
 
 void Game::CreateLights() {
     Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
-    light->transform.SetPosition({50.5, -0.5, 5005.5});
+    light->transform.SetPosition({50.5, 100.5, 50.5});
     AddLightToScene(SceneEnum::ALL, light);
     scenes[BEFORETRIGGER]->GetLights().push_back(light);
     scenes[AFTERTRIGGER]->GetLights().push_back(light);

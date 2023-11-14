@@ -16,10 +16,10 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
 
     //generate uniform grid
 
-    float xstep = 1/density;
-    float zstep = 1/density;
-    int num_xsteps = xwidth*xstep;
-    int num_zsteps = zwidth*zstep;
+    int num_xsteps = xwidth*density;
+    int num_zsteps = zwidth*density;
+    float xstep = xwidth/num_xsteps;
+    float zstep = zwidth/num_zsteps;
 
     for(int z = 0; z < num_zsteps; z++) {
         for(int x = 0; x < num_xsteps; x++) {
@@ -27,7 +27,7 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
             //create this vertex
             glm::vec3 pos    = {x*xstep, height, z*zstep};
             glm::vec3 normal = {0.0, 1.0, 0.0};
-            glm::vec3 color  = {Colors::Magenta};
+            glm::vec3 color  = {Colors::SeaBlue};
             glm::vec2 uv     = {0.0, 0.0};
 
             APPEND_VEC3(vertices, pos);

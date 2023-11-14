@@ -39,6 +39,7 @@ class Camera {
         void Reset();
         bool IsAttached();
         void SetupViewMatrix(void);
+        const glm::mat4& GetViewMatrix() {return view_matrix_;}
 
         float pitch_speed = 0.0f;
         float yaw_speed = 0.0f;

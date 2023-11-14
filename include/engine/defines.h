@@ -33,6 +33,8 @@ namespace Colors {
     const glm::vec4 SlimeGreen = HEXCOLOR(0xAFAF00);
     const glm::vec4 Magenta = HEXCOLOR(0xFF00FF);
     const glm::vec4 Transparent = HEXCOLORALPH(0x000000, 0.0f);
+    const glm::vec4 Yellow      = HEXCOLOR(0xFFFF00);
+    const glm::vec4 SeaBlue     = HEXCOLOR(0x83A598);
 }
 
 typedef std::function<void(Mouse& mouse)> MouseHandler;

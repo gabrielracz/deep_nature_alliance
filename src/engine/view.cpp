@@ -56,7 +56,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     for(auto l : lights) {
         l->SetUniforms(shd);
     }
-    node->SetUniforms(shd, parent_matrix);
+    node->SetUniforms(shd, camera.GetViewMatrix());
 
     // TEXTURE
     if(!tex_id.empty()) {
@@ -121,6 +121,7 @@ void View::InitView(){
 
     // Set up z-buffer
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DITHER);
     glDepthFunc(GL_LESS);
 
 	//Use this to disable vsync

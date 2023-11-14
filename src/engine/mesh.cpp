@@ -95,9 +95,9 @@ Mesh::Mesh(const std::string& obj_file_path)
                 vertices.push_back(normals[n_ix][1]);
                 vertices.push_back(normals[n_ix][2]);
 
-                vertices.push_back(uv_selected.x);
-                vertices.push_back(uv_selected.x);
-                vertices.push_back(uv_selected.x);
+                vertices.push_back(0.77);
+                vertices.push_back(0.77);
+                vertices.push_back(0.77);
 
                 vertices.push_back(uv_selected.x);
                 vertices.push_back(uv_selected.y);
