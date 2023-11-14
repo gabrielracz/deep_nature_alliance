@@ -78,9 +78,9 @@ void Player::Update(double dt) {
 void Player::Thrust(int d) {
     float speed = glm::length(velocity);
     if(d > 0 && speed < move_speed + accel_amt) {
-        velocity += -transform.LocalAxis(FORWARD) * accel_amt;
+        velocity += transform.LocalAxis(FORWARD) * accel_amt;
     } else if (d < 0 && speed - accel_amt > -move_speed - accel_amt) { 
-        velocity -= -transform.LocalAxis(FORWARD) * accel_amt;
+        velocity -= transform.LocalAxis(FORWARD) * accel_amt;
     }
 }
 
@@ -90,7 +90,7 @@ void Player::ShipControl(Controls c, float damping) {
     switch(c) {
         case Controls::THRUST:
             // f;worce += -transform.LocalAxis(FORWARD) * thrust_force;
-            force += -transform.GetAxis(FORWARD) * thrust_force;
+            force += transform.GetAxis(FORWARD) * thrust_force;
             break;
         case Controls::BRAKE:
             braking = true;
@@ -108,10 +108,10 @@ void Player::ShipControl(Controls c, float damping) {
             torque += transform.GetAxis(UP) * -rot_force;
             break;
         case Controls::ROLLL:
-            torque += -transform.GetAxis(FORWARD) * -rot_force * 2.0f;
+            torque += transform.GetAxis(FORWARD) * -rot_force * 2.0f;
             break;
         case Controls::ROLLR:
-            torque += -transform.GetAxis(FORWARD) * rot_force * 2.0f;
+            torque += transform.GetAxis(FORWARD) * rot_force * 2.0f;
             break;
         default:
             break;

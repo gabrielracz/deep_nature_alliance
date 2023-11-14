@@ -24,7 +24,7 @@ private:
     glm::vec3 joint = {0.0f, 0.0f, 0.0f};
     glm::mat3 axes {{1.0f, 0.0f, 0.0f},
                    {0.0f, 1.0f, 0.0f},
-                   {0.0f, 0.0f, 1.0f}};
+                   {0.0f, 0.0f, -1.0f}};
 
     glm::mat4 transf_local_no_scale;
     glm::mat4 transf_local;
@@ -57,7 +57,7 @@ public:
     void SetOrientation(const glm::quat& newori) { orientation = newori; dirty = true;} 
     void SetAxis(Axis a, const glm::vec3& v ) {axes[a] = v;}
 
-    const glm::mat4& GetLocalMatrix() const {return transf_local;}
+    const glm::mat4 GetLocalMatrix() {return CalculateMatrix();}
     const glm::mat4& GetWorldMatrix() const {return transf_world;}
     const glm::mat4& GetWorldMatrixNoScale() const {return transf_world;}
     const glm::vec3& GetPosition() const { return position;}

@@ -117,7 +117,7 @@ void Game::SetupScene(void){
     // Set background color for the scene
     scenes.push_back( new SceneGraph(app));
     scenes.push_back( new SceneGraph(app));
-    scene = scenes[0];
+    scene = scenes[1];
     scene->SetBackgroundColor(viewport_background_color_g);
 
     CreatePlayer();
@@ -302,7 +302,7 @@ void Game::CreateHUD() {
     txt->SetAnchor(Text::Anchor::TOPCENTER);
     txt->SetColor(Colors::SlimeGreen);
     txt->SetSize(15);
-    AddToScene(SceneEnum::AFTERTRIGGER, txt);
+    // AddToScene(SceneEnum::AFTERTRIGGER, txt);
 
     Text* fps = new Text("Obj_Fps", "M_Quad", "S_Text", "T_Charmap", this, "FPS");
     fps->transform.SetPosition({-1.0, 1.0, 0.0f});
@@ -325,7 +325,7 @@ void Game::CreateHUD() {
 
     Text* crosshair = new Text("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", this, "[ ]");
     crosshair->transform.SetPosition({0.0, 0.1, 0.0});
-    crosshair->SetSize(8.0f);
+    crosshair->SetSize(10.0f);
     crosshair->SetColor(HEXCOLORALPH(0xFF00FF, 0.75));
     crosshair->SetBackgroundColor(Colors::Transparent);
     crosshair->SetAnchor(Text::Anchor::CENTER);

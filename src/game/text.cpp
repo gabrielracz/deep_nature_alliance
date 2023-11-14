@@ -45,6 +45,9 @@ void Text::SetContent(const std::string& str) {
                 longest = len;
             }
         } else if (i == str.size() - 1) { // make sure we account for the last line being the longest
+            if(lines.size() == 0) {
+                lines.push_back("");
+            }
             lines.back().push_back(ch);
             int len = i - start + 1;
             if(len > longest) {
