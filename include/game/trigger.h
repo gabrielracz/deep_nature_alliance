@@ -4,23 +4,32 @@
 #include <functional>
 #include "scene_node.h"
 
-class Game;
-
 class Trigger : public SceneNode {
-
     public:
         Trigger(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id, std::function<void()> act)
-        : SceneNode(name, mesh_id, shader_id, texture_id), action(act) {}
+            : SceneNode(name, mesh_id, shader_id, texture_id), action(act), timerActive(false) {
+        }
         // Trigger(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id, Game* g,std::function<void()> act)
         // : SceneNode(name, mesh_id, shader_id, texture_id), action(act), game(g) {}
-        
+
         virtual void Update(double dt) override;
-        void SetAction(std::function<void()> act) { action = act;}
+        void SetAction(std::function<void()> act) { action = act; }
         void ActivateTrigger();
+
+        void SetTimer(double duration) { timerDuration = duration; }
+        void StartTimer() {
+            elapsedTime = 0.0;
+            timerActive = true;
+        }
+        void StopTimer() { timerActive = false; }
+        void ResetTimer() { elapsedTime = 0.0; }
 
     private:
         std::function<void()> action;
-        Game* game;
+
+        double timerDuration;
+        double elapsedTime;
+        bool timerActive;
 };
 
-#endif // TRIGGER_H_
+#endif  // TRIGGER_H_
