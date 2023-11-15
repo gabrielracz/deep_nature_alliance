@@ -3,10 +3,9 @@
 
 Agent::Agent(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id) : SceneNode(name, mesh_id, shader_id, texture_id)
 {
-
 }
 
-void Agent::UpMove()
+void Agent::UpMove(float dt)
 {
     float step_height = 0.0f;
     if (vertical_velocity_ < 0.0f)
@@ -21,18 +20,16 @@ void Agent::UpMove()
     step_offset_ = step_height;
 }
 
-void Agent::WalkingMove(const glm::vec3 move)
+void Agent::WalkingMove(const glm::vec3 move, float dt)
 {
 
     if (glm::length(move) > 0.001)
     {
         glm::vec3 forward = glm::normalize(glm::vec3(transform.GetOrientation() * glm::vec4(glm::normalize(move), 0.0)));
-        target_position_ += forward * speed_;
+        target_position_ += forward * speed_ * dt * 100.0f;
     }
 
     // COLLISION SWEEPING AND CHECKING HERE FOR FORWARD SIDE TO SIDE OBJECTS
-
-    transform.SetPosition(target_position_);
 }
 
 void Agent::DownMove(float dt)
@@ -55,24 +52,28 @@ void Agent::DownMove(float dt)
     glm::vec3 drop_amount = up_ * (step_offset_ + down_velocity);
     target_position_ -= drop_amount;
 
-    glm::vec3 position = transform.GetPosition();
+    transform.SetPosition(target_position_);
+}
 
-    if (target_position_.y <= -30.0)
-    { // CHECK FOR BELOW COLLISION
-
+void Agent::DownCollision(float collision_point_y)
+{
+    if (target_position_.y <= (collision_point_y + height_))
+    {
+        glm::vec3 position = transform.GetPosition();
         // Interpolate small fall (would usually want to do this before hitting floor)
-        float fraction = (position.y - (-30.0)) * 0.5;
-        transform.SetPosition(glm::mix(position, target_position_, fraction));
-
+        float fraction = (position.y - (collision_point_y + height_)) * 0.5;
+        transform.SetPosition(glm::vec3(position.x, glm::mix(prev_position_.y, position.y, fraction), position.z));
         // On the ground yo
         vertical_velocity_ = 0.0f;
         vertical_offset_ = 0.0f;
         jumping_ = false;
     }
-    else
-    { // NO COLLISION i.e FELL FULL HEIGHT
-        transform.SetPosition(target_position_);
-    }
+}
+
+void Agent::UpCollision()
+{
+    vertical_velocity_ = 0.0f;
+    vertical_offset_ = 0.0f;
 }
 
 void Agent::Update(double dt)
@@ -99,7 +100,7 @@ void Agent::Update(double dt)
     }
     vertical_offset_ = vertical_velocity_ * dt;
 
-    UpMove();
+    UpMove(dt);
 
     walk_direction_ = strafe_left_ + strafe_right_ + forward_ + backward_;
 
@@ -108,12 +109,13 @@ void Agent::Update(double dt)
         walk_direction_ = glm::normalize(walk_direction_);
     }
 
-    WalkingMove(walk_direction_);
+    WalkingMove(walk_direction_, dt);
 
     DownMove(dt);
 
     SceneNode::Update(dt);
     //printf("%f %f %f \n", walk_direction_.x, walk_direction_.y, walk_direction_.z);
+    //printf("%f %f %f \n", transform.GetPosition().x, transform.GetPosition().y, transform.GetPosition().z);
 }
 
 bool Agent::OnGround() const

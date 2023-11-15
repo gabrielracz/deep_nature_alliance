@@ -20,6 +20,10 @@ public:
     void UnSetForward(void);
     void UnSetBackward(void);
 
+    void DownCollision(float collision_point_y = 0.0f);
+    void UpCollision();
+    void HorizontalCollision();
+
     void Jump(glm::vec3 v = glm::vec3(0.0f, 0.0f, 0.0f));
 
     //void Reset(void);
@@ -37,7 +41,8 @@ protected:
     float movement_damping_ = 0.0f;
     float step_offset_ = 0.0f;
     float base_jump_speed_ = jump_speed_;
-    float speed_ = 0.5f;
+    float speed_ = 0.3f;
+    float height_ = 1.0f;
 
     glm::vec3 up_ = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::vec3 jump_axis_ = glm::vec3(0.0, 1.0, 0.0f);
@@ -51,9 +56,9 @@ protected:
     glm::vec3 strafe_right_ = glm::vec3(0.0f);
 
 
-    void UpMove();
+    void UpMove(float dt);
     void DownMove(float dt);
-    void WalkingMove(const glm::vec3 move);
+    void WalkingMove(const glm::vec3 move, float dt);
 
 private:
     const float EPSILON = 1e-6; // For ground checking!

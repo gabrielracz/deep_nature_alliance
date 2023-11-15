@@ -155,6 +155,7 @@ void Game::Update(double dt, KeyMap &keys) {
     CheckControls(keys);
     scene->Update(dt);
     scene->GetColman().CheckCollisions();
+    scenes[FPTEST]->GetFPPlayer()->DownCollision(-30.0f);
     // colman.CheckCollisions();
     // CheckCollisions();
 }
@@ -360,7 +361,7 @@ void Game::CreateHUD() {
     fps->SetCallback([this]() -> std::string {
         return "fps: " + std::to_string(app.GetFPS());
     });
-    AddToScene(SceneEnum::AFTERTRIGGER, fps);
+    AddToScene(SceneEnum::ALL, fps);
 
     Text* speedo = new Text("Obj_Speedo", "M_Quad", "S_Text", "T_Charmap", this, "");
     speedo->transform.SetPosition({0.0, -0.1, 0.0f});
