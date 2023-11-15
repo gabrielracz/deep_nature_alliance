@@ -58,8 +58,16 @@ void Agent::DownMove(float dt)
     glm::vec3 position = transform.GetPosition();
 
     float terrainY = terrain->SampleHeight(position.x, position.z);
-    target_position_.y = terrainY;
-    transform.SetPosition(target_position_);
+    
+    // std::cout << "terrain y: " << terrainY << " target y: " << target_position_.y << std::endl;
+    
+    if (glm::abs(target_position_.y - terrainY) < 5.0){
+        target_position_.y = terrainY;
+        transform.SetPosition(target_position_);
+    } else {
+        transform.SetPosition(prev_position_);
+    }
+    
     //not integrated with jumping
     // if (target_position_.y <= terrainY)
     // { // CHECK FOR BELOW COLLISION
