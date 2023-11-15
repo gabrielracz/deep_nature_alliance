@@ -136,12 +136,12 @@ void Game::SetupScene(void){
 
 void Game::SetupFPScene(void) {
 
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Ship");
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit");
     p->transform.SetPosition(player_position_g);
     scenes[FPTEST]->SetFPPlayer(p);
     AddToScene(FPTEST, p);
 
-    SceneNode* n = new SceneNode("Shippy", "M_Ship", "S_Ship");
+    SceneNode* n = new SceneNode("Shippy", "M_Ship", "S_Lit");
     n->transform.SetPosition(glm::vec3(0,0,-10));
     AddToScene(FPTEST, n);
 }

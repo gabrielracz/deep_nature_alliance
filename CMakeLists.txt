@@ -65,6 +65,7 @@ set(SRCS
     src/game/trigger.cpp
     src/game/collision_manager.cpp
     src/game/terrain.cpp
+    src/game/fp_player.cpp
     src/game/agent.cpp
 )
 

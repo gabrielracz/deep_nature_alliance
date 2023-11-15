@@ -17,7 +17,8 @@
 
 class Application;
 
-namespace config {
+namespace config
+{
     const float camera_near_clip_distance = 0.01;
     const float camera_far_clip_distance = 10000.0;
     const float camera_fov = 90.0; // Field-of-view of camera (degrees)
@@ -28,47 +29,51 @@ namespace config {
     const glm::vec3 fp_camera_position(0.0, 1.0, 0.0);
 };
 
-class View {
+class View
+{
 
-typedef struct {
-    GLFWwindow* ptr;
-    std::string title;
-    int width;
-    int height;
-} Window;
-
-enum RenderMode{
-    FILL = 0,
-    WIREFRAME,
-    NUM_RENDERMODES
-};
+    enum RenderMode
+    {
+        FILL = 0,
+        WIREFRAME,
+        NUM_RENDERMODES
+    };
 
 public:
-	View(Application& app, ResourceManager& resman);	
+
+    typedef struct
+    {
+        GLFWwindow *ptr;
+        std::string title;
+        int width;
+        int height;
+    } Window;
+
+    View(Application &app, ResourceManager &resman);
     ~View();
-    void Init(const std::string& title, int width, int height);
+    void Init(const std::string &title, int width, int height);
     void Update(double dt);
-    void Render(SceneGraph& scene);
+    void Render(SceneGraph &scene);
 
     void ToggleMouseCapture();
-    void SetMouseHandler(MouseHandler h) {mouse_handler = h;}
+    void SetMouseHandler(MouseHandler h) { mouse_handler = h; }
     void ToggleRenderMode();
 
-    KeyMap& GetKeys() {return key_controls;}
-    Mouse& GetMouse() {return mouse;}
-    Camera& GetCamera() {return camera;}
+    KeyMap &GetKeys() { return key_controls; }
+    Mouse &GetMouse() { return mouse; }
+    Camera &GetCamera() { return camera; }
 
-    int GetWidth() {return win.width;}
-    int GetHeight() {return win.height;}
+    int GetWidth() { return win.width; }
+    int GetHeight() { return win.height; }
 
-    Window GetWindow() {return win;}
+    Window GetWindow() { return win; }
 
     void InitFirstPersonView();
     void InitShipView();
-    
+
 private:
-    Application& app;
-    ResourceManager& resman;
+    Application &app;
+    ResourceManager &resman;
 
     Window win;
     Camera camera;
@@ -77,18 +82,18 @@ private:
 
     int render_mode = RenderMode::FILL;
 
-    void InitWindow(const std::string& title, int width, int height);
+    void InitWindow(const std::string &title, int width, int height);
     void InitView();
     void InitEventHandlers();
     void InitControls();
 
-    void RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix = glm::mat4(1.0f));
+    void RenderNode(SceneNode *node, Camera &cam, std::vector<Light *> &lights, const glm::mat4 &parent_matrix = glm::mat4(1.0f));
 
-    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    static void ResizeCallback(GLFWwindow* window, int width, int height);
-    static void MouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
+    static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
+    static void ResizeCallback(GLFWwindow *window, int width, int height);
+    static void MouseMoveCallback(GLFWwindow *window, double xpos, double ypos);
 
-    std::function<void(Mouse& mouse)> mouse_handler;
+    std::function<void(Mouse &mouse)> mouse_handler;
 };
 
 #endif
