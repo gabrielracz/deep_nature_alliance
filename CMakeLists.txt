@@ -12,6 +12,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(HDRS
     include/engine/application.h
     include/engine/view.h
+    include/engine/transform.h
     include/engine/camera.h 
     include/engine/resource.h 
     include/engine/resource_manager.h 
@@ -20,7 +21,6 @@ set(HDRS
     include/engine/texture.h
     include/engine/scene_graph.h 
     include/engine/scene_node.h 
-    include/engine/transform.h 
     include/engine/random.h
     include/engine/defines.h
     include/engine/control.h
@@ -35,12 +35,16 @@ set(HDRS
     include/game/text.h
     include/game/trigger.h
     include/game/collision_manager.h
+    include/game/terrain.h
+    include/game/agent.h
+    include/game/fp_player.h
 )
  
 set(SRCS
     src/main.cpp
     src/engine/application.cpp
     src/engine/view.cpp
+    src/engine/transform.cpp
     src/engine/camera.cpp 
     src/engine/resource.cpp 
     src/engine/resource_manager.cpp 
@@ -60,6 +64,8 @@ set(SRCS
     src/game/tree.cpp
     src/game/trigger.cpp
     src/game/collision_manager.cpp
+    src/game/terrain.cpp
+    src/game/agent.cpp
 )
 
 # Add path name to configuration file

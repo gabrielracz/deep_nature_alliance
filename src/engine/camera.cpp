@@ -1,4 +1,5 @@
 #include "defines.h"
+#include "glm/ext/matrix_transform.hpp"
 #include "transform.h"
 #include <glm/ext/quaternion_trigonometric.hpp>
 #include <stdexcept>
@@ -23,7 +24,12 @@ void Camera::Update() {
     transform.Pitch(angular_velocity.x);
     transform.Yaw(angular_velocity.y);
     transform.Roll(angular_velocity.z);
-    transform.Translate(velocity);
+    // transform.Translate(velocity);
+    if(parent_transform) {
+        transform.Update(parent_transform->GetWorldMatrix());
+    } else {
+        transform.Update();
+    }
     SetupViewMatrix();
 }
 
@@ -32,13 +38,13 @@ void Camera::SetView(glm::vec3 position, glm::vec3 look_at, glm::vec3 up){
     // Store initial forward and side vectors
     // See slide in "Camera control" for details
     // probably will not be much used (directly setting view a rare occurrence in games)
-    transform.axes[UP] = up;
-    transform.axes[FORWARD] = -glm::normalize(look_at - position);
-    transform.axes[SIDE] = glm::normalize(glm::cross(transform.axes[UP], transform.axes[FORWARD]));
+    // transform.SetAxis(UP, up);
+    // transform.SetAxis(FORWARD, glm::normalize(look_at - position));
+    // transform.SetAxis(SIDE, glm::normalize(glm::cross(transform.GetAxis(FORWARD), up)));
 
     // Reset orientation and position of camera
-    transform.position = position;
-    transform.orientation = glm::quat();
+    transform.SetPosition(position);
+    transform.SetOrientation(glm::quat());
     original_pos = position;
 }
 
@@ -67,19 +73,16 @@ void Camera::SetProjectionUniforms(Shader* shd, Projection projtype){
 
 void Camera::SetupViewMatrix(void){
 
-    //view_matrix_ = glm::lookAt(position, look_at, up);
     if(parent_transform) {
-        // glm::vec3 eye = parent_transform->position + (parent_transform->orientation * transform.position);
-        // glm::vec3 look_at = (transform.orientation * parent_transform->orientation * transform.axes[FORWARD]) + parent_transform->position;
-        // view_matrix_ = glm::lookAt(eye, look_at, up);
-        glm::vec3 eye = parent_transform->position + parent_transform->orientation * transform.position;
-        glm::vec3 look_at = parent_transform->position;// + glm::vec3(target->rotm * glm::vec4(0.0f, 0.0f, -13.0f, 0.0f));
-        glm::vec3 up = (transform.orientation * parent_transform->orientation * transform.axes[UP]);
+        glm::mat4 p = parent_transform->GetWorldMatrix();
+        glm::vec3 eye = transform.GetWorldPosition();
+        glm::vec3 look_at = p * glm::vec4(0.0, 0.0, -2.0, 1.0); // look slightly ahead of target
+        glm::vec3 side = transform.GetWorldMatrix() * glm::vec4(transform.GetAxis(SIDE), 0.0f);
+        glm::vec3 up = glm::cross(side, glm::vec3(p * glm::vec4(0.0, 0.0, -2.0, 0.0)));
         view_matrix_ = glm::lookAt(eye, look_at, up);
-
     } else {
-        glm::vec3 eye = transform.position;
-        glm::vec3 look_at = transform.position + -transform.LocalAxis(FORWARD) * 10.0f;
+        glm::vec3 eye = transform.GetPosition();
+        glm::vec3 look_at = transform.GetLocalMatrix() * glm::vec4(0.0, 0.0, -1.0, 1.0);
         glm::vec3 up = transform.LocalAxis(UP);
         view_matrix_ = glm::lookAt(eye, look_at, up);
     }
@@ -107,9 +110,9 @@ void Camera::Reset() {
 }
 
 void Camera::Drop() {
-    glm::vec3 eye = glm::vec4(parent_transform->position, 1.0f) + parent_transform->orientation * glm::vec4(transform.position, 1.0f); // get world pos of camera (not relative)
-    transform.SetOrientation(parent_transform->orientation); // take the parent's orientation as we will no longer get it from the 'inheritance'
-    transform.SetPosition(eye); 
+    transform.SetPosition(transform.GetWorldPosition()); 
+    // inverse of the view matrix gives us the camera's transformation matrix
+    transform.SetOrientation(glm::inverse(view_matrix_));
     parent_transform = nullptr;
     SetupViewMatrix();
 }

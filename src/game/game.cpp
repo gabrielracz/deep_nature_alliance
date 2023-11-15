@@ -21,6 +21,7 @@
 #include "scene_node.h"
 #include "tree.h"
 #include "text.h"
+#include "terrain.h"
 
 // Some configuration constants
 // They are written here as global variables, but ideally they should be loaded from a configuration file
@@ -94,7 +95,7 @@ void Game::LoadShaders() {
     // load shader programs
     resman.LoadShader("S_Default", SHADER_DIRECTORY"/material_vp.glsl", SHADER_DIRECTORY"/material_fp.glsl");
     // resman.LoadShader("S_Ship", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
-    resman.LoadShader("S_Ship", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
+    resman.LoadShader("S_Lit", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
     resman.LoadShader("S_Text", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
     resman.LoadShader("S_Planet", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/textured_fp.glsl");
 }
@@ -102,7 +103,7 @@ void Game::LoadShaders() {
 void Game::LoadTextures() {
     // load textures
     resman.LoadTexture("T_Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
-    // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
+    resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
     // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
     // resman.LoadTexture("T_SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_REPEAT);
     resman.LoadTexture("T_MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
@@ -116,13 +117,14 @@ void Game::LoadTextures() {
 void Game::SetupScene(void){
 
     // Set background color for the scene
-    scenes.push_back( new SceneGraph());
-    scenes.push_back( new SceneGraph());
-    scenes.push_back( new SceneGraph());
-    scene = scenes[0];
+    scenes.push_back( new SceneGraph(app));
+    scenes.push_back( new SceneGraph(app));
+    scenes.push_back( new SceneGraph(app));
+    scene = scenes[1];
     scene->SetBackgroundColor(viewport_background_color_g);
 
     CreatePlayer();
+    CreateTerrain();
     CreatePlanets();
     CreateTriggers();
     // CreateTree();
@@ -157,16 +159,20 @@ void Game::CheckControls(KeyMap& keys) {
 
     // Debug print the player's location
     if(keys[GLFW_KEY_P]) {
-        glm::vec3& p = player->transform.position;
-        glm::quat& o = player->transform.orientation;
-        std::cout << "Player Trace:\t{" << p.x << "\t, " << p.y << "\t, " << p.z << "}" 
-        << "\t{" << o.w << "\t, " << o.x << "\t, " << o.y << "\t, " << o.z << "}" << std::endl;
+        glm::vec3 p = player->transform.GetPosition();
+        glm::quat o = player->transform.GetOrientation();
+        std::cout << glm::to_string(p) << " " << glm::to_string(o) << std::endl;
         keys[GLFW_KEY_P] = false;
     }
 
     if(keys[GLFW_KEY_T]) {
         SetupScene();
         keys[GLFW_KEY_T] = false;
+    }
+
+    if(keys[GLFW_KEY_RIGHT_BRACKET]) {
+        app.ToggleRenderMode();
+        keys[GLFW_KEY_RIGHT_BRACKET] = false;
     }
 
     if(keys[GLFW_KEY_LEFT_SHIFT]) {
@@ -201,10 +207,10 @@ void Game::CheckControls(KeyMap& keys) {
 
 
     if(keys[GLFW_KEY_I]) {
-        app.GetCamera().transform.position.z -= 0.1;
+        app.GetCamera().transform.Translate({0.0, 0.0, -0.1});
     }
     if(keys[GLFW_KEY_J]) {
-        app.GetCamera().transform.position.z += 0.1;
+        app.GetCamera().transform.Translate({0.0, 0.0,0.1});
     }
 
     if(keys[GLFW_KEY_X]) {
@@ -241,9 +247,10 @@ void Game::MouseControls(Mouse& mouse) {
 }
 
 void Game::CreatePlayer() {
-    Player* player = new Player("Obj_Player", "M_Ship", "S_Ship");
-    player->transform.position = player_position_g;
+    Player* player = new Player("Obj_Player", "M_Ship", "S_Lit");
+    player->transform.SetPosition(player_position_g);
     // player->visible = false;
+
     app.GetCamera().Attach(&player->transform); // Attach the camera to the player
     AddPlayerToScene(SceneEnum::ALL, player);
     // scenes[BEFORETRIGGER]->AddNode(player);
@@ -294,11 +301,21 @@ void Game::CreateSpaceStation(){
 }
 
 void Game::CreatePlanets() {
-    SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_MarsPlanet");
+    SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_LavaPlanet");
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetPosition({200, 0, -2000});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
     AddToScene(SceneEnum::AFTERTRIGGER, planet);
+}
+
+void Game::CreateTerrain() {
+    // this generates its own terrain.
+    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Lit", "T_MoonPlanet", 1000, 1000, 0.25, this);
+    AddToScene(SceneEnum::AFTERTRIGGER, t);
+
+    // std::vector<float> verts = Terrain::GenerateHeightmap(100.0, 200.0, 1.0);
+
+
 }
 
 void Game::CreateHUD() {
@@ -308,7 +325,7 @@ void Game::CreateHUD() {
     txt->SetAnchor(Text::Anchor::TOPCENTER);
     txt->SetColor(Colors::SlimeGreen);
     txt->SetSize(15);
-    AddToScene(SceneEnum::AFTERTRIGGER, txt);
+    // AddToScene(SceneEnum::AFTERTRIGGER, txt);
 
     Text* fps = new Text("Obj_Fps", "M_Quad", "S_Text", "T_Charmap", this, "FPS");
     fps->transform.SetPosition({-1.0, 1.0, 0.0f});
@@ -331,7 +348,7 @@ void Game::CreateHUD() {
 
     Text* crosshair = new Text("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", this, "[ ]");
     crosshair->transform.SetPosition({0.0, 0.1, 0.0});
-    crosshair->SetSize(8.0f);
+    crosshair->SetSize(10.0f);
     crosshair->SetColor(HEXCOLORALPH(0xFF00FF, 0.75));
     crosshair->SetBackgroundColor(Colors::Transparent);
     crosshair->SetAnchor(Text::Anchor::CENTER);
@@ -340,108 +357,108 @@ void Game::CreateHUD() {
 
 void Game::CreateLights() {
     Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
-    light->transform.SetPosition({50.5, -0.5, 5005.5});
+    light->transform.SetPosition({50.5, 100.5, 50.5});
     AddLightToScene(SceneEnum::ALL, light);
     scenes[BEFORETRIGGER]->GetLights().push_back(light);
     scenes[AFTERTRIGGER]->GetLights().push_back(light);
 }
 
-int tcount = 0;
-void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width) {
-    Mesh* mesh = resman.GetMesh("Leaf");
-    Shader* shd = resman.GetShader("ObjectMaterial");
-    for(int j = 0; j < leaves; j++) {
-        // position
-        float woff = rng.randfloat(0.0f, 2*PI);
-        float wspd = 2.5f;
-        float wstr = rng.randfloat(0.006, 0.015);
-        Tree* leaf = new Tree("Leaf", "M_Branch", "S_Default", "", woff, wspd, wstr, this);
+// int tcount = 0;
+// void Game::GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width) {
+//     Mesh* mesh = resman.GetMesh("Leaf");
+//     Shader* shd = resman.GetShader("ObjectMaterial");
+//     for(int j = 0; j < leaves; j++) {
+//         // position
+//         float woff = rng.randfloat(0.0f, 2*PI);
+//         float wspd = 2.5f;
+//         float wstr = rng.randfloat(0.006, 0.015);
+//         Tree* leaf = new Tree("Leaf", "M_Branch", "S_Default", "", woff, wspd, wstr, this);
 
-        float p = rng.randfloat(0.0f, parent_length/1.25f);
-        float x = rng.randfloat(0.0f, 1.0f);
-        float z = rng.randfloat(0.0f, 1.0f);
-        float l = rng.randfloat(0.5,1.0);
-        float w = rng.randfloat(0.05f, 0.1);
+//         float p = rng.randfloat(0.0f, parent_length/1.25f);
+//         float x = rng.randfloat(0.0f, 1.0f);
+//         float z = rng.randfloat(0.0f, 1.0f);
+//         float l = rng.randfloat(0.5,1.0);
+//         float w = rng.randfloat(0.05f, 0.1);
 
-        float r = rng.randfloat(PI/6, PI/3);
+//         float r = rng.randfloat(PI/6, PI/3);
 
 
-        leaf->transform.scale = {w, l, w};
-        leaf->transform.SetPosition({0.0f, p, 0.0f});
-        // leaf->transform.position = {x, p, z};
+//         leaf->transform.SetSca = {w, l, w};
+//         leaf->transform.SetPosition({0.0f, p, 0.0f});
+//         // leaf->transform.position = {x, p, z};
         
-        leaf->transform.orbit = glm::angleAxis(rng.randfloat(0, 2*PI), glm::vec3(0, 1, 0)); // yaw
-        leaf->transform.orbit *= glm::angleAxis(rng.randsign() * r, glm::vec3(0, 0, 1)); // roll
-        leaf->transform.joint = glm::vec3(0, -l/2, 0); // base of the leaf
+//         leaf->transform.orbit = glm::angleAxis(rng.randfloat(0, 2*PI), glm::vec3(0, 1, 0)); // yaw
+//         leaf->transform.orbit *= glm::angleAxis(rng.randsign() * r, glm::vec3(0, 0, 1)); // roll
+//         leaf->transform.joint = glm::vec3(0, -l/2, 0); // base of the leaf
  
-        root->AddChild(leaf);
-        tcount++;
-    }
-}
+//         root->AddChild(leaf);
+//         tcount++;
+//     }
+// }
 
-void Game::GrowTree(SceneNode* root, int branches, float parent_height, float parent_width, int level, int max_iterations) {
-    if(level >= max_iterations) {
-        GrowLeaves(root, branches*branches, parent_height, parent_width);
-        return;
-    }
+// void Game::GrowTree(SceneNode* root, int branches, float parent_height, float parent_width, int level, int max_iterations) {
+//     if(level >= max_iterations) {
+//         GrowLeaves(root, branches*branches, parent_height, parent_width);
+//         return;
+//     }
  
-    Mesh* mesh = resman.GetMesh("Branch");
-    Shader* shd = resman.GetShader("ObjectMaterial");
-    level++;
-    for(int j = 0; j < branches; j++) {
-        // position
-        float woff = 0; //rng.randfloat(0.0f, 2*PI);
-        // float ws = rng.randfloat(1.0f, 2.0f);
-        float wstr = rng.randfloat(0.0004, 0.001);
-        float wspd = rng.randfloat(1.0, 2.0);
+//     Mesh* mesh = resman.GetMesh("Branch");
+//     Shader* shd = resman.GetShader("ObjectMaterial");
+//     level++;
+//     for(int j = 0; j < branches; j++) {
+//         // position
+//         float woff = 0; //rng.randfloat(0.0f, 2*PI);
+//         // float ws = rng.randfloat(1.0f, 2.0f);
+//         float wstr = rng.randfloat(0.0004, 0.001);
+//         float wspd = rng.randfloat(1.0, 2.0);
 
-        Tree* branch = new Tree("Branch", "M_Branch", "S_Default", "", woff, wspd, wstr, this);
+//         Tree* branch = new Tree("Branch", "M_Branch", "S_Default", "", woff, wspd, wstr, this);
 
-        float p = rng.randfloat(0.0f, parent_height/2.0f);
-        float l = rng.randfloat(5.0f, parent_height - 1);
-        float w = rng.randfloat(0.1f, parent_width/2);
+//         float p = rng.randfloat(0.0f, parent_height/2.0f);
+//         float l = rng.randfloat(5.0f, parent_height - 1);
+//         float w = rng.randfloat(0.1f, parent_width/2);
 
-        float r = rng.randfloat(PI/6, PI/3);
+//         float r = rng.randfloat(PI/6, PI/3);
 
 
-        branch->transform.scale = {w, l, w};
-        branch->transform.position = {0.0f, p, 0.0f};
+//         branch->transform.scale = {w, l, w};
+//         branch->transform.position = {0.0f, p, 0.0f};
         
-        branch->transform.orbit = glm::angleAxis(rng.randfloat(0, 2*PI), glm::vec3(0, 1, 0)); // yaw
-        branch->transform.orbit *= glm::angleAxis(rng.randsign() * r, glm::vec3(0, 0, 1)); // roll
-        branch->transform.joint = glm::vec3(0, -l/2, 0); // base of the cone
+//         branch->transform.orbit = glm::angleAxis(rng.randfloat(0, 2*PI), glm::vec3(0, 1, 0)); // yaw
+//         branch->transform.orbit *= glm::angleAxis(rng.randsign() * r, glm::vec3(0, 0, 1)); // roll
+//         branch->transform.joint = glm::vec3(0, -l/2, 0); // base of the cone
  
-        root->AddChild(branch);
-        GrowTree(branch, branches, l, w, level, max_iterations);
-        tcount++;
-    }
-}
+//         root->AddChild(branch);
+//         GrowTree(branch, branches, l, w, level, max_iterations);
+//         tcount++;
+//     }
+// }
 
-void Game::CreateTree() {
-    Mesh* mesh = resman.GetMesh("Branch");
-    Shader* shd = resman.GetShader("ObjectMaterial");
+// void Game::CreateTree() {
+//     Mesh* mesh = resman.GetMesh("Branch");
+//     Shader* shd = resman.GetShader("ObjectMaterial");
 
 
-    int branches = 3;
-    int iterations = 4;
-    float height = rng.randfloat(10.0, 20.0);
-    float width = 0.25f;
+//     int branches = 3;
+//     int iterations = 4;
+//     float height = rng.randfloat(10.0, 20.0);
+//     float width = 0.25f;
 
-    float cnt = 0;
-    float spread = 20;
+//     float cnt = 0;
+//     float spread = 20;
 
-    for(int i = 0; i < 2; i++) {
+//     for(int i = 0; i < 2; i++) {
 
-        Tree* tree = new Tree("Obj_TreeTrunk", "M_Branch", "S_Default", "", 0, 0, 0, this);
-        SceneNode* root = tree;
-        GrowTree(tree, branches, height, width, 0, iterations);
-        tree->transform.position = player_position_g - glm::vec3(i*spread, 0, 40);
-        tree->transform.scale = {width, height, width};
-        scene->AddNode(tree);
-        tcount++;
-    }
-    std::cout << "SceneNodes: " << tcount << std::endl;
-}
+//         Tree* tree = new Tree("Obj_TreeTrunk", "M_Branch", "S_Default", "", 0, 0, 0, this);
+//         SceneNode* root = tree;
+//         GrowTree(tree, branches, height, width, 0, iterations);
+//         tree->transform.position = player_position_g - glm::vec3(i*spread, 0, 40);
+//         tree->transform.scale = {width, height, width};
+//         scene->AddNode(tree);
+//         tcount++;
+//     }
+//     std::cout << "SceneNodes: " << tcount << std::endl;
+// }
 
 void Game::CreateAsteroidField(int num_asteroids){
     scenes[AFTERTRIGGER]->AddNode(new SceneNode("Obj_Stars", "M_StarCloud", "S_Default"));
@@ -471,14 +488,14 @@ void Game::CreateTriggers() {
 
     std::function<void()> triggerAction = std::bind(&Game::ChangeScene, this, SUPERFUCKINGCOOLLOADINGSCENE);
     Trigger* t = new Trigger("Trigger1", "M_Leaf", "S_Default", "", triggerAction);
-    t->transform.position = player_position_g - glm::vec3(0, 0, 40);
+    t->transform.SetPosition(player_position_g - glm::vec3(0, 0, 40));
     AddToScene(BEFORETRIGGER, t);
 
     std::function<void()> triggerAction2 = std::bind(&Game::ChangeScene, this, AFTERTRIGGER);
     t = new Trigger("Trigger1", "M_Leaf", "S_Default", "", triggerAction2);
     t->SetTimer(10);
     t->StartTimer(); //actually start when loaded and update is called
-    t->transform.position = glm::vec3(MAXFLOAT, MAXFLOAT, MAXFLOAT);
+    t->transform.SetPosition(glm::vec3(MAXFLOAT, MAXFLOAT, MAXFLOAT));
     AddToScene(SUPERFUCKINGCOOLLOADINGSCENE, t);
     // scenes[BEFORETRIGGER]->AddNode(t);
     // scenes[BEFORETRIGGER]->GetColman().AddTrigger(t);

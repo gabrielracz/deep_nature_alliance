@@ -17,34 +17,29 @@ void Player::Update(double dt) {
 	// Force applied in the opposite direction to velocity
 	float v = glm::length(velocity);
 	if (glm::length(velocity) > 0.0f) {
-        glm::vec3 vdir = glm::normalize(velocity);
+        glm::vec3 vdir = glm::inverse(transform.GetOrientation()) * glm::normalize(velocity); // go from velocity in local space to model space (base axis)
         float vmag = glm::length(velocity);
         float fuselage_length = 10.0f;
-        float frontal_area = 3.0f;
+        float frontal_area = 2.0f;
 
-        float component = 1.0f - glm::abs(glm::dot(vdir, transform.LocalAxis(FORWARD)));
+        float component = 1.0f - glm::abs(glm::dot(vdir, transform.GetAxis(FORWARD)));
 
         float cross_section = fuselage_length*component + frontal_area;
-        float drag_constant = 2.0f;
+
+        float drag_constant = 1.0f;
         if(braking) {
-            cross_section += 100;;
+            cross_section *= 4;;
             braking = false;
         }
         glm::vec3 fuselage_drag = -vdir * vmag*vmag * drag_constant * cross_section;
         force += fuselage_drag;
-
     }
 
 	// Velocity is accumulated while acceleration denotes our rate of change of velocity
 	// at this exact time step. acceleration = dv/dt
-    acceleration += force / mass;
+    acceleration += transform.GetOrientation() * force / mass; // force is in model space
 	velocity += acceleration * (float)dt;
-	transform.position += velocity * (float)dt;
-
-    transform.Pitch(angular_velocity.x);
-    transform.Yaw(angular_velocity.y);
-    transform.Roll(angular_velocity.z);
-    // transform.Translate(velocity);
+	transform.Translate(velocity * (float)dt);
 
     force = glm::vec3(0.0f);
 
@@ -58,7 +53,7 @@ void Player::Update(double dt) {
             cross_section += 10.0f;
             braking = false;
         }
-        float resist_constant = 250.0f;
+        float resist_constant = 150.0f;
         glm::vec3 ang_resist = -axis * angv*angv * resist_constant * cross_section;
         torque += ang_resist;
     }
@@ -72,6 +67,10 @@ void Player::Update(double dt) {
         transform.Rotate(glm::angleAxis(theta, glm::normalize(ang_velocity)));
     }
 
+    transform.Pitch(angular_velocity.x);
+    transform.Yaw(angular_velocity.y);
+    transform.Roll(angular_velocity.z);
+
     torque = glm::vec3(0.0f);
     SceneNode::Update(dt);
 }
@@ -79,39 +78,40 @@ void Player::Update(double dt) {
 void Player::Thrust(int d) {
     float speed = glm::length(velocity);
     if(d > 0 && speed < move_speed + accel_amt) {
-        velocity += -transform.LocalAxis(FORWARD) * accel_amt;
+        velocity += transform.LocalAxis(FORWARD) * accel_amt;
     } else if (d < 0 && speed - accel_amt > -move_speed - accel_amt) { 
-        velocity -= -transform.LocalAxis(FORWARD) * accel_amt;
+        velocity -= transform.LocalAxis(FORWARD) * accel_amt;
     }
 }
 
 void Player::ShipControl(Controls c, float damping) {
     const float rot_force = damping * 2000.0f;
-    const float thrust_force = damping * move_speed * 17550.0f;
+    const float thrust_force = damping * move_speed * 25550.0f;
     switch(c) {
         case Controls::THRUST:
-            force += -transform.LocalAxis(FORWARD) * thrust_force;
+            // f;worce += -transform.LocalAxis(FORWARD) * thrust_force;
+            force += transform.GetAxis(FORWARD) * thrust_force;
             break;
         case Controls::BRAKE:
             braking = true;
             break;
         case Controls::PITCHD:
-            torque += transform.axes[SIDE] * -rot_force;
+            torque += transform.GetAxis(SIDE) * -rot_force;
             break;
         case Controls::PITCHU:
-            torque += transform.axes[SIDE] * rot_force;
+            torque += transform.GetAxis(SIDE) * rot_force;
             break;
         case Controls::YAWL:
-            torque += transform.axes[UP] * rot_force;
+            torque += transform.GetAxis(UP) * rot_force;
             break;
         case Controls::YAWR:
-            torque += transform.axes[UP] * -rot_force;
+            torque += transform.GetAxis(UP) * -rot_force;
             break;
         case Controls::ROLLL:
-            torque += -transform.axes[FORWARD] * -rot_force * 2.0f;
+            torque += transform.GetAxis(FORWARD) * -rot_force * 2.0f;
             break;
         case Controls::ROLLR:
-            torque += -transform.axes[FORWARD] * rot_force * 2.0f;
+            torque += transform.GetAxis(FORWARD) * rot_force * 2.0f;
             break;
         default:
             break;

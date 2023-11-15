@@ -20,7 +20,9 @@ void SceneNode::Update(double dt){
     elapsed += dt;
     if(!active) {return;}
 
-    transf_matrix = transform.ScaledMatrix();
+    // transf_matrix = transform.ScaledMatrix();
+    // transf_matrix = transform.ScaledMatrix();
+    transform.Update();
 
     for(auto child : children) {
         child->Update(dt);
@@ -28,9 +30,9 @@ void SceneNode::Update(double dt){
 }
 
 
-void SceneNode::SetUniforms(Shader* shader, const glm::mat4& parent_matrix){
-    shader->SetUniform4m(parent_matrix * transf_matrix, "world_mat");
-    glm::mat4 normal_matrix = glm::transpose(glm::inverse(transf_matrix));
+void SceneNode::SetUniforms(Shader* shader, const glm::mat4& view_matrix){
+    shader->SetUniform4m(transform.GetWorldMatrix(), "world_mat");
+    glm::mat4 normal_matrix = glm::transpose(glm::inverse(view_matrix * transform.GetWorldMatrix()));
     shader->SetUniform4m(normal_matrix, "normal_mat");
     shader->SetUniform1f(glfwGetTime(), "timer");
     shader->SetUniform1i(0, "inverted");

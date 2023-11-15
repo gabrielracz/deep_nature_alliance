@@ -29,7 +29,7 @@ class SceneNode {
         
         virtual void Update(double dt);
 
-        virtual void SetUniforms(Shader* shader, const glm::mat4& parent_matrix);
+        virtual void SetUniforms(Shader* shader, const glm::mat4& view_matrix);
 
         void SetTexture(std::string& new_tex_id)            {texture_id = new_tex_id;}
         void AddChild(SceneNode* n)                         {children.push_back(n);}

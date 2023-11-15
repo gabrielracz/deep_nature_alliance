@@ -42,10 +42,10 @@ vec4 lighting(vec4 pixel) {
 	vec3 n = normalize(normal_interp); 
 
 	float diffuse = max(0.0, dot(n,lv)); 
-    // float spec = blinnphong_specular(lv, n);
-    float spec = phong_specular(lv, n);
+    float spec = blinnphong_specular(lv, n);
+    // float spec = phong_specular(lv, n);
 		
-    return diffuse*light_col*pixel + amb*ambcol*pixel + spec*light_col*spec;
+    return diffuse*light_col*pixel + amb*ambcol*pixel + spec*light_col;
 }
 void main() 
 {

@@ -1,7 +1,8 @@
 #include "scene_graph.h"
+#include "application.h"
 
-SceneGraph::SceneGraph(void)
-    : colman() {
+SceneGraph::SceneGraph(Application& app)
+    : colman(), app(app) {
     background_color_ = glm::vec3(0.0, 0.0, 0.0);
 }
 
@@ -30,4 +31,8 @@ void SceneGraph::Update(double dt) {
     for (int i = 0; i < node_.size(); i++) {
         node_[i]->Update(dt);
     }
+
+    // UPDATE CAMERA AFTER NODES ALWAYS !!!!!
+    // TODO: this scene should own the camera
+    app.GetCamera().Update();
 }

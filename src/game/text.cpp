@@ -45,6 +45,9 @@ void Text::SetContent(const std::string& str) {
                 longest = len;
             }
         } else if (i == str.size() - 1) { // make sure we account for the last line being the longest
+            if(lines.size() == 0) {
+                lines.push_back("");
+            }
             lines.back().push_back(ch);
             int len = i - start + 1;
             if(len > longest) {
@@ -69,7 +72,7 @@ void Text::SetContent(const std::string& str) {
     num_lines = lines.size();
 }
 
-void Text::SetUniforms(Shader* shader, const glm::mat4 &parent_matrix) {
+void Text::SetUniforms(Shader* shader, const glm::mat4 &view_matrix) {
     int len = content.size();
     shader->SetUniform1i(line_len, "line_len");
     shader->SetUniform1i(num_lines, "num_lines");
@@ -87,8 +90,8 @@ void Text::SetUniforms(Shader* shader, const glm::mat4 &parent_matrix) {
     float ndc_width_distance = (text_width/((float)(winwidth)/2));
     float ndc_height_distance = ((size*num_lines)/((float)winheight/2));
 
-    float& x = transform.position.x;
-    float& y = transform.position.y;
+    float x = transform.GetPosition().x;
+    float y = transform.GetPosition().y;
 
     // change the anchor point of the text quad
     glm::mat4 translation;

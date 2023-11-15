@@ -3,6 +3,7 @@
 
 #include <vector>
 
+// #include "application.h"
 #include "camera.h"
 #include "collision_manager.h"
 #include "light.h"
@@ -10,13 +11,15 @@
 #include "resource.h"
 #include "scene_node.h"
 
+class Application;
+
 // Class that manages all the objects in a scene
 class SceneGraph {
    public:
     // Scene nodes to render
 
     // Constructor and destructor
-    SceneGraph(void);
+    SceneGraph(Application& app);
     ~SceneGraph();
 
     // Background color
@@ -50,6 +53,7 @@ class SceneGraph {
     std::vector<Light*> lights;
     Camera camera;
     Player* player;
+    Application& app;
 
 };  // class SceneGraph
 
