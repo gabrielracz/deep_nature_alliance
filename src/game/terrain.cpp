@@ -1,8 +1,9 @@
 #include <glm/gtc/noise.hpp>
 
+#include "terrain.h"
 #include "defines.h"
 #include "game.h"
-#include "terrain.h"
+
 
 #define GIX(x, z, num_xsteps) ((x) + (z) * num_xsteps)
 
