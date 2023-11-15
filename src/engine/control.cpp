@@ -1,7 +1,5 @@
 #include "control.h"
 
-namespace game {
-
 Control::Control(void) {}
 Control::Control(GLFWwindow *w) : window_(w) {}
 
@@ -44,5 +42,4 @@ void Control::GetInput(float dt){
             data.callback(dt);
         }
     }
-}
 }
