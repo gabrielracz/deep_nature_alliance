@@ -1,12 +1,12 @@
 #include "collidable.h"
 
-void Collidable::ActivateTrigger(){
-    action();
-}
 
 void Collidable::Collide(Collidable *other){
-    action();
-    collisionAction(other);
+    other->transform.SetPosition(closestPossiblePos(other));
+}
+
+glm::vec3 Collidable::closestPossiblePos(Collidable* other) {
+    
 }
 
 // void Trigger::ActivateTrigger(){

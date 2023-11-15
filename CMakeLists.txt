@@ -35,6 +35,7 @@ set(HDRS
     include/game/tree.h
     include/game/text.h
     include/game/collision_manager.h
+    include/game/trigger.h
 )
  
 set(SRCS
@@ -60,6 +61,7 @@ set(SRCS
     src/game/enemy.cpp
     src/game/tree.cpp
     src/game/collision_manager.cpp
+    src/game/trigger.cpp
 )
 
 # Add path name to configuration file

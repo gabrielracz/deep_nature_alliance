@@ -13,7 +13,7 @@ SceneGraph::~SceneGraph() {
 
 void SceneGraph::SetPlayer(Player* p) {
     player = p;
-    colman.SetPlayer(p);
+    // colman.SetPlayer(p);
 }
 
 SceneNode* SceneGraph::GetNode(std::string node_name) const {
