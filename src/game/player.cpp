@@ -20,13 +20,13 @@ void Player::Update(double dt) {
         glm::vec3 vdir = glm::inverse(transform.GetOrientation()) * glm::normalize(velocity); // go from velocity in local space to model space (base axis)
         float vmag = glm::length(velocity);
         float fuselage_length = 10.0f;
-        float frontal_area = 3.0f;
+        float frontal_area = 2.0f;
 
         float component = 1.0f - glm::abs(glm::dot(vdir, transform.GetAxis(FORWARD)));
 
         float cross_section = fuselage_length*component + frontal_area;
 
-        float drag_constant = 2.0f;
+        float drag_constant = 1.0f;
         if(braking) {
             cross_section *= 4;;
             braking = false;
