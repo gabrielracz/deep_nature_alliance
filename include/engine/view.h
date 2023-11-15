@@ -36,6 +36,12 @@ typedef struct {
     int height;
 } Window;
 
+enum RenderMode{
+    FILL = 0,
+    WIREFRAME,
+    NUM_RENDERMODES
+};
+
 public:
 	View(Application& app, ResourceManager& resman);	
     ~View();
@@ -45,6 +51,7 @@ public:
 
     void ToggleMouseCapture();
     void SetMouseHandler(MouseHandler h) {mouse_handler = h;}
+    void ToggleRenderMode();
 
     KeyMap& GetKeys() {return key_controls;}
     Mouse& GetMouse() {return mouse;}
@@ -61,6 +68,8 @@ private:
     Camera camera;
     Mouse mouse;
     KeyMap key_controls;
+
+    int render_mode = RenderMode::FILL;
 
     void InitWindow(const std::string& title, int width, int height);
     void InitView();

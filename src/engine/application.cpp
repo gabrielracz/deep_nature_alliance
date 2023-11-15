@@ -46,3 +46,7 @@ void Application::Quit() {
 void Application::Pause() {
     view.ToggleMouseCapture();
 }
+
+void Application::ToggleRenderMode() {
+    view.ToggleRenderMode();
+}

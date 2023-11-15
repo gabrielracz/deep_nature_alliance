@@ -15,8 +15,6 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#define APPEND_VEC2(vector, glm_vec2) vector.insert(vector.end(), {glm_vec2.x, glm_vec2.y})
-#define APPEND_VEC3(vector, glm_vec3) vector.insert(vector.end(), {glm_vec3.x, glm_vec3.y, glm_vec3.z})
 
 // template <typename T>
 // static inline void APPEND_VEC3(std::vector<T>& vector, const glm::vec3& glm_vec3) {
@@ -75,7 +73,7 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
         return;
 	}
 
-    overwrite_emplace(textures, name, Texture(data, width, height, n_channels, wrap_option));
+    overwrite_emplace(textures, name, Texture(data, width, height, n_channels, wrap_option, texture_repetition));
 	stbi_image_free(data);
 
 }
@@ -739,7 +737,6 @@ void ResourceManager::CreateQuad(std::string name) {
     
     overwrite_emplace(meshes, name, Mesh(vertices, indices, l));
 }
-
 
 std::string ResourceManager::LoadTextFile(const char *filename){
 

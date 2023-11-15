@@ -27,6 +27,15 @@ void View::Render(SceneGraph& scene) {
                  background_color[2], 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    switch(render_mode) {
+        case RenderMode::FILL:
+            glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+            break;
+        case RenderMode::WIREFRAME:
+            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+            break;
+    }
+
     for(auto node : scene) {
         RenderNode(node, scene.GetCamera(), scene.GetLights());
     }
@@ -47,7 +56,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     for(auto l : lights) {
         l->SetUniforms(shd);
     }
-    node->SetUniforms(shd, parent_matrix);
+    node->SetUniforms(shd, camera.GetViewMatrix());
 
     // TEXTURE
     if(!tex_id.empty()) {
@@ -112,6 +121,7 @@ void View::InitView(){
 
     // Set up z-buffer
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DITHER);
     glDepthFunc(GL_LESS);
 
 	//Use this to disable vsync
@@ -200,4 +210,9 @@ void View::ToggleMouseCapture() {
     mouse.captured = !mouse.captured;
     mouse.first_captured = true;
     glfwSetInputMode(win.ptr, GLFW_CURSOR, mouse.captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+}
+
+
+void View::ToggleRenderMode() {
+    render_mode = (render_mode + 1) % RenderMode::NUM_RENDERMODES;
 }
