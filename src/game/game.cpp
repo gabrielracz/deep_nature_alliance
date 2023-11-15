@@ -144,6 +144,11 @@ void Game::SetupFPScene(void) {
     SceneNode* n = new SceneNode("Shippy", "M_Ship", "S_Lit");
     n->transform.SetPosition(glm::vec3(0,0,-10));
     AddToScene(FPTEST, n);
+
+    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Lit", "T_MoonPlanet", 1000, 1000, 0.25, this);
+    t->transform.Translate({-500.0, -30.0, -500});
+    AddToScene(FPTEST, t);
+
 }
 
 void Game::Update(double dt, KeyMap &keys) {
