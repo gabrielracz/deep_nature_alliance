@@ -99,22 +99,53 @@ void FP_Player::HeadMovement(float dt)
     }
 }
 
-void FP_Player::PlayerJump() {
-    if (OnGround()) {
+void FP_Player::PlayerJump()
+{
+    if (OnGround())
+    {
         Jump();
         has_dashed_ = false;
-    } else if (!has_dashed_) {
-        Jump(glm::normalize(glm::vec3(0.0f, 0.0f, -10.0f) + glm::vec3(0.0f, glm::abs(sin(dash_angle_)), 0.0f)) * dash_speed_);
+    }
+    else if (!has_dashed_)
+    {
+        glm::vec3 dash_vector = glm::normalize(glm::vec3(0.0f, 0.0f, -10.0f) + glm::vec3(0.0f, glm::abs(sin(dash_angle_)), 0.0f));
+        dash_vector = glm::normalize(glm::vec3(transform.GetOrientation() * glm::vec4(glm::normalize(dash_vector), 0.0)));
+        Jump(dash_vector * dash_speed_);
         has_dashed_ = true;
     }
 }
 
-void FP_Player::TestMove() {
+void FP_Player::TestMove()
+{
     strafe_right_ = glm::vec3(1.0f, 0.0f, 0.0f);
 }
 
-void FP_Player::Update(double dt) {
+void FP_Player::Update(double dt)
+{
     control_.GetInput(dt);
     Agent::Update(dt);
     HeadMovement(dt);
+}
+
+void FP_Player::MouseControls(Mouse &mouse)
+{
+    glm::vec2 look = mouse.move * -sensitivity_;
+    
+    const float max_yaw = 360.0f;
+
+    transform.Yaw(look.x);
+    float yaw = glm::degrees(2.0f * acos(transform.GetOrientation().w));
+
+    if (yaw > max_yaw)
+    {
+        float adjust = max_yaw - yaw;
+        transform.Yaw(adjust);
+    }
+    else if (yaw < -max_yaw)
+    {
+        float adjust = -max_yaw - yaw;
+        transform.Yaw(adjust);
+    }
+
+    camera_->transform.Pitch(look.y);
 }
