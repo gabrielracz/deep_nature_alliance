@@ -37,6 +37,8 @@ void SceneGraph::Update(double dt) {
         node_[i]->Update(dt);
     }
 
+    colman.CheckCollisions();
+
     // UPDATE CAMERA AFTER NODES ALWAYS !!!!!
     // TODO: this scene should own the camera
     app.GetCamera().Update();

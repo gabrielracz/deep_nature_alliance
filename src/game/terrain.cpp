@@ -57,7 +57,3 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     game->resman.AddMesh(mesh_id, vertices, indices, layout);
 }
 
-
-std::vector<float> Terrain::GenerateHeightmap(float xwidth, float zwidth, float density) {
-    return std::vector<float>();
-}
