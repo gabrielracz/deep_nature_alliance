@@ -71,8 +71,8 @@ float Terrain::SampleHeight(float x, float z) {
     int z0 = static_cast<int>(std::floor(terrainZ));
 
     // Clamp the coordinates to be within valid range
-    x0 = std::clamp(x0, 0, static_cast<int>(heights.size()) - 2);
-    z0 = std::clamp(z0, 0, static_cast<int>(heights[0].size()) - 2);
+    x0 = glm::clamp(x0, 0, static_cast<int>(heights.size()) - 2);
+    z0 = glm::clamp(z0, 0, static_cast<int>(heights[0].size()) - 2);
 
     // Get the fractional part of the coordinates
     float sx = terrainX - static_cast<float>(x0);
