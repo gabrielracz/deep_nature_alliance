@@ -102,13 +102,19 @@ void FP_Player::HeadMovement(float dt)
 void FP_Player::PlayerJump() {
     if (OnGround()) {
         Jump();
+        has_dashed_ = false;
     } else if (!has_dashed_) {
-        Jump(glm::normalize(glm::vec3(0.0f, 0.0f, -1.0f) + glm::vec3(0.0f, sin(dash_angle_), 0.0f)));
+        Jump(glm::normalize(glm::vec3(0.0f, 0.0f, -10.0f) + glm::vec3(0.0f, glm::abs(sin(dash_angle_)), 0.0f)) * dash_speed_);
         has_dashed_ = true;
     }
 }
 
-void FP_Player::Update(float dt) {
+void FP_Player::TestMove() {
+    strafe_right_ = glm::vec3(1.0f, 0.0f, 0.0f);
+}
+
+void FP_Player::Update(double dt) {
+    control_.GetInput(dt);
     Agent::Update(dt);
     HeadMovement(dt);
 }

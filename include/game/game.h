@@ -20,6 +20,7 @@
 #include "trigger.h"
 #include "collision_manager.h"
 #include "defines.h"
+#include "fp_player.h"
 
 class Application;
 
@@ -43,6 +44,7 @@ enum GameState {
 enum SceneEnum {
     BEFORETRIGGER,
     AFTERTRIGGER,
+    FPTEST,
     ALL = -1
 };
 
@@ -55,10 +57,12 @@ class Game {
         void Init(void); 
         void SetupResources(void);
         void SetupScene(void);
+        void SetupFPScene(void);
 
         void Update(double dt, KeyMap& keys);
-
         SceneGraph& ActiveScene() { return *scene; }
+        //TODO: Run SceneGraph Init()
+        void SetActiveScene(SceneEnum sceneNum) { scene = scenes[sceneNum]; }
 
         Application& app;
         ResourceManager& resman;

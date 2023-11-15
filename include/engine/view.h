@@ -25,18 +25,20 @@ namespace config {
     const glm::vec3 camera_position(0.0, 1.0, 15.0);
     const glm::vec3 camera_look_at(0.0, 0.0, 0.0);
     const glm::vec3 camera_up(0.0, 1.0, 0.0);
+    const glm::vec3 fp_camera_position(0.0, 1.0, 0.0);
 };
 
 class View {
 
-typedef struct {
-    GLFWwindow* ptr;
-    std::string title;
-    int width;
-    int height;
-} Window;
-
 public:
+
+    typedef struct {
+        GLFWwindow* ptr;
+        std::string title;
+        int width;
+        int height;
+    } Window;
+
 	View(Application& app, ResourceManager& resman);	
     ~View();
     void Init(const std::string& title, int width, int height);
@@ -53,6 +55,11 @@ public:
     int GetWidth() {return win.width;}
     int GetHeight() {return win.height;}
 
+    Window GetWindow() {return win;}
+
+    void InitFirstPersonView();
+    void InitShipView();
+    
 private:
     Application& app;
     ResourceManager& resman;

@@ -30,15 +30,17 @@ private:
     struct KEY
     {
         KEY() = default;
-        KEY(std::function<void(float dt)> f, int e) : callback(f), action(GLFW_RELEASE), event(e) {}
+        KEY(std::function<void(float dt)> f, int k, int e) : callback(f), action(GLFW_RELEASE), key(k), event(e) {}
 
         std::function<void(float dt)> callback;
         int action = -1;
         int event = -1;
+        int key = -1;
     };
 
     GLFWwindow *window_;
 
-    std::map<int, KEY> keys;
+    std::map<std::tuple<int, int>, KEY> keys;
 };
+
 #endif

@@ -119,7 +119,17 @@ void View::InitView(){
 
     glViewport(0, 0, win.width, win.height);
 
+    InitShipView();
+}
+
+void View::InitShipView() {
     camera.SetView(config::camera_position, config::camera_look_at, config::camera_up);
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, win.width, win.height);
+    camera.SetOrtho(win.width, win.height);
+}
+
+void View::InitFirstPersonView() {
+    camera.SetView(config::fp_camera_position, config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, win.width, win.height);
     camera.SetOrtho(win.width, win.height);
 }

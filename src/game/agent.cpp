@@ -3,30 +3,7 @@
 
 Agent::Agent(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id) : SceneNode(name, mesh_id, shader_id, texture_id)
 {
-    vertical_velocity_ = 0.0;
-    vertical_offset_ = 0.0;
-    gravity_ = 9.8 * 3;
-    fall_speed_ = 55.0;
-    jump_speed_ = 30.0;
-    base_jump_speed_ = jump_speed_;
-    up_ = glm::vec3(0.0f, 1.0f, 0.0f);
-    jump_axis_ = glm::vec3(0.0, 1.0, 0.0f);
-    walk_direction_ = glm::vec3(0.0f, 0.0f, 0.0f);
-    step_height_ = 0.0f;
-    movement_damping_ = 0.0f;
-    step_offset_ = 0.0f;
-    speed_ = 30.0f;
-    sensitivity_ = -0.1f;
-    on_ground_ = false;
-    jumping_ = false;
 
-    forward_ = glm::vec3(0.0f);
-    backward_ = glm::vec3(0.0f);
-    strafe_left_ = glm::vec3(0.0f);
-    strafe_right_ = glm::vec3(0.0f);
-
-    target_position_ = glm::vec3(0.0f);
-    prev_position_ = glm::vec3(0.0f);
 }
 
 void Agent::UpMove()
@@ -93,7 +70,7 @@ void Agent::DownMove(float dt)
     }
 }
 
-void Agent::Update(float dt)
+void Agent::Update(double dt)
 {
     prev_position_ = transform.GetPosition();
 
@@ -130,7 +107,8 @@ void Agent::Update(float dt)
 
     DownMove(dt);
 
-    // printf("%f %f %f \n", position_.x, walk_direction_.y, walk_direction_.z);
+    SceneNode::Update(dt);
+    //printf("%f %f %f \n", walk_direction_.x, walk_direction_.y, walk_direction_.z);
 }
 
 bool Agent::OnGround() const

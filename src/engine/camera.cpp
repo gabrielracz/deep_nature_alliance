@@ -93,6 +93,11 @@ bool Camera::IsAttached() {
 }
 
 void Camera::Attach(Transform *p) {
+
+    if (IsAttached()) {
+        Drop();
+    }
+
     transform.SetOrientation(glm::quat(0, 0, 0, 0)); //reset local camera orientation
     transform.SetPosition(original_pos); // reset local lock point
     parent_transform = p;

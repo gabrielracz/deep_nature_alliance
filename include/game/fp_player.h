@@ -7,14 +7,16 @@
 class FP_Player : public Agent
 {
 public:
-    FP_Player(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id)
+    FP_Player(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id = "")
         : Agent(name, mesh_id, shader_id, texture_id) {}
 
-    virtual void Update(float dt) override;
+    virtual void Update(double dt) override;
 
-    virtual void Init(GLFWwindow *w, Camera *c);
+    void Init(GLFWwindow *w, Camera *c);
 
     void PlayerJump();
+
+    void TestMove();
 
 protected:
     void HeadMovement(float dt);
@@ -27,6 +29,7 @@ protected:
 
     float has_dashed_ = false;
     float dash_angle_ = 15.0f;
+    float dash_speed_ = 40.0f;
 
 private:
     Control control_;

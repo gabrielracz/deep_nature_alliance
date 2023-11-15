@@ -64,7 +64,7 @@ set(SRCS
     src/game/trigger.cpp
     src/game/collision_manager.cpp
     src/game/agent.cpp
-    src/game/player.cpp
+    src/game/fp_player.cpp
 )
 
 # Add path name to configuration file

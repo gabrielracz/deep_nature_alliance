@@ -65,6 +65,8 @@ void Game::Init(void){
     SetupResources();
     SetupScene();
 
+    SetupFPScene(); // FPS TEST SCENE
+
     //callback for responsive mouse controls
     app.SetMouseHandler(std::bind(&Game::MouseControls, this, std::placeholders::_1));
 }
@@ -117,6 +119,7 @@ void Game::SetupScene(void){
     // Set background color for the scene
     scenes.push_back( new SceneGraph(app));
     scenes.push_back( new SceneGraph(app));
+    scenes.push_back( new SceneGraph(app)); // FPS TEST SCENE
     scene = scenes[1];
     scene->SetBackgroundColor(viewport_background_color_g);
 
@@ -127,6 +130,18 @@ void Game::SetupScene(void){
     CreateAsteroidField(500);
     CreateLights();
     CreateHUD();
+}
+
+void Game::SetupFPScene(void) {
+
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Ship");
+    p->transform.SetPosition(player_position_g);
+    scenes[FPTEST]->SetFPPlayer(p);
+    AddToScene(FPTEST, p);
+
+    SceneNode* n = new SceneNode("Shippy", "M_Ship", "S_Ship");
+    n->transform.SetPosition(glm::vec3(0,0,-10));
+    AddToScene(FPTEST, n);
 }
 
 void Game::Update(double dt, KeyMap &keys) {
@@ -211,6 +226,14 @@ void Game::CheckControls(KeyMap& keys) {
             app.GetCamera().Attach(&player->transform);
         }
         keys[GLFW_KEY_X] = false;
+    }
+
+    if(keys[GLFW_KEY_2]) {
+        SetActiveScene(FPTEST);
+        //This some jank obv
+        scene->GetFPPlayer()->Init(app.GetWindow().ptr, &app.GetCamera());
+        app.SetFirstPersonView();
+        keys[GLFW_KEY_2] = false;
     }
 
     if(keys[GLFW_KEY_Z]) {

@@ -7,7 +7,7 @@ class Agent : public SceneNode
 public:
     Agent(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id = "");
 
-    virtual void Update(float dt);
+    virtual void Update(double dt) override;
 
     bool OnGround(void) const;
 
@@ -25,31 +25,32 @@ public:
     //void Reset(void);
 
 protected:
-    bool on_ground_;
-    bool jumping_;
+    bool on_ground_ = false;
+    bool jumping_ = false;
 
-    float vertical_velocity_;
-    float vertical_offset_;
-    float gravity_;
-    float fall_speed_;
-    float jump_speed_;
-    float step_height_;
-    float movement_damping_;
-    float step_offset_;
-    float base_jump_speed_;
-    float speed_;
-    float sensitivity_;
+    float vertical_velocity_ = 0.0;
+    float vertical_offset_ = 0.0;
+    float gravity_ = 9.8 * 3;
+    float fall_speed_ = 55.0;
+    float jump_speed_ = 30.0;
+    float step_height_ = 0.0f;
+    float movement_damping_ = 0.0f;
+    float step_offset_ = 0.0f;
+    float base_jump_speed_ = jump_speed_;
+    float speed_ = 0.5f;
+    float sensitivity_ = -0.1f;
 
-    glm::vec3 up_;
-    glm::vec3 jump_axis_;
-    glm::vec3 target_position_;
-    glm::vec3 prev_position_;
-    glm::vec3 walk_direction_;
+    glm::vec3 up_ = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 jump_axis_ = glm::vec3(0.0, 1.0, 0.0f);
+    glm::vec3 target_position_ = glm::vec3(0.0f);
+    glm::vec3 prev_position_ = glm::vec3(0.0f);
+    glm::vec3 walk_direction_ = glm::vec3(0.0f, 0.0f, 0.0f);
 
-    glm::vec3 strafe_left_;
-    glm::vec3 strafe_right_;
-    glm::vec3 forward_;
-    glm::vec3 backward_;
+    glm::vec3 forward_ = glm::vec3(0.0f);
+    glm::vec3 backward_ = glm::vec3(0.0f);
+    glm::vec3 strafe_left_ = glm::vec3(0.0f);
+    glm::vec3 strafe_right_ = glm::vec3(0.0f);
+
 
     void UpMove();
     void DownMove(float dt);

@@ -1,6 +1,7 @@
 #include "scene_graph.h"
 #include "application.h"
 
+//TODO: Add SceneGraph INIT
 SceneGraph::SceneGraph(Application& app)
     : colman(), app(app) {
     background_color_ = glm::vec3(0.0, 0.0, 0.0);
@@ -15,6 +16,10 @@ SceneGraph::~SceneGraph() {
 void SceneGraph::SetPlayer(Player* p) {
     player = p;
     colman.SetPlayer(p);
+}
+
+void SceneGraph::SetFPPlayer(FP_Player* p) {
+    fp_player = p;
 }
 
 SceneNode* SceneGraph::GetNode(std::string node_name) const {

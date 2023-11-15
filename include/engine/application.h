@@ -5,6 +5,7 @@
 #include "game.h"
 #include <memory>
 
+
 class Application {
 private:
     View view;
@@ -23,9 +24,12 @@ public:
     void ToggleMouseCapture();
     Camera& GetCamera() {return view.GetCamera();}
     void SetMouseHandler(MouseHandler h) {view.SetMouseHandler(h);}
+    void SetFirstPersonView() { view.InitFirstPersonView(); }
+    void SetShipView() { view.InitShipView(); }
 
     int GetWinWidth() {return view.GetWidth();}
     int GetWinHeight() {return view.GetHeight();}
+    View::Window GetWindow() { return view.GetWindow(); }
     float GetFPS() {return fps;}
 
 };
