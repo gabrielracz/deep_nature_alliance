@@ -52,28 +52,36 @@ void Agent::DownMove(float dt)
     glm::vec3 drop_amount = up_ * (step_offset_ + down_velocity);
     target_position_ -= drop_amount;
 
-    transform.SetPosition(target_position_);
-}
+    glm::vec3 position = transform.GetPosition();
 
-void Agent::DownCollision(float collision_point_y)
-{
-    if (target_position_.y <= (collision_point_y + height_))
-    {
-        glm::vec3 position = transform.GetPosition();
-        // Interpolate small fall (would usually want to do this before hitting floor)
-        float fraction = (position.y - (collision_point_y + height_)) * 0.5;
-        transform.SetPosition(glm::vec3(position.x, glm::mix(prev_position_.y, position.y, fraction), position.z));
-        // On the ground yo
-        vertical_velocity_ = 0.0f;
-        vertical_offset_ = 0.0f;
-        jumping_ = false;
+    float terrainY = terrain->SampleHeight(position.x, position.z);
+    
+    // std::cout << "terrain y: " << terrainY << " target y: " << target_position_.y << std::endl;
+    
+    if (glm::abs(target_position_.y - terrainY) < 5.0){
+        target_position_.y = terrainY;
+        transform.SetPosition(target_position_);
+    } else {
+        transform.SetPosition(prev_position_);
     }
-}
+    
+    //not integrated with jumping
+    // if (target_position_.y <= terrainY)
+    // { // CHECK FOR BELOW COLLISION
 
-void Agent::UpCollision()
-{
-    vertical_velocity_ = 0.0f;
-    vertical_offset_ = 0.0f;
+    //     // Interpolate small fall (would usually want to do this before hitting floor)
+    //     float fraction = (position.y - (terrainY)) * 0.5;
+    //     transform.SetPosition(glm::mix(position, target_position_, fraction));
+
+    //     // On the ground yo
+    //     vertical_velocity_ = 0.0f;
+    //     vertical_offset_ = 0.0f;
+    //     jumping_ = false;
+    // }
+    // else
+    // { // NO COLLISION i.e FELL FULL HEIGHT
+    //     transform.SetPosition(target_position_);
+    // }
 }
 
 void Agent::Update(double dt)

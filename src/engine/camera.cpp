@@ -21,9 +21,9 @@ Camera::~Camera(){
 
 
 void Camera::Update() {
-    transform.Pitch(angular_velocity.x);
-    transform.Yaw(angular_velocity.y);
-    transform.Roll(angular_velocity.z);
+    // transform.Pitch(angular_velocity.x);
+    // transform.Yaw(angular_velocity.y);
+    // transform.Roll(angular_velocity.z);
     // transform.Translate(velocity);
     if(parent_transform) {
         transform.Update(parent_transform->GetWorldMatrix());
@@ -105,6 +105,7 @@ void Camera::Attach(Transform *p) {
 }
 
 void Camera::Detach() {
+    transform.SetOrientation(transform.GetWorldOrientation());
     parent_transform = nullptr;
     locked = false;
 }

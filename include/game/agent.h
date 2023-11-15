@@ -2,6 +2,8 @@
 #define AGENT_H_
 
 #include "scene_node.h"
+#include "terrain.h"
+
 class Agent : public SceneNode
 {
 public:
@@ -23,6 +25,8 @@ public:
     void DownCollision(float collision_point_y = 0.0f);
     void UpCollision();
     void HorizontalCollision();
+
+    void SetTerrain(Terrain* t) { terrain = t; }
 
     void Jump(glm::vec3 v = glm::vec3(0.0f, 0.0f, 0.0f));
 
@@ -62,5 +66,6 @@ protected:
 
 private:
     const float EPSILON = 1e-6; // For ground checking!
+    Terrain *terrain;
 };
 #endif

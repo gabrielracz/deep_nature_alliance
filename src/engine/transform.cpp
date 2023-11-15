@@ -1,4 +1,6 @@
 #include "transform.h"
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 void Transform::Update(const glm::mat4& parent) {
     // if(dirty) {
@@ -35,17 +37,17 @@ void Transform::Translate(const glm::vec3& trans) {
 }
 
 void Transform::Pitch(float angle) {
-    glm::quat rotation = glm::angleAxis(angle, LocalAxis(SIDE)); // not the correct axis
+    glm::quat rotation = glm::angleAxis(angle, axes[SIDE]); 
     Rotate(rotation);
 }
 
 void Transform::Yaw(float angle) {
-    glm::quat rotation = glm::angleAxis(angle, LocalAxis(UP)); // not the correct axis
+    glm::quat rotation = glm::angleAxis(angle, axes[UP]); // not the correct axis
     Rotate(rotation);
 }
 
 void Transform::Roll(float angle) {
-    glm::quat rotation = glm::angleAxis(angle, LocalAxis(FORWARD)); // what axis is used for rolling?
+    glm::quat rotation = glm::angleAxis(angle, axes[FORWARD]); // what axis is used for rolling?
     Rotate(rotation);
 }
 
