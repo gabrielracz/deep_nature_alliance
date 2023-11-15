@@ -148,7 +148,7 @@ void Game::SetupFPScene(void) {
     Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Lit", "T_MoonPlanet", 1000, 1000, 0.25, this);
     t->transform.Translate({-500.0, -30.0, -500});
     AddToScene(FPTEST, t);
-
+    p->SetTerrain(t);
 }
 
 void Game::Update(double dt, KeyMap &keys) {

@@ -57,22 +57,26 @@ void Agent::DownMove(float dt)
 
     glm::vec3 position = transform.GetPosition();
 
-    if (target_position_.y <= -30.0)
-    { // CHECK FOR BELOW COLLISION
+    float terrainY = terrain->SampleHeight(position.x, position.z);
+    target_position_.y = terrainY;
+    transform.SetPosition(target_position_);
+    //not integrated with jumping
+    // if (target_position_.y <= terrainY)
+    // { // CHECK FOR BELOW COLLISION
 
-        // Interpolate small fall (would usually want to do this before hitting floor)
-        float fraction = (position.y - (-30.0)) * 0.5;
-        transform.SetPosition(glm::mix(position, target_position_, fraction));
+    //     // Interpolate small fall (would usually want to do this before hitting floor)
+    //     float fraction = (position.y - (terrainY)) * 0.5;
+    //     transform.SetPosition(glm::mix(position, target_position_, fraction));
 
-        // On the ground yo
-        vertical_velocity_ = 0.0f;
-        vertical_offset_ = 0.0f;
-        jumping_ = false;
-    }
-    else
-    { // NO COLLISION i.e FELL FULL HEIGHT
-        transform.SetPosition(target_position_);
-    }
+    //     // On the ground yo
+    //     vertical_velocity_ = 0.0f;
+    //     vertical_offset_ = 0.0f;
+    //     jumping_ = false;
+    // }
+    // else
+    // { // NO COLLISION i.e FELL FULL HEIGHT
+    //     transform.SetPosition(target_position_);
+    // }
 }
 
 void Agent::Update(double dt)

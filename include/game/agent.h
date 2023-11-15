@@ -2,6 +2,8 @@
 #define AGENT_H_
 
 #include "scene_node.h"
+#include "terrain.h"
+
 class Agent : public SceneNode
 {
 public:
@@ -19,6 +21,8 @@ public:
     void UnSetRight(void);
     void UnSetForward(void);
     void UnSetBackward(void);
+
+    void SetTerrain(Terrain* t) { terrain = t; }
 
     void Jump(glm::vec3 v = glm::vec3(0.0f, 0.0f, 0.0f));
 
@@ -57,5 +61,6 @@ protected:
 
 private:
     const float EPSILON = 1e-6; // For ground checking!
+    Terrain *terrain;
 };
 #endif
