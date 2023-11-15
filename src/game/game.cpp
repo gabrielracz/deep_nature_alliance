@@ -213,6 +213,13 @@ void Game::CheckControls(KeyMap& keys) {
         player->ShipControl(Player::Controls::ROLLR);
     };
 
+    if(keys[GLFW_KEY_UP]) {
+        app.GetCamera().transform.Pitch(0.05f);
+    }
+    if(keys[GLFW_KEY_DOWN]) {
+        app.GetCamera().transform.Pitch(-0.05f);
+    }
+
     if(keys[GLFW_KEY_0]) {
         LoadShaders();
         keys[GLFW_KEY_0] = false;
@@ -264,7 +271,6 @@ void Game::MouseControls(Mouse& mouse) {
     Player* player = scene->GetPlayer();
     player->ShipControl(Player::Controls::YAWL, look.x);
     player->ShipControl(Player::Controls::PITCHU, look.y);
-    
 }
 
 void Game::CreatePlayer() {

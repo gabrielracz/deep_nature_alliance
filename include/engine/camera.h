@@ -46,6 +46,7 @@ class Camera {
         float roll_speed = 0.0f;
         glm::vec3 angular_velocity {0.0f, 0.0f, 0.0f};
         glm::vec3 velocity {0.0f, 0.0f, 0.0f};
+        bool locked = false;
 
         Transform transform; 
     private:

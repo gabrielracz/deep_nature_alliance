@@ -76,7 +76,8 @@ void Camera::SetupViewMatrix(void){
     if(parent_transform) {
         glm::mat4 p = parent_transform->GetWorldMatrix();
         glm::vec3 eye = transform.GetWorldPosition();
-        glm::vec3 look_at = p * glm::vec4(0.0, 0.0, -2.0, 1.0); // look slightly ahead of target
+        // glm::vec3 look_at = p * glm::vec4(0.0, 0.0, -2.0, 1.0); // look slightly ahead of target
+        glm::vec3 look_at = p * transform.GetLocalMatrix() * glm::vec4(0.0, 0.0, -1.0, 1.0);
         glm::vec3 side = transform.GetWorldMatrix() * glm::vec4(transform.GetAxis(SIDE), 0.0f);
         glm::vec3 up = glm::cross(side, glm::vec3(p * glm::vec4(0.0, 0.0, -2.0, 0.0)));
         view_matrix_ = glm::lookAt(eye, look_at, up);
@@ -93,19 +94,19 @@ bool Camera::IsAttached() {
 }
 
 void Camera::Attach(Transform *p) {
-
     if (IsAttached()) {
         Drop();
     }
-
-    transform.SetOrientation(glm::quat(0, 0, 0, 0)); //reset local camera orientation
-    transform.SetPosition(original_pos); // reset local lock point
+    locked = true;
+    // transform.SetPosition(original_pos); // reset local lock point
     parent_transform = p;
+    Reset();
     SetupViewMatrix();
 }
 
 void Camera::Detach() {
     parent_transform = nullptr;
+    locked = false;
 }
 
 void Camera::Reset() {
@@ -120,6 +121,7 @@ void Camera::Drop() {
     transform.SetOrientation(glm::inverse(view_matrix_));
     parent_transform = nullptr;
     SetupViewMatrix();
+    locked = false;
 }
 
 void Camera::MoveTo(const glm::vec3 newpos) {
