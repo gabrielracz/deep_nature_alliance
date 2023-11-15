@@ -38,7 +38,6 @@ protected:
     float step_offset_ = 0.0f;
     float base_jump_speed_ = jump_speed_;
     float speed_ = 0.5f;
-    float sensitivity_ = -0.1f;
 
     glm::vec3 up_ = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::vec3 jump_axis_ = glm::vec3(0.0, 1.0, 0.0f);

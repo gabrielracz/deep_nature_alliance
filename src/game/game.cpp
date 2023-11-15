@@ -246,6 +246,7 @@ void Game::CheckControls(KeyMap& keys) {
         SetActiveScene(FPTEST);
         //This some jank obv
         scene->GetFPPlayer()->Init(app.GetWindow().ptr, &app.GetCamera());
+        app.SetMouseHandler(std::bind(&FP_Player::MouseControls, scene->GetFPPlayer(), std::placeholders::_1));
         app.SetFirstPersonView();
         keys[GLFW_KEY_2] = false;
     }

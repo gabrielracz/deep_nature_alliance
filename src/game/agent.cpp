@@ -23,7 +23,12 @@ void Agent::UpMove()
 
 void Agent::WalkingMove(const glm::vec3 move)
 {
-    target_position_ = target_position_ + move;
+
+    if (glm::length(move) > 0.001)
+    {
+        glm::vec3 forward = glm::normalize(glm::vec3(transform.GetOrientation() * glm::vec4(glm::normalize(move), 0.0)));
+        target_position_ += forward * speed_;
+    }
 
     // COLLISION SWEEPING AND CHECKING HERE FOR FORWARD SIDE TO SIDE OBJECTS
 
@@ -100,7 +105,7 @@ void Agent::Update(double dt)
 
     if (walk_direction_ != glm::vec3(0.0f))
     {
-        walk_direction_ = glm::normalize(walk_direction_) * speed_;
+        walk_direction_ = glm::normalize(walk_direction_);
     }
 
     WalkingMove(walk_direction_);

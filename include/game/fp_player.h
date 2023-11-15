@@ -3,6 +3,7 @@
 
 #include "agent.h"
 #include "control.h"
+#include "defines.h"
 
 class FP_Player : public Agent
 {
@@ -11,6 +12,7 @@ public:
         : Agent(name, mesh_id, shader_id, texture_id) {}
 
     virtual void Update(double dt) override;
+    void MouseControls(Mouse& mouse);
 
     void Init(GLFWwindow *w, Camera *c);
 
@@ -30,6 +32,7 @@ protected:
     float has_dashed_ = false;
     float dash_angle_ = 15.0f;
     float dash_speed_ = 40.0f;
+    float sensitivity_ = 0.001f;
 
 private:
     Control control_;
