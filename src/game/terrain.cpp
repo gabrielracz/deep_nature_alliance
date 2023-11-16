@@ -21,16 +21,16 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     float xstep = xwidth / num_xsteps;
     float zstep = zwidth / num_zsteps;
 
-    heights.resize(num_xsteps, std::vector<float>(num_zsteps, 0.0));
+    heights.resize(std::ceil(num_xsteps), std::vector<float>(std::ceil(num_zsteps), 0.0));
 
     for (int z = 0; z < num_zsteps; z++) {
         for (int x = 0; x < num_xsteps; x++) {
-            // glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
-            // float height = glm::perlin(sample) * 50.0;
-            float height = 0.0;
-            if (x > 150){
-                height = 100.0;
-            }
+            glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
+            float height = glm::perlin(sample) * 50.0;
+            // float height = 0.0;
+            // if (x > 150){
+            //     height = 100.0;
+            // }
 
             heights[x][z] = height;
             // create this vertex
