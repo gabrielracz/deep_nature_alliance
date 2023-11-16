@@ -50,8 +50,3 @@ void Application::Pause() {
 void Application::ToggleRenderMode() {
     view.ToggleRenderMode();
 }
-
-
-void Application::ToggleMouseCapture() {
-    view.ToggleMouseCapture();
-}
