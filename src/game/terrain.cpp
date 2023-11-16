@@ -7,6 +7,8 @@
 // index into a 1D array as if it was 2D
 #define GIX(x, z, width) ((x) + (z) * width)
 
+float MAX_PASSABLE_SLOPE = 0.5f;
+
 Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, float xwidth, float zwidth, float density, Game* game)
     : SceneNode(name, mesh_id, shader_id), xwidth(xwidth), zwidth(zwidth) {
     Layout layout({{FLOAT3, "vertex"},
@@ -60,6 +62,23 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
         }
     }
 
+    obstacles.resize(num_xsteps - 1, std::vector<bool>(num_zsteps - 1, true));
+    for (int z = 1; z < num_zsteps-2; z++) {
+        for (int x = 1; x < num_xsteps-2; x++) {
+            glm::vec3 norm = InterpNormals(x, z, 0.5, 0.5);
+            float slopeX = glm::abs(glm::dot(norm, {1.0, 0.0, 0.0}));
+            float slopeY = glm::abs(glm::dot(norm, {0.0, 0.0, 1.0})); 
+            float slope = glm::max(slopeX, slopeY);
+
+            if(slope > MAX_PASSABLE_SLOPE) {
+                obstacles[x][z] = true;
+            } else {
+                obstacles[x][z] = false;
+            }
+
+        }
+    }
+
     tangents.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {1.0, 0.0, 0.0}));
     for (int z = 1; z < num_zsteps-1; z++) {
         for (int x = 1; x < num_xsteps-1; x++) {
@@ -93,6 +112,9 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
             glm::vec3 normal = normals[x][z];
             glm::vec3 tangent = tangents[x][z];
             glm::vec3 color = {Colors::SeaBlue};
+            if(obstacles[glm::clamp(x-1, 0, (int)obstacles.size())][glm::clamp(z-1, 0, (int)obstacles[0].size())]) {
+                color = Colors::Magenta;
+            }
             glm::vec2 uv = {0.0, 0.0};
 
             APPEND_VEC3(vertices, pos);
@@ -149,7 +171,7 @@ float Terrain::SampleHeight(float x, float z) {
 }
 
 
-glm::vec3 Terrain::SampleSlope(float x, float z) {
+float Terrain::SampleSlope(float x, float z, glm::vec3 dir) {
     float terrainX = x / (xwidth / (heights.size() - 1)) + (num_xsteps / 2.0);
     float terrainZ = z / (zwidth / (heights[0].size() - 1)) + (num_zsteps / 2.0);
 
@@ -173,7 +195,28 @@ glm::vec3 Terrain::SampleSlope(float x, float z) {
 
     glm::vec3 n0 = (1 - sx) * n00 + sx * n10;
     glm::vec3 n1 = (1 - sx) * n01 + sx * n11;
-    glm::vec3 interp = (1 - sz) * n0 + sz * n1;
+    glm::vec3 interp = glm::normalize((1 - sz) * n0 + sz * n1);
 
+    float slope = 0.0f;
+    if(dir == glm::vec3(0.0f)) {
+        float slopeX = glm::abs(glm::dot(interp, {1.0, 0.0, 0.0}));
+        float slopeY = glm::abs(glm::dot(interp, {0.0, 0.0, 1.0})); 
+        slope = glm::max(slopeX, slopeY);
+    } else {
+        slope = glm::abs(glm::dot(dir, interp));
+    }
+
+    return slope;
+}
+
+glm::vec3 Terrain::InterpNormals(int x0, int z0, float sx, float sz) {
+    glm::vec3 n00 = normals[x0][z0];
+    glm::vec3 n10 = normals[x0 + 1][z0];
+    glm::vec3 n01 = normals[x0][z0 + 1];
+    glm::vec3 n11 = normals[x0 + 1][z0 + 1];
+
+    glm::vec3 n0 = (1 - sx) * n00 + sx * n10;
+    glm::vec3 n1 = (1 - sx) * n01 + sx * n11;
+    glm::vec3 interp = glm::normalize((1 - sz) * n0 + sz * n1);
     return interp;
 }

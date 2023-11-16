@@ -42,11 +42,13 @@ enum GameState {
 };
 
 enum SceneEnum {
+    FPTEST = 0,
     BEFORETRIGGER,
     AFTERTRIGGER,
-    FPTEST,
-    ALL = -1
+    ALL,
+    NUM_SCENES
 };
+
 
 // Game application
 class Game {
