@@ -4,22 +4,24 @@
 #include "defines.h"
 #include "game.h"
 
-
-#define GIX(x, z, num_xsteps) ((x) + (z) * num_xsteps)
+// index into a 1D array as if it was 2D
+#define GIX(x, z, width) ((x) + (z) * width)
 
 Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, float xwidth, float zwidth, float density, Game* game)
     : SceneNode(name, mesh_id, shader_id), xwidth(xwidth), zwidth(zwidth) {
     Layout layout({{FLOAT3, "vertex"},
                    {FLOAT3, "normal"},
                    {FLOAT3, "color"},
-                   {FLOAT2, "uv"}});
+                   {FLOAT2, "uv"},
+                   {FLOAT3, "tangent"}
+                   });
 
     // generate uniform grid
 
     num_xsteps = xwidth * density;
     num_zsteps = zwidth * density;
-    float xstep = xwidth / num_xsteps;
-    float zstep = zwidth / num_zsteps;
+    xstep = xwidth / num_xsteps;
+    zstep = zwidth / num_zsteps;
 
     heights.resize(num_xsteps, std::vector<float>(num_zsteps, 0.0));
 
@@ -39,10 +41,75 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
             glm::vec3 color = {Colors::SeaBlue};
             glm::vec2 uv = {0.0, 0.0};
 
+            // APPEND_VEC3(vertices, pos);
+            // APPEND_VEC3(vertices, normal);
+            // APPEND_VEC3(vertices, color);
+            // APPEND_VEC2(vertices, uv);
+        }
+    }
+
+    normals.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {0.0, 1.0, 0.0}));
+    // method from: https://stackoverflow.com/a/21660173
+    // for now ignore the edge ring
+    for (int z = 1; z < num_zsteps-1; z++) {
+        for (int x = 1; x < num_xsteps-1; x++) {
+            float hl =  heights[x-1][z];
+            float hr =  heights[x+1][z];
+            float hu =  heights[x][z+1];
+            float hd =  heights[x][z-1];
+            float hul = heights[x-1][z+1];
+            float hur = heights[x+1][z+1];
+            float hdl = heights[x-1][z-1];
+            float hdr = heights[x+1][z-1];
+
+            glm::vec3 norm = {(2*(hl - hr) - hur + hdl + hu - hd) / xstep,
+                              6,
+                              (2*(hd - hu) + hur + hdl - hu - hl) / zstep};
+            norm = glm::normalize(norm);
+            normals[x][z] = norm;
+        }
+    }
+
+    tangents.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {1.0, 0.0, 0.0}));
+    for (int z = 1; z < num_zsteps-1; z++) {
+        for (int x = 1; x < num_xsteps-1; x++) {
+            float xp = x*xstep;
+            float zp = z*zstep;
+
+            glm::vec3 v = {x*xstep, heights[x][z], z*zstep}; // this vertex
+            auto tangent = [this, v](float x, float z) -> glm::vec3 {
+                return glm::normalize(glm::vec3(x*xstep, heights[x][z], z*zstep) - v);
+            };
+
+            glm::vec3 tl  = tangent(x-1, z  );
+            glm::vec3 tr  = tangent(x+1, z  );
+            glm::vec3 tu  = tangent(x  , z+1);
+            glm::vec3 td  = tangent(x  , z-1);
+            glm::vec3 tul = tangent(x-1, z+1);
+            glm::vec3 tur = tangent(x+1, z+1);
+            glm::vec3 tdl = tangent(x-1, z-1);
+            glm::vec3 tdr = tangent(x+1, z-1);
+
+            // average the surrounding vertices;
+            glm::vec3 tan = (tl + tr + tu + td + tul + tur + tdl + tdr) / 8.0f;
+            tangents[x][z] = tan;
+        }
+    }
+
+    assert(heights.size() == normals.size() && normals.size() == tangents.size());
+    for(int x = 0; x < heights.size(); x++){ 
+        for(int z = 0; z < heights[0].size(); z++) {
+            glm::vec3 pos = {x * xstep, heights[x][z], z * zstep};
+            glm::vec3 normal = normals[x][z];
+            glm::vec3 tangent = tangents[x][z];
+            glm::vec3 color = {Colors::SeaBlue};
+            glm::vec2 uv = {0.0, 0.0};
+
             APPEND_VEC3(vertices, pos);
             APPEND_VEC3(vertices, normal);
             APPEND_VEC3(vertices, color);
             APPEND_VEC2(vertices, uv);
+            APPEND_VEC3(vertices, tangent);
         }
     }
 

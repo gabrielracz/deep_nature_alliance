@@ -138,6 +138,7 @@ void Game::SetupFPScene(void) {
 
     FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit");
     p->transform.SetPosition(player_position_g);
+    p->visible = false;
     scenes[FPTEST]->SetFPPlayer(p);
     AddToScene(FPTEST, p);
 
@@ -162,17 +163,15 @@ void Game::Update(double dt, KeyMap &keys) {
 
 void Game::CheckControls(KeyMap& keys) {
     Player* player = scene->GetPlayer();
-    // Get user data with a pointer to the game class
-    // Quit game if 'q' is pressed
-    if (keys[GLFW_KEY_ESCAPE]){
-        app.Quit();
-        return;
-    }
+    // if (keys[GLFW_KEY_ESCAPE]){
+    //     app.Quit();
+    //     return;
+    // }
 
     // Stop animation if space bar is pressed
-    if (keys[GLFW_KEY_SPACE]){
-        app.Pause();
-        keys[GLFW_KEY_SPACE] = false;
+    if (keys[GLFW_KEY_ESCAPE]){
+        app.ToggleMouseCapture();
+        keys[GLFW_KEY_ESCAPE] = false;
     }
 
     // Debug print the player's location
@@ -336,7 +335,7 @@ void Game::CreatePlanets() {
 
 void Game::CreateTerrain() {
     // this generates its own terrain.
-    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Lit", "T_MoonPlanet", 1000, 1000, 0.25, this);
+    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Lit", "T_MoonPlanet", 1000, 1000, 1.0, this);
     AddToScene(SceneEnum::AFTERTRIGGER, t);
 
     // std::vector<float> verts = Terrain::GenerateHeightmap(100.0, 200.0, 1.0);

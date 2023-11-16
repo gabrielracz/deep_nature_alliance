@@ -14,11 +14,15 @@ class Terrain : public SceneNode {
         std::vector<unsigned int> indices;
 
         std::vector<std::vector<float>> heights;
+        std::vector<std::vector<glm::vec3>> normals;
+        std::vector<std::vector<glm::vec3>> tangents;
 
         float xwidth;
         float zwidth;
         float num_xsteps;
         float num_zsteps;
+        float xstep;
+        float zstep;
 };
 
 #endif
