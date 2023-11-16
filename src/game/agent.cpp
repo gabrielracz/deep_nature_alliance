@@ -27,6 +27,7 @@ void Agent::WalkingMove(const glm::vec3 move, float dt)
     {
         glm::vec3 forward = glm::normalize(glm::vec3(transform.GetOrientation() * glm::vec4(glm::normalize(move), 0.0)));
         target_position_ += forward * speed_ * dt * 100.0f;
+        transform.SetPosition(target_position_);
     }
 
     // COLLISION SWEEPING AND CHECKING HERE FOR FORWARD SIDE TO SIDE OBJECTS
@@ -61,9 +62,14 @@ void Agent::DownMove(float dt)
     if (glm::abs(target_position_.y - terrainY) < 5.0){
         target_position_.y = terrainY;
         transform.SetPosition(target_position_);
+
+        vertical_velocity_ = 0.0f;
+        vertical_offset_ = 0.0f;
+        jumping_ = false;
     } else {
-        transform.SetPosition(prev_position_);
+        transform.SetPosition(target_position_);
     }
+    //transform.SetPosition(target_position_);
     
     //not integrated with jumping
     // if (target_position_.y <= terrainY)
@@ -124,6 +130,29 @@ void Agent::Update(double dt)
     SceneNode::Update(dt);
     //printf("%f %f %f \n", walk_direction_.x, walk_direction_.y, walk_direction_.z);
     //printf("%f %f %f \n", transform.GetPosition().x, transform.GetPosition().y, transform.GetPosition().z);
+}
+
+//Collision for after the fact can be used inplace of current terrain check in DownStep
+void Agent::DownCollision(float collision_point_y)
+{
+    if (target_position_.y <= (collision_point_y + height_))
+    {
+        glm::vec3 position = transform.GetPosition();
+
+        float fraction = (position.y - (collision_point_y + height_)) * 0.5;
+        //prob want to set prev_position_.y to collision_point_y here if doesnt work as intended
+        transform.SetPosition(glm::vec3(position.x, glm::mix(prev_position_.y, position.y, fraction), position.z));
+        // On the ground yo
+        vertical_velocity_ = 0.0f;
+        vertical_offset_ = 0.0f;
+        jumping_ = false;
+    }
+}
+
+void Agent::UpCollision()
+{
+    vertical_velocity_ = 0.0f;
+    vertical_offset_ = 0.0f;
 }
 
 bool Agent::OnGround() const

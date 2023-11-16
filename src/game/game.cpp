@@ -154,7 +154,7 @@ void Game::SetupFPScene(void) {
 void Game::Update(double dt, KeyMap &keys) {
     CheckControls(keys);
     scene->Update(dt);
-    scenes[FPTEST]->GetFPPlayer()->DownCollision(-30.0f);
+    //scenes[FPTEST]->GetFPPlayer()->DownCollision(-30.0f);
     // colman.CheckCollisions();
     // CheckCollisions();
 }

@@ -45,7 +45,7 @@ protected:
     float movement_damping_ = 0.0f;
     float step_offset_ = 0.0f;
     float base_jump_speed_ = jump_speed_;
-    float speed_ = 0.3f;
+    float speed_ = 0.5f;
     float height_ = 1.0f;
 
     glm::vec3 up_ = glm::vec3(0.0f, 1.0f, 0.0f);
