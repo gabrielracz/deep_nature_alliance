@@ -93,6 +93,133 @@ void Terrain::GenerateHeightmap() {
     }
 }
 
+void Terrain::GenerateNormals() {
+    normals.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {0.0, 1.0, 0.0}));
+    // method from: https://stackoverflow.com/a/21660173
+    // for now ignore the outer edge ring
+    for (int z = 1; z < num_zsteps-1; z++) {
+        for (int x = 1; x < num_xsteps-1; x++) {
+            float hl =  heights[x-1][z];
+            float hr =  heights[x+1][z];
+            float hu =  heights[x][z+1];
+            float hd =  heights[x][z-1];
+            float hul = heights[x-1][z+1];
+            float hur = heights[x+1][z+1];
+            float hdl = heights[x-1][z-1];
+            float hdr = heights[x+1][z-1];
+
+            glm::vec3 norm = {(2*(hl - hr) - hur + hdl + hu - hd) / xstep,
+                              6,
+                              (2*(hd - hu) + hur + hdl - hu - hl) / zstep};
+            norm = glm::normalize(norm);
+            normals[x][z] = norm;
+        }
+    }
+}
+void Terrain::GenerateObstacles() {
+    obstacles.resize(num_xsteps - 1, std::vector<bool>(num_zsteps - 1, true));
+    for (int z = 1; z < num_zsteps-2; z++) {
+        for (int x = 1; x < num_xsteps-2; x++) {
+            glm::vec3 norm = InterpNormals(x, z, 0.5, 0.5);
+            float slopeX = glm::abs(glm::dot(norm, {1.0, 0.0, 0.0}));
+            float slopeY = glm::abs(glm::dot(norm, {0.0, 0.0, 1.0})); 
+            float slope = glm::max(slopeX, slopeY);
+
+            if(slope > MAX_PASSABLE_SLOPE) {
+                obstacles[x][z] = true;
+            } else {
+                obstacles[x][z] = false;
+            }
+        }
+    }
+}
+void Terrain::GenerateTangents() {
+    tangents.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {1.0, 0.0, 0.0}));
+    for (int z = 1; z < num_zsteps-1; z++) {
+        for (int x = 1; x < num_xsteps-1; x++) {
+            float xp = x*xstep;
+            float zp = z*zstep;
+
+            glm::vec3 v = {x*xstep, heights[x][z], z*zstep}; // this vertex
+            auto tangent = [this, v](float x, float z) -> glm::vec3 {
+                return glm::normalize(glm::vec3(x*xstep, heights[x][z], z*zstep) - v);
+            };
+
+            glm::vec3 tl  = tangent(x-1, z  );
+            glm::vec3 tr  = tangent(x+1, z  );
+            glm::vec3 tu  = tangent(x  , z+1);
+            glm::vec3 td  = tangent(x  , z-1);
+            glm::vec3 tul = tangent(x-1, z+1);
+            glm::vec3 tur = tangent(x+1, z+1);
+            glm::vec3 tdl = tangent(x-1, z-1);
+            glm::vec3 tdr = tangent(x+1, z-1);
+
+            // average the surrounding vertices;
+            glm::vec3 tan = glm::normalize(tl + tr + tu + td + tul + tur + tdl + tdr);
+            tangents[x][z] = tan;
+        }
+    }
+}
+
+void Terrain::GenerateUV() {
+    uvs.resize(num_xsteps, std::vector<glm::vec2>(num_zsteps, {0.0, 0.0}));
+    for (int z = 0; z < num_zsteps; z++) {
+        for (int x = 0; x < num_xsteps; x++) {
+            // texture the entire terrain with a single mapping
+            glm::vec2 uv = {
+                (x*xstep)/xwidth,
+                (z*zstep)/zwidth
+            };
+            uvs[x][z] = uv;
+        }
+    }
+}
+
+void Terrain::GenerateMesh() {
+    Layout layout({{FLOAT3, "vertex"},
+                   {FLOAT3, "normal"},
+                   {FLOAT3, "color"},
+                   {FLOAT2, "uv"},
+                   {FLOAT3, "tangent"}
+                   });
+
+    assert(heights.size() == normals.size() && normals.size() == tangents.size());
+    for(int x = 0; x < heights.size(); x++){ 
+        for(int z = 0; z < heights[0].size(); z++) {
+            glm::vec3 pos = {x * xstep, heights[x][z], z * zstep};
+            glm::vec3 normal = normals[x][z];
+            glm::vec3 tangent = tangents[x][z];
+            // color impassable regions magenta
+            glm::vec3 color = {Colors::SeaBlue};
+            if(obstacles[glm::clamp(x-1, 0, (int)obstacles.size())][glm::clamp(z-1, 0, (int)obstacles[0].size())]) {
+                color = Colors::Magenta;
+            }
+            glm::vec2 uv = uvs[x][z];
+
+            APPEND_VEC3(vertices, pos);
+            APPEND_VEC3(vertices, normal);
+            APPEND_VEC3(vertices, color);
+            APPEND_VEC2(vertices, uv);
+            APPEND_VEC3(vertices, tangent);
+        }
+    }
+
+// triangulate the grid of points
+    for (int z = 0; z < num_zsteps - 1; z++) {
+        for (int x = 0; x < num_xsteps - 1; x++) {
+            indices.push_back(GIX(x, z, num_xsteps));
+            indices.push_back(GIX(x, z + 1, num_xsteps));
+            indices.push_back(GIX(x + 1, z + 1, num_xsteps));
+
+            indices.push_back(GIX(x, z, num_xsteps));
+            indices.push_back(GIX(x + 1, z, num_xsteps));
+            indices.push_back(GIX(x + 1, z + 1, num_xsteps));
+        }
+    }
+
+    game->resman.AddMesh(mesh_id, vertices, indices, layout);
+}
+
 float Terrain::SampleHeight(float x, float z) {
     float terrainX = x / (xwidth / (heights.size() - 1)) + (num_xsteps / 2.0);
     float terrainZ = z / (zwidth / (heights[0].size() - 1)) + (num_zsteps / 2.0);
@@ -122,6 +249,7 @@ float Terrain::SampleHeight(float x, float z) {
     return interp + transform.GetPosition().y;
 }
 
+
 float Terrain::SampleSlope(float x, float z, glm::vec3 dir) {
     float terrainX = x / (xwidth / (heights.size() - 1)) + (num_xsteps / 2.0);
     float terrainZ = z / (zwidth / (heights[0].size() - 1)) + (num_zsteps / 2.0);
@@ -149,9 +277,9 @@ float Terrain::SampleSlope(float x, float z, glm::vec3 dir) {
     glm::vec3 interp = glm::normalize((1 - sz) * n0 + sz * n1);
 
     float slope = 0.0f;
-    if (dir == glm::vec3(0.0f)) {
+    if(dir == glm::vec3(0.0f)) {
         float slopeX = glm::abs(glm::dot(interp, {1.0, 0.0, 0.0}));
-        float slopeY = glm::abs(glm::dot(interp, {0.0, 0.0, 1.0}));
+        float slopeY = glm::abs(glm::dot(interp, {0.0, 0.0, 1.0})); 
         slope = glm::max(slopeX, slopeY);
     } else {
         slope = glm::abs(glm::dot(dir, interp));
