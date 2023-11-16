@@ -10,27 +10,28 @@
 float MAX_PASSABLE_SLOPE = 0.5f;
 
 Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, float xwidth, float zwidth, float density, Game* game)
-    : SceneNode(name, mesh_id, shader_id), xwidth(xwidth), zwidth(zwidth) {
-    Layout layout({{FLOAT3, "vertex"},
-                   {FLOAT3, "normal"},
-                   {FLOAT3, "color"},
-                   {FLOAT2, "uv"},
-                   {FLOAT3, "tangent"}
-                   });
+    : SceneNode(name, mesh_id, shader_id), xwidth(xwidth), zwidth(zwidth), game(game) {
 
     // generate uniform grid
-
     num_xsteps = xwidth * density;
     num_zsteps = zwidth * density;
     xstep = xwidth / num_xsteps;
     zstep = zwidth / num_zsteps;
 
-    heights.resize(num_xsteps, std::vector<float>(num_zsteps, 0.0));
+    GenerateHeightmap();
+    GenerateNormals();
+    GenerateTangents();
+    GenerateObstacles();
+    GenerateMesh();
+}
 
+void Terrain::GenerateHeightmap() {
+    heights.resize(num_xsteps, std::vector<float>(num_zsteps, 0.0));
     for (int z = 0; z < num_zsteps; z++) {
         for (int x = 0; x < num_xsteps; x++) {
             glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
             float height = glm::perlin(sample) * 50.0;
+            // shelf generation:
             // float height = 0.0;
             // if (x > 150){
             //     height = 100.0;
@@ -39,7 +40,10 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
             heights[x][z] = height;
         }
     }
+}
 
+
+void Terrain::GenerateNormals() {
     normals.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {0.0, 1.0, 0.0}));
     // method from: https://stackoverflow.com/a/21660173
     // for now ignore the outer edge ring
@@ -61,7 +65,8 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
             normals[x][z] = norm;
         }
     }
-
+}
+void Terrain::GenerateObstacles() {
     obstacles.resize(num_xsteps - 1, std::vector<bool>(num_zsteps - 1, true));
     for (int z = 1; z < num_zsteps-2; z++) {
         for (int x = 1; x < num_xsteps-2; x++) {
@@ -75,10 +80,10 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
             } else {
                 obstacles[x][z] = false;
             }
-
         }
     }
-
+}
+void Terrain::GenerateTangents() {
     tangents.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {1.0, 0.0, 0.0}));
     for (int z = 1; z < num_zsteps-1; z++) {
         for (int x = 1; x < num_xsteps-1; x++) {
@@ -104,6 +109,15 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
             tangents[x][z] = tan;
         }
     }
+}
+
+void Terrain::GenerateMesh() {
+    Layout layout({{FLOAT3, "vertex"},
+                   {FLOAT3, "normal"},
+                   {FLOAT3, "color"},
+                   {FLOAT2, "uv"},
+                   {FLOAT3, "tangent"}
+                   });
 
     assert(heights.size() == normals.size() && normals.size() == tangents.size());
     for(int x = 0; x < heights.size(); x++){ 

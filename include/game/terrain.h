@@ -11,6 +11,12 @@ class Terrain : public SceneNode {
         float SampleSlope(float x, float z, glm::vec3 dir = {0.0f, 0.0f, 0.0f});
 
     private:
+        void GenerateHeightmap();
+        void GenerateNormals();
+        void GenerateObstacles();
+        void GenerateTangents();
+        void GenerateMesh();
+
         glm::vec2 IndexGrid(float x, float z);
         glm::vec3 InterpNormals(int x0, int z0, float sx, float sz);
 
@@ -28,6 +34,8 @@ class Terrain : public SceneNode {
         float num_zsteps;
         float xstep;
         float zstep;
+
+        Game* game;
 };
 
 #endif

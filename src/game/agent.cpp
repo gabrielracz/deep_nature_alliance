@@ -32,7 +32,7 @@ void Agent::WalkingMove(const glm::vec3 move, float dt)
         float slope = glm::abs(terrainY - terrain_nextY);
         float sampledslope = terrain->SampleSlope(target_step_.x, target_step_.z);
         printf("Slope %f Sampled %f\n", slope, sampledslope);
-        if (sampledslope < 0.50 || (target_position_.y > terrain_nextY + height_)) { 
+        if (sampledslope < 0.50 || (jumping_ && target_position_.y > terrain_nextY + height_)) { 
             target_position_ += forward * speed_ * dt * 100.0f;
             transform.SetPosition(target_position_);
         }

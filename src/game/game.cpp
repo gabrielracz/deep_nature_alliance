@@ -121,11 +121,11 @@ void Game::SetupScene(void){
     scenes.push_back( new SceneGraph(app));
     scenes.push_back( new SceneGraph(app));
     scenes.push_back( new SceneGraph(app)); // FPS TEST SCENE
-    scene = scenes[1];
+    scene = scenes[FPTEST];
     scene->SetBackgroundColor(viewport_background_color_g);
 
     CreatePlayer();
-    CreateTerrain();
+    // CreateTerrain();
     CreatePlanets();
     CreateTriggers();
     // CreateTree();
