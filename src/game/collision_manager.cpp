@@ -1,5 +1,6 @@
 #include "collision_manager.h"
 #include "transform.h"
+#include "fp_player.h"
 
 #include <glm/glm.hpp>
 
@@ -23,7 +24,9 @@ void CollisionManager::AddNode(SceneNode* node){
         triggers.push_back(t);
     } else if (Player* p = dynamic_cast<Player*>(node)) {
         player = p;
-    } else {
+    } else if (FP_Player *f = dynamic_cast<FP_Player*>(node)) {
+     
+    } else{
         asteroids.push_back(node);
     }
     // else {

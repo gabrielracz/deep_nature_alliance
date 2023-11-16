@@ -64,12 +64,11 @@ int num_beacons_g = sizeof(beacon_positions_g) / sizeof(beacon_positions_g[0]);
 
 void Game::Init(void){
     SetupResources();
+    app.ToggleMouseCapture();
     SetupScene();
 
-    SetupFPScene(); // FPS TEST SCENE
-
     //callback for responsive mouse controls
-    app.SetMouseHandler(std::bind(&Game::MouseControls, this, std::placeholders::_1));
+    // app.SetMouseHandler(std::bind(&Game::MouseControls, this, std::placeholders::_1));
 }
 
        
@@ -119,18 +118,24 @@ void Game::LoadTextures() {
 void Game::SetupScene(void){
 
     // Set background color for the scene
-    scenes.push_back( new SceneGraph(app));
-    scenes.push_back( new SceneGraph(app));
     scenes.push_back( new SceneGraph(app)); // FPS TEST SCENE
     scene = scenes[FPTEST];
     scene->SetBackgroundColor(viewport_background_color_g);
 
+
+    //player created temporarily just so when controls query for player not null
+    //once player refactor shoudl fix 
+    //also for assignment can just remove control code from game temporarily
     CreatePlayer();
-    // CreateTerrain();
-    CreatePlanets();
-    CreateTriggers();
-    // CreateTree();
-    CreateAsteroidField(500);
+
+    SetupFPScene(); // FPS TEST SCENE
+
+
+    // // CreateTerrain();
+    // CreatePlanets();
+    // CreateTriggers();
+    // // CreateTree();
+    // CreateAsteroidField(500);
     CreateLights();
     CreateHUD();
 }
@@ -147,18 +152,20 @@ void Game::SetupFPScene(void) {
     n->transform.SetPosition(glm::vec3(0,0,-10));
     AddToScene(FPTEST, n);
 
-    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Lit", "T_MoonPlanet", 1000, 1000, 0.25, this);
-    t->transform.Translate({-500.0, -30.0, -500});
+    int terrain_size = 1000;
+    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Lit", "T_MoonPlanet", terrain_size, terrain_size, 0.25, this);
+    t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
+
+    p->Init(app.GetWindow().ptr, &app.GetCamera());
+    app.SetMouseHandler(std::bind(&FP_Player::MouseControls, scene->GetFPPlayer(), std::placeholders::_1));
+    app.SetFirstPersonView();
 }
 
 void Game::Update(double dt, KeyMap &keys) {
     CheckControls(keys);
     scene->Update(dt);
-    //scenes[FPTEST]->GetFPPlayer()->DownCollision(-30.0f);
-    // colman.CheckCollisions();
-    // CheckCollisions();
 }
 
 
@@ -247,14 +254,14 @@ void Game::CheckControls(KeyMap& keys) {
         keys[GLFW_KEY_X] = false;
     }
 
-    if(keys[GLFW_KEY_2]) {
-        SetActiveScene(FPTEST);
-        //This some jank obv
-        scene->GetFPPlayer()->Init(app.GetWindow().ptr, &app.GetCamera());
-        app.SetMouseHandler(std::bind(&FP_Player::MouseControls, scene->GetFPPlayer(), std::placeholders::_1));
-        app.SetFirstPersonView();
-        keys[GLFW_KEY_2] = false;
-    }
+    // if(keys[GLFW_KEY_2]) {
+    //     SetActiveScene(FPTEST);
+    //     //This some jank obv
+    //     scene->GetFPPlayer()->Init(app.GetWindow().ptr, &app.GetCamera());
+    //     app.SetMouseHandler(std::bind(&FP_Player::MouseControls, scene->GetFPPlayer(), std::placeholders::_1));
+    //     app.SetFirstPersonView();
+    //     keys[GLFW_KEY_2] = false;
+    // }
 
     if(keys[GLFW_KEY_Z]) {
         if(app.GetCamera().IsAttached()) {
@@ -326,23 +333,23 @@ void Game::AddToScene(SceneEnum sceneNum, SceneNode* node) {
     }
 }
 
-void Game::CreatePlanets() {
-    SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_LavaPlanet");
-    planet->transform.SetScale({800, 800, 800});
-    planet->transform.SetPosition({200, 0, -2000});
-    planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
-    AddToScene(SceneEnum::AFTERTRIGGER, planet);
-}
+// void Game::CreatePlanets() {
+//     SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_LavaPlanet");
+//     planet->transform.SetScale({800, 800, 800});
+//     planet->transform.SetPosition({200, 0, -2000});
+//     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
+//     AddToScene(SceneEnum::AFTERTRIGGER, planet);
+// }
 
-void Game::CreateTerrain() {
-    // this generates its own terrain.
-    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Lit", "T_MoonPlanet", 1000, 1000, 1.0, this);
-    AddToScene(SceneEnum::AFTERTRIGGER, t);
+// void Game::CreateTerrain() {
+//     // this generates its own terrain.
+//     Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Lit", "T_MoonPlanet", 1000, 1000, 0.25, this);
+//     AddToScene(SceneEnum::AFTERTRIGGER, t);
 
-    // std::vector<float> verts = Terrain::GenerateHeightmap(100.0, 200.0, 1.0);
+//     // std::vector<float> verts = Terrain::GenerateHeightmap(100.0, 200.0, 1.0);
 
 
-}
+// }
 
 void Game::CreateHUD() {
 
@@ -370,23 +377,23 @@ void Game::CreateHUD() {
         return std::to_string((glm::length(scene->GetPlayer()->velocity)));
     });
     // scene->AddNode(speedo);
-    AddToScene(SceneEnum::AFTERTRIGGER, speedo);
+    AddToScene(SceneEnum::ALL, speedo);
 
-    Text* crosshair = new Text("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", this, "[ ]");
-    crosshair->transform.SetPosition({0.0, 0.1, 0.0});
-    crosshair->SetSize(10.0f);
-    crosshair->SetColor(HEXCOLORALPH(0xFF00FF, 0.75));
-    crosshair->SetBackgroundColor(Colors::Transparent);
-    crosshair->SetAnchor(Text::Anchor::CENTER);
-    AddToScene(SceneEnum::AFTERTRIGGER, crosshair);
+    // Text* crosshair = new Text("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", this, "[ ]");
+    // crosshair->transform.SetPosition({0.0, 0.1, 0.0});
+    // crosshair->SetSize(10.0f);
+    // crosshair->SetColor(HEXCOLORALPH(0xFF00FF, 0.75));
+    // crosshair->SetBackgroundColor(Colors::Transparent);
+    // crosshair->SetAnchor(Text::Anchor::CENTER);
+    // AddToScene(SceneEnum::AFTERTRIGGER, crosshair);
 }
 
 void Game::CreateLights() {
     Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
     light->transform.SetPosition({50.5, 100.5, 50.5});
     AddLightToScene(SceneEnum::ALL, light);
-    scenes[BEFORETRIGGER]->GetLights().push_back(light);
-    scenes[AFTERTRIGGER]->GetLights().push_back(light);
+    // scenes[BEFORETRIGGER]->GetLights().push_back(light);
+    // scenes[AFTERTRIGGER]->GetLights().push_back(light);
 }
 
 // int tcount = 0;
@@ -486,9 +493,9 @@ void Game::CreateLights() {
 //     std::cout << "SceneNodes: " << tcount << std::endl;
 // }
 
-void Game::CreateAsteroidField(int num_asteroids){
-    scenes[AFTERTRIGGER]->AddNode(new SceneNode("Obj_Stars", "M_StarCloud", "S_Default"));
-}
+// void Game::CreateAsteroidField(int num_asteroids){
+//     scenes[AFTERTRIGGER]->AddNode(new SceneNode("Obj_Stars", "M_StarCloud", "S_Default"));
+// }
 
 void Game::ChangeScene(int sceneIndex) {
     std::cout << "changing scenes" << std::endl;
@@ -508,21 +515,21 @@ however a similar thing could be done by just having a pointer to game in each s
 The use of something like this could also be used to implement all kinds of things within scene node or other classes
 idk lmk what u guys think
 */
-void Game::CreateTriggers(){
-    glm::vec3 trigger_positions[] = {
-        player_position_g - glm::vec3(0, 0, 40)
-    };
+// void Game::CreateTriggers(){
+//     glm::vec3 trigger_positions[] = {
+//         player_position_g - glm::vec3(0, 0, 40)
+//     };
 
-    for (int i = 0; i < 1; i++){
-        std::function<void()> triggerAction = std::bind(&Game::ChangeScene, this, 1);
+//     for (int i = 0; i < 1; i++){
+//         std::function<void()> triggerAction = std::bind(&Game::ChangeScene, this, 1);
 
-        Trigger* t = new Trigger("Trigger" + std::to_string(i), "M_Leaf", "S_Default", "", triggerAction);
-        t->transform.SetPosition(trigger_positions[i]);
-        AddToScene(BEFORETRIGGER, t);
-        // scenes[BEFORETRIGGER]->AddNode(t);
-        // scenes[BEFORETRIGGER]->GetColman().AddTrigger(t);
-    }
-}
+//         Trigger* t = new Trigger("Trigger" + std::to_string(i), "M_Leaf", "S_Default", "", triggerAction);
+//         t->transform.SetPosition(trigger_positions[i]);
+//         AddToScene(BEFORETRIGGER, t);
+//         // scenes[BEFORETRIGGER]->AddNode(t);
+//         // scenes[BEFORETRIGGER]->GetColman().AddTrigger(t);
+//     }
+// }
 
 
 //other option (storing a pointer to main (kinda hacky))
