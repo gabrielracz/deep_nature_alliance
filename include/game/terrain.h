@@ -15,6 +15,7 @@ class Terrain : public SceneNode {
         void GenerateNormals();
         void GenerateObstacles();
         void GenerateTangents();
+        void GenerateUV();
         void GenerateMesh();
 
         glm::vec2 IndexGrid(float x, float z);
@@ -27,6 +28,7 @@ class Terrain : public SceneNode {
         std::vector<std::vector<glm::vec3>> normals;
         std::vector<std::vector<glm::vec3>> tangents;
         std::vector<std::vector<bool>> obstacles;
+        std::vector<std::vector<glm::vec2>> uvs;
 
         float xwidth;
         float zwidth;

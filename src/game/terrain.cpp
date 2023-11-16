@@ -22,6 +22,7 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     GenerateNormals();
     GenerateTangents();
     GenerateObstacles();
+    GenerateUV();
     GenerateMesh();
 }
 
@@ -111,6 +112,21 @@ void Terrain::GenerateTangents() {
     }
 }
 
+void Terrain::GenerateUV() {
+    uvs.resize(num_xsteps, std::vector<glm::vec2>(num_zsteps, {0.0, 0.0}));
+    for (int z = 0; z < num_zsteps; z++) {
+        for (int x = 0; x < num_xsteps; x++) {
+            // texture the entire terrain with a single mapping
+            glm::vec2 uv = {
+                (x*xstep)/xwidth,
+                (z*zstep)/zwidth
+            };
+            std::cout << glm::to_string(uv) << std::endl;
+            uvs[x][z] = uv;
+        }
+    }
+}
+
 void Terrain::GenerateMesh() {
     Layout layout({{FLOAT3, "vertex"},
                    {FLOAT3, "normal"},
@@ -125,11 +141,12 @@ void Terrain::GenerateMesh() {
             glm::vec3 pos = {x * xstep, heights[x][z], z * zstep};
             glm::vec3 normal = normals[x][z];
             glm::vec3 tangent = tangents[x][z];
+            // color impassable regions magenta
             glm::vec3 color = {Colors::SeaBlue};
             if(obstacles[glm::clamp(x-1, 0, (int)obstacles.size())][glm::clamp(z-1, 0, (int)obstacles[0].size())]) {
                 color = Colors::Magenta;
             }
-            glm::vec2 uv = {0.0, 0.0};
+            glm::vec2 uv = uvs[x][z];
 
             APPEND_VEC3(vertices, pos);
             APPEND_VEC3(vertices, normal);
