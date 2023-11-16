@@ -136,7 +136,7 @@ void Game::SetupScene(void){
     // // CreateTree();
     // CreateAsteroidField(500);
     CreateLights();
-    // CreateHUD();
+    CreateHUD();
 }
 
 void Game::SetupFPScene(void) {
@@ -150,7 +150,7 @@ void Game::SetupFPScene(void) {
     n->transform.SetPosition(glm::vec3(0,0,-10));
     AddToScene(FPTEST, n);
 
-    int terrain_size = 100000;
+    int terrain_size = 1000;
     Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Lit", "T_MoonPlanet", terrain_size, terrain_size, 0.025, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     AddToScene(FPTEST, t);

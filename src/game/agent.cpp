@@ -60,6 +60,7 @@ void Agent::DownMove(float dt)
     // std::cout << "terrain y: " << terrainY << " target y: " << target_position_.y << std::endl;
     
     if (glm::abs(target_position_.y - terrainY) < 3.0){
+        printf("YEAH WE TOUCHING\n");
         target_position_.y = terrainY;
         transform.SetPosition(target_position_);
 
@@ -67,7 +68,8 @@ void Agent::DownMove(float dt)
         vertical_offset_ = 0.0f;
         jumping_ = false;
     } else {
-        transform.SetPosition(prev_position_);
+        printf("I SAID NO TOUCHING\n");
+        transform.SetPosition(target_position_);
     }
     //transform.SetPosition(target_position_);
     
