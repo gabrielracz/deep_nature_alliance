@@ -35,22 +35,12 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
             // }
 
             heights[x][z] = height;
-            // create this vertex
-            glm::vec3 pos = {x * xstep, height, z * zstep};
-            glm::vec3 normal = {0.0, 1.0, 0.0};
-            glm::vec3 color = {Colors::SeaBlue};
-            glm::vec2 uv = {0.0, 0.0};
-
-            // APPEND_VEC3(vertices, pos);
-            // APPEND_VEC3(vertices, normal);
-            // APPEND_VEC3(vertices, color);
-            // APPEND_VEC2(vertices, uv);
         }
     }
 
     normals.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {0.0, 1.0, 0.0}));
     // method from: https://stackoverflow.com/a/21660173
-    // for now ignore the edge ring
+    // for now ignore the outer edge ring
     for (int z = 1; z < num_zsteps-1; z++) {
         for (int x = 1; x < num_xsteps-1; x++) {
             float hl =  heights[x-1][z];
@@ -91,7 +81,7 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
             glm::vec3 tdr = tangent(x+1, z-1);
 
             // average the surrounding vertices;
-            glm::vec3 tan = (tl + tr + tu + td + tul + tur + tdl + tdr) / 8.0f;
+            glm::vec3 tan = glm::normalize(tl + tr + tu + td + tul + tur + tdl + tdr);
             tangents[x][z] = tan;
         }
     }
@@ -156,4 +146,34 @@ float Terrain::SampleHeight(float x, float z) {
     float interp = (1 - sz) * h0 + sz * h1;
 
     return interp + transform.GetPosition().y;
+}
+
+
+glm::vec3 Terrain::SampleSlope(float x, float z) {
+    float terrainX = x / (xwidth / (heights.size() - 1)) + (num_xsteps / 2.0);
+    float terrainZ = z / (zwidth / (heights[0].size() - 1)) + (num_zsteps / 2.0);
+
+    // Get the integer coordinates of the cell
+    int x0 = static_cast<int>(std::floor(terrainX));
+    int z0 = static_cast<int>(std::floor(terrainZ));
+
+    // Clamp the coordinates to be within valid range
+    x0 = glm::clamp(x0, 0, static_cast<int>(heights.size()) - 2);
+    z0 = glm::clamp(z0, 0, static_cast<int>(heights[0].size()) - 2);
+
+    // Get the fractional part of the coordinates
+    float sx = terrainX - static_cast<float>(x0);
+    float sz = terrainZ - static_cast<float>(z0);
+
+    // Perform bilinear interpolation
+    glm::vec3 n00 = normals[x0][z0];
+    glm::vec3 n10 = normals[x0 + 1][z0];
+    glm::vec3 n01 = normals[x0][z0 + 1];
+    glm::vec3 n11 = normals[x0 + 1][z0 + 1];
+
+    glm::vec3 n0 = (1 - sx) * n00 + sx * n10;
+    glm::vec3 n1 = (1 - sx) * n01 + sx * n11;
+    glm::vec3 interp = (1 - sz) * n0 + sz * n1;
+
+    return interp;
 }

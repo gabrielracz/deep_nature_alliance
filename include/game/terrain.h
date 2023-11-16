@@ -8,8 +8,11 @@ class Terrain : public SceneNode {
         Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, float xwidth, float zwidth, float density, Game* game);
 
         float SampleHeight(float x, float z);
+        glm::vec3 SampleSlope(float x, float z);
 
     private:
+        glm::vec2 IndexGrid(float x, float z);
+
         std::vector<float> vertices;
         std::vector<unsigned int> indices;
 
