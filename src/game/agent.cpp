@@ -26,8 +26,16 @@ void Agent::WalkingMove(const glm::vec3 move, float dt)
     if (glm::length(move) > 0.001)
     {
         glm::vec3 forward = glm::normalize(glm::vec3(transform.GetOrientation() * glm::vec4(glm::normalize(move), 0.0)));
-        target_position_ += forward * speed_ * dt * 100.0f;
-        transform.SetPosition(target_position_);
+        glm::vec3 target_step_ = target_position_ + forward * speed_;
+        float terrainY = terrain->SampleHeight(target_position_.x, target_position_.z);
+        float terrain_nextY = terrain->SampleHeight(target_step_.x, target_step_.z);
+        float slope = glm::abs(terrainY - terrain_nextY);
+        float sampledslope = terrain->SampleSlope(target_step_.x, target_step_.z);
+        printf("Slope %f Sampled %f\n", slope, sampledslope);
+        if (sampledslope < 0.50 || (jumping_ && target_position_.y > terrain_nextY + height_)) { 
+            target_position_ += forward * speed_ * dt * 100.0f;
+            transform.SetPosition(target_position_);
+        }
     }
 
     // COLLISION SWEEPING AND CHECKING HERE FOR FORWARD SIDE TO SIDE OBJECTS
@@ -35,12 +43,6 @@ void Agent::WalkingMove(const glm::vec3 move, float dt)
 
 void Agent::DownMove(float dt)
 {
-
-    if (vertical_velocity_ > 0.0f)
-    {
-        return;
-    }
-
     glm::vec3 original_position_ = target_position_;
 
     float down_velocity = (vertical_velocity_ < 0.0f ? -vertical_velocity_ : 0.0f) * dt;
@@ -55,12 +57,13 @@ void Agent::DownMove(float dt)
 
     glm::vec3 position = transform.GetPosition();
 
-    float terrainY = terrain->SampleHeight(position.x, position.z);
+    float terrainY = terrain->SampleHeight(target_position_.x, target_position_.z);
     
-    // std::cout << "terrain y: " << terrainY << " target y: " << target_position_.y << std::endl;
+    //std::cout << "terrain y: " << terrainY << " target y: " << target_position_.y << std::endl;
     
-    if (glm::abs(target_position_.y - terrainY) < 3.0){
-        target_position_.y = terrainY;
+    // if (glm::abs(target_position_.y - terrainY) < 3.0){
+    if (target_position_.y < terrainY + height_){
+        target_position_.y = terrainY + height_;
         transform.SetPosition(target_position_);
 
         vertical_velocity_ = 0.0f;

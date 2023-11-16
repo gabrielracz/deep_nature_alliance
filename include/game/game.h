@@ -46,6 +46,7 @@ enum SceneEnum {
     ALL = -1
 };
 
+
 // Game application
 class Game {
     public:

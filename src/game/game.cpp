@@ -104,6 +104,7 @@ void Game::LoadTextures() {
     // load textures
     resman.LoadTexture("T_Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
     resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
+    resman.LoadTexture("T_Ship", RESOURCES_DIRECTORY"/h2tex.png", GL_REPEAT);
     // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
     // resman.LoadTexture("T_SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_REPEAT);
     // resman.LoadTexture("T_MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
@@ -118,7 +119,7 @@ void Game::SetupScene(void){
 
     // Set background color for the scene
     scenes.push_back( new SceneGraph(app)); // FPS TEST SCENE
-    scene = scenes[0];
+    scene = scenes[FPTEST];
     scene->SetBackgroundColor(viewport_background_color_g);
 
 
@@ -141,8 +142,9 @@ void Game::SetupScene(void){
 
 void Game::SetupFPScene(void) {
 
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit");
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship");
     p->transform.SetPosition(player_position_g);
+    p->visible = false;
     scenes[FPTEST]->SetFPPlayer(p);
     AddToScene(FPTEST, p);
 
@@ -151,7 +153,7 @@ void Game::SetupFPScene(void) {
     AddToScene(FPTEST, n);
 
     int terrain_size = 1000;
-    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Lit", "T_MoonPlanet", terrain_size, terrain_size, 0.025, this);
+    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_Lit", "T_MoonPlanet", terrain_size, terrain_size, 0.25, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
@@ -169,17 +171,15 @@ void Game::Update(double dt, KeyMap &keys) {
 
 void Game::CheckControls(KeyMap& keys) {
     Player* player = scene->GetPlayer();
-    // Get user data with a pointer to the game class
-    // Quit game if 'q' is pressed
-    if (keys[GLFW_KEY_ESCAPE]){
-        app.Quit();
-        return;
-    }
+    // if (keys[GLFW_KEY_ESCAPE]){
+    //     app.Quit();
+    //     return;
+    // }
 
     // Stop animation if space bar is pressed
-    if (keys[GLFW_KEY_SPACE]){
-        app.Pause();
-        keys[GLFW_KEY_SPACE] = false;
+    if (keys[GLFW_KEY_ESCAPE]){
+        app.ToggleMouseCapture();
+        keys[GLFW_KEY_ESCAPE] = false;
     }
 
     // Debug print the player's location
