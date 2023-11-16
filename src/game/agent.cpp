@@ -67,7 +67,7 @@ void Agent::DownMove(float dt)
         vertical_offset_ = 0.0f;
         jumping_ = false;
     } else {
-        transform.SetPosition(target_position_);
+        transform.SetPosition(prev_position_);
     }
     //transform.SetPosition(target_position_);
     
