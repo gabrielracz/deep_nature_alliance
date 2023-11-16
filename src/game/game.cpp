@@ -105,6 +105,7 @@ void Game::LoadTextures() {
     // load textures
     resman.LoadTexture("T_Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
     resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
+    resman.LoadTexture("T_Ship", RESOURCES_DIRECTORY"/h2tex.png", GL_REPEAT);
     // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
     // resman.LoadTexture("T_SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_REPEAT);
     // resman.LoadTexture("T_MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
@@ -136,7 +137,7 @@ void Game::SetupScene(void){
 
 void Game::SetupFPScene(void) {
 
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit");
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship");
     p->transform.SetPosition(player_position_g);
     p->visible = false;
     scenes[FPTEST]->SetFPPlayer(p);

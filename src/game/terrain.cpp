@@ -10,7 +10,7 @@
 float MAX_PASSABLE_SLOPE = 0.5f;
 
 Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, float xwidth, float zwidth, float density, Game* game)
-    : SceneNode(name, mesh_id, shader_id), xwidth(xwidth), zwidth(zwidth), game(game) {
+    : SceneNode(name, mesh_id, shader_id, texture_id), xwidth(xwidth), zwidth(zwidth), game(game) {
 
     // generate uniform grid
     num_xsteps = xwidth * density;
@@ -121,7 +121,6 @@ void Terrain::GenerateUV() {
                 (x*xstep)/xwidth,
                 (z*zstep)/zwidth
             };
-            std::cout << glm::to_string(uv) << std::endl;
             uvs[x][z] = uv;
         }
     }
