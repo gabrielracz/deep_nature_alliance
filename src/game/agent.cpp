@@ -57,9 +57,9 @@ void Agent::DownMove(float dt)
 
     float terrainY = terrain->SampleHeight(position.x, position.z);
     
-    // std::cout << "terrain y: " << terrainY << " target y: " << target_position_.y << std::endl;
+    std::cout << "terrain y: " << terrainY << " target y: " << target_position_.y << std::endl;
     
-    if (glm::abs(target_position_.y - terrainY) < 5.0){
+    if (glm::abs(target_position_.y - terrainY) < 3.0){
         target_position_.y = terrainY;
         transform.SetPosition(target_position_);
 
