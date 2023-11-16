@@ -21,7 +21,7 @@ public:
     void Pause();
 
 
-    void ToggleMouseCapture();
+    void ToggleMouseCapture() { view.ToggleMouseCapture(); }
     void ToggleRenderMode();
     Camera& GetCamera() {return view.GetCamera();}
     void SetMouseHandler(MouseHandler h) {view.SetMouseHandler(h);}
