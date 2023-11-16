@@ -25,12 +25,12 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
 
     for (int z = 0; z < num_zsteps; z++) {
         for (int x = 0; x < num_xsteps; x++) {
-            // glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
-            // float height = glm::perlin(sample) * 50.0;
-            float height = 0.0;
-            if (x > 150){
-                height = 100.0;
-            }
+            glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
+            float height = glm::perlin(sample) * 50.0;
+            // float height = 0.0;
+            // if (x > 150){
+            //     height = 100.0;
+            // }
 
             heights[x][z] = height;
             // create this vertex
@@ -86,6 +86,7 @@ float Terrain::SampleHeight(float x, float z) {
 
     float h0 = (1 - sx) * h00 + sx * h10;
     float h1 = (1 - sx) * h01 + sx * h11;
+    float interp = (1 - sz) * h0 + sz * h1;
 
-    return (1 - sz) * h0 + sz * h1;
+    return interp + transform.GetPosition().y;
 }
