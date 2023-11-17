@@ -181,7 +181,7 @@ void Terrain::GenerateTangents() {
 
             glm::vec3 v = {x*xstep, heights[x][z], z*zstep}; // this vertex
             auto tangent = [this, v](float x, float z) -> glm::vec3 {
-                return glm::normalize(glm::vec3(x*xstep, heights[x][z], z*zstep) - v);
+                return (glm::vec3(x*xstep, heights[x][z], z*zstep) - v);
             };
 
             glm::vec3 tl  = tangent(x-1, z  );
@@ -251,12 +251,12 @@ void Terrain::GenerateMesh() {
     for (int z = 0; z < num_zsteps - 1; z++) {
         for (int x = 0; x < num_xsteps - 1; x++) {
             indices.push_back(GIX(x, z, num_xsteps));
-            indices.push_back(GIX(x, z + 1, num_xsteps));
             indices.push_back(GIX(x + 1, z + 1, num_xsteps));
+            indices.push_back(GIX(x, z + 1, num_xsteps));
 
             indices.push_back(GIX(x, z, num_xsteps));
-            indices.push_back(GIX(x + 1, z + 1, num_xsteps));
             indices.push_back(GIX(x + 1, z, num_xsteps));
+            indices.push_back(GIX(x + 1, z + 1, num_xsteps));
         }
     }
 
