@@ -19,9 +19,11 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     zstep = zwidth / num_zsteps;
 
     GenerateHeightmap();
+    GenerateQMoon();
     GenerateNormals();
     GenerateTangents();
     GenerateObstacles();
+    GenerateImPassable();
     GenerateUV();
     GenerateMesh();
 }
@@ -76,6 +78,48 @@ void Terrain::GenerateHeightmap() {
     }
 }
 
+void Terrain::GenerateQMoon() {
+    int min_craters = 35;
+    int max_craters = 60;
+    float min_crater_radius = 2;
+    float max_crater_radius = 20;
+    float inner_crater_noise = 10;
+    float min_crater_depth = 5.0f;
+    float max_crater_depth = 20.0f;
+    float bottom_crater_noise = -20.0f;
+    float crater_ridge_size = 0.2f;
+
+    int num_craters = glm::linearRand(min_craters, max_craters);
+
+    for (int i = 0; i < num_craters; ++i) {
+        glm::vec2 position = glm::linearRand(glm::vec2(0.0f), glm::vec2(num_xsteps, num_xsteps));
+        float radius = glm::linearRand(min_crater_radius, max_crater_radius);
+        float base_height = glm::linearRand(-max_crater_depth, -min_crater_depth);
+
+        for (int y = 0; y < num_xsteps; ++y) {
+            for (int x = 0; x < num_xsteps; ++x) {
+                float distance = glm::distance(glm::vec2(x, y), position);
+
+                if (distance < radius) {
+                    float bottom_perlin = glm::perlin(glm::vec2(x * xstep, y * zstep) / 100.0f);
+                    float bottom_noise = bottom_perlin * bottom_crater_noise;
+                    float perlin_value = glm::perlin(glm::vec2(x, y) * inner_crater_noise);
+                    float height_variation = perlin_value * inner_crater_noise;
+                    heights[y][x] = base_height + height_variation;
+
+                    float depth = 0.5f * (1.0f - (distance / radius));
+                    if (depth > 0.0f) {
+                        heights[y][x] -= depth;
+
+                        if (depth < crater_ridge_size) {
+                            heights[y][x] -= bottom_noise;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 void Terrain::GenerateNormals() {
     normals.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {0.0, 1.0, 0.0}));
@@ -115,6 +159,17 @@ void Terrain::GenerateObstacles() {
                 obstacles[x][z] = false;
             }
         }
+    }
+}
+void Terrain::GenerateImPassable() {
+    impassable.resize(num_xsteps, std::vector<bool>(num_zsteps, false));
+    for (int x = 0; x <= num_xsteps-1; ++x) {
+        impassable[x][0] = true; // bottom edge
+        impassable[x][num_zsteps - 2] = true; // top edge
+    }
+    for (int z = 0; z <= num_zsteps-1; ++z) {
+        impassable[0][z] = true; // left edge
+        impassable[num_xsteps - 2][z] = true; // right edge
     }
 }
 void Terrain::GenerateTangents() {
@@ -177,6 +232,10 @@ void Terrain::GenerateMesh() {
             if(obstacles[glm::clamp(x-1, 0, (int)obstacles.size())][glm::clamp(z-1, 0, (int)obstacles[0].size())]) {
                 color = Colors::Magenta;
             }
+            if(impassable[glm::clamp(x-1, 0, (int)impassable.size())][glm::clamp(z-1, 0, (int)impassable[0].size())]) {
+                
+                color = Colors::Yellow;
+            }
             glm::vec2 uv = uvs[x][z];
 
             APPEND_VEC3(vertices, pos);
@@ -230,6 +289,21 @@ float Terrain::SampleHeight(float x, float z) {
     float interp = (1 - sz) * h0 + sz * h1;
 
     return interp + transform.GetPosition().y;
+}
+
+bool Terrain::SamplePassable(float x, float z) {
+    float terrainX = x / (xwidth / (impassable.size() - 1)) + (num_xsteps / 2.0);
+    float terrainZ = z / (zwidth / (impassable[0].size() - 1)) + (num_zsteps / 2.0);
+
+    // Get the integer coordinates of the cell
+    int x0 = static_cast<int>(std::floor(terrainX));
+    int z0 = static_cast<int>(std::floor(terrainZ));
+
+    // Clamp the coordinates to be within valid range
+    x0 = glm::clamp(x0, 0, static_cast<int>(impassable.size() - 1));
+    z0 = glm::clamp(z0, 0, static_cast<int>(impassable[0].size() - 1));
+
+    return impassable[x0][z0];
 }
 
 

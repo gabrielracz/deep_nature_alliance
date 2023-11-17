@@ -12,10 +12,17 @@ void Agent::UpMove(float dt)
     {
         step_height = step_height_;
     }
-    target_position_ = transform.GetPosition() + up_ * (step_height_) + jump_axis_ * ((vertical_offset_ > 0.f ? vertical_offset_ : 0.f));
-
+    glm::vec3 up_position_ = transform.GetPosition() + up_ * (step_height_) + jump_axis_ * ((vertical_offset_ > 0.f ? vertical_offset_ : 0.f));
     // CHECK FOR VERTICAL COLLISION
     // VERTICAL COLLISION RESPONSE
+
+    // DASH NO CLIP FIX GANG
+    if (terrain->SamplePassable(up_position_.x, up_position_.z)) {
+            return;
+    }
+
+    //we not being sus lets go!
+    target_position_ = up_position_;
     transform.SetPosition(target_position_);
     step_offset_ = step_height;
 }
@@ -27,12 +34,15 @@ void Agent::WalkingMove(const glm::vec3 move, float dt)
     {
         glm::vec3 forward = glm::normalize(glm::vec3(transform.GetOrientation() * glm::vec4(glm::normalize(move), 0.0)));
         glm::vec3 target_step_ = target_position_ + forward * speed_;
+        if (terrain->SamplePassable(target_step_.x, target_step_.z)) {
+            return;
+        }
         float terrainY = terrain->SampleHeight(target_position_.x, target_position_.z);
         float terrain_nextY = terrain->SampleHeight(target_step_.x, target_step_.z);
         float slope = glm::abs(terrainY - terrain_nextY);
         float sampledslope = terrain->SampleSlope(target_step_.x, target_step_.z);
         printf("Slope %f Sampled %f\n", slope, sampledslope);
-        if (sampledslope < 0.50 || (jumping_ && target_position_.y > terrain_nextY + height_)) { 
+        if (sampledslope < 0.50 || target_position_.y > terrain_nextY + height_ * 4) { 
             target_position_ += forward * speed_ * dt * 100.0f;
             transform.SetPosition(target_position_);
         }
