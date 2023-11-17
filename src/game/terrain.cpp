@@ -6,6 +6,8 @@
 // index into a 1D array as if it was 2D
 #define GIX(x, z, width) ((x) + (z) * width)
 
+float MAX_PASSABLE_SLOPE = 0.5f;
+
 Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, float xwidth, float zwidth, float density, Game* game)
     : SceneNode(name, mesh_id, shader_id, texture_id), xwidth(xwidth), zwidth(zwidth), game(game) {
     // generate uniform grid
