@@ -1,5 +1,6 @@
 #include <glm/gtc/noise.hpp>
 
+#include "terrain.h"
 #include "defines.h"
 #include "game.h"
 
@@ -9,7 +10,8 @@
 float MAX_PASSABLE_SLOPE = 0.5f;
 
 Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, float xwidth, float zwidth, float density, Game* game)
-    : SceneNode(name, mesh_id, shader_id, texture_id), xwidth(xwidth), zwidth(zwidth), game(game) {
+    : SceneNode(name, mesh_id, shader_id), xwidth(xwidth), zwidth(zwidth), game(game) {
+
     // generate uniform grid
     num_xsteps = xwidth * density;
     num_zsteps = zwidth * density;
@@ -20,15 +22,16 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     GenerateNormals();
     GenerateTangents();
     GenerateObstacles();
-    GenerateUV();
     GenerateMesh();
 }
 
 void Terrain::GenerateHeightmap() {
     heights.resize(num_xsteps, std::vector<float>(num_zsteps, 0.0));
-    if (true) {
-        for (int z = 0; z < num_zsteps; z++) {
-            for (int x = 0; x < num_xsteps; x++) {
+    for (int z = 0; z < num_zsteps; z++) {
+        for (int x = 0; x < num_xsteps; x++) {
+            float height;
+            bool imageTerrain = false;
+            if (imageTerrain) {
                 float sampleX = x * xstep;
                 float sampleZ = z * zstep;
 
@@ -52,25 +55,8 @@ void Terrain::GenerateHeightmap() {
                 float h0 = (1 - sx) * h00 + sx * h10;
                 float h1 = (1 - sx) * h01 + sx * h11;
 
-                float height = -260 + ((1 - sz) * h0 + sz * h1);
-
-                heights[x][z] = height;
-
-                // Create this vertex
-                glm::vec3 pos = {x * xstep, height, z * zstep};
-                glm::vec3 normal = {0.0, 1.0, 0.0};
-                glm::vec3 color = {Colors::SeaBlue};
-                glm::vec2 uv = {0.0, 0.0};
-
-                APPEND_VEC3(vertices, pos);
-                APPEND_VEC3(vertices, normal);
-                APPEND_VEC3(vertices, color);
-                APPEND_VEC2(vertices, uv);
-            }
-        }
-    } else {
-        for (int z = 0; z < num_zsteps; z++) {
-            for (int x = 0; x < num_xsteps; x++) {
+                height = -260 + ((1 - sz) * h0 + sz * h1);
+            } else {
                 glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
                 float height = glm::perlin(sample) * 50.0;
                 // shelf generation:
@@ -80,16 +66,6 @@ void Terrain::GenerateHeightmap() {
                 // }
 
                 heights[x][z] = height;
-                // create this vertex
-                glm::vec3 pos = {x * xstep, height, z * zstep};
-                glm::vec3 normal = {0.0, 1.0, 0.0};
-                glm::vec3 color = {Colors::SeaBlue};
-                glm::vec2 uv = {0.0, 0.0};
-
-                APPEND_VEC3(vertices, pos);
-                APPEND_VEC3(vertices, normal);
-                APPEND_VEC3(vertices, color);
-                APPEND_VEC2(vertices, uv);
             }
         }
     }
@@ -163,20 +139,6 @@ void Terrain::GenerateTangents() {
     }
 }
 
-void Terrain::GenerateUV() {
-    uvs.resize(num_xsteps, std::vector<glm::vec2>(num_zsteps, {0.0, 0.0}));
-    for (int z = 0; z < num_zsteps; z++) {
-        for (int x = 0; x < num_xsteps; x++) {
-            // texture the entire terrain with a single mapping
-            glm::vec2 uv = {
-                (x*xstep)/xwidth,
-                (z*zstep)/zwidth
-            };
-            uvs[x][z] = uv;
-        }
-    }
-}
-
 void Terrain::GenerateMesh() {
     Layout layout({{FLOAT3, "vertex"},
                    {FLOAT3, "normal"},
@@ -191,12 +153,11 @@ void Terrain::GenerateMesh() {
             glm::vec3 pos = {x * xstep, heights[x][z], z * zstep};
             glm::vec3 normal = normals[x][z];
             glm::vec3 tangent = tangents[x][z];
-            // color impassable regions magenta
             glm::vec3 color = {Colors::SeaBlue};
             if(obstacles[glm::clamp(x-1, 0, (int)obstacles.size())][glm::clamp(z-1, 0, (int)obstacles[0].size())]) {
                 color = Colors::Magenta;
             }
-            glm::vec2 uv = uvs[x][z];
+            glm::vec2 uv = {0.0, 0.0};
 
             APPEND_VEC3(vertices, pos);
             APPEND_VEC3(vertices, normal);
