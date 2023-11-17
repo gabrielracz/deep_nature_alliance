@@ -1,6 +1,7 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 #include "scene_node.h"
+#include <glm/gtc/random.hpp>
 class Game;
 
 class Terrain : public SceneNode {
@@ -9,14 +10,17 @@ class Terrain : public SceneNode {
 
         float SampleHeight(float x, float z);
         float SampleSlope(float x, float z, glm::vec3 dir = {0.0f, 0.0f, 0.0f});
+        bool SamplePassable(float x, float z);
 
     private:
         void GenerateHeightmap();
+        void GenerateQMoon();
         void GenerateNormals();
         void GenerateObstacles();
         void GenerateTangents();
         void GenerateUV();
         void GenerateMesh();
+        void GenerateImPassable();
 
         glm::vec2 IndexGrid(float x, float z);
         glm::vec3 InterpNormals(int x0, int z0, float sx, float sz);
@@ -28,6 +32,7 @@ class Terrain : public SceneNode {
         std::vector<std::vector<glm::vec3>> normals;
         std::vector<std::vector<glm::vec3>> tangents;
         std::vector<std::vector<bool>> obstacles;
+        std::vector<std::vector<bool>> impassable;
         std::vector<std::vector<glm::vec2>> uvs;
 
         float xwidth;

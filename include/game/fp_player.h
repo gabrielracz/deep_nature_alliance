@@ -24,10 +24,11 @@ protected:
     void HeadMovement(float dt);
 
     float bobbing_speed_ = 1.0f;
-    float bobbing_amount_ = 0.001f;
+    float bobbing_amount_ = 0.02f;
     float head_bobbing_ = 0.0f;
-    float tilt_angle_ = 0.05f;
+    float tilt_angle_ = 0.15f;
     float tilt_smoothing_ = 0.02f;
+    float tilt_speed_ = 10.0f;
 
     float has_dashed_ = false;
     float dash_angle_ = 15.0f;
