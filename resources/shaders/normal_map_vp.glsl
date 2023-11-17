@@ -1,18 +1,24 @@
 #version 330
 
-// Vertex buffer
-in vec3 vertex;
-in vec3 normal;
-in vec3 color;
-in vec2 uv;
-in vec3 tangent;
+layout (location = 0) in vec3 vertex;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec3 color;
+layout (location = 3) in vec2 uv;
+layout (location = 4) in vec3 tangent;
+
+// // Vertex buffer
+// in vec3 vertex;
+// in vec3 normal;
+// in vec3 color;
+// in vec2 uv;
+// in vec3 tangent;
 
 // Uniform (global) buffer
 uniform mat4 world_mat;
 uniform mat4 view_mat;
 uniform mat4 projection_mat;
 uniform mat4 normal_mat;
-uniform vec3 light_position_world;
+uniform vec3 light_pos_world;
 
 // Attributes forwarded to the fragment shader
 out vec3 vertex_position;
@@ -47,7 +53,7 @@ void main()
 
     // Transform light
     // light_pos = vec3(view_mat * vec4(light_position, 1.0));
-    light_pos = TBN_mat * vec3(view_mat * vec4(light_position_world, 1.0));
+    light_pos = TBN_mat * vec3(view_mat * vec4(light_pos_world, 1.0));
 
     color_interp = color;
 
