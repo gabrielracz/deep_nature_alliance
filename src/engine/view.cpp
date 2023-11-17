@@ -47,6 +47,7 @@ void View::Render(SceneGraph& scene) {
 void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix) {
     std::string shd_id  = node->GetShaderID();
     std::string tex_id  = node->GetTextureID();
+    std::string norm_id = node->GetNormalMap();
     std::string mesh_id = node->GetMeshID();
 
     // SHADER
@@ -60,7 +61,10 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
 
     // TEXTURE
     if(!tex_id.empty()) {
-        resman.GetTexture(tex_id)->Bind(shd);
+        resman.GetTexture(tex_id)->Bind(shd, 0, "texture_map");
+    }
+    if(!norm_id.empty()) {
+        resman.GetTexture(norm_id)->Bind(shd, 1, "normal_map");
     }
 
     // MODEL
@@ -125,7 +129,7 @@ void View::InitView(){
     glDepthFunc(GL_LESS);
 
 	//Use this to disable vsync
-	glfwSwapInterval(0);
+	// glfwSwapInterval(0);
 
     glViewport(0, 0, win.width, win.height);
 

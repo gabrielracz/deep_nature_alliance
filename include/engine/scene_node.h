@@ -32,6 +32,7 @@ class SceneNode {
         virtual void SetUniforms(Shader* shader, const glm::mat4& view_matrix);
 
         void SetTexture(std::string& new_tex_id)            {texture_id = new_tex_id;}
+        void SetNormalMap(const std::string& new_tex_id)          {normalmap_id = new_tex_id;}
         void AddChild(SceneNode* n)                         {children.push_back(n);}
         void SetCollision(const CollisionData& t)           {collision = t;}
 
@@ -39,6 +40,7 @@ class SceneNode {
         const std::string GetMeshID() const                 {return mesh_id;}
         const std::string GetShaderID() const               {return shader_id;}
         const std::string GetTextureID() const              {return texture_id;}
+        const std::string GetNormalMap() const              {return normalmap_id;}
         Camera::Projection GetDesiredProjection() const     {return camera_projection;}
         bool IsAlphaEnabled() const                         {return alpha_enabled;}
         const glm::mat4& GetCachedTransformMatrix() const   {return transf_matrix;}
@@ -59,6 +61,7 @@ class SceneNode {
         std::string mesh_id;
         std::string shader_id;
         std::string texture_id;
+        std::string normalmap_id = "";
 
         Camera::Projection camera_projection = Camera::Projection::PERSPECTIVE;
         bool alpha_enabled = false;
