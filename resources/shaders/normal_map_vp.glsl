@@ -12,6 +12,7 @@ uniform mat4 world_mat;
 uniform mat4 view_mat;
 uniform mat4 projection_mat;
 uniform mat4 normal_mat;
+uniform vec3 light_position_world;
 
 // Attributes forwarded to the fragment shader
 out vec3 vertex_position;
@@ -46,7 +47,7 @@ void main()
 
     // Transform light
     // light_pos = vec3(view_mat * vec4(light_position, 1.0));
-    light_pos = TBN_mat * vec3(view_mat * vec4(light_position, 1.0));
+    light_pos = TBN_mat * vec3(view_mat * vec4(light_position_world, 1.0));
 
     color_interp = color;
 

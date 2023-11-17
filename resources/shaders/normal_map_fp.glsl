@@ -31,8 +31,8 @@ void main()
     // Blinn-Phong shading
     // vec4 tex_color = texture2D(texture_map, vertex_uv);
     // vec4 object_color = vec4(tex_color.xyz * color_interp.xyz, 1.0f);
-    vec4 object_color = texture(texture_map, vertex_uv);
-    // vec4 object_color = vec4(color_interp, 1.0);
+    // vec4 object_color = texture(texture_map, vertex_uv);
+    vec4 object_color = vec4(color_interp, 1.0);
 
     vec3 N, // Interpolated normal for fragment
          L, // Light-source direction

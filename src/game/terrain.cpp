@@ -10,7 +10,7 @@
 float MAX_PASSABLE_SLOPE = 0.5f;
 
 Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, float xwidth, float zwidth, float density, Game* game)
-    : SceneNode(name, mesh_id, shader_id), xwidth(xwidth), zwidth(zwidth), game(game) {
+    : SceneNode(name, mesh_id, shader_id, texture_id), xwidth(xwidth), zwidth(zwidth), game(game) {
 
     // generate uniform grid
     num_xsteps = xwidth * density;
@@ -22,6 +22,7 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     GenerateNormals();
     GenerateTangents();
     GenerateObstacles();
+    GenerateUV();
     GenerateMesh();
 }
 
@@ -57,10 +58,13 @@ void Terrain::GenerateHeightmap() {
                 float h0 = (1 - sx) * h00 + sx * h10;
                 float h1 = (1 - sx) * h01 + sx * h11;
 
-                height = (1 - sz) * h0 + sz * h1;
+                glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 50.0f;
+                float perlin = glm::perlin(sample);
+
+                height = (1 - sz) * h0 + sz * h1 + perlin;
             } else {
                 glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
-                float height = glm::perlin(sample) * 50.0;
+                height = glm::perlin(sample) * 50.0;
                 // shelf generation:
                 // float height = 0.0;
                 // if (x > 150){
@@ -71,6 +75,7 @@ void Terrain::GenerateHeightmap() {
         }
     }
 }
+
 
 void Terrain::GenerateNormals() {
     normals.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {0.0, 1.0, 0.0}));
@@ -140,6 +145,20 @@ void Terrain::GenerateTangents() {
     }
 }
 
+void Terrain::GenerateUV() {
+    uvs.resize(num_xsteps, std::vector<glm::vec2>(num_zsteps, {0.0, 0.0}));
+    for (int z = 0; z < num_zsteps; z++) {
+        for (int x = 0; x < num_xsteps; x++) {
+            // texture the entire terrain with a single mapping
+            glm::vec2 uv = {
+                (x*xstep)/xwidth,
+                (z*zstep)/zwidth
+            };
+            uvs[x][z] = uv;
+        }
+    }
+}
+
 void Terrain::GenerateMesh() {
     Layout layout({{FLOAT3, "vertex"},
                    {FLOAT3, "normal"},
@@ -154,11 +173,12 @@ void Terrain::GenerateMesh() {
             glm::vec3 pos = {x * xstep, heights[x][z], z * zstep};
             glm::vec3 normal = normals[x][z];
             glm::vec3 tangent = tangents[x][z];
+            // color impassable regions magenta
             glm::vec3 color = {Colors::SeaBlue};
             if(obstacles[glm::clamp(x-1, 0, (int)obstacles.size())][glm::clamp(z-1, 0, (int)obstacles[0].size())]) {
                 color = Colors::Magenta;
             }
-            glm::vec2 uv = {0.0, 0.0};
+            glm::vec2 uv = uvs[x][z];
 
             APPEND_VEC3(vertices, pos);
             APPEND_VEC3(vertices, normal);
@@ -176,8 +196,8 @@ void Terrain::GenerateMesh() {
             indices.push_back(GIX(x + 1, z + 1, num_xsteps));
 
             indices.push_back(GIX(x, z, num_xsteps));
-            indices.push_back(GIX(x + 1, z, num_xsteps));
             indices.push_back(GIX(x + 1, z + 1, num_xsteps));
+            indices.push_back(GIX(x + 1, z, num_xsteps));
         }
     }
 
