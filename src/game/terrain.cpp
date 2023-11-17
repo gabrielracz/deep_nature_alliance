@@ -10,7 +10,7 @@
 float MAX_PASSABLE_SLOPE = 0.5f;
 
 Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, float xwidth, float zwidth, float density, Game* game)
-    : SceneNode(name, mesh_id, shader_id, texture_id), xwidth(xwidth), zwidth(zwidth), game(game) {
+    : SceneNode(name, mesh_id, shader_id), xwidth(xwidth), zwidth(zwidth), game(game) {
 
     // generate uniform grid
     num_xsteps = xwidth * density;
@@ -22,27 +22,55 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     GenerateNormals();
     GenerateTangents();
     GenerateObstacles();
-    GenerateUV();
     GenerateMesh();
 }
 
 void Terrain::GenerateHeightmap() {
     heights.resize(num_xsteps, std::vector<float>(num_zsteps, 0.0));
+    float image_xstep = sizeof(terrain[0]) / sizeof(*terrain[0]) / num_xsteps;
+    float image_zstep = sizeof(terrain) / sizeof(*terrain) / num_zsteps;
     for (int z = 0; z < num_zsteps; z++) {
         for (int x = 0; x < num_xsteps; x++) {
-            glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
-            float height = glm::perlin(sample) * 50.0;
-            // shelf generation:
-            // float height = 0.0;
-            // if (x > 150){
-            //     height = 100.0;
-            // }
+            float height;
+            bool imageTerrain = true;
+            if (imageTerrain) {
+                float sampleX = x * image_xstep;
+                float sampleZ = z * image_zstep;
 
+                int x0 = static_cast<int>(std::floor(sampleX));
+                int z0 = static_cast<int>(std::floor(sampleZ));
+
+                // Clamp the coordinates to be within valid range
+                x0 = glm::clamp(x0, 0, static_cast<int>(sizeof(terrain[0]) / sizeof(*terrain[0])) - 2);
+                z0 = glm::clamp(z0, 0, static_cast<int>(sizeof(terrain) / sizeof(*terrain) - 2));
+
+                // Get the fractional part of the coordinates
+                float sx = sampleX - static_cast<float>(x0);
+                float sz = sampleZ - static_cast<float>(z0);
+
+                // Perform bilinear interpolation on the terrain heights
+                float h00 = terrain[x0][z0] * 20;
+                float h10 = terrain[x0 + 1][z0] * 20;
+                float h01 = terrain[x0][z0 + 1] * 20;
+                float h11 = terrain[x0 + 1][z0 + 1] * 20;
+
+                float h0 = (1 - sx) * h00 + sx * h10;
+                float h1 = (1 - sx) * h01 + sx * h11;
+
+                height = (1 - sz) * h0 + sz * h1;
+            } else {
+                glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
+                float height = glm::perlin(sample) * 50.0;
+                // shelf generation:
+                // float height = 0.0;
+                // if (x > 150){
+                //     height = 100.0;
+                // }
+            }
             heights[x][z] = height;
         }
     }
 }
-
 
 void Terrain::GenerateNormals() {
     normals.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {0.0, 1.0, 0.0}));
@@ -112,20 +140,6 @@ void Terrain::GenerateTangents() {
     }
 }
 
-void Terrain::GenerateUV() {
-    uvs.resize(num_xsteps, std::vector<glm::vec2>(num_zsteps, {0.0, 0.0}));
-    for (int z = 0; z < num_zsteps; z++) {
-        for (int x = 0; x < num_xsteps; x++) {
-            // texture the entire terrain with a single mapping
-            glm::vec2 uv = {
-                (x*xstep)/xwidth,
-                (z*zstep)/zwidth
-            };
-            uvs[x][z] = uv;
-        }
-    }
-}
-
 void Terrain::GenerateMesh() {
     Layout layout({{FLOAT3, "vertex"},
                    {FLOAT3, "normal"},
@@ -140,12 +154,11 @@ void Terrain::GenerateMesh() {
             glm::vec3 pos = {x * xstep, heights[x][z], z * zstep};
             glm::vec3 normal = normals[x][z];
             glm::vec3 tangent = tangents[x][z];
-            // color impassable regions magenta
             glm::vec3 color = {Colors::SeaBlue};
             if(obstacles[glm::clamp(x-1, 0, (int)obstacles.size())][glm::clamp(z-1, 0, (int)obstacles[0].size())]) {
                 color = Colors::Magenta;
             }
-            glm::vec2 uv = uvs[x][z];
+            glm::vec2 uv = {0.0, 0.0};
 
             APPEND_VEC3(vertices, pos);
             APPEND_VEC3(vertices, normal);
