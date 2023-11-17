@@ -205,8 +205,8 @@ void Terrain::GenerateUV() {
     for (int z = 0; z < num_zsteps; z++) {
         for (int x = 0; x < num_xsteps; x++) {
             glm::vec2 uv = {
-                (x*xstep)/xwidth,
-                (z*zstep)/zwidth
+                (x*xstep)/xwidth*10.0,
+                (z*zstep)/zwidth*10.0
             };
             uvs[x][z] = uv;
         }
