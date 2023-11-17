@@ -52,10 +52,10 @@ void Terrain::GenerateHeightmap() {
                 float sz = sampleZ - static_cast<float>(z0);
 
                 // Perform bilinear interpolation on the terrain heights
-                float h00 = terrain[x0][z0] * 20;
-                float h10 = terrain[x0 + 1][z0] * 20;
-                float h01 = terrain[x0][z0 + 1] * 20;
-                float h11 = terrain[x0 + 1][z0 + 1] * 20;
+                float h00 = terrain[x0][z0] * 10;
+                float h10 = terrain[x0 + 1][z0] * 10;
+                float h01 = terrain[x0][z0 + 1] * 10;
+                float h11 = terrain[x0 + 1][z0 + 1] * 10;
 
                 float h0 = (1 - sx) * h00 + sx * h10;
                 float h1 = (1 - sx) * h01 + sx * h11;
@@ -204,10 +204,9 @@ void Terrain::GenerateUV() {
     uvs.resize(num_xsteps, std::vector<glm::vec2>(num_zsteps, {0.0, 0.0}));
     for (int z = 0; z < num_zsteps; z++) {
         for (int x = 0; x < num_xsteps; x++) {
-            // texture the entire terrain with a single mapping
             glm::vec2 uv = {
-                (x*xstep)/xwidth,
-                (z*zstep)/zwidth
+                (x*xstep)/xwidth*10.0,
+                (z*zstep)/zwidth*10.0
             };
             uvs[x][z] = uv;
         }

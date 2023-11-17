@@ -72,7 +72,7 @@ void main()
     float ambient = 0.4;
     // if (gl_FrontFacing){
         // gl_FragColor = (0.25*ambient + 0.7*lambertian + 1.0*specular)*object_color;
-        fragcolor = (0.25*ambient + 0.7*lambertian + 1.0*specular)*object_color;
+        gl_FragColor = (0.25*ambient + 0.7*lambertian + 1.0*specular)*object_color;
         // gl_FragColor = texture2D(normal_map, vertex_uv);
     // } else {
     //     gl_FragColor = object_color;
