@@ -27,13 +27,15 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
 
 void Terrain::GenerateHeightmap() {
     heights.resize(num_xsteps, std::vector<float>(num_zsteps, 0.0));
+    float image_xstep = sizeof(terrain[0]) / sizeof(*terrain[0]) / num_xsteps;
+    float image_zstep = sizeof(terrain) / sizeof(*terrain) / num_zsteps;
     for (int z = 0; z < num_zsteps; z++) {
         for (int x = 0; x < num_xsteps; x++) {
             float height;
             bool imageTerrain = true;
             if (imageTerrain) {
-                float sampleX = x * xstep;
-                float sampleZ = z * zstep;
+                float sampleX = x * image_xstep;
+                float sampleZ = z * image_zstep;
 
                 int x0 = static_cast<int>(std::floor(sampleX));
                 int z0 = static_cast<int>(std::floor(sampleZ));
@@ -65,7 +67,7 @@ void Terrain::GenerateHeightmap() {
                 //     height = 100.0;
                 // }
             }
-            heights[z][x] = height;
+            heights[x][z] = height;
         }
     }
 }
