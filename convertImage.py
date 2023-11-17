@@ -23,4 +23,5 @@ if __name__ == "__main__":
     img = Image.open(image_path)
     img_gray = img.convert('L')
     img_array = np.array(img_gray)
+    img_array = img_array / 255.0 #scale down to between 0-1
     save_array_to_c_file(img_array, output_file, array_name)

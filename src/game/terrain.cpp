@@ -30,7 +30,7 @@ void Terrain::GenerateHeightmap() {
     for (int z = 0; z < num_zsteps; z++) {
         for (int x = 0; x < num_xsteps; x++) {
             float height;
-            bool imageTerrain = false;
+            bool imageTerrain = true;
             if (imageTerrain) {
                 float sampleX = x * xstep;
                 float sampleZ = z * zstep;
@@ -47,15 +47,15 @@ void Terrain::GenerateHeightmap() {
                 float sz = sampleZ - static_cast<float>(z0);
 
                 // Perform bilinear interpolation on the terrain heights
-                float h00 = terrain[x0][z0];
-                float h10 = terrain[x0 + 1][z0];
-                float h01 = terrain[x0][z0 + 1];
-                float h11 = terrain[x0 + 1][z0 + 1];
+                float h00 = terrain[x0][z0] * 20;
+                float h10 = terrain[x0 + 1][z0] * 20;
+                float h01 = terrain[x0][z0 + 1] * 20;
+                float h11 = terrain[x0 + 1][z0 + 1] * 20;
 
                 float h0 = (1 - sx) * h00 + sx * h10;
                 float h1 = (1 - sx) * h01 + sx * h11;
 
-                height = -260 + ((1 - sz) * h0 + sz * h1);
+                height = (1 - sz) * h0 + sz * h1;
             } else {
                 glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
                 float height = glm::perlin(sample) * 50.0;
@@ -64,9 +64,8 @@ void Terrain::GenerateHeightmap() {
                 // if (x > 150){
                 //     height = 100.0;
                 // }
-
-                heights[x][z] = height;
             }
+            heights[z][x] = height;
         }
     }
 }
