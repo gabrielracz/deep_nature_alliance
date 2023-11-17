@@ -290,7 +290,7 @@ void Game::MouseControls(Mouse& mouse) {
 }
 
 void Game::CreatePlayer() {
-    Player* player = new Player("Obj_Player", "M_Ship", "S_Lit");
+    Player* player = new Player("Obj_Player", "M_Ship", "S_Lit", "T_Charmap");
     player->transform.SetPosition(player_position_g);
     // player->visible = false;
 

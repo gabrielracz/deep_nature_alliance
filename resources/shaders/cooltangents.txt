@@ -1,0 +1,31 @@
+void GenerateTangents() {
+    tangents.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {1.0, 0.0, 0.0}));
+    for (int z = 1; z < num_zsteps-1; z++) {
+        for (int x = 1; x < num_xsteps-1; x++) {
+            float xp = x*xstep;
+            float zp = z*zstep;
+
+            glm::vec3 v = {x*xstep, heights[x][z], z*zstep}; // this vertex
+            auto tangent = [this, v](float x, float z) -> glm::vec3 {
+                return glm::normalize(glm::vec3(x*xstep, heights[x][z], z*zstep) - v);
+            };
+
+            glm::vec3 tl  = tangent(x-1, z  );
+            glm::vec3 tr  = tangent(x+1, z  );
+            glm::vec3 tu  = tangent(x  , z+1);
+            glm::vec3 td  = tangent(x  , z-1);
+            /*glm::vec3 tul = tangent(x-1, z+1);
+            glm::vec3 tur = tangent(x+1, z+1);
+            glm::vec3 tdl = tangent(x-1, z-1);
+            glm::vec3 tdr = tangent(x+1, z-1);*/
+
+            glm::vec3 tan_x = glm::normalize(tr + tl);
+            glm::vec3 tan_z = glm::normalize(tu + td);
+
+            // average the surrounding vertices;
+            //glm::vec3 tan = glm::normalize(tl + tr + tu + td + tul + tur + tdl + tdr);
+            glm::vec3 tan = glm::normalize(glm::cross(tan_x, tan_z));
+            tangents[x][z] = tan;
+        }
+    }
+}
