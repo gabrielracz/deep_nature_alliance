@@ -11,7 +11,7 @@ class Texture {
     Texture() = default;
     Texture(int id, float rep) : id(id), texture_repetition(rep){}
     Texture(unsigned char* data, int width, int height, int n_channels, int wrap_option, float repitition);
-    void Bind(Shader* shader);
+    void Bind(Shader* shader,int offset = 0, const std::string& name = "");
 };
 
 #endif

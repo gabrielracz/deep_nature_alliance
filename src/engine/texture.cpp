@@ -29,7 +29,18 @@ Texture::Texture(unsigned char* data, int width, int height, int n_channels, int
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
-void Texture::Bind(Shader* shader) {
+void Texture::Bind(Shader* shader, int offset, const std::string& name) {
+    if(!name.empty()) {
+        // GLint loc = glGetUniformLocation(shader->id, name.c_str());
+        // glUniform1i(loc, 0);
+        shader->SetUniform1i(offset, name);
+
+        glActiveTexture(GL_TEXTURE0 + offset);
+        glBindTexture(GL_TEXTURE_2D, id);
+
+        return;
+    }
     shader->SetUniform1f(texture_repetition, "texture_repetition");
+    // glActiveTexture(GL_TEXTURE0 + offset);
     glBindTexture(GL_TEXTURE_2D, id);
 }
