@@ -172,29 +172,15 @@ void Terrain::GenerateImPassable() {
         impassable[num_xsteps - 2][z] = true; // right edge
     }
 }
+
 void Terrain::GenerateTangents() {
     tangents.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {1.0, 0.0, 0.0}));
-    for (int z = 1; z < num_zsteps-1; z++) {
-        for (int x = 1; x < num_xsteps-1; x++) {
-            float xp = x*xstep;
-            float zp = z*zstep;
-
-            glm::vec3 v = {x*xstep, heights[x][z], z*zstep}; // this vertex
-            auto tangent = [this, v](float x, float z) -> glm::vec3 {
-                return (glm::vec3(x*xstep, heights[x][z], z*zstep) - v);
-            };
-
-            glm::vec3 tl  = tangent(x-1, z  );
-            glm::vec3 tr  = tangent(x+1, z  );
-            glm::vec3 tu  = tangent(x  , z+1);
-            glm::vec3 td  = tangent(x  , z-1);
-            glm::vec3 tul = tangent(x-1, z+1);
-            glm::vec3 tur = tangent(x+1, z+1);
-            glm::vec3 tdl = tangent(x-1, z-1);
-            glm::vec3 tdr = tangent(x+1, z-1);
-
-            // average the surrounding vertices;
-            glm::vec3 tan = glm::normalize(tl + tr + tu + td + tul + tur + tdl + tdr);
+    for (int z = 0; z < num_zsteps-1; z++) {
+        for (int x = 0; x < num_xsteps-1; x++) {
+            const glm::vec3 right = {1.0, 0.0, 0.0};
+            glm::vec3 norm = normals[x][z];
+            glm::vec3 estimate = glm::cross(right, norm); //original estimate of tangent
+            glm::vec3 tan = glm::cross(estimate, norm); // get closer to the true tangent
             tangents[x][z] = tan;
         }
     }
@@ -205,8 +191,8 @@ void Terrain::GenerateUV() {
     for (int z = 0; z < num_zsteps; z++) {
         for (int x = 0; x < num_xsteps; x++) {
             glm::vec2 uv = {
-                (x*xstep)/xwidth*10.0,
-                (z*zstep)/zwidth*10.0
+                (x*xstep)/xwidth,
+                (z*zstep)/zwidth
             };
             uvs[x][z] = uv;
         }

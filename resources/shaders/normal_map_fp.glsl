@@ -40,7 +40,7 @@ void main()
          H; // Half-way vector
 
     // Get substitutMoonPlanete normal in tangent space from the normal map
-    vec2 coord = vertex_uv * 50.0;
+    vec2 coord = vertex_uv * 40.0;
     coord.y = 1.0 - coord.y;
     N = normalize(texture(normal_map, coord).rgb*2.0 - 1.0);
     N = normalize(normal_interp + 0.5*N);
