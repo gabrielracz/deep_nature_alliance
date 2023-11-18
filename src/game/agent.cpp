@@ -47,7 +47,7 @@ void Agent::WalkingMove(const glm::vec3 move, float dt)
     if (glm::length(move) > 0.001)
     {
         glm::vec3 forward = glm::normalize(glm::vec3(transform.GetOrientation() * glm::vec4(glm::normalize(move), 0.0)));
-        glm::vec3 target_step_ = target_position_ + forward * 0.1f;
+        glm::vec3 target_step_ = target_position_ + forward * speed_;
         if (terrain->SamplePassable(target_step_.x, target_step_.z)) {
             return;
         }
