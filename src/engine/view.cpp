@@ -16,9 +16,6 @@ void View::Render(SceneGraph& scene) {
         app.Quit();
         return;
     }
-
-    // temporary. use the game-owned camera eventually
-    camera.Update();
     
     // DRAW
     const glm::vec4 background_color = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -143,7 +140,7 @@ void View::InitShipView() {
 }
 
 void View::InitFirstPersonView() {
-    camera.SetView(config::fp_camera_position, config::camera_look_at, config::camera_up);
+    camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, win.width, win.height);
     camera.SetOrtho(win.width, win.height);
 }

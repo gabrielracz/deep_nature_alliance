@@ -20,11 +20,10 @@ Camera::~Camera(){
 }
 
 
-void Camera::Update() {
-    // transform.Pitch(angular_velocity.x);
-    // transform.Yaw(angular_velocity.y);
-    // transform.Roll(angular_velocity.z);
-    // transform.Translate(velocity);
+void Camera::Update(float dt) {
+    transform.Translate(move_queue * dt); // allow translating  to dt
+    move_queue = {0.0, 0.0, 0.0};
+
     if(parent_transform) {
         transform.Update(parent_transform->GetWorldMatrix());
     } else {
@@ -35,16 +34,8 @@ void Camera::Update() {
 
 void Camera::SetView(glm::vec3 position, glm::vec3 look_at, glm::vec3 up){
 
-    // Store initial forward and side vectors
-    // See slide in "Camera control" for details
-    // probably will not be much used (directly setting view a rare occurrence in games)
-    // transform.SetAxis(UP, up);
-    // transform.SetAxis(FORWARD, glm::normalize(look_at - position));
-    // transform.SetAxis(SIDE, glm::normalize(glm::cross(transform.GetAxis(FORWARD), up)));
-
-    // Reset orientation and position of camera
     transform.SetPosition(position);
-    transform.SetOrientation(glm::quat());
+    transform.SetOrientation(glm::inverse(glm::lookAt(position, look_at, up)));
     original_pos = position;
 }
 
@@ -76,10 +67,12 @@ void Camera::SetupViewMatrix(void){
     if(parent_transform) {
         glm::mat4 p = parent_transform->GetWorldMatrix();
         glm::vec3 eye = transform.GetWorldPosition();
-        // glm::vec3 look_at = p * glm::vec4(0.0, 0.0, -2.0, 1.0); // look slightly ahead of target
-        glm::vec3 look_at = p * transform.GetLocalMatrix() * glm::vec4(0.0, 0.0, -1.0, 1.0);
+        glm::vec3 look_at = locked ? p * glm::vec4(0.0, 0.0, -1.0, 1.0)
+                                   : p * transform.GetLocalMatrix() * glm::vec4(0.0, 0.0, -1.0, 1.0);
+
         glm::vec3 side = transform.GetWorldMatrix() * glm::vec4(transform.GetAxis(SIDE), 0.0f);
         glm::vec3 up = glm::cross(side, glm::vec3(p * glm::vec4(0.0, 0.0, -2.0, 0.0)));
+
         view_matrix_ = glm::lookAt(eye, look_at, up);
     } else {
         glm::vec3 eye = transform.GetPosition();
@@ -93,15 +86,13 @@ bool Camera::IsAttached() {
     return parent_transform != nullptr;
 }
 
-void Camera::Attach(Transform *p) {
+void Camera::Attach(Transform *p, bool lock_to_target) {
     if (IsAttached()) {
         Drop();
     }
-    locked = true;
-    // transform.SetPosition(original_pos); // reset local lock point
+    locked = lock_to_target;
     parent_transform = p;
     Reset();
-    SetupViewMatrix();
 }
 
 void Camera::Detach() {
@@ -125,7 +116,10 @@ void Camera::Drop() {
     locked = false;
 }
 
-void Camera::MoveTo(const glm::vec3 newpos) {
-    transform.SetPosition(newpos);
-    SetupViewMatrix();
+void Camera::Move(const glm::vec3 newpos) {
+    move_queue += newpos;
+}
+
+void Camera::ToggleLock() {
+    locked = !locked;
 }

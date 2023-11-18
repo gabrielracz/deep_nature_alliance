@@ -42,8 +42,13 @@ enum GameState {
 };
 
 enum SceneEnum {
+    SPACE = 0,
+    FOREST,
+    DESERT,
+    MOON,
     FPTEST,
-    ALL = -1
+    NUM_SCENES,
+    ALL
 };
 
 
@@ -55,13 +60,12 @@ class Game {
 
         void Init(void); 
         void SetupResources(void);
-        void SetupScene(void);
-        void SetupFPScene(void);
+        void SetupScenes(void);
 
         void Update(double dt, KeyMap& keys);
-        SceneGraph& ActiveScene() { return *scene; }
+        SceneGraph& ActiveScene() { return *active_scene; }
         //TODO: Run SceneGraph Init()
-        void SetActiveScene(SceneEnum sceneNum) { scene = scenes[sceneNum]; }
+        void SetActiveScene(SceneEnum sceneNum) { active_scene = scenes[sceneNum]; }
 
         Application& app;
         ResourceManager& resman;
@@ -69,11 +73,15 @@ class Game {
         RandGenerator rng {rng_seed};
 
     private:
-        SceneGraph* scene;
-        std::vector<SceneGraph *> scenes;
+        SceneGraph* active_scene;
+        std::vector<SceneGraph*> scenes;
 
         float wind_speed = 1.5f;
         int camera_mode;
+
+        void SetupFPScene(void);
+        void SetupSpaceScene(void);
+        void SetupForestScene(void);
 
         void LoadMeshes();
         void LoadShaders();
@@ -91,8 +99,8 @@ class Game {
         void CreateTree();
         void CreateLights();
         void CreateTriggers();
-        void GrowTree(SceneNode* root, int branches, float height, float width, int level, int max_iterations);
-        void GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width);
+        // void GrowTree(SceneNode* root, int branches, float height, float width, int level, int max_iterations);
+        // void GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width);
 
         void CheckControls(KeyMap& keys);
         void MouseControls(Mouse& mouse);
