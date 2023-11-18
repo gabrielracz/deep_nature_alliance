@@ -11,11 +11,32 @@ void Agent::UpMove(float dt)
     if (vertical_velocity_ < 0.0f)
     {
         step_height = step_height_;
+        return;
     }
-    target_position_ = transform.GetPosition() + up_ * (step_height_) + jump_axis_ * ((vertical_offset_ > 0.f ? vertical_offset_ : 0.f));
-
+    glm::vec3 up_position_ = transform.GetPosition() + up_ * (step_height_) + jump_axis_ * ((vertical_offset_ > 0.f ? vertical_offset_ : 0.f));
     // CHECK FOR VERTICAL COLLISION
     // VERTICAL COLLISION RESPONSE
+
+    // DASH NO CLIP FIX GANG
+    if (terrain->SamplePassable(up_position_.x, up_position_.z)) {
+            return;
+    }
+
+    //Check if we not doing a raw up jump
+    if (jump_axis_.x != 0.0f || jump_axis_.z != 0.0f) {
+        glm::vec3 sample_normal = terrain->SampleNormal(up_position_.x, up_position_.z);
+        float slope_angle = glm::degrees(glm::acos(glm::dot(sample_normal, up_)));
+    
+        if (slope_angle > max_jumping_angle_) {
+            vertical_velocity_ = 0.0f;
+            vertical_offset_ = 0.0f;
+            jumping_ = false;
+            return;
+        }
+    }
+
+    //we not being sus lets go!
+    target_position_ = up_position_;
     transform.SetPosition(target_position_);
     step_offset_ = step_height;
 }
@@ -27,12 +48,14 @@ void Agent::WalkingMove(const glm::vec3 move, float dt)
     {
         glm::vec3 forward = glm::normalize(glm::vec3(transform.GetOrientation() * glm::vec4(glm::normalize(move), 0.0)));
         glm::vec3 target_step_ = target_position_ + forward * speed_;
-        float terrainY = terrain->SampleHeight(target_position_.x, target_position_.z);
+        if (terrain->SamplePassable(target_step_.x, target_step_.z)) {
+            return;
+        }
         float terrain_nextY = terrain->SampleHeight(target_step_.x, target_step_.z);
-        float slope = glm::abs(terrainY - terrain_nextY);
-        float sampledslope = terrain->SampleSlope(target_step_.x, target_step_.z);
-        printf("Slope %f Sampled %f\n", slope, sampledslope);
-        if (sampledslope < 0.50 || (jumping_ && target_position_.y > terrain_nextY + height_)) { 
+        glm::vec3 sample_normal = terrain->SampleNormal(target_step_.x, target_step_.z);
+        float slope_angle = glm::degrees(glm::acos(glm::dot(sample_normal, forward))) - 90;
+        //printf("Slope forward angle %f \n", slope_angle);
+        if (slope_angle < max_walking_angle_ || target_position_.y > terrain_nextY + height_ * 4) { 
             target_position_ += forward * speed_ * dt * 100.0f;
             transform.SetPosition(target_position_);
         }
@@ -59,38 +82,28 @@ void Agent::DownMove(float dt)
 
     float terrainY = terrain->SampleHeight(target_position_.x, target_position_.z);
     
-    //std::cout << "terrain y: " << terrainY << " target y: " << target_position_.y << std::endl;
-    
-    // if (glm::abs(target_position_.y - terrainY) < 3.0){
-    if (target_position_.y < terrainY + height_){
+    if (target_position_.y < terrainY + height_) {
+        //We are touching terrain!
+
+        glm::vec3 sample_normal = terrain->SampleNormal(target_position_.x, target_position_.z);
+        glm::vec3 ground_parallel = glm::cross(up_, sample_normal);
+        glm::vec3 down_slope = glm::cross(ground_parallel, sample_normal);
+        float slope_angle = glm::degrees(glm::acos(glm::dot(sample_normal, up_)));
+
+        if (slope_angle >= max_walking_angle_) {
+            target_position_ += glm::normalize(down_slope) * 0.5f;
+            jumping_ = false;
+        } else {
+            vertical_velocity_ = 0.0f;
+            vertical_offset_ = 0.0f;
+            jumping_ = false;
+        }
         target_position_.y = terrainY + height_;
         transform.SetPosition(target_position_);
-
-        vertical_velocity_ = 0.0f;
-        vertical_offset_ = 0.0f;
-        jumping_ = false;
     } else {
+        // We are falling
         transform.SetPosition(target_position_);
     }
-    //transform.SetPosition(target_position_);
-    
-    //not integrated with jumping
-    // if (target_position_.y <= terrainY)
-    // { // CHECK FOR BELOW COLLISION
-
-    //     // Interpolate small fall (would usually want to do this before hitting floor)
-    //     float fraction = (position.y - (terrainY)) * 0.5;
-    //     transform.SetPosition(glm::mix(position, target_position_, fraction));
-
-    //     // On the ground yo
-    //     vertical_velocity_ = 0.0f;
-    //     vertical_offset_ = 0.0f;
-    //     jumping_ = false;
-    // }
-    // else
-    // { // NO COLLISION i.e FELL FULL HEIGHT
-    //     transform.SetPosition(target_position_);
-    // }
 }
 
 void Agent::Update(double dt)

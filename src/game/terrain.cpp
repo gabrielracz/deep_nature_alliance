@@ -10,7 +10,7 @@
 float MAX_PASSABLE_SLOPE = 0.5f;
 
 Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, float xwidth, float zwidth, float density, Game* game)
-    : SceneNode(name, mesh_id, shader_id), xwidth(xwidth), zwidth(zwidth), game(game) {
+    : SceneNode(name, mesh_id, shader_id, texture_id), xwidth(xwidth), zwidth(zwidth), game(game) {
 
     // generate uniform grid
     num_xsteps = xwidth * density;
@@ -19,29 +19,107 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     zstep = zwidth / num_zsteps;
 
     GenerateHeightmap();
+    GenerateQMoon();
     GenerateNormals();
     GenerateTangents();
     GenerateObstacles();
+    GenerateImPassable();
+    GenerateUV();
     GenerateMesh();
 }
 
 void Terrain::GenerateHeightmap() {
     heights.resize(num_xsteps, std::vector<float>(num_zsteps, 0.0));
+    float image_xstep = sizeof(terrain[0]) / sizeof(*terrain[0]) / num_xsteps;
+    float image_zstep = sizeof(terrain) / sizeof(*terrain) / num_zsteps;
     for (int z = 0; z < num_zsteps; z++) {
         for (int x = 0; x < num_xsteps; x++) {
-            glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
-            float height = glm::perlin(sample) * 50.0;
-            // shelf generation:
-            // float height = 0.0;
-            // if (x > 150){
-            //     height = 100.0;
-            // }
+            float height;
+            bool imageTerrain = true;
+            if (imageTerrain) {
+                float sampleX = x * image_xstep;
+                float sampleZ = z * image_zstep;
 
+                int x0 = static_cast<int>(std::floor(sampleX));
+                int z0 = static_cast<int>(std::floor(sampleZ));
+
+                // Clamp the coordinates to be within valid range
+                x0 = glm::clamp(x0, 0, static_cast<int>(sizeof(terrain[0]) / sizeof(*terrain[0])) - 2);
+                z0 = glm::clamp(z0, 0, static_cast<int>(sizeof(terrain) / sizeof(*terrain) - 2));
+
+                // Get the fractional part of the coordinates
+                float sx = sampleX - static_cast<float>(x0);
+                float sz = sampleZ - static_cast<float>(z0);
+
+                // Perform bilinear interpolation on the terrain heights
+                float h00 = terrain[x0][z0] * 10;
+                float h10 = terrain[x0 + 1][z0] * 10;
+                float h01 = terrain[x0][z0 + 1] * 10;
+                float h11 = terrain[x0 + 1][z0 + 1] * 10;
+
+                float h0 = (1 - sx) * h00 + sx * h10;
+                float h1 = (1 - sx) * h01 + sx * h11;
+
+                glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 50.0f;
+                float perlin = glm::perlin(sample);
+
+                height = (1 - sz) * h0 + sz * h1 + perlin;
+            } else {
+                glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
+                height = glm::perlin(sample) * 50.0;
+                // shelf generation:
+                // float height = 0.0;
+                // if (x > 150){
+                //     height = 100.0;
+                // }
+            }
             heights[x][z] = height;
         }
     }
 }
 
+void Terrain::GenerateQMoon() {
+    int min_craters = 35;
+    int max_craters = 60;
+    float min_crater_radius = 2;
+    float max_crater_radius = 20;
+    float inner_crater_noise = 10;
+    float min_crater_depth = 5.0f;
+    float max_crater_depth = 20.0f;
+    float bottom_crater_noise = -20.0f;
+    float crater_ridge_size = 0.2f;
+
+    int num_craters = glm::linearRand(min_craters, max_craters);
+
+    for (int i = 0; i < num_craters; ++i) {
+        glm::vec2 position = glm::linearRand(glm::vec2(0.0f), glm::vec2(num_xsteps, num_xsteps));
+        float radius = glm::linearRand(min_crater_radius, max_crater_radius);
+        float base_height = glm::linearRand(-max_crater_depth, -min_crater_depth);
+
+        for (int y = 0; y < num_xsteps; ++y) {
+            for (int x = 0; x < num_xsteps; ++x) {
+                float distance = glm::distance(glm::vec2(x, y), position);
+
+                if (distance < radius) {
+                    float bottom_perlin = glm::perlin(glm::vec2(x * xstep, y * zstep) / 100.0f);
+                    float bottom_noise = bottom_perlin * bottom_crater_noise;
+                    float perlin_value = glm::perlin(glm::vec2(x, y) * inner_crater_noise);
+                    float height_variation = perlin_value * inner_crater_noise;
+                    heights[y][x] = base_height + height_variation;
+
+                    float depth = 0.5f * (1.0f - (distance / radius));
+                    if (depth > 0.0f) {
+                        heights[y][x] -= depth;
+
+                        if (depth < crater_ridge_size) {
+                            heights[y][x] -= bottom_noise;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 void Terrain::GenerateNormals() {
     normals.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {0.0, 1.0, 0.0}));
@@ -83,30 +161,40 @@ void Terrain::GenerateObstacles() {
         }
     }
 }
+void Terrain::GenerateImPassable() {
+    impassable.resize(num_xsteps, std::vector<bool>(num_zsteps, false));
+    for (int x = 0; x <= num_xsteps-1; ++x) {
+        impassable[x][0] = true; // bottom edge
+        impassable[x][num_zsteps - 2] = true; // top edge
+    }
+    for (int z = 0; z <= num_zsteps-1; ++z) {
+        impassable[0][z] = true; // left edge
+        impassable[num_xsteps - 2][z] = true; // right edge
+    }
+}
+
 void Terrain::GenerateTangents() {
     tangents.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {1.0, 0.0, 0.0}));
-    for (int z = 1; z < num_zsteps-1; z++) {
-        for (int x = 1; x < num_xsteps-1; x++) {
-            float xp = x*xstep;
-            float zp = z*zstep;
-
-            glm::vec3 v = {x*xstep, heights[x][z], z*zstep}; // this vertex
-            auto tangent = [this, v](float x, float z) -> glm::vec3 {
-                return glm::normalize(glm::vec3(x*xstep, heights[x][z], z*zstep) - v);
-            };
-
-            glm::vec3 tl  = tangent(x-1, z  );
-            glm::vec3 tr  = tangent(x+1, z  );
-            glm::vec3 tu  = tangent(x  , z+1);
-            glm::vec3 td  = tangent(x  , z-1);
-            glm::vec3 tul = tangent(x-1, z+1);
-            glm::vec3 tur = tangent(x+1, z+1);
-            glm::vec3 tdl = tangent(x-1, z-1);
-            glm::vec3 tdr = tangent(x+1, z-1);
-
-            // average the surrounding vertices;
-            glm::vec3 tan = glm::normalize(tl + tr + tu + td + tul + tur + tdl + tdr);
+    for (int z = 0; z < num_zsteps-1; z++) {
+        for (int x = 0; x < num_xsteps-1; x++) {
+            const glm::vec3 right = {1.0, 0.0, 0.0};
+            glm::vec3 norm = normals[x][z];
+            glm::vec3 estimate = glm::cross(right, norm); //original estimate of tangent
+            glm::vec3 tan = glm::cross(estimate, norm); // get closer to the true tangent
             tangents[x][z] = tan;
+        }
+    }
+}
+
+void Terrain::GenerateUV() {
+    uvs.resize(num_xsteps, std::vector<glm::vec2>(num_zsteps, {0.0, 0.0}));
+    for (int z = 0; z < num_zsteps; z++) {
+        for (int x = 0; x < num_xsteps; x++) {
+            glm::vec2 uv = {
+                (x*xstep)/xwidth,
+                (z*zstep)/zwidth
+            };
+            uvs[x][z] = uv;
         }
     }
 }
@@ -125,11 +213,16 @@ void Terrain::GenerateMesh() {
             glm::vec3 pos = {x * xstep, heights[x][z], z * zstep};
             glm::vec3 normal = normals[x][z];
             glm::vec3 tangent = tangents[x][z];
+            // color impassable regions magenta
             glm::vec3 color = {Colors::SeaBlue};
             if(obstacles[glm::clamp(x-1, 0, (int)obstacles.size())][glm::clamp(z-1, 0, (int)obstacles[0].size())]) {
                 color = Colors::Magenta;
             }
-            glm::vec2 uv = {0.0, 0.0};
+            if(impassable[glm::clamp(x-1, 0, (int)impassable.size())][glm::clamp(z-1, 0, (int)impassable[0].size())]) {
+                
+                color = Colors::Yellow;
+            }
+            glm::vec2 uv = uvs[x][z];
 
             APPEND_VEC3(vertices, pos);
             APPEND_VEC3(vertices, normal);
@@ -143,8 +236,8 @@ void Terrain::GenerateMesh() {
     for (int z = 0; z < num_zsteps - 1; z++) {
         for (int x = 0; x < num_xsteps - 1; x++) {
             indices.push_back(GIX(x, z, num_xsteps));
-            indices.push_back(GIX(x, z + 1, num_xsteps));
             indices.push_back(GIX(x + 1, z + 1, num_xsteps));
+            indices.push_back(GIX(x, z + 1, num_xsteps));
 
             indices.push_back(GIX(x, z, num_xsteps));
             indices.push_back(GIX(x + 1, z, num_xsteps));
@@ -184,6 +277,21 @@ float Terrain::SampleHeight(float x, float z) {
     return interp + transform.GetPosition().y;
 }
 
+bool Terrain::SamplePassable(float x, float z) {
+    float terrainX = x / (xwidth / (impassable.size() - 1)) + (num_xsteps / 2.0);
+    float terrainZ = z / (zwidth / (impassable[0].size() - 1)) + (num_zsteps / 2.0);
+
+    // Get the integer coordinates of the cell
+    int x0 = static_cast<int>(std::floor(terrainX));
+    int z0 = static_cast<int>(std::floor(terrainZ));
+
+    // Clamp the coordinates to be within valid range
+    x0 = glm::clamp(x0, 0, static_cast<int>(impassable.size() - 1));
+    z0 = glm::clamp(z0, 0, static_cast<int>(impassable[0].size() - 1));
+
+    return impassable[x0][z0];
+}
+
 
 float Terrain::SampleSlope(float x, float z, glm::vec3 dir) {
     float terrainX = x / (xwidth / (heights.size() - 1)) + (num_xsteps / 2.0);
@@ -221,6 +329,33 @@ float Terrain::SampleSlope(float x, float z, glm::vec3 dir) {
     }
 
     return slope;
+}
+
+glm::vec3 Terrain::SampleNormal(float x, float z) {
+    float terrainX = x / (xwidth / (heights.size() - 1)) + (num_xsteps / 2.0);
+    float terrainZ = z / (zwidth / (heights[0].size() - 1)) + (num_zsteps / 2.0);
+
+    // Get the integer coordinates of the cell
+    int x0 = static_cast<int>(std::floor(terrainX));
+    int z0 = static_cast<int>(std::floor(terrainZ));
+
+    // Clamp the coordinates to be within valid range
+    x0 = glm::clamp(x0, 0, static_cast<int>(heights.size()) - 2);
+    z0 = glm::clamp(z0, 0, static_cast<int>(heights[0].size()) - 2);
+
+    // Get the fractional part of the coordinates
+    float sx = terrainX - static_cast<float>(x0);
+    float sz = terrainZ - static_cast<float>(z0);
+
+    // Perform bilinear interpolation
+    glm::vec3 n00 = normals[x0][z0];
+    glm::vec3 n10 = normals[x0 + 1][z0];
+    glm::vec3 n01 = normals[x0][z0 + 1];
+    glm::vec3 n11 = normals[x0 + 1][z0 + 1];
+
+    glm::vec3 n0 = (1 - sx) * n00 + sx * n10;
+    glm::vec3 n1 = (1 - sx) * n01 + sx * n11;
+    return glm::normalize((1 - sz) * n0 + sz * n1);
 }
 
 glm::vec3 Terrain::InterpNormals(int x0, int z0, float sx, float sz) {

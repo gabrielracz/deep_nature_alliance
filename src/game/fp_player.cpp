@@ -76,7 +76,7 @@ void FP_Player::HeadMovement(float dt)
         head_bobbing_ = 0.0f;
     }
 
-    float head_offset = (bobbing_amount_ * glm::sin(head_bobbing_)) * 0.5;
+    float head_offset = (bobbing_amount_ * dt * glm::sin(head_bobbing_)) * 0.5;
 
     glm::quat bobbing_rotation = glm::angleAxis(head_offset, glm::vec3(1.0f, 0.0f, 0.0f));
 
@@ -87,14 +87,15 @@ void FP_Player::HeadMovement(float dt)
     {
         glm::vec3 tilt_axis = -glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), movement_direction);
         glm::quat tilt_quaternion = glm::angleAxis(tilt_angle_, tilt_axis);
-        glm::quat target_rotation = glm::slerp(camera_->transform.GetOrientation(), tilt_quaternion, tilt_smoothing_);
+        float slerp_factor = (1.0f - glm::pow(1.0f - tilt_smoothing_, dt)) * tilt_speed_;
+        glm::quat target_rotation = glm::slerp(camera_->transform.GetOrientation(), tilt_quaternion, slerp_factor);
 
         camera_->transform.SetOrientation(glm::normalize(bobbing_rotation * target_rotation));
     }
     else
     {
-        glm::quat target_rotation = glm::slerp(camera_->transform.GetOrientation(), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), tilt_smoothing_);
-
+        float slerp_factor = (1.0f - glm::pow(1.0f - tilt_smoothing_, dt)) * tilt_speed_;
+        glm::quat target_rotation = glm::slerp(camera_->transform.GetOrientation(), glm::quat(1.0f, 0.0f, 0.0f, 0.0f), slerp_factor);
         camera_->transform.SetOrientation(glm::normalize(bobbing_rotation * target_rotation));
     }
 }
@@ -106,7 +107,7 @@ void FP_Player::PlayerJump()
         Jump();
         has_dashed_ = false;
     }
-    else if (!has_dashed_)
+    else if (!has_dashed_ && jumping_)
     {
         glm::vec3 dash_vector = glm::normalize(glm::vec3(0.0f, 0.0f, -10.0f) + glm::vec3(0.0f, glm::abs(sin(dash_angle_)), 0.0f));
         dash_vector = glm::normalize(glm::vec3(transform.GetOrientation() * glm::vec4(glm::normalize(dash_vector), 0.0)));

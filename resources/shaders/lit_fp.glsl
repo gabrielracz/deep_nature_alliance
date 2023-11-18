@@ -4,7 +4,7 @@
 in vec3 position_interp;
 in vec3 normal_interp;
 in vec4 color_interp;
-// in vec2 uv_interp;
+in vec2 uv_interp;
 in vec3 light_pos;
 
 // Uniform (global) buffer
@@ -49,7 +49,8 @@ vec4 lighting(vec4 pixel) {
 }
 void main() 
 {
-    vec4 pixel = color_interp;
+    // vec4 pixel = color_interp;
+    vec4 pixel = color_interp * texture2D(texture_map, uv_interp);
     vec4 lit_pixel = lighting(pixel);
    gl_FragColor =  lit_pixel;
 }

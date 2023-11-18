@@ -42,11 +42,8 @@ enum GameState {
 };
 
 enum SceneEnum {
-    FPTEST = 0,
-    BEFORETRIGGER,
-    AFTERTRIGGER,
-    ALL,
-    NUM_SCENES
+    FPTEST,
+    ALL = -1
 };
 
 
