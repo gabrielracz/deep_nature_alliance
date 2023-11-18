@@ -48,6 +48,11 @@ protected:
     float speed_ = 0.5f;
     float height_ = 1.0f;
 
+    // max slope agent can walk up
+    float max_walking_angle_ = 35.0f;
+    // Slope check for a jump (not totally vertical i.e dash) max angle can traverse
+    float max_jumping_angle_ = 45.0f;
+
     glm::vec3 up_ = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::vec3 jump_axis_ = glm::vec3(0.0, 1.0, 0.0f);
     glm::vec3 target_position_ = glm::vec3(0.0f);

@@ -11,6 +11,8 @@ class Terrain : public SceneNode {
         float SampleHeight(float x, float z);
         float SampleSlope(float x, float z, glm::vec3 dir = {0.0f, 0.0f, 0.0f});
         bool SamplePassable(float x, float z);
+        float SampleAngle(float x, float z, glm::vec3 dir);
+        glm::vec3 SampleNormal(float x, float z);
 
     private:
         void GenerateHeightmap();

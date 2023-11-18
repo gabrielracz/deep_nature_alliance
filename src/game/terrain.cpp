@@ -345,6 +345,33 @@ float Terrain::SampleSlope(float x, float z, glm::vec3 dir) {
     return slope;
 }
 
+glm::vec3 Terrain::SampleNormal(float x, float z) {
+    float terrainX = x / (xwidth / (heights.size() - 1)) + (num_xsteps / 2.0);
+    float terrainZ = z / (zwidth / (heights[0].size() - 1)) + (num_zsteps / 2.0);
+
+    // Get the integer coordinates of the cell
+    int x0 = static_cast<int>(std::floor(terrainX));
+    int z0 = static_cast<int>(std::floor(terrainZ));
+
+    // Clamp the coordinates to be within valid range
+    x0 = glm::clamp(x0, 0, static_cast<int>(heights.size()) - 2);
+    z0 = glm::clamp(z0, 0, static_cast<int>(heights[0].size()) - 2);
+
+    // Get the fractional part of the coordinates
+    float sx = terrainX - static_cast<float>(x0);
+    float sz = terrainZ - static_cast<float>(z0);
+
+    // Perform bilinear interpolation
+    glm::vec3 n00 = normals[x0][z0];
+    glm::vec3 n10 = normals[x0 + 1][z0];
+    glm::vec3 n01 = normals[x0][z0 + 1];
+    glm::vec3 n11 = normals[x0 + 1][z0 + 1];
+
+    glm::vec3 n0 = (1 - sx) * n00 + sx * n10;
+    glm::vec3 n1 = (1 - sx) * n01 + sx * n11;
+    return glm::normalize((1 - sz) * n0 + sz * n1);
+}
+
 glm::vec3 Terrain::InterpNormals(int x0, int z0, float sx, float sz) {
     glm::vec3 n00 = normals[x0][z0];
     glm::vec3 n10 = normals[x0 + 1][z0];
