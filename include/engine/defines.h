@@ -38,6 +38,7 @@ namespace Colors {
 }
 
 typedef std::function<void(Mouse& mouse)> MouseHandler;
+typedef std::function<void(int width, int height)> ResizeHandler;
 
 
 template <typename K, typename V>

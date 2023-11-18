@@ -23,10 +23,8 @@ public:
 
     void ToggleMouseCapture() { view.ToggleMouseCapture(); }
     void ToggleRenderMode();
-    Camera& GetCamera() {return view.GetCamera();}
     void SetMouseHandler(MouseHandler h) {view.SetMouseHandler(h);}
-    void SetFirstPersonView() { view.InitFirstPersonView(); }
-    void SetShipView() { view.InitShipView(); }
+    void SetResizeHandler(ResizeHandler h) {view.SetResizeHandler(h);}
 
     int GetWinWidth() {return view.GetWidth();}
     int GetWinHeight() {return view.GetHeight();}

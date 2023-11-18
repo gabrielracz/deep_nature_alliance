@@ -65,6 +65,7 @@ int num_beacons_g = sizeof(beacon_positions_g) / sizeof(beacon_positions_g[0]);
 void Game::Init(void){
     SetupResources();
     SetupScenes();
+    app.SetResizeHandler(std::bind(&Game::ResizeCameras, this, std::placeholders::_1, std::placeholders::_2));
 }
 
        
@@ -146,16 +147,23 @@ void Game::SetupScenes(void){
 }
 
 void Game::SetupSpaceScene() {
+
+//     camera.SetView(config::camera_position, config::camera_look_at, config::camera_up);
+//     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, win.width, win.height);
+//     camera.SetOrtho(win.width, win.height);
     Player* player = new Player("Obj_Player", "M_Ship", "S_Lit", "T_Charmap");
     player->transform.SetPosition(player_position_g);
-    app.GetCamera().Attach(&player->transform); // Attach the camera to the player
-
-
-
+    // app.GetCamera().Attach(&player->transform); // Attach the camera to the player
 }
 
 void Game::SetupFPScene(void) {
+    Camera& camera = scenes[FPTEST]->GetCamera();
+    camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
+    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+
     FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship");
+    p->Init(app.GetWindow().ptr, &camera);
     p->transform.SetPosition(player_position_g);
     p->visible = false;
     scenes[FPTEST]->SetFPPlayer(p);
@@ -172,9 +180,8 @@ void Game::SetupFPScene(void) {
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
 
-    p->Init(app.GetWindow().ptr, &app.GetCamera());
     app.SetMouseHandler(std::bind(&FP_Player::MouseControls, active_scene->GetFPPlayer(), std::placeholders::_1));
-    app.SetFirstPersonView();
+    // app.SetFirstPersonView();
 }
 
 void Game::Update(double dt, KeyMap &keys) {
@@ -244,10 +251,10 @@ void Game::CheckControls(KeyMap& keys) {
     };
 
     if(keys[GLFW_KEY_UP]) {
-        app.GetCamera().transform.Pitch(0.05f);
+        active_scene->GetCamera().transform.Pitch(0.05f);
     }
     if(keys[GLFW_KEY_DOWN]) {
-        app.GetCamera().transform.Pitch(-0.05f);
+        active_scene->GetCamera().transform.Pitch(-0.05f);
     }
 
     if(keys[GLFW_KEY_0]) {
@@ -257,17 +264,17 @@ void Game::CheckControls(KeyMap& keys) {
 
 
     if(keys[GLFW_KEY_I]) {
-        app.GetCamera().transform.Translate({0.0, 0.0, -0.1});
+        active_scene->GetCamera().transform.Translate({0.0, 0.0, -0.1});
     }
     if(keys[GLFW_KEY_J]) {
-        app.GetCamera().transform.Translate({0.0, 0.0,0.1});
+        active_scene->GetCamera().transform.Translate({0.0, 0.0,0.1});
     }
 
     if(keys[GLFW_KEY_X]) {
-        if(app.GetCamera().IsAttached()) {
-            app.GetCamera().Drop();
+        if(active_scene->GetCamera().IsAttached()) {
+            active_scene->GetCamera().Drop();
         } else {
-            app.GetCamera().Attach(&player->transform);
+            active_scene->GetCamera().Attach(&player->transform);
         }
         keys[GLFW_KEY_X] = false;
     }
@@ -282,11 +289,11 @@ void Game::CheckControls(KeyMap& keys) {
     // }
 
     if(keys[GLFW_KEY_Z]) {
-        if(app.GetCamera().IsAttached()) {
+        if(active_scene->GetCamera().IsAttached()) {
             if(camera_mode++ % 2 == 0) {
                 // app.GetCamera().MoveTo({0.0, 3.0f, -20.0f});
             } else {
-                app.GetCamera().Reset();
+                active_scene->GetCamera().Reset();
             }
         }
         keys[GLFW_KEY_Z] = false;
@@ -309,7 +316,7 @@ void Game::CreatePlayer() {
     player->transform.SetPosition(player_position_g);
     // player->visible = false;
 
-    app.GetCamera().Attach(&player->transform); // Attach the camera to the player
+    active_scene->GetCamera().Attach(&player->transform); // Attach the camera to the player
     AddPlayerToScene(SceneEnum::ALL, player);
     // scenes[BEFORETRIGGER]->AddNode(player);
     // scenes[BEFORETRIGGER]->SetPlayer(player);
@@ -467,3 +474,8 @@ idk lmk what u guys think
 //     }
 // }
 
+void Game::ResizeCameras(int width, int height) {
+    for(auto s : scenes) {
+        s->GetCamera().SetScreenSize(width, height);
+    }
+}

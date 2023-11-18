@@ -32,6 +32,12 @@ void Camera::Update(float dt) {
     SetupViewMatrix();
 }
 
+void Camera::SetScreenSize(float w, float h) {
+    // update our projections
+    SetPerspective(fov, near, far, w, h);
+    SetOrtho(w, h);
+}
+
 void Camera::SetView(glm::vec3 position, glm::vec3 look_at, glm::vec3 up){
 
     transform.SetPosition(position);
@@ -41,6 +47,12 @@ void Camera::SetView(glm::vec3 position, glm::vec3 look_at, glm::vec3 up){
 
 
 void Camera::SetPerspective(GLfloat fov, GLfloat near, GLfloat far, GLfloat w, GLfloat h){
+    fov           = fov;
+    near          = near;
+    far           = far;
+    screen_width  = w;
+    screen_height = h;
+
     // Set projection based on field-of-view
     float top = tan((fov/2.0)*(glm::pi<float>()/180.0))*near;
     float right = top * w/h;

@@ -41,5 +41,6 @@ void SceneGraph::Update(double dt) {
 
     // UPDATE CAMERA AFTER NODES ALWAYS !!!!!
     // TODO: this scene should own the camera
-    app.GetCamera().Update(dt);
+    // app.GetCamera().Update(dt);
+    camera.Update(dt);
 }

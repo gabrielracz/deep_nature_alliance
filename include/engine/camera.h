@@ -31,6 +31,7 @@ class Camera {
         void SetPerspective(GLfloat fov, GLfloat near, GLfloat far, GLfloat w, GLfloat h);
         void SetOrtho(GLfloat w, GLfloat h);
         void SetProjectionUniforms(Shader* shd, Projection = Projection::PERSPECTIVE);
+        void SetScreenSize(float w, float h);
 
         void Attach(Transform* parent_transform, bool locked = false);
         void Detach();
@@ -52,6 +53,13 @@ class Camera {
         glm::mat4 ortho_matrix; // Projection matrix
         glm::vec3 original_pos = {0.0, 0.0, 0.0};
         glm::vec3 move_queue = {0.0, 0.0, 0.0};
+
+        // sane camera defaults
+        float fov           = 90.0f;
+        float near          = 0.01;;
+        float far           = 1000.0f;
+        float screen_width  = 1920;
+        float screen_height = 1080;
 
         // Create view matrix from current camera parameters
 

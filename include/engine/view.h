@@ -17,7 +17,7 @@
 
 class Application;
 
-namespace config
+namespace config2
 {
     const float camera_near_clip_distance = 0.01;
     const float camera_far_clip_distance = 10000.0;
@@ -57,26 +57,23 @@ public:
 
     void ToggleMouseCapture();
     void SetMouseHandler(MouseHandler h) { mouse_handler = h; }
+    void SetResizeHandler(ResizeHandler h) { resize_handler = h; }
+
     void ToggleRenderMode();
 
     KeyMap &GetKeys() { return key_controls; }
     Mouse &GetMouse() { return mouse; }
-    Camera &GetCamera() { return camera; }
 
     int GetWidth() { return win.width; }
     int GetHeight() { return win.height; }
 
     Window GetWindow() { return win; }
 
-    void InitFirstPersonView();
-    void InitShipView();
-
 private:
     Application &app;
     ResourceManager &resman;
 
     Window win;
-    Camera camera;
     Mouse mouse;
     KeyMap key_controls;
 
@@ -93,7 +90,8 @@ private:
     static void ResizeCallback(GLFWwindow *window, int width, int height);
     static void MouseMoveCallback(GLFWwindow *window, double xpos, double ypos);
 
-    std::function<void(Mouse &mouse)> mouse_handler;
+    MouseHandler mouse_handler;
+    ResizeHandler resize_handler;
 };
 
 #endif
