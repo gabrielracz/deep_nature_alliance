@@ -10,8 +10,8 @@
 
 float MAX_PASSABLE_SLOPE = 0.5f;
 
-Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, TerrainType type, float xwidth, float zwidth, float density, Game* game)
-    : SceneNode(name, mesh_id, shader_id, texture_id), xwidth(xwidth), zwidth(zwidth), type(type), game(game) {
+Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, TerrainType t, float xwidth, float zwidth, float density, Game* game)
+    : SceneNode(name, mesh_id, shader_id, texture_id), xwidth(xwidth), zwidth(zwidth), density(density), type(t), game(game) {
 
     // generate uniform grid
     num_xsteps = xwidth * density;
@@ -19,8 +19,15 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     xstep = xwidth / num_xsteps;
     zstep = zwidth / num_zsteps;
 
+    // allocate space for attributes
+    heights.resize(num_xsteps, std::vector<float>(num_zsteps, 0.0));
+    normals.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {0.0, 1.0, 0.0}));
+    obstacles.resize(num_xsteps - 1, std::vector<bool>(num_zsteps - 1, true));
+    impassable.resize(num_xsteps, std::vector<bool>(num_zsteps, false));
+    tangents.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {1.0, 0.0, 0.0}));
+    uvs.resize(num_xsteps, std::vector<glm::vec2>(num_zsteps, {0.0, 0.0}));
+
     GenerateHeightmap(type);
-    GenerateQMoon();
     GenerateNormals();
     GenerateTangents();
     GenerateObstacles();
@@ -30,7 +37,6 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
 }
 
 void Terrain::GenerateHeightmap(TerrainType type) {
-    heights.resize(num_xsteps, std::vector<float>(num_zsteps, 0.0));
     switch(type) {
         case TerrainType::MOON:
             GenerateQMoon();
@@ -134,11 +140,16 @@ void Terrain::GenerateQMoon() {
 }
 
 void Terrain::GenerateForest() {
-
+    for (int z = 0; z < num_zsteps; z++) {
+        for (int x = 0; x < num_xsteps; x++) {
+                glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
+                float height = glm::perlin(sample) * 50.0;
+                heights[x][z] = height;
+        }
+    }
 }
 
 void Terrain::GenerateNormals() {
-    normals.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {0.0, 1.0, 0.0}));
     // method from: https://stackoverflow.com/a/21660173
     // for now ignore the outer edge ring
     for (int z = 1; z < num_zsteps-1; z++) {
@@ -161,7 +172,6 @@ void Terrain::GenerateNormals() {
     }
 }
 void Terrain::GenerateObstacles() {
-    obstacles.resize(num_xsteps - 1, std::vector<bool>(num_zsteps - 1, true));
     for (int z = 1; z < num_zsteps-2; z++) {
         for (int x = 1; x < num_xsteps-2; x++) {
             glm::vec3 norm = InterpNormals(x, z, 0.5, 0.5);
@@ -178,7 +188,6 @@ void Terrain::GenerateObstacles() {
     }
 }
 void Terrain::GenerateImPassable() {
-    impassable.resize(num_xsteps, std::vector<bool>(num_zsteps, false));
     for (int x = 0; x <= num_xsteps-1; ++x) {
         impassable[x][0] = true; // bottom edge
         impassable[x][num_zsteps - 2] = true; // top edge
@@ -190,7 +199,6 @@ void Terrain::GenerateImPassable() {
 }
 
 void Terrain::GenerateTangents() {
-    tangents.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {1.0, 0.0, 0.0}));
     for (int z = 0; z < num_zsteps-1; z++) {
         for (int x = 0; x < num_xsteps-1; x++) {
             const glm::vec3 right = {1.0, 0.0, 0.0};
@@ -203,7 +211,6 @@ void Terrain::GenerateTangents() {
 }
 
 void Terrain::GenerateUV() {
-    uvs.resize(num_xsteps, std::vector<glm::vec2>(num_zsteps, {0.0, 0.0}));
     for (int z = 0; z < num_zsteps; z++) {
         for (int x = 0; x < num_xsteps; x++) {
             glm::vec2 uv = {
@@ -280,7 +287,6 @@ float Terrain::SampleHeight(float x, float z) {
     float sx = terrainX - static_cast<float>(x0);
     float sz = terrainZ - static_cast<float>(z0);
 
-    // Perform bilinear interpolation
     float h00 = heights[x0][z0];
     float h10 = heights[x0 + 1][z0];
     float h01 = heights[x0][z0 + 1];

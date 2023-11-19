@@ -51,6 +51,7 @@ class Terrain : public SceneNode {
         float num_zsteps;
         float xstep;
         float zstep;
+        float density;
 
         TerrainType type;
 

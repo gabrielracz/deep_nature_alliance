@@ -137,6 +137,7 @@ void Game::SetupScenes(void){
 
     SetupSpaceScene();
     SetupFPScene(); // FPS TEST SCENE
+    SetupForestScene();
 
 
 
@@ -215,6 +216,33 @@ void Game::SetupFPScene(void) {
     // app.SetFirstPersonView();
 }
 
+void Game::SetupForestScene() {
+    SceneGraph* scn = scenes[FOREST];
+    Camera& camera = scn->GetCamera();
+    camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
+
+    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship");
+    p->Init(app.GetWindow().ptr, &camera);
+    p->transform.SetPosition(player_position_g);
+    p->visible = false;
+    scn->SetFPPlayer(p);
+    scn->AddNode(p);
+
+    int terrain_size = 1000;
+    Terrain* t = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_MoonPlanet", TerrainType::FOREST, terrain_size, terrain_size, 0.25, this);
+    t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
+    t->material.texture_repetition = 6.0f;
+    t->SetNormalMap("T_WallNormalMap", 40.0f);
+    p->SetTerrain(t);
+    scn->AddNode(t);
+
+    Light* light = new Light(Colors::WarmWhite);
+    light->transform.SetPosition({300.0, 300.0, 0.0});
+    scn->AddLight(light);
+}
+
 void Game::Update(double dt, KeyMap &keys) {
     CheckControls(keys);
     active_scene->Update(dt);
@@ -249,6 +277,10 @@ void Game::CheckControls(KeyMap& keys) {
     if(keys[GLFW_KEY_2]) {
         ChangeScene(SPACE);
         keys[GLFW_KEY_2] = false;
+    }
+    if(keys[GLFW_KEY_3]) {
+        ChangeScene(FOREST);
+        keys[GLFW_KEY_3] = false;
     }
 
 
