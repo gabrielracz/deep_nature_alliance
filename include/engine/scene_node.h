@@ -15,6 +15,7 @@
 #include "shader.h"
 #include "camera.h"
 #include "collision_data.h"
+#include "defines.h"
 
 // Class that manages one object in a scene 
 class SceneNode {
@@ -59,6 +60,7 @@ class SceneNode {
         bool active = true;
         bool visible = true;
         int inverted = 0;
+        RenderMode render_mode = FILL;
     protected:
         glm::mat4 transf_matrix;
         std::string name; // Name of the scene node

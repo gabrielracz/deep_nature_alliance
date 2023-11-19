@@ -7,15 +7,16 @@
 void Light::Update(float dt) {
 }
 
-void Light::SetUniforms(Shader* shader) {
+void Light::SetUniforms(ShaderLight& l) {
     glm::vec3 pos = transform.GetPosition();
     if(parent_transform){ 
         pos += parent_transform->GetPosition();
     }
-    shader->SetUniform3f(pos, "light_pos_world");
-    shader->SetUniform4f(color, "light_col");
-    shader->SetUniform1f(ambient_power, "amb");
-    shader->SetUniform4f(color, "ambcol");
+    
+    l.light_position = pos;
+    l.color = color;
+    l.ambient_strength = ambient_power;
+    l.ambient_color = color;
 }
 
 void Light::Attach(Transform *transform) {

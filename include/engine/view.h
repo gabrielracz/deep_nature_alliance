@@ -32,12 +32,6 @@ namespace config2
 class View
 {
 
-    enum RenderMode
-    {
-        FILL = 0,
-        WIREFRAME,
-        NUM_RENDERMODES
-    };
 
 public:
 
@@ -78,6 +72,7 @@ private:
     KeyMap key_controls;
 
     int render_mode = RenderMode::FILL;
+    int active_shader = -1;
 
     void InitWindow(const std::string &title, int width, int height);
     void InitView();

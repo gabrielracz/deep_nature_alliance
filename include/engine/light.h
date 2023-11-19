@@ -6,11 +6,12 @@
 
 class Light {
 public:
+    int MAX_LIGHTS = 12;
     Light(const glm::vec4 color) : color(color) {}
 
     void Update(float dt);
 
-    void SetUniforms(Shader* shader);
+    void SetUniforms(ShaderLight& shader_light);
     void Attach(Transform* transform);
     Transform transform;
 private:

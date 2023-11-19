@@ -1,6 +1,7 @@
 #include "view.h"
 #include "application.h"
 #include "resource_manager.h"
+#include <cmath>
 #include <stdexcept>
 
 View::View(Application& app, ResourceManager& resman)
@@ -50,10 +51,11 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     // SHADER
     Shader* shd = resman.GetShader(shd_id);
     shd->Use();
+    // if(active_shader != shd->id) {
     cam.SetProjectionUniforms(shd, node->GetDesiredProjection());
-    for(auto l : lights) {
-        l->SetUniforms(shd);
-    }
+
+    shd->SetLights(lights);
+
     node->SetUniforms(shd, cam.GetViewMatrix());
 
     // TEXTURE

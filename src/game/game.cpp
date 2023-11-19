@@ -225,9 +225,9 @@ void Game::CheckControls(KeyMap& keys) {
     }
 
     if(keys[GLFW_KEY_T]) {
-        for(auto s : scenes) {
-            delete s;
-        }
+        // for(auto s : scenes) {
+        //     delete s;
+        // }
         SetupScenes();
         keys[GLFW_KEY_T] = false;
     }
@@ -240,7 +240,6 @@ void Game::CheckControls(KeyMap& keys) {
         ChangeScene(SPACE);
         keys[GLFW_KEY_2] = false;
     }
-
 
 
     Player* player = active_scene->GetPlayer();

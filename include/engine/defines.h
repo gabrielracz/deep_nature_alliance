@@ -5,6 +5,8 @@
 #include <glm/gtx/string_cast.hpp>
 #include <functional>
 
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+
 #define PI glm::pi<float>()
 #define PI_2 glm::pi<float>()/2.0f
 #define PRINT_FIXED_FLOAT(x) std::fixed <<std::setprecision(2)<<(x)
@@ -49,5 +51,12 @@ void overwrite_emplace(std::unordered_map<K, V>& map, K key, V&& val) {
     }
     map.emplace(key, val);
 }
+
+enum RenderMode
+{
+    FILL = 0,
+    WIREFRAME,
+    NUM_RENDERMODES
+};
 
 #endif

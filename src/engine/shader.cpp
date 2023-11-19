@@ -1,5 +1,8 @@
 #include "shader.h"
+#include "light.h"
 #include <exception>
+#include "defines.h"
+
 
 Shader::Shader(const char* vertex_path, const char* fragment_path) {
 	vert_path = vertex_path;
@@ -83,11 +86,34 @@ bool Shader::Load() {
 
 	glDeleteShader(vertex_shader);
 	glDeleteShader(frag_shader);
+
+    GLuint uniformLocation = glGetUniformLocation(id, "world_lights");
+    // Pass the entire array to the shader
+    glUniformBlockBinding(id, uniformLocation, 0);  // Assuming binding point 0
+
+    glGenBuffers(1, &ubo);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo);
+    glBufferData(GL_UNIFORM_BUFFER, MAX_LIGHTS * sizeof(ShaderLight), &lights[0], GL_STREAM_DRAW);
 	return true;
 }
 
 void Shader::Use() const{
 	glUseProgram(id);
+}
+
+void Shader::SetLights(std::vector<Light*>& world_lights) {
+    int i = 0;
+    for(; i < MIN(world_lights.size(), Shader::MAX_LIGHTS); i++) {
+        world_lights[i]->SetUniforms(lights[i]);
+    }
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Light) * i, lights);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    std::cout << sizeof(lights) << " " << i << std::endl;
+    SetUniform1i(i, "num_world_lights");
+}
+
+void Shader::Finalize(int num_lights) {
 }
 
 void Shader::SetUniform1f(float u, const std::string& name) {

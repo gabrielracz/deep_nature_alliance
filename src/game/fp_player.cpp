@@ -65,6 +65,17 @@ void FP_Player::InitEventHandlers(GLFWwindow *w)
         [this](float dt)
         { this->PlayerJump(); },
         GLFW_PRESS);
+    float turn_speed =  0.75;
+    control_.AddKey(
+        GLFW_KEY_Q,
+        [this, turn_speed](float dt)
+        { this->transform.Yaw(turn_speed * dt) ; },
+        GLFW_REPEAT);
+    control_.AddKey(
+        GLFW_KEY_E,
+        [this, turn_speed](float dt)
+        { this->transform.Yaw(-turn_speed * dt) ; },
+        GLFW_REPEAT);
 }
 
 void FP_Player::HeadMovement(float dt)

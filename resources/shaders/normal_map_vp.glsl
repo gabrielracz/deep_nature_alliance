@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 layout (location = 0) in vec3 vertex;
 layout (location = 1) in vec3 normal;
@@ -21,8 +21,20 @@ out vec3 color_interp;
 out vec3 normal_interp;
 
 // Material attributes (constants)
-uniform vec3 light_position = vec3(-0.5, -0.5, 1.5);
+struct Light {
+    vec3 position;
+    vec4 color;
+    vec4 ambient_color;
+    float ambient_strength;
+    vec3 direction;
+    float spread;
+};
 
+out Light lights[6];
+flat out int num_lights;
+
+Light world_lights[6];
+uniform int num_world_lights;
 
 void main()
 {
@@ -40,7 +52,12 @@ void main()
 
     position_interp = TBN_mat * vec3(position);
     normal_interp = TBN_mat * vertex_normal;
-    light_pos = TBN_mat * vec3(view_mat * vec4(light_pos_world, 1.0));
+    for(int i = 0; i < num_world_lights; i++) {
+        lights[i] = world_lights[i];
+        lights[i].position = TBN_mat * vec3(view_mat * vec4(world_lights[i].position, 1.0));
+    }
+    num_lights = num_world_lights;
+
 
     color_interp = color;
     uv_interp = uv; 

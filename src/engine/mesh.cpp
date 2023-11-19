@@ -167,6 +167,7 @@ void Mesh::SetupBuffers() {
 
 	glBindBuffer(GL_VERTEX_ARRAY, 0);
 	glBindVertexArray(0);
+
 }
 
 void Mesh::Draw() {
