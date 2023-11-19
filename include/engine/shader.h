@@ -12,23 +12,28 @@
 #include <iostream>
 #include <vector>
 
+static const int MAX_LIGHTS = 6;
+
+// make sure these fields are alligned on 4 byte boundary
 struct ShaderLight {
-    glm::vec3 light_position = {0, 0, 0};
-    glm::vec4 color = {1, 1, 0, 1};
-    glm::vec4 ambient_color = {1, 1, 1, 1};
-    float ambient_strength = 0.7;
+    glm::vec3 light_position = {0.0, 0.0, 0.0};
+    float ambient_strength   = 0.2;
+    glm::vec4 color          = {1.0, 1.0, 1.0, 1.0};
+    glm::vec4 ambient_color  = {1.0, 1.0, 1.0, 1.0};
     glm::vec3 direction;
     float spread;
+};
+
+struct LightsBlock {
+    ShaderLight lights[MAX_LIGHTS];
 };
 
 class Light;
 
 class Shader {
 public:
-    static const int MAX_LIGHTS = 6;
 
-    ShaderLight lights[MAX_LIGHTS];
-
+    LightsBlock lightsblock;
 	unsigned int id;
 	Shader(const char* vertex_path, const char* frag_path);
 	Shader() = default;

@@ -1,12 +1,15 @@
 #include "shader.h"
 #include "light.h"
 #include <exception>
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 #include "defines.h"
 
 
 Shader::Shader(const char* vertex_path, const char* fragment_path) {
 	vert_path = vertex_path;
 	frag_path = fragment_path;
+    memset(lightsblock.lights, 0, MAX_LIGHTS * sizeof(ShaderLight));
     Load();
 }
 
@@ -87,13 +90,16 @@ bool Shader::Load() {
 	glDeleteShader(vertex_shader);
 	glDeleteShader(frag_shader);
 
-    GLuint uniformLocation = glGetUniformLocation(id, "world_lights");
-    // Pass the entire array to the shader
-    glUniformBlockBinding(id, uniformLocation, 0);  // Assuming binding point 0
-
     glGenBuffers(1, &ubo);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo);
-    glBufferData(GL_UNIFORM_BUFFER, MAX_LIGHTS * sizeof(ShaderLight), &lights[0], GL_STREAM_DRAW);
+    GLuint bindingPoint = 0;  // Choose a suitable binding point
+    GLuint lightsBlockIndex = glGetUniformBlockIndex(id, "LightsBlock");
+    glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, ubo);
+    glUniformBlockBinding(id, lightsBlockIndex, bindingPoint);
+    // glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferData(GL_UNIFORM_BUFFER, MAX_LIGHTS * sizeof(ShaderLight), nullptr, GL_STREAM_DRAW);
+    SetUniform1i(0, "LightsBlock");
+
+    // Associate the buffer with the block index
 	return true;
 }
 
@@ -103,13 +109,15 @@ void Shader::Use() const{
 
 void Shader::SetLights(std::vector<Light*>& world_lights) {
     int i = 0;
-    for(; i < MIN(world_lights.size(), Shader::MAX_LIGHTS); i++) {
-        world_lights[i]->SetUniforms(lights[i]);
+    for(; i < MIN(world_lights.size(), MAX_LIGHTS); i++) {
+        world_lights[i]->SetUniforms(lightsblock.lights[i]);
     }
-    glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Light) * i, lights);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    std::cout << sizeof(lights) << " " << i << std::endl;
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightsBlock), &lightsblock);
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+        std::cout << "subdataerror" <<  glewGetErrorString(error) << std::endl;
+    }
     SetUniform1i(i, "num_world_lights");
 }
 

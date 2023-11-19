@@ -171,9 +171,14 @@ void Game::SetupSpaceScene() {
     planet->SetNormalMap("T_RockNormalMap", 4.0f);
     scn->AddNode(planet);
 
-    Light* light = new Light(Colors::Yellow);
-    light->transform.SetPosition({0.0, 300.0, 400.0});
+    Light* light = new Light(Colors::SeaBlue);
+    light->transform.SetPosition({300.0, 300.0, 0.0});
     scn->AddLight(light);
+
+    Light* l2 = new Light(Colors::Yellow);
+    l2->transform.SetPosition({-300.0, -300.0, 0.0});
+    scn->AddLight(l2);
+
 }
 
 void Game::SetupFPScene(void) {

@@ -9,9 +9,9 @@ in vec3 light_pos;
 
 struct Light {
     vec3 position;
+    float ambient_strength;
     vec4 color;
     vec4 ambient_color;
-    float ambient_strength;
     vec3 direction;
     float spread;
 };
@@ -62,8 +62,7 @@ vec4 lighting(vec4 pixel, int i, vec3 lv, vec3 n) {
     // float spec = phong_specular(lv, n);
     if(diffuse == 0.0) {spec = 0.0;}
 
-    // return diffuse_strength*diffuse*lights[i].color*pixel + lights[i].ambient_strength*lights[i].ambient_color*pixel + spec*lights[i].color;
-    return diffuse*vec4(lights[i].position, 1.0);
+    return diffuse_strength*diffuse*lights[i].color*pixel + lights[i].ambient_strength*lights[i].ambient_color*pixel + spec*lights[i].color;
 }
 
 void main() 
@@ -79,5 +78,5 @@ void main()
         // vec4 lit_pixel = pixel;
         accumulator += lit_pixel;
     }
-    gl_FragColor = accumulator;
+    gl_FragColor = accumulator ;
 }

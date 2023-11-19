@@ -30,13 +30,14 @@ struct Mouse {
 #define HEXCOLOR(h) {((h&0xFF0000)>>16)/255.0f, ((h&0x00FF00)>>8)/255.0f, (h&0x0000FF)/255.0f, 1.0f}
 #define HEXCOLORALPH(h, a) {((h&0xFF0000)>>16)/255.0f, ((h&0x00FF00)>>8)/255.0f, (h&0x0000FF)/255.0f, a}
 namespace Colors {
-    const glm::vec4 White      = HEXCOLOR(0xFFFFFF);
-    const glm::vec4 Black      = HEXCOLOR(0x000000);
-    const glm::vec4 SlimeGreen = HEXCOLOR(0xAFAF00);
-    const glm::vec4 Magenta = HEXCOLOR(0xFF00FF);
+    const glm::vec4 White       = HEXCOLOR(0xFFFFFF);
+    const glm::vec4 Black       = HEXCOLOR(0x000000);
+    const glm::vec4 SlimeGreen  = HEXCOLOR(0xAFAF00);
+    const glm::vec4 Magenta     = HEXCOLOR(0xFF00FF);
     const glm::vec4 Transparent = HEXCOLORALPH(0x000000, 0.0f);
-    const glm::vec4 Yellow      = HEXCOLOR(0xFFFF00);
+    const glm::vec4 Yellow      = HEXCOLOR(0xF8AA01);
     const glm::vec4 SeaBlue     = HEXCOLOR(0x83A598);
+    const glm::vec4 Red         = HEXCOLOR(0xFF0010);
 }
 
 typedef std::function<void(Mouse& mouse)> MouseHandler;

@@ -20,12 +20,13 @@ out vec3 light_pos;
 out vec3 color_interp;
 out vec3 normal_interp;
 
-// Material attributes (constants)
+out float test;
+
 struct Light {
     vec3 position;
+    float ambient_strength;
     vec4 color;
     vec4 ambient_color;
-    float ambient_strength;
     vec3 direction;
     float spread;
 };
@@ -33,7 +34,9 @@ struct Light {
 out Light lights[6];
 flat out int num_lights;
 
-Light world_lights[6];
+layout(std140) uniform LightsBlock {
+    Light world_lights[6];
+};
 uniform int num_world_lights;
 
 void main()
@@ -53,8 +56,10 @@ void main()
     position_interp = TBN_mat * vec3(position);
     normal_interp = TBN_mat * vertex_normal;
     for(int i = 0; i < num_world_lights; i++) {
-        lights[i] = world_lights[i];
-        lights[i].position = TBN_mat * vec3(view_mat * vec4(world_lights[i].position, 1.0));
+        lights[i].position         = TBN_mat * vec3(view_mat * vec4(world_lights[i].position, 1.0));
+        lights[i].color            = world_lights[i].color;
+        lights[i].ambient_color    = world_lights[i].ambient_color;
+        lights[i].ambient_strength = world_lights[i].ambient_strength;
     }
     num_lights = num_world_lights;
 

@@ -13,10 +13,10 @@ void Light::SetUniforms(ShaderLight& l) {
         pos += parent_transform->GetPosition();
     }
     
-    l.light_position = pos;
-    l.color = color;
+    l.light_position   = pos;
+    l.color            = color;
     l.ambient_strength = ambient_power;
-    l.ambient_color = color;
+    l.ambient_color    = color;
 }
 
 void Light::Attach(Transform *transform) {

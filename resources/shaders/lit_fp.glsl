@@ -1,4 +1,4 @@
-#version 130
+#version 330
 
 // Attributes passed from the vertex shader
 in vec3 position_interp;
@@ -6,6 +6,18 @@ in vec3 normal_interp;
 in vec4 color_interp;
 in vec2 uv_interp;
 in vec3 light_pos;
+
+struct Light {
+    vec3 position;
+    float ambient_strength;
+    vec4 color;
+    vec4 ambient_color;
+    vec3 direction;
+    float spread;
+};
+
+in Light lights[6];
+flat in int num_lights;
 
 // Uniform (global) buffer
 uniform sampler2D texture_map;
@@ -39,21 +51,26 @@ float blinnphong_specular(vec3 lv, vec3 n) {
 }
 
 
-vec4 lighting(vec4 pixel, vec3 lv, vec3 n) {
+vec4 lighting(vec4 pixel, int i, vec3 lv, vec3 n) {
 
 	float diffuse = max(0.0, dot(n,lv)); 
     float spec = blinnphong_specular(lv, n);
     // float spec = phong_specular(lv, n);
     if(diffuse == 0.0) {spec = 0.0;}
-		
-    return diffuse_strength*diffuse*light_col*pixel + amb*ambcol*pixel + spec*light_col;
+
+    return diffuse_strength*diffuse*lights[i].color*pixel + lights[i].ambient_strength*lights[i].ambient_color*pixel + spec*lights[i].color;
 }
 void main() 
 {
-	vec3 lv = normalize(light_pos - position_interp); // light direction, object position as origin
+
 	vec3 n = normalize(normal_interp); 
     vec4 pixel = texture2D(texture_map, uv_interp * texture_repetition);
     // pixel *= color_interp;
-    vec4 lit_pixel = lighting(pixel, lv, n);
-    gl_FragColor =  lit_pixel;
+    vec4 accumulator = vec4(0.0, 0.0, 0.0, 0.0);
+    for(int i = 0; i < num_lights; i++) {
+        vec3 lv = normalize(lights[i].position - position_interp); // light direction, object position as origin
+        vec4 lit_pixel = lighting(pixel, i, lv, n);
+        accumulator += lit_pixel;
+    }
+    gl_FragColor =  accumulator/num_lights;
 }
