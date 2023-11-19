@@ -1,4 +1,5 @@
 #include "defines.h"
+#include "fp_player.h"
 #include "scene_graph.h"
 #include "application.h"
 #include <GLFW/glfw3.h>
@@ -83,8 +84,8 @@ void Game::LoadMeshes() {
     resman.CreateQuad      ("M_Quad");
     resman.CreateCone      ("M_Branch", 1.0, 1.0, 2, 10);
     resman.CreateSphere    ("M_Leaf", 1.0, 4, 10);
-    resman.CreatePointCloud("M_StarCloud", 50000, 600, {0.8, 0.8, 0.8, 0.8});
-    resman.CreateSphere    ("M_Planet", 1, 500, 500);
+    resman.CreatePointCloud("M_StarCloud", 70000, 2000, {0.8, 0.8, 0.8, 0.8});
+    resman.CreateSphere    ("M_Planet", 1, 200, 200);
 
     std::cout << "meshes loaded" << std::endl;
 }
@@ -103,16 +104,17 @@ void Game::LoadShaders() {
 void Game::LoadTextures() {
     // load textures
     resman.LoadTexture("T_Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
-    resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
+    // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST, 4.0f);
     resman.LoadTexture("T_Ship", RESOURCES_DIRECTORY"/shiptex.png", GL_REPEAT);
-    // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, 4.0f);
-    // resman.LoadTexture("T_SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_REPEAT);
-    // resman.LoadTexture("T_MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
+    // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST, 4.0f);
+    // resman.LoadTexture("T_SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_LINEAR);
+    resman.LoadTexture("T_MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
     // resman.LoadTexture("T_RockPlanet", RESOURCES_DIRECTORY"/mine_rocks.png", GL_REPEAT);
     // resman.LoadTexture("T_RedPlanet", RESOURCES_DIRECTORY"/red_rubble.png", GL_REPEAT);
-    resman.LoadTexture("T_MoonPlanet", RESOURCES_DIRECTORY"/4k_ceres.jpg", GL_REPEAT);
+    resman.LoadTexture("T_MoonPlanet", RESOURCES_DIRECTORY"/4k_ceres.jpg", GL_REPEAT, GL_LINEAR);
     // resman.LoadTexture("T_KaliaPlanet", RESOURCES_DIRECTORY"/kalia.png", GL_REPEAT);
-    resman.LoadTexture("T_WallNormalMap", RESOURCES_DIRECTORY"/normal_map2.png", GL_REPEAT, 100.0f);
+    resman.LoadTexture("T_WallNormalMap", RESOURCES_DIRECTORY"/normal_map2.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_RockNormalMap", RESOURCES_DIRECTORY"/lavarock_normalmap.png", GL_REPEAT, GL_LINEAR);
 
     std::cout << "textures loaded" << std::endl;
 }
@@ -147,13 +149,31 @@ void Game::SetupScenes(void){
 }
 
 void Game::SetupSpaceScene() {
+    SceneGraph* scn = scenes[SPACE];
+    Camera& camera = scn->GetCamera();
+    camera.SetView(config::camera_position, config::camera_look_at, config::camera_up);
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
+    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-//     camera.SetView(config::camera_position, config::camera_look_at, config::camera_up);
-//     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, win.width, win.height);
-//     camera.SetOrtho(win.width, win.height);
-    Player* player = new Player("Obj_Player", "M_Ship", "S_Lit", "T_Charmap");
+    Player* player = new Player("Obj_Player", "M_Ship", "S_Lit", "T_Ship");
     player->transform.SetPosition(player_position_g);
-    // app.GetCamera().Attach(&player->transform); // Attach the camera to the player
+    camera.Attach(&player->transform, true);
+    scn->SetPlayer(player);
+    scn->AddNode(player);
+
+    SceneNode* stars = new SceneNode("Obj_Starcloud", "M_StarCloud", "S_Default", "");
+    scn->AddNode(stars);
+
+    SceneNode* planet = new SceneNode("Obj_Planet", "M_Planet", "S_NormalMap", "T_MarsPlanet");
+    planet->transform.SetPosition({0.0, 0.0, -2000.0});
+    planet->transform.SetScale({800, 800, 800});
+    planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
+    planet->SetNormalMap("T_RockNormalMap", 4.0f);
+    scn->AddNode(planet);
+
+    Light* light = new Light(Colors::Yellow);
+    light->transform.SetPosition({0.0, 300.0, 400.0});
+    scn->AddLight(light);
 }
 
 void Game::SetupFPScene(void) {
@@ -176,7 +196,8 @@ void Game::SetupFPScene(void) {
     int terrain_size = 1000;
     Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", terrain_size, terrain_size, 0.25, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
-    t->SetNormalMap("T_WallNormalMap");
+    t->material.texture_repetition = 6.0f;
+    t->SetNormalMap("T_WallNormalMap", 40.0f);
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
 
@@ -191,7 +212,6 @@ void Game::Update(double dt, KeyMap &keys) {
 
 
 void Game::CheckControls(KeyMap& keys) {
-    Player* player = active_scene->GetPlayer();
 
     // if (keys[GLFW_KEY_ESCAPE]){
     //     app.Quit();
@@ -204,20 +224,33 @@ void Game::CheckControls(KeyMap& keys) {
         keys[GLFW_KEY_ESCAPE] = false;
     }
 
-    // Debug print the player's location
-    if(keys[GLFW_KEY_P]) {
-        glm::vec3 p = player->transform.GetPosition();
-        glm::quat o = player->transform.GetOrientation();
-        std::cout << glm::to_string(p) << " " << glm::to_string(o) << std::endl;
-        keys[GLFW_KEY_P] = false;
-    }
-
     if(keys[GLFW_KEY_T]) {
         for(auto s : scenes) {
             delete s;
         }
         SetupScenes();
         keys[GLFW_KEY_T] = false;
+    }
+
+    if(keys[GLFW_KEY_1]) {
+        ChangeScene(FPTEST);
+        keys[GLFW_KEY_1] = false;
+    }
+    if(keys[GLFW_KEY_2]) {
+        ChangeScene(SPACE);
+        keys[GLFW_KEY_2] = false;
+    }
+
+
+
+    Player* player = active_scene->GetPlayer();
+    // Debug print the player's location
+    if(player != nullptr) {
+    if(keys[GLFW_KEY_P]) {
+        glm::vec3 p = player->transform.GetPosition();
+        glm::quat o = player->transform.GetOrientation();
+        std::cout << glm::to_string(p) << " " << glm::to_string(o) << std::endl;
+        keys[GLFW_KEY_P] = false;
     }
 
     if(keys[GLFW_KEY_RIGHT_BRACKET]) {
@@ -257,8 +290,18 @@ void Game::CheckControls(KeyMap& keys) {
         active_scene->GetCamera().transform.Pitch(-0.05f);
     }
 
+    if(keys[GLFW_KEY_X]) {
+        if(active_scene->GetCamera().IsAttached()) {
+            active_scene->GetCamera().Drop();
+        } else {
+            active_scene->GetCamera().Attach(&player->transform);
+        }
+        keys[GLFW_KEY_X] = false;
+    }
+    }
+
     if(keys[GLFW_KEY_0]) {
-        LoadShaders();
+        SetupResources();
         keys[GLFW_KEY_0] = false;
     }
 
@@ -270,14 +313,6 @@ void Game::CheckControls(KeyMap& keys) {
         active_scene->GetCamera().transform.Translate({0.0, 0.0,0.1});
     }
 
-    if(keys[GLFW_KEY_X]) {
-        if(active_scene->GetCamera().IsAttached()) {
-            active_scene->GetCamera().Drop();
-        } else {
-            active_scene->GetCamera().Attach(&player->transform);
-        }
-        keys[GLFW_KEY_X] = false;
-    }
 
     // if(keys[GLFW_KEY_2]) {
     //     SetActiveScene(FPTEST);
@@ -307,6 +342,7 @@ void Game::MouseControls(Mouse& mouse) {
 
     // player->transform.Yaw(look.x);
     Player* player = active_scene->GetPlayer();
+    if(player == nullptr) {return;}
     player->ShipControl(Player::Controls::YAWL, look.x);
     player->ShipControl(Player::Controls::PITCHU, look.y);
 }

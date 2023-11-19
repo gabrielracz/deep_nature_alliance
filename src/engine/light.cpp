@@ -14,7 +14,6 @@ void Light::SetUniforms(Shader* shader) {
     }
     shader->SetUniform3f(pos, "light_pos_world");
     shader->SetUniform4f(color, "light_col");
-    shader->SetUniform1f(spec_power, "spec_power");
     shader->SetUniform1f(ambient_power, "amb");
     shader->SetUniform4f(color, "ambcol");
 }

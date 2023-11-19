@@ -55,11 +55,11 @@ class Camera {
         glm::vec3 move_queue = {0.0, 0.0, 0.0};
 
         // sane camera defaults
-        float fov           = 90.0f;
-        float near          = 0.01;;
-        float far           = 1000.0f;
-        float screen_width  = 1920;
-        float screen_height = 1080;
+        float saved_fov           = 90.0f;
+        float saved_near          = 0.01;;
+        float saved_far           = 1000.0f;
+        float saved_screen_width  = 1920;
+        float saved_screen_height = 1080;
 
         // Create view matrix from current camera parameters
 

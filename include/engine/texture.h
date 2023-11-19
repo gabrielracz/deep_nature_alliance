@@ -6,11 +6,10 @@
 class Texture {
     public:
 	unsigned int id;
-    float texture_repetition = 1;
     bool alpha_enabled = false;
     Texture() = default;
-    Texture(int id, float rep) : id(id), texture_repetition(rep){}
-    Texture(unsigned char* data, int width, int height, int n_channels, int wrap_option, float repitition);
+    Texture(int id) : id(id){}
+    Texture(unsigned char* data, int width, int height, int n_channels, int wrap_option, int sample_option);
     void Bind(Shader* shader,int offset = 0, const std::string& name = "");
 };
 

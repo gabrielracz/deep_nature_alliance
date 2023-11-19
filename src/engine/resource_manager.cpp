@@ -63,7 +63,7 @@ Texture* ResourceManager::GetTexture(const std::string &name) {
     return &it->second;
 }
 
-void ResourceManager::LoadTexture(const std::string& name, const std::string& file_path, int wrap_option, float texture_repetition) {
+void ResourceManager::LoadTexture(const std::string& name, const std::string& file_path, int wrap_option, int sample_option) {
  	stbi_set_flip_vertically_on_load(1);
 	//Texture
 	int width, height, n_channels;
@@ -73,7 +73,7 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
         return;
 	}
 
-    overwrite_emplace(textures, name, Texture(data, width, height, n_channels, wrap_option, texture_repetition));
+    overwrite_emplace(textures, name, Texture(data, width, height, n_channels, wrap_option, sample_option));
 	stbi_image_free(data);
 
 }

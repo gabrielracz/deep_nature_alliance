@@ -19,6 +19,13 @@
 // Class that manages one object in a scene 
 class SceneNode {
 
+    struct MaterialProperties {
+        float texture_repetition = 1.0f;
+        float normal_map_repetition = 1.0f;
+        float specular_power = 69.0f;
+        float diffuse_strength  = 0.8;
+    };
+
     public:
         // Create scene node from given resources
         SceneNode(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id = "")
@@ -31,8 +38,8 @@ class SceneNode {
 
         virtual void SetUniforms(Shader* shader, const glm::mat4& view_matrix);
 
-        void SetTexture(std::string& new_tex_id)            {texture_id = new_tex_id;}
-        void SetNormalMap(const std::string& new_tex_id)          {normalmap_id = new_tex_id;}
+        void SetTexture(std::string& new_tex_id, float texture_repetition = 1.0f);
+        void SetNormalMap(const std::string& new_tex_id, float normal_map_repetition = 1.0f); 
         void AddChild(SceneNode* n)                         {children.push_back(n);}
         void SetCollision(const CollisionData& t)           {collision = t;}
 
@@ -48,6 +55,7 @@ class SceneNode {
         const CollisionData& GetCollision() const           {return collision;}
 
         Transform transform;
+        MaterialProperties material;
         bool active = true;
         bool visible = true;
         int inverted = 0;
