@@ -171,13 +171,18 @@ void Game::SetupSpaceScene() {
     planet->SetNormalMap("T_RockNormalMap", 4.0f);
     scn->AddNode(planet);
 
-    Light* light = new Light(Colors::SeaBlue);
+    Light* light = new Light(Colors::WarmWhite);
     light->transform.SetPosition({300.0, 300.0, 0.0});
     scn->AddLight(light);
 
     Light* l2 = new Light(Colors::Yellow);
-    l2->transform.SetPosition({-300.0, -300.0, 0.0});
+    l2->transform.SetPosition({-300.0, -300.0, -300.0});
     scn->AddLight(l2);
+
+    // Light* flashlight = new Light(Colors::Red);
+    // l2->transform.SetPosition({-300.0, -300.0, 0.0});
+    // l2->Attach(&player->transform);
+    // scn->AddLight(l2);
 
 }
 
@@ -199,7 +204,7 @@ void Game::SetupFPScene(void) {
     AddToScene(FPTEST, n);
 
     int terrain_size = 1000;
-    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", terrain_size, terrain_size, 0.25, this);
+    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, terrain_size, terrain_size, 0.25, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     t->material.texture_repetition = 6.0f;
     t->SetNormalMap("T_WallNormalMap", 40.0f);

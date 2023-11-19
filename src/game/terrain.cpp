@@ -1,6 +1,7 @@
 #include <glm/gtc/noise.hpp>
 
 #include "terrain.h"
+#include "terrain_data.h"
 #include "defines.h"
 #include "game.h"
 
@@ -9,8 +10,8 @@
 
 float MAX_PASSABLE_SLOPE = 0.5f;
 
-Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, float xwidth, float zwidth, float density, Game* game)
-    : SceneNode(name, mesh_id, shader_id, texture_id), xwidth(xwidth), zwidth(zwidth), game(game) {
+Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, TerrainType type, float xwidth, float zwidth, float density, Game* game)
+    : SceneNode(name, mesh_id, shader_id, texture_id), xwidth(xwidth), zwidth(zwidth), type(type), game(game) {
 
     // generate uniform grid
     num_xsteps = xwidth * density;
@@ -18,7 +19,7 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     xstep = xwidth / num_xsteps;
     zstep = zwidth / num_zsteps;
 
-    GenerateHeightmap();
+    GenerateHeightmap(type);
     GenerateQMoon();
     GenerateNormals();
     GenerateTangents();
@@ -28,8 +29,21 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     GenerateMesh();
 }
 
-void Terrain::GenerateHeightmap() {
+void Terrain::GenerateHeightmap(TerrainType type) {
     heights.resize(num_xsteps, std::vector<float>(num_zsteps, 0.0));
+    switch(type) {
+        case TerrainType::MOON:
+            GenerateQMoon();
+            break;
+        case TerrainType::FOREST:
+            GenerateForest();
+            break;
+        default:
+            break;
+    }
+}
+
+void Terrain::GenerateQMoon() {
     float image_xstep = sizeof(terrain[0]) / sizeof(*terrain[0]) / num_xsteps;
     float image_zstep = sizeof(terrain) / sizeof(*terrain) / num_zsteps;
     for (int z = 0; z < num_zsteps; z++) {
@@ -76,9 +90,7 @@ void Terrain::GenerateHeightmap() {
             heights[x][z] = height;
         }
     }
-}
 
-void Terrain::GenerateQMoon() {
     int min_craters = 35;
     int max_craters = 60;
     float min_crater_radius = 2;
@@ -119,6 +131,10 @@ void Terrain::GenerateQMoon() {
             }
         }
     }
+}
+
+void Terrain::GenerateForest() {
+
 }
 
 void Terrain::GenerateNormals() {

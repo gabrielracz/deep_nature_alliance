@@ -10,7 +10,8 @@ void Light::Update(float dt) {
 void Light::SetUniforms(ShaderLight& l) {
     glm::vec3 pos = transform.GetPosition();
     if(parent_transform){ 
-        pos += parent_transform->GetPosition();
+        // pos += parent_transform->GetWorldPosition();
+        pos = parent_transform->GetWorldPosition();
     }
     
     l.light_position   = pos;

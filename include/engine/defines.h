@@ -31,6 +31,7 @@ struct Mouse {
 #define HEXCOLORALPH(h, a) {((h&0xFF0000)>>16)/255.0f, ((h&0x00FF00)>>8)/255.0f, (h&0x0000FF)/255.0f, a}
 namespace Colors {
     const glm::vec4 White       = HEXCOLOR(0xFFFFFF);
+    const glm::vec4 WarmWhite   = HEXCOLOR(0xFFEA90);
     const glm::vec4 Black       = HEXCOLOR(0x000000);
     const glm::vec4 SlimeGreen  = HEXCOLOR(0xAFAF00);
     const glm::vec4 Magenta     = HEXCOLOR(0xFF00FF);
