@@ -6,7 +6,7 @@ project(${PROJ_NAME})
 
 set (CMAKE_CXX_STANDARD 17)
 set(COMPILER_FLAGS "-g")
-# set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Specify project files: header files and source files
 set(HDRS
