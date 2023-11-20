@@ -86,30 +86,30 @@ void Tp_Player::MouseControls(Mouse& mouse){
 void Tp_Player::Control(Controls c, float dt, float damping){
     const float rot_force = damping * 2000.0f;
     const float thrust_force = damping * move_speed * 25550.0f;
-    switch(static_cast<TPControls>(c)) {
-        case THRUST:
+    switch(c) {
+        case Player::Controls::SHIFT:
             // f;worce += -transform.LocalAxis(FORWARD) * thrust_force;
             force += transform.GetAxis(FORWARD) * thrust_force;
             break;
-        case BRAKE:
+        case Player::Controls::CTRL:
             braking = true;
             break;
-        case PITCHD:
+        case Player::Controls::W:
             torque += transform.GetAxis(SIDE) * -rot_force;
             break;
-        case PITCHU:
+        case Player::Controls::S:
             torque += transform.GetAxis(SIDE) * rot_force;
             break;
-        case YAWL:
+        case Player::Controls::Q:
             torque += transform.GetAxis(UP) * rot_force;
             break;
-        case YAWR:
+        case Player::Controls::E:
             torque += transform.GetAxis(UP) * -rot_force;
             break;
-        case ROLLL:
+        case Player::Controls::A:
             torque += transform.GetAxis(FORWARD) * -rot_force * 2.0f;
             break;
-        case ROLLR:
+        case Player::Controls::D:
             torque += transform.GetAxis(FORWARD) * rot_force * 2.0f;
             break;
         default:

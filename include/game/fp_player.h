@@ -35,17 +35,17 @@ protected:
     float sensitivity_ = 0.001f;
 
 private:
- enum FPControls {
-     FORWARD = (int)(Player::Controls::W),
-     BACK = (int)(Player::Controls::S),
-     SPRINT = (int)(Player::Controls::SHIFT),
-     CROUCH = (int)(Player::Controls::CTRL),
-     SPINL = (int)(Player::Controls::Q),
-     SPINR = (int)(Player::Controls::E),
-     LEFT = (int)(Player::Controls::A),
-     RIGHT = (int)(Player::Controls::D),
-     JUMP = (int)(Player::Controls::SPACE)
- };
+//  enum FPControls {
+//      FORWARD = (int)(Player::Controls::W),
+//      BACK = (int)(Player::Controls::S),
+//      SPRINT = (int)(Player::Controls::SHIFT),
+//      CROUCH = (int)(Player::Controls::CTRL),
+//      SPINL = (int)(Player::Controls::Q),
+//      SPINR = (int)(Player::Controls::E),
+//      LEFT = (int)(Player::Controls::A),
+//      RIGHT = (int)(Player::Controls::D),
+//      JUMP = (int)(Player::Controls::SPACE)
+//  };
 
  Camera* camera_;
 

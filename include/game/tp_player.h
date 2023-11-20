@@ -47,17 +47,17 @@ class Tp_Player : public Player {
 
    private:
     //naming would be super fucked this is still ugly but better than forward being up and stuff
-    enum TPControls {
-        PITCHD = (int)(Player::Controls::W),
-        PITCHU = (int)(Player::Controls::S),
-        THRUST = (int)(Player::Controls::SHIFT),
-        BRAKE = (int)(Player::Controls::CTRL),
-        YAWL = (int)(Player::Controls::Q),
-        YAWR = (int)(Player::Controls::E),
-        ROLLL = (int)(Player::Controls::A),
-        ROLLR = (int)(Player::Controls::D),
-        NOTHING = (int)(Player::Controls::SPACE)
-    };
+    // enum TPControls {
+    //     PITCHD = (int)(Player::Controls::W),
+    //     PITCHU = (int)(Player::Controls::S),
+    //     THRUST = (int)(Player::Controls::SHIFT),
+    //     BRAKE = (int)(Player::Controls::CTRL),
+    //     YAWL = (int)(Player::Controls::Q),
+    //     YAWR = (int)(Player::Controls::E),
+    //     ROLLL = (int)(Player::Controls::A),
+    //     ROLLR = (int)(Player::Controls::D),
+    //     NOTHING = (int)(Player::Controls::SPACE)
+    // };
 };
 
 #endif
