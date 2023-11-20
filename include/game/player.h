@@ -1,54 +1,30 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef __DEEP_NATURE_ALLIANCE_INCLUDE_GAME_PLAYER_H_
+#define __DEEP_NATURE_ALLIANCE_INCLUDE_GAME_PLAYER_H_
 
 #include "scene_node.h"
-#include <glm/matrix.hpp>
-class Player : public SceneNode {
+
+class Player : public SceneNode{
 public:
     enum class Controls{
-        THRUST,
-        BRAKE,
-        PITCHD,
-        PITCHU,
-        YAWL,
-        YAWR,
-        ROLLL,
-        ROLLR
+        W,
+        A,
+        S,
+        D,
+        SHIFT,
+        CTRL,
+        Q,
+        E,
+        SPACE
     };
 
     Player(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id = "")
     : SceneNode(name, mesh_id, shader_id, texture_id) {}
 
-    virtual void Update(double dt) override;
+    virtual void Control(Controls c, float damping = 1.0) = 0;
+    virtual void MouseControls(Mouse& mouse) = 0;
 
-    void Thrust(int d);
-    void ShipControl(Controls c, float damping = 1.0);
-
-    glm::vec3 torque           = {0.0f, 0.0f, 0.0f};
-    glm::vec3 ang_acceleration = {0.0f, 0.0f, 0.0f};
-    glm::vec3 ang_velocity     = {0.0f, 0.0f, 0.0f};
-
-    glm::vec3 force            = {0.0f, 0.0f, 0.0f};
-    glm::vec3 acceleration     = {0.0f, 0.0f, 0.0f};
     glm::vec3 velocity         = {0.0f, 0.0f, 0.0f};
 
-    float mass = 1000;
-    float move_speed = 2.5f;
-    float accel_amt = 0.25;
-    bool braking = false;
-    float brake_width = 1.0f;
-
-    
-
-    int lives = 1;
-    glm::vec3 angular_velocity {0.0f, 0.0f, 0.0f};
-    // glm::vec3 velocity {0.0f, 0.0f, 0.0f};
-
-    glm::mat3 inertia = glm::mat3(
-             1000.0f,   0.0f,   0.0f,
-               0.0f, 1700.0f,   0.0f,
-               0.0f,     0.0,    1000.0f);
-    glm::mat3 inv_inertia = glm::inverse(inertia);
 };
 
-#endif
+#endif // __DEEP_NATURE_ALLIANCE_INCLUDE_GAME_PLAYER_H_

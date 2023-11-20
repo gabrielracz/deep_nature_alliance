@@ -23,6 +23,7 @@
 #include "tree.h"
 #include "text.h"
 #include "terrain.h"
+#include "tp_player.h"
 
 // Some configuration constants
 // They are written here as global variables, but ideally they should be loaded from a configuration file
@@ -126,18 +127,20 @@ void Game::SetupScenes(void){
         scenes.push_back(new SceneGraph(app));
     }
 
-    active_scene = scenes[FPTEST];
-    active_scene->SetBackgroundColor(viewport_background_color_g);
-
 
     //player created temporarily just so when controls query for player not null
     //once player refactor shoudl fix 
     //also for assignment can just remove control code from game temporarily
-    CreatePlayer();
+    // CreatePlayer();
 
     SetupSpaceScene();
     SetupFPScene(); // FPS TEST SCENE
     SetupForestScene();
+
+
+    //needs to go after setup (players need to be init)
+    
+    ChangeScene(FPTEST);
 
 
 
@@ -156,7 +159,7 @@ void Game::SetupSpaceScene() {
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    Player* player = new Player("Obj_Player", "M_Ship", "S_Lit", "T_Ship");
+    Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_Lit", "T_Ship");
     player->transform.SetPosition(player_position_g);
     camera.Attach(&player->transform, true);
     scn->SetPlayer(player);
@@ -193,12 +196,10 @@ void Game::SetupFPScene(void) {
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship");
-    p->Init(app.GetWindow().ptr, &camera);
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship", &camera);
     p->transform.SetPosition(player_position_g);
     p->visible = false;
-    scenes[FPTEST]->SetFPPlayer(p);
-    AddToScene(FPTEST, p);
+    AddPlayerToScene(FPTEST, p);
 
     SceneNode* n = new SceneNode("Shippy", "M_Ship", "S_Lit");
     n->transform.SetPosition(glm::vec3(0,0,-10));
@@ -211,24 +212,20 @@ void Game::SetupFPScene(void) {
     t->SetNormalMap("T_WallNormalMap", 40.0f);
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
-
-    app.SetMouseHandler(std::bind(&FP_Player::MouseControls, active_scene->GetFPPlayer(), std::placeholders::_1));
-    // app.SetFirstPersonView();
 }
 
 void Game::SetupForestScene() {
-    SceneGraph* scn = scenes[FOREST];
-    Camera& camera = scn->GetCamera();
+    Camera& camera = scenes[FOREST]->GetCamera();
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
 
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship");
-    p->Init(app.GetWindow().ptr, &camera);
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship", &camera);
     p->transform.SetPosition(player_position_g);
     p->visible = false;
-    scn->SetFPPlayer(p);
-    scn->AddNode(p);
+    AddPlayerToScene(FOREST, p);
+    // scn->SetPlayer(p);
+    // scn->AddNode(p);
 
     int terrain_size = 1000;
     Terrain* t = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_MoonPlanet", TerrainType::FOREST, terrain_size, terrain_size, 0.25, this);
@@ -236,11 +233,11 @@ void Game::SetupForestScene() {
     t->material.texture_repetition = 6.0f;
     t->SetNormalMap("T_WallNormalMap", 40.0f);
     p->SetTerrain(t);
-    scn->AddNode(t);
+    scenes[FOREST]->AddNode(t);
 
     Light* light = new Light(Colors::WarmWhite);
     light->transform.SetPosition({300.0, 300.0, 0.0});
-    scn->AddLight(light);
+    scenes[FOREST]->AddLight(light);
 }
 
 void Game::Update(double dt, KeyMap &keys) {
@@ -300,28 +297,28 @@ void Game::CheckControls(KeyMap& keys) {
     }
 
     if(keys[GLFW_KEY_LEFT_SHIFT]) {
-        player->ShipControl(Player::Controls::THRUST);
+        player->Control(Player::Controls::SHIFT);
     };
     if(keys[GLFW_KEY_LEFT_CONTROL]) {
-        player->ShipControl(Player::Controls::BRAKE);
+        player->Control(Player::Controls::CTRL);
     };
     if(keys[GLFW_KEY_S]) {
-        player->ShipControl(Player::Controls::PITCHU);
+        player->Control(Player::Controls::S);
     };
     if(keys[GLFW_KEY_W]) {
-        player->ShipControl(Player::Controls::PITCHD);
+        player->Control(Player::Controls::W);
     };
     if(keys[GLFW_KEY_Q]) {
-        player->ShipControl(Player::Controls::YAWL);
+        player->Control(Player::Controls::Q);
     };
     if(keys[GLFW_KEY_E]) {
-        player->ShipControl(Player::Controls::YAWR);
+        player->Control(Player::Controls::E);
     };
     if(keys[GLFW_KEY_A]) {
-        player->ShipControl(Player::Controls::ROLLL);
+        player->Control(Player::Controls::A);
     };
     if(keys[GLFW_KEY_D]) {
-        player->ShipControl(Player::Controls::ROLLR);
+        player->Control(Player::Controls::D);
     };
 
     if(keys[GLFW_KEY_UP]) {
@@ -376,25 +373,14 @@ void Game::CheckControls(KeyMap& keys) {
     }
 }
 
-void Game::MouseControls(Mouse& mouse) {
-    // float mouse_sens = -0.001f;
-    float mouse_sens = -0.1f;
-	glm::vec2 look = mouse.move * mouse_sens;
-
-    // player->transform.Yaw(look.x);
-    Player* player = active_scene->GetPlayer();
-    if(player == nullptr) {return;}
-    player->ShipControl(Player::Controls::YAWL, look.x);
-    player->ShipControl(Player::Controls::PITCHU, look.y);
-}
 
 void Game::CreatePlayer() {
-    Player* player = new Player("Obj_Player", "M_Ship", "S_Lit", "T_Charmap");
+    Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_Lit", "T_Charmap");
     player->transform.SetPosition(player_position_g);
     // player->visible = false;
 
     active_scene->GetCamera().Attach(&player->transform); // Attach the camera to the player
-    AddPlayerToScene(SceneEnum::ALL, player);
+    AddPlayerToScene(SceneEnum::SPACE, player);
     // scenes[BEFORETRIGGER]->AddNode(player);
     // scenes[BEFORETRIGGER]->SetPlayer(player);
 
@@ -502,6 +488,8 @@ void Game::CreateLights() {
 void Game::ChangeScene(int sceneIndex) {
     std::cout << "changing scenes" << std::endl;
     active_scene = scenes[sceneIndex];
+    app.SetMouseHandler(std::bind(&Player::MouseControls, active_scene->GetPlayer(), std::placeholders::_1));
+    active_scene->SetBackgroundColor(viewport_background_color_g);
     return;
 }
 

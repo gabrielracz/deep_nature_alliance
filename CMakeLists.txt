@@ -30,6 +30,7 @@ set(HDRS
     include/game/game.h 
     include/game/asteroid.h
     include/game/player.h
+    include/game/tp_player.h
     include/game/enemy.h
     include/game/tree.h
     include/game/text.h
@@ -59,7 +60,7 @@ set(SRCS
     src/game/text.cpp
     src/game/game.cpp 
     src/game/asteroid.cpp
-    src/game/player.cpp
+    src/game/tp_player.cpp
     src/game/enemy.cpp
     src/game/tree.cpp
     src/game/trigger.cpp

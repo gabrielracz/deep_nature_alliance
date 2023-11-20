@@ -1,81 +1,32 @@
 #define GLM_FORCE_RADIANS
 #include "fp_player.h"
 
-void FP_Player::Init(GLFWwindow *w, Camera *c)
-{
-    camera_ = c;
-    c->Attach(&transform);
-    InitEventHandlers(w);
-}
 
-void FP_Player::InitEventHandlers(GLFWwindow *w)
-{
-    control_.Init(w);
-
-    control_.AddKey(
-        GLFW_KEY_W,
-        [this](float dt)
-        { this->SetForward(); },
-        GLFW_REPEAT);
-
-    control_.AddKey(
-        GLFW_KEY_S,
-        [this](float dt)
-        { this->SetBackward(); },
-        GLFW_REPEAT);
-
-    control_.AddKey(
-        GLFW_KEY_A,
-        [this](float dt)
-        { this->SetLeft(); },
-        GLFW_REPEAT);
-
-    control_.AddKey(
-        GLFW_KEY_D,
-        [this](float dt)
-        { this->SetRight(); },
-        GLFW_REPEAT);
-
-    control_.AddKey(
-        GLFW_KEY_W,
-        [this](float dt)
-        { this->UnSetForward(); },
-        GLFW_RELEASE);
-
-    control_.AddKey(
-        GLFW_KEY_S,
-        [this](float dt)
-        { this->UnSetBackward(); },
-        GLFW_RELEASE);
-
-    control_.AddKey(
-        GLFW_KEY_A,
-        [this](float dt)
-        { this->UnSetLeft(); },
-        GLFW_RELEASE);
-
-    control_.AddKey(
-        GLFW_KEY_D,
-        [this](float dt)
-        { this->UnSetRight(); },
-        GLFW_RELEASE);
-
-    control_.AddKey(
-        GLFW_KEY_SPACE,
-        [this](float dt)
-        { this->PlayerJump(); },
-        GLFW_PRESS);
-    float turn_speed =  0.75;
-    control_.AddKey(
-        GLFW_KEY_Q,
-        [this, turn_speed](float dt)
-        { this->transform.Yaw(turn_speed * dt) ; },
-        GLFW_REPEAT);
-    control_.AddKey(
-        GLFW_KEY_E,
-        [this, turn_speed](float dt)
-        { this->transform.Yaw(-turn_speed * dt) ; },
-        GLFW_REPEAT);
+void FP_Player::Control(Controls c, float damping){
+    switch(static_cast<FPControls>(c)) {
+        case FORWARD:
+            this->SetForward(); 
+            break;
+        case BACK:
+            this->SetBackward(); 
+            break;
+        case LEFT:
+            this->SetLeft(); 
+            break;
+        case RIGHT:
+            this->SetRight();
+            break;
+        case SPINL:
+            this->transform.Yaw(turn_speed); 
+            break;
+        case SPINR:
+            this->transform.Yaw(-turn_speed); 
+            break;
+        case JUMP:
+            this->PlayerJump();
+        default:
+            break;  
+    }
 }
 
 void FP_Player::HeadMovement(float dt)
@@ -134,7 +85,6 @@ void FP_Player::TestMove()
 
 void FP_Player::Update(double dt)
 {
-    control_.GetInput(dt);
     Agent::Update(dt);
     HeadMovement(dt);
 }

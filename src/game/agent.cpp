@@ -1,7 +1,7 @@
 #define GLM_FORCE_RADIANS
 #include "agent.h"
 
-Agent::Agent(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id) : SceneNode(name, mesh_id, shader_id, texture_id)
+Agent::Agent(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id) : Player(name, mesh_id, shader_id, texture_id)
 {
 }
 
@@ -143,6 +143,11 @@ void Agent::Update(double dt)
     WalkingMove(walk_direction_, dt);
 
     DownMove(dt);
+
+    forward_ = glm::vec3(0);
+    backward_ = glm::vec3(0);
+    strafe_left_ = glm::vec3(0);
+    strafe_right_ = glm::vec3(0);
 
     SceneNode::Update(dt);
     //printf("%f %f %f \n", walk_direction_.x, walk_direction_.y, walk_direction_.z);
