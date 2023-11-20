@@ -7,7 +7,7 @@
 Application::Application() : view(*this, resman), game(*this, resman){}
 
 void Application::Init() {
-    view.Init("view test", window_width_g, window_height_g);
+    view.Init("Deep Nature Alliance - GameDingos", window_width_g, window_height_g);
     game.Init();
 }
 

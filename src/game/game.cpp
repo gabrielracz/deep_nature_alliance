@@ -80,6 +80,7 @@ void Game::SetupResources(void){
 void Game::LoadMeshes() {
     // load .obj meshes
     resman.LoadMesh        ("M_Ship", RESOURCES_DIRECTORY"/h2.obj");
+    resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/tree4.obj");
 
     // generate geometry
     resman.CreateQuad      ("M_Quad");
@@ -122,6 +123,8 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Grass", RESOURCES_DIRECTORY"/whispy_grass_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_GrassNormalMap", RESOURCES_DIRECTORY"/whispy_grass_normal_map.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MetalNormalMap", RESOURCES_DIRECTORY"/metal_normal_map.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/tree4_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_TreeNormalMap", RESOURCES_DIRECTORY"/tree4_normal_map.png", GL_REPEAT, GL_LINEAR);
 
     std::cout << "textures loaded" << std::endl;
 }
@@ -187,24 +190,10 @@ void Game::SetupSpaceScene() {
     Light* l2 = new Light(Colors::Yellow);
     l2->transform.SetPosition({-300.0, -300.0, -300.0});
     scn->AddLight(l2);
-
-    SceneNode* forest = new SceneNode("Obj_Forest", "M_Planet", "S_Instanced", "T_WallNormalMap");
-    forest->transform.SetPosition({0.0, -30.0, 0.0});
-    forest->transform.SetScale({10, 10, 10});
-    forest->SetNormalMap("T_WallNormalMap", 1.0f);
-    for(int i = 0; i < 10; i++) {
-        Transform t;
-        t.SetPosition({i, 0.0, 0.0});
-        forest->AddInstance(t);
-    }
-    scn->AddNode(forest);
-
-
     // Light* flashlight = new Light(Colors::Red);
     // l2->transform.SetPosition({-300.0, -300.0, 0.0});
     // l2->Attach(&player->transform);
     // scn->AddLight(l2);
-
 }
 
 void Game::SetupFPScene(void) {
@@ -250,17 +239,31 @@ void Game::SetupForestScene() {
     // scn->AddNode(p);
 
     int terrain_size = 1000;
-    Terrain* t = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.25, this);
-    t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
-    t->material.specular_power = 0.0f;
-    t->material.texture_repetition = 20.0f;
-    t->SetNormalMap("T_GrassNormalMap", 20.0f);
-    p->SetTerrain(t);
-    scenes[FOREST]->AddNode(t);
+    Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.1, this);
+    terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
+    terr->material.specular_power = 0.0f;
+    terr->material.texture_repetition = 20.0f;
+    terr->SetNormalMap("T_GrassNormalMap", 20.0f);
+    p->SetTerrain(terr);
+    scenes[FOREST]->AddNode(terr);
 
     Light* light = new Light(Colors::WarmWhite);
     light->transform.SetPosition({300.0, 300.0, 0.0});
     scenes[FOREST]->AddLight(light);
+
+    SceneNode* forest = new SceneNode("Obj_Forest", "M_Tree", "S_Instanced", "T_Tree");
+    // forest->transform.SetScale({5, 5, 5});
+    forest->SetNormalMap("T_TreeNormalMap", 1.0f);
+    forest->material.specular_power = 200.0f;
+    for(int i = 0; i < 50; i++) {
+        Transform t;
+        float x = rng.randfloat(-300, 300);
+        float z = rng.randfloat(-300, 300);
+        float y = terr->SampleHeight(x, z);
+        t.SetPosition({x, y, z});
+        forest->AddInstance(t);
+    }
+    scenes[FOREST]->AddNode(forest);
 }
 
 void Game::Update(double dt, KeyMap &keys) {
