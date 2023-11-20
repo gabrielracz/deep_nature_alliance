@@ -137,6 +137,7 @@ void View::InitView(){
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DITHER);
     glDepthFunc(GL_LESS);
+    glEnable(GL_CULL_FACE);  
 
 	//Use this to disable vsync
 	// glfwSwapInterval(0);

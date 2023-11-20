@@ -191,7 +191,6 @@ void Mesh::Draw(int instances) {
     glBindVertexArray(VAO);
     if(instances > 0) {
         glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, instances);
-        std::cout << "draw instanced " << instances << std::endl;
     }
 	if(indices.size() > 0) {
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
