@@ -28,7 +28,7 @@ protected:
     float tilt_angle_ = 0.15f;
     float tilt_smoothing_ = 0.02f;
     float tilt_speed_ = 10.0f;
-    float turn_speed =  0.75;
+    float turn_speed =  1.5f;
 
     float has_dashed_ = false;
     float dash_angle_ = 15.0f;

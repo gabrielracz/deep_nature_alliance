@@ -17,6 +17,8 @@
 #include "collision_data.h"
 #include "defines.h"
 
+class Collider;
+
 // Class that manages one object in a scene 
 class SceneNode {
 
@@ -29,8 +31,7 @@ class SceneNode {
 
     public:
         // Create scene node from given resources
-        SceneNode(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id = "")
-        : name(name), mesh_id(mesh_id), shader_id(shader_id), texture_id(texture_id), collision() {};
+        SceneNode(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id = "");
 
         // Destructor
         ~SceneNode();
@@ -43,6 +44,7 @@ class SceneNode {
         void SetNormalMap(const std::string& new_tex_id, float normal_map_repetition = 1.0f); 
         void AddChild(SceneNode* n)                         {children.push_back(n);}
         void SetCollision(const CollisionData& t)           {collision = t;}
+        void SetCollider(Collider * col)                    {collider = col;}
         void AddInstance(Transform t)                      {instances.push_back(t);};
         // void SetInstances(std::vector<Transform>& t)        {instances = t;};
 
@@ -79,6 +81,7 @@ class SceneNode {
 
         Camera::Projection camera_projection = Camera::Projection::PERSPECTIVE;
         bool alpha_enabled = false;
+        Collider* collider;
 }; // class SceneNode
 
 #endif // SCENE_NODE_H_
