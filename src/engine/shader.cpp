@@ -1,13 +1,10 @@
 #include "shader.h"
 #include "light.h"
+#include <GL/glext.h>
 #include <exception>
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
 #include "defines.h"
-
-const char* Shader::shader_lib = 
-#include SHADER_LIB_FILE
-; 
 
 Shader::Shader(const char* vertex_path, const char* fragment_path, bool instanced) {
 	vert_path = vertex_path;
@@ -101,7 +98,7 @@ bool Shader::Load() {
     GLuint lightsBlockIndex = glGetUniformBlockIndex(id, "LightsBlock");
     glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, lights_ubo);
     glUniformBlockBinding(id, lightsBlockIndex, bindingPoint);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(LightsBlock), nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(LightsBlock), nullptr, GL_STREAM_DRAW);
     SetUniform1i(0, "LightsBlock");
 
     // Associate the buffer with the block index
@@ -109,15 +106,16 @@ bool Shader::Load() {
 }
 
 void Shader::SetupInstancing() {
+    transformsblock = new TransformsBlock();
+    memset(transformsblock, 0, sizeof(TransformsBlock));
+    
     glGenBuffers(1, &instanced_ubo);
     GLuint bindingPoint = 1;  // Choose a suitable binding point
-    GLuint transforms_block_index = glGetUniformBlockIndex(id, "TransformsBlock");
+    GLuint block_index = glGetUniformBlockIndex(id, "TransformsBlock");
     glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, instanced_ubo);
-    glUniformBlockBinding(id, transforms_block_index, bindingPoint);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(TransformsBlock), nullptr, GL_STATIC_DRAW);
-    SetUniform1i(0, "LightsBlock");
-    transformsblock = new TransformsBlock();
-    memset(transformsblock->transforms, 0, sizeof(ShaderTransform) * MAX_INSTANCES);
+    glUniformBlockBinding(id, block_index, bindingPoint);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(TransformsBlock), nullptr, GL_STREAM_DRAW);
+    SetUniform1i(1, "TransformsBlock");
 }
 
 void Shader::Use() const{
@@ -129,19 +127,24 @@ void Shader::SetLights(std::vector<Light*>& world_lights) {
     for(; i < MIN(world_lights.size(), MAX_LIGHTS); i++) {
         world_lights[i]->SetUniforms(lightsblock.lights[i]);
     }
+    glBindBuffer(GL_UNIFORM_BUFFER, lights_ubo);
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, lights_ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(LightsBlock), &lightsblock);
     SetUniform1i(i, "num_world_lights");
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void Shader::SetInstances(std::vector<Transform> &transforms) {
     int i = 0;
     for(; i < MIN(transforms.size(), MAX_INSTANCES); i++) {
-        transformsblock->transforms[i].transformation = transforms[i].GetWorldMatrix();
+        transformsblock->transforms[i].transformation = transforms[i].GetLocalMatrix();
     }
+
+    glBindBuffer(GL_UNIFORM_BUFFER, instanced_ubo);
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, instanced_ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 1, sizeof(TransformsBlock), &transformsblock);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(TransformsBlock), &transformsblock->transforms);
     SetUniform1i(i, "num_instances");
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void Shader::Finalize(int num_lights) {

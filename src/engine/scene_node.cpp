@@ -45,6 +45,11 @@ void SceneNode::SetUniforms(Shader* shader, const glm::mat4& view_matrix){
     // extras
     shader->SetUniform1f(glfwGetTime(), "timer");
     shader->SetUniform1i(0, "inverted");
+
+    // instances
+    if(instances.size() > 0) {
+        shader->SetInstances(instances);
+    }
 }
 
 void SceneNode::SetNormalMap(const std::string &new_tex_id, float normal_map_repetition) {

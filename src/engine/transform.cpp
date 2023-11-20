@@ -14,6 +14,25 @@ void Transform::Update(const glm::mat4& parent) {
 
 }
 
+
+Transform::Transform(const Transform& o) {
+    position    = o.position; 
+    orientation = o.orientation;
+    scale       = o.scale;
+    orbit       = o.orbit;
+    joint       = o.joint;
+    axes        = o.axes;
+
+    transf_local_no_scale = o.transf_local_no_scale;
+    transf_local = o.transf_local;
+    transf_world = o.transf_world;
+    transf_world_no_scale = o.transf_world_no_scale;
+
+    parent = o.parent;
+    cached_matrix = o.cached_matrix;
+    dirty = true;
+}
+
 glm::vec3 Transform::LocalAxis(Axis a){
     return orientation * axes[a];
 };

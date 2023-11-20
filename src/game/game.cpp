@@ -98,7 +98,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Text", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
     resman.LoadShader("S_Planet", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/textured_fp.glsl");
     resman.LoadShader("S_NormalMap", SHADER_DIRECTORY"/normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl");
-    resman.LoadShader("S_Instanced", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl");
+    resman.LoadShader("S_Instanced", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl", true);
 
     std::cout << "shaders loaded" << std::endl;
 }
@@ -186,6 +186,18 @@ void Game::SetupSpaceScene() {
     Light* l2 = new Light(Colors::Yellow);
     l2->transform.SetPosition({-300.0, -300.0, -300.0});
     scn->AddLight(l2);
+
+    SceneNode* forest = new SceneNode("Obj_Forest", "M_Planet", "S_Instanced", "T_WallNormalMap");
+    forest->transform.SetPosition({0.0, -30.0, 0.0});
+    forest->transform.SetScale({10, 10, 10});
+    forest->SetNormalMap("T_WallNormalMap", 1.0f);
+    for(int i = 0; i < 10; i++) {
+        Transform t;
+        t.SetPosition({i, 0.0, 0.0});
+        forest->AddInstance(t);
+    }
+    scn->AddNode(forest);
+
 
     // Light* flashlight = new Light(Colors::Red);
     // l2->transform.SetPosition({-300.0, -300.0, 0.0});

@@ -67,7 +67,7 @@ class Mesh {
         Mesh(std::vector<float> verts, std::vector<unsigned int> inds, Layout = default_layout);
 		// Mesh(std::vector<Vertex> verts, std::vector<unsigned int> inds, std::vector<Texture> textures, Layout = default_layout);
 		Mesh(const float* verts, size_t num_verts, const unsigned int* indices, size_t num_indices, Layout = default_layout);
-		void Draw();
+		void Draw(int intances = 0);
 
 	private:
 		unsigned int VBO, EBO, VAO;

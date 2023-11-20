@@ -54,6 +54,9 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     // if(active_shader != shd->id) {
     cam.SetProjectionUniforms(shd, node->GetDesiredProjection());
 
+    if(node->GetInstances().size() > 0) {
+        shd->SetInstances(node->GetInstances());
+    }
     shd->SetLights(lights);
 
     node->SetUniforms(shd, cam.GetViewMatrix());
@@ -73,7 +76,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     } else {
         glDisable(GL_BLEND);
     }
-    resman.GetMesh(mesh_id)->Draw();
+    resman.GetMesh(mesh_id)->Draw(node->GetInstances().size());
 
     // HIERARCHY
     glm::mat4 tm = parent_matrix * Transform::RemoveScaling(node->GetCachedTransformMatrix());  // don't pass scaling to children

@@ -184,11 +184,15 @@ void Mesh::SetupBuffers() {
 
 }
 
-void Mesh::Draw() {
+void Mesh::Draw(int instances) {
 	//potential check if shader is already in use to avoid call
 	// shader.use();
 
     glBindVertexArray(VAO);
+    if(instances > 0) {
+        glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, instances);
+        std::cout << "draw instanced " << instances << std::endl;
+    }
 	if(indices.size() > 0) {
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	} else {
