@@ -113,8 +113,7 @@ class Game {
         // void GrowTree(SceneNode* root, int branches, float height, float width, int level, int max_iterations);
         // void GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width);
 
-        void CheckControls(KeyMap& keys);
-        void MouseControls(Mouse& mouse);
+        void CheckControls(KeyMap& keys, float dt);
         void ResizeCameras(int width, int height);
 
         void ChangeScene(int sceneIndex);

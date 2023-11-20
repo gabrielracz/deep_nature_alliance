@@ -1,13 +1,13 @@
 #include <glm/ext/quaternion_trigonometric.hpp>
 #include <iostream>
-#include "player.h"
+#include "tp_player.h"
 #include "scene_node.h"
 #include "transform.h"
 #include "glm/gtx/string_cast.hpp"
 
 #define DRAG_CONSTANT 2.0f
 
-void Player::Update(double dt) {
+void Tp_Player::Update(double dt) {
 
     acceleration = glm::vec3(0.0f);
     ang_acceleration = glm::vec3(0.0f);
@@ -75,45 +75,87 @@ void Player::Update(double dt) {
     SceneNode::Update(dt);
 }
 
-void Player::Thrust(int d) {
-    float speed = glm::length(velocity);
-    if(d > 0 && speed < move_speed + accel_amt) {
-        velocity += transform.LocalAxis(FORWARD) * accel_amt;
-    } else if (d < 0 && speed - accel_amt > -move_speed - accel_amt) { 
-        velocity -= transform.LocalAxis(FORWARD) * accel_amt;
-    }
+void Tp_Player::MouseControls(Mouse& mouse){
+    float mouse_sens = -0.1f;
+	glm::vec2 look = mouse.move * mouse_sens;
+
+    Control(Player::Controls::Q, look.x);
+    Control(Player::Controls::E, look.y);
 }
 
-void Player::ShipControl(Controls c, float damping) {
+void Tp_Player::Control(Controls c, float dt, float damping){
     const float rot_force = damping * 2000.0f;
     const float thrust_force = damping * move_speed * 25550.0f;
-    switch(c) {
-        case Controls::THRUST:
+    switch(static_cast<TPControls>(c)) {
+        case THRUST:
             // f;worce += -transform.LocalAxis(FORWARD) * thrust_force;
             force += transform.GetAxis(FORWARD) * thrust_force;
             break;
-        case Controls::BRAKE:
+        case BRAKE:
             braking = true;
             break;
-        case Controls::PITCHD:
+        case PITCHD:
             torque += transform.GetAxis(SIDE) * -rot_force;
             break;
-        case Controls::PITCHU:
+        case PITCHU:
             torque += transform.GetAxis(SIDE) * rot_force;
             break;
-        case Controls::YAWL:
+        case YAWL:
             torque += transform.GetAxis(UP) * rot_force;
             break;
-        case Controls::YAWR:
+        case YAWR:
             torque += transform.GetAxis(UP) * -rot_force;
             break;
-        case Controls::ROLLL:
+        case ROLLL:
             torque += transform.GetAxis(FORWARD) * -rot_force * 2.0f;
             break;
-        case Controls::ROLLR:
+        case ROLLR:
             torque += transform.GetAxis(FORWARD) * rot_force * 2.0f;
             break;
         default:
             break;
     }
 }
+
+// void Tp_Player::Thrust(int d) {
+//     float speed = glm::length(velocity);
+//     if(d > 0 && speed < move_speed + accel_amt) {
+//         velocity += transform.LocalAxis(FORWARD) * accel_amt;
+//     } else if (d < 0 && speed - accel_amt > -move_speed - accel_amt) { 
+//         velocity -= transform.LocalAxis(FORWARD) * accel_amt;
+//     }
+// }
+
+// void Tp_Player::ShipControl(Controls c, float damping) {
+//     const float rot_force = damping * 2000.0f;
+//     const float thrust_force = damping * move_speed * 25550.0f;
+//     switch(c) {
+//         case Controls::THRUST:
+//             // f;worce += -transform.LocalAxis(FORWARD) * thrust_force;
+//             force += transform.GetAxis(FORWARD) * thrust_force;
+//             break;
+//         case Controls::BRAKE:
+//             braking = true;
+//             break;
+//         case Controls::PITCHD:
+//             torque += transform.GetAxis(SIDE) * -rot_force;
+//             break;
+//         case Controls::PITCHU:
+//             torque += transform.GetAxis(SIDE) * rot_force;
+//             break;
+//         case Controls::YAWL:
+//             torque += transform.GetAxis(UP) * rot_force;
+//             break;
+//         case Controls::YAWR:
+//             torque += transform.GetAxis(UP) * -rot_force;
+//             break;
+//         case Controls::ROLLL:
+//             torque += transform.GetAxis(FORWARD) * -rot_force * 2.0f;
+//             break;
+//         case Controls::ROLLR:
+//             torque += transform.GetAxis(FORWARD) * rot_force * 2.0f;
+//             break;
+//         default:
+//             break;
+//     }
+// }

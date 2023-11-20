@@ -1,7 +1,7 @@
 #define GLM_FORCE_RADIANS
 #include "agent.h"
 
-Agent::Agent(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id) : SceneNode(name, mesh_id, shader_id, texture_id)
+Agent::Agent(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id) : Player(name, mesh_id, shader_id, texture_id)
 {
 }
 
@@ -25,9 +25,10 @@ void Agent::UpMove(float dt)
     //Check if we not doing a raw up jump
     if (jump_axis_.x != 0.0f || jump_axis_.z != 0.0f) {
         glm::vec3 sample_normal = terrain->SampleNormal(up_position_.x, up_position_.z);
+        float sample_height = terrain->SampleHeight(up_position_.x, up_position_.z);
         float slope_angle = glm::degrees(glm::acos(glm::dot(sample_normal, up_)));
     
-        if (slope_angle > max_jumping_angle_) {
+        if (slope_angle > max_jumping_angle_ && up_position_.y < sample_height) {
             vertical_velocity_ = 0.0f;
             vertical_offset_ = 0.0f;
             jumping_ = false;
@@ -142,6 +143,11 @@ void Agent::Update(double dt)
     WalkingMove(walk_direction_, dt);
 
     DownMove(dt);
+
+    forward_ = glm::vec3(0);
+    backward_ = glm::vec3(0);
+    strafe_left_ = glm::vec3(0);
+    strafe_right_ = glm::vec3(0);
 
     SceneNode::Update(dt);
     //printf("%f %f %f \n", walk_direction_.x, walk_direction_.y, walk_direction_.z);

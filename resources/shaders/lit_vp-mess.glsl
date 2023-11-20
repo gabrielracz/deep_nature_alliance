@@ -1,4 +1,5 @@
 #version 130
+#pragma optionNV(unroll all)
 
 // Vertex buffer
 in vec3 vertex;

@@ -2,6 +2,7 @@
 #include "fp_player.h"
 #include "scene_graph.h"
 #include "application.h"
+#include "tp_player.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtx/string_cast.hpp>
 #include <string>
@@ -161,9 +162,9 @@ void Game::SetupSpaceScene() {
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    Player* player = new Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
+    Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
     player->transform.SetPosition(player_position_g);
-    player->SetNormalMap("T_MetalNormalMap", 0.3);
+    player->SetNormalMap("T_MetalNormalMap", 1.0);
     camera.Attach(&player->transform, true);
     scn->SetPlayer(player);
     scn->AddNode(player);
@@ -199,12 +200,10 @@ void Game::SetupFPScene(void) {
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship");
-    p->Init(app.GetWindow().ptr, &camera);
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship", &camera);
     p->transform.SetPosition(player_position_g);
     p->visible = false;
-    scenes[FPTEST]->SetFPPlayer(p);
-    AddToScene(FPTEST, p);
+    AddPlayerToScene(FPTEST, p);
 
     SceneNode* n = new SceneNode("Shippy", "M_Ship", "S_Lit");
     n->transform.SetPosition(glm::vec3(0,0,-10));
@@ -217,46 +216,41 @@ void Game::SetupFPScene(void) {
     t->SetNormalMap("T_WallNormalMap", 40.0f);
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
-
-    app.SetMouseHandler(std::bind(&FP_Player::MouseControls, active_scene->GetFPPlayer(), std::placeholders::_1));
-    // app.SetFirstPersonView();
 }
 
 void Game::SetupForestScene() {
-    SceneGraph* scn = scenes[FOREST];
-    Camera& camera = scn->GetCamera();
+    Camera& camera = scenes[FOREST]->GetCamera();
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
 
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship");
-    p->Init(app.GetWindow().ptr, &camera);
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship", &camera);
     p->transform.SetPosition(player_position_g);
     p->visible = false;
-    scn->SetFPPlayer(p);
-    scn->AddNode(p);
+    AddPlayerToScene(FOREST, p);
+    // scn->SetPlayer(p);
+    // scn->AddNode(p);
 
     int terrain_size = 1000;
-    Terrain* t = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.25, this);
+    Terrain* t = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_MoonPlanet", TerrainType::FOREST, terrain_size, terrain_size, 0.25, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
-    t->material.texture_repetition = 20.0f;
-    t->material.specular_power = 0.0f;
-    t->SetNormalMap("T_GrassNormalMap", 20.0f);
+    t->material.texture_repetition = 6.0f;
+    t->SetNormalMap("T_WallNormalMap", 40.0f);
     p->SetTerrain(t);
-    scn->AddNode(t);
+    scenes[FOREST]->AddNode(t);
 
     Light* light = new Light(Colors::WarmWhite);
     light->transform.SetPosition({300.0, 300.0, 0.0});
-    scn->AddLight(light);
+    scenes[FOREST]->AddLight(light);
 }
 
 void Game::Update(double dt, KeyMap &keys) {
-    CheckControls(keys);
+    CheckControls(keys, dt);
     active_scene->Update(dt);
 }
 
 
-void Game::CheckControls(KeyMap& keys) {
+void Game::CheckControls(KeyMap& keys, float dt) {
 
     // if (keys[GLFW_KEY_ESCAPE]){
     //     app.Quit();
@@ -307,28 +301,32 @@ void Game::CheckControls(KeyMap& keys) {
     }
 
     if(keys[GLFW_KEY_LEFT_SHIFT]) {
-        player->ShipControl(Player::Controls::THRUST);
+        player->Control(Player::Controls::SHIFT, dt);
     };
     if(keys[GLFW_KEY_LEFT_CONTROL]) {
-        player->ShipControl(Player::Controls::BRAKE);
+        player->Control(Player::Controls::CTRL, dt);
     };
     if(keys[GLFW_KEY_S]) {
-        player->ShipControl(Player::Controls::PITCHU);
+        player->Control(Player::Controls::S, dt);
     };
     if(keys[GLFW_KEY_W]) {
-        player->ShipControl(Player::Controls::PITCHD);
+        player->Control(Player::Controls::W, dt);
     };
     if(keys[GLFW_KEY_Q]) {
-        player->ShipControl(Player::Controls::YAWL);
+        player->Control(Player::Controls::Q, dt);
     };
     if(keys[GLFW_KEY_E]) {
-        player->ShipControl(Player::Controls::YAWR);
+        player->Control(Player::Controls::E, dt);
     };
     if(keys[GLFW_KEY_A]) {
-        player->ShipControl(Player::Controls::ROLLL);
+        player->Control(Player::Controls::A, dt);
     };
     if(keys[GLFW_KEY_D]) {
-        player->ShipControl(Player::Controls::ROLLR);
+        player->Control(Player::Controls::D, dt);
+    };
+    if(keys[GLFW_KEY_SPACE]) {
+        player->Control(Player::Controls::SPACE, dt);
+        keys[GLFW_KEY_SPACE] = false;
     };
 
     if(keys[GLFW_KEY_UP]) {
@@ -349,7 +347,7 @@ void Game::CheckControls(KeyMap& keys) {
     }
 
     if(keys[GLFW_KEY_0]) {
-        LoadShaders();
+        SetupResources();
         keys[GLFW_KEY_0] = false;
     }
 
@@ -383,25 +381,25 @@ void Game::CheckControls(KeyMap& keys) {
     }
 }
 
-void Game::MouseControls(Mouse& mouse) {
-    // float mouse_sens = -0.001f;
-    float mouse_sens = -0.1f;
-	glm::vec2 look = mouse.move * mouse_sens;
+// void Game::MouseControls(Mouse& mouse) {
+//     // float mouse_sens = -0.001f;
+//     float mouse_sens = -0.1f;
+// 	glm::vec2 look = mouse.move * mouse_sens;
 
-    // player->transform.Yaw(look.x);
-    Player* player = active_scene->GetPlayer();
-    if(player == nullptr) {return;}
-    player->ShipControl(Player::Controls::YAWL, look.x);
-    player->ShipControl(Player::Controls::PITCHU, look.y);
-}
+//     // player->transform.Yaw(look.x);
+//     Player* player = active_scene->GetPlayer();
+//     if(player == nullptr) {return;}
+//     player->ShipControl(Player::Controls::YAWL, look.x);
+//     player->ShipControl(Player::Controls::PITCHU, look.y);
+// }
 
 void Game::CreatePlayer() {
-    Player* player = new Player("Obj_Player", "M_Ship", "S_Lit", "T_Charmap");
+    Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_Lit", "T_Charmap");
     player->transform.SetPosition(player_position_g);
     // player->visible = false;
 
     active_scene->GetCamera().Attach(&player->transform); // Attach the camera to the player
-    AddPlayerToScene(SceneEnum::ALL, player);
+    AddPlayerToScene(SceneEnum::SPACE, player);
     // scenes[BEFORETRIGGER]->AddNode(player);
     // scenes[BEFORETRIGGER]->SetPlayer(player);
 

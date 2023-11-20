@@ -18,10 +18,6 @@ void SceneGraph::SetPlayer(Player* p) {
     colman.SetPlayer(p);
 }
 
-void SceneGraph::SetFPPlayer(FP_Player* p) {
-    fp_player = p;
-}
-
 SceneNode* SceneGraph::GetNode(std::string node_name) const {
     // Find node with the specified name
     for (int i = 0; i < node_.size(); i++) {

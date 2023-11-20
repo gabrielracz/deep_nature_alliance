@@ -97,7 +97,7 @@ void Terrain::GenerateQMoon() {
         }
     }
 
-    int min_craters = 35;
+    int min_craters = 40;
     int max_craters = 60;
     float min_crater_radius = 2;
     float max_crater_radius = 20;
@@ -135,6 +135,69 @@ void Terrain::GenerateQMoon() {
                     }
                 }
             }
+        }
+    }
+
+    float item_crater_radius = 20.0f;
+    float item_crater_inner_radius = 6.0f;
+    float spawn_canyon_radius = 40.0f;
+    float item_crater_depth = 50.0f;
+    float item_crater_spire_height = 20.0f;
+    float max_spawn_canyon_depth = 500.0f;
+    float min_spawn_canyon_depth = 200.0f;
+    float player_platform_radius = 10.0f;
+    float player_platform_depth = 8.0f;
+
+    glm::vec2 spawn_position = glm::vec2(num_xsteps/2, num_zsteps/2);
+    glm::vec2 item_position = glm::vec2((spawn_canyon_radius/2) + 1, (spawn_canyon_radius/2) + 1);
+
+    for (int z = 0; z < num_zsteps; ++z) {
+        for (int x = 0; x < num_xsteps; ++x) {
+            float distance = glm::distance(glm::vec2(x, z), spawn_position);
+            if (distance < spawn_canyon_radius && distance > player_platform_radius) {
+                float spawn_canyon_depth = glm::linearRand(min_spawn_canyon_depth, max_spawn_canyon_depth);
+                heights[z][x] -= spawn_canyon_depth;
+                continue;
+            } else if ( distance < player_platform_radius + 1) {
+                float perlin_value = glm::perlin(glm::vec2(x, z) * 0.01f);
+                float height_variation = perlin_value * glm::linearRand(perlin_value * 10.0f, perlin_value * 10.0f + 2.5f);
+                heights[z][x] = -player_platform_depth + height_variation;
+                continue;
+            }
+
+            float item_distance = glm::distance(glm::vec2(x, z), item_position);
+            if (item_distance < item_crater_radius) {
+                float bottom_perlin = glm::perlin(glm::vec2(x * xstep, z * zstep) / 100.0f);
+                float bottom_noise = bottom_perlin * bottom_crater_noise;
+                float perlin_value = glm::perlin(glm::vec2(x, z) * inner_crater_noise);
+                float height_variation = perlin_value * inner_crater_noise;
+                heights[z][x] -= item_crater_depth + height_variation;
+
+                float depth = 0.5f * (1.0f - (distance / item_crater_radius));
+                if (depth > 0.0f) {
+                    heights[z][x] -= depth;
+
+                    if (depth < crater_ridge_size) {
+                        heights[z][x] -= bottom_noise;
+                    }
+                }
+            }
+
+            if (item_distance < item_crater_inner_radius) {
+                float depth = 0.5f * (1.0f - (distance / item_crater_radius));
+                if (depth < crater_ridge_size) {
+                    float bottom_perlin = glm::perlin(glm::vec2(x * xstep, z * zstep) / 100.0f);
+                    float bottom_noise = bottom_perlin * bottom_crater_noise;
+                    heights[z][x] -= bottom_noise;
+                } 
+                
+                heights[z][x] += item_crater_depth * 0.5;
+            }
+
+            if (item_distance < 2) {
+                heights[z][x] += item_crater_spire_height;
+            }
+
         }
     }
 }

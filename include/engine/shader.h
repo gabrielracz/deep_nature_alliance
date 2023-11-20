@@ -20,7 +20,7 @@
 #define SHADER_LIB_FILE STR(SHADER_DIRECTORY_TOKEN/SHADER_COMMON)
 
 
-static const int MAX_LIGHTS    = 6;
+static const int MAX_LIGHTS    = 3;
 static const int MAX_INSTANCES = 256;
 
 // make sure these fields are alligned on 4 byte boundary
