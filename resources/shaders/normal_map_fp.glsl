@@ -58,10 +58,10 @@ float blinnphong_specular(vec3 lv, vec3 n) {
 
 vec4 lighting(vec4 pixel, int i, vec3 lv, vec3 n) {
 
-	float diffuse = max(0.0, dot(n,lv)); 
+	float diffuse = max(0.0, dot(n,lv));
     float spec = blinnphong_specular(lv, n);
     // float spec = phong_specular(lv, n);
-    if(diffuse == 0.0) {spec = 0.0;}
+    if(diffuse == 0.0 || specular_power == 0.0) {spec = 0.0;}
 
     return diffuse_strength*diffuse*lights[i].color*pixel + lights[i].ambient_strength*lights[i].ambient_color*pixel + spec*lights[i].color;
 }

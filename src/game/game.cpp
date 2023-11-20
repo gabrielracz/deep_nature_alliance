@@ -232,10 +232,11 @@ void Game::SetupForestScene() {
     // scn->AddNode(p);
 
     int terrain_size = 1000;
-    Terrain* t = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_MoonPlanet", TerrainType::FOREST, terrain_size, terrain_size, 0.25, this);
+    Terrain* t = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.25, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
-    t->material.texture_repetition = 6.0f;
-    t->SetNormalMap("T_WallNormalMap", 40.0f);
+    t->material.specular_power = 0.0f;
+    t->material.texture_repetition = 20.0f;
+    t->SetNormalMap("T_GrassNormalMap", 20.0f);
     p->SetTerrain(t);
     scenes[FOREST]->AddNode(t);
 
