@@ -14,6 +14,7 @@ SceneNode::~SceneNode(){
     for(auto child : children) {
         delete child;
     }
+    delete collider;
 }
 
 void SceneNode::Update(double dt){
