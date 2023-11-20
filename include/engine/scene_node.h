@@ -46,6 +46,8 @@ class SceneNode {
         void AddChild(SceneNode* n)                         {children.push_back(n);}
         void SetCollision(const CollisionData& t)           {collision = t;}
         void SetCollider(Collider * col)                    {collider = col;}
+        void AddInstance(Transform t)                      {instances.push_back(t);};
+        // void SetInstances(std::vector<Transform>& t)        {instances = t;};
 
         const std::string GetName(void) const               {return name;}
         const std::string GetMeshID() const                 {return mesh_id;}
@@ -57,6 +59,7 @@ class SceneNode {
         const glm::mat4& GetCachedTransformMatrix() const   {return transf_matrix;}
         const std::vector<SceneNode*>& GetChildren() const  {return children;}
         const CollisionData& GetCollision() const           {return collision;}
+        std::vector<Transform>& GetInstances()              {return instances;}
 
         Transform transform;
         MaterialProperties material;
@@ -68,6 +71,7 @@ class SceneNode {
         glm::mat4 transf_matrix;
         std::string name; // Name of the scene node
         std::vector<SceneNode*> children;
+        std::vector<Transform> instances;
         double elapsed = 0;
         CollisionData collision;
 

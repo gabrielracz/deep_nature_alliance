@@ -24,8 +24,8 @@
 const Layout generator_layout = Layout(
     {{FLOAT3, "vertex"},{FLOAT3, "normal"}, {FLOAT3, "color"}, {FLOAT2, "uv"}});
 
-void ResourceManager::LoadShader(const std::string& name, const std::string& vert_path, const std::string& frag_path){
-    overwrite_emplace(shaders, name, Shader(vert_path.c_str(), frag_path.c_str()));
+void ResourceManager::LoadShader(const std::string& name, const std::string& vert_path, const std::string& frag_path, bool instanced){
+    overwrite_emplace(shaders, name, Shader(vert_path.c_str(), frag_path.c_str(), instanced));
 }
 
 void ResourceManager::LoadMesh(const std::string& name, const std::string& path) {

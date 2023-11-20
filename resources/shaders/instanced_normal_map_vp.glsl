@@ -39,14 +39,14 @@ layout(std140) uniform LightsBlock {
 };
 uniform int num_world_lights;
 
+uniform int num_instances;
 layout(std140) uniform TransformsBlock {
     mat4 transformations[256];
 };
-uniform int num_instances;
 
 void main()
 {
-    vec4 position = view_mat * world_mat * vec4(vertex, 1.0);
+    vec4 position = view_mat * world_mat * transformations[gl_InstanceID] * vec4(vertex, 1.0);
     gl_Position = projection_mat * position;
 
     // Define vertex tangent, bitangent and normal (TBN)

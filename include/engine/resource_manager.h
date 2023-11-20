@@ -32,7 +32,7 @@ class ResourceManager {
         Shader* GetShader(const std::string& name);
         Texture* GetTexture(const std::string& name);
 
-        void LoadShader(const std::string& name, const std::string& vert_path, const std::string& frag_path);
+        void LoadShader(const std::string& name, const std::string& vert_path, const std::string& frag_path, bool instaced = false);
         void LoadMesh(const std::string& name, const std::string& path);
         void AddMesh(const std::string& name, std::vector<float> verts, std::vector<unsigned int> inds, Layout layout);
         void LoadTexture(const std::string& name, const std::string& path, int wrap_option = GL_REPEAT, int sample_option = GL_NEAREST);

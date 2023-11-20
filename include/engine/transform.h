@@ -39,7 +39,7 @@ public:
     Transform() = default;
     Transform(const glm::vec3& p, const glm::quat o, const glm::vec3& s)
         : position(s), orientation(o), scale(s) {Update();}
-    Transform(Transform& o) = default;
+    Transform(const Transform& o);
 
     void Update(const glm::mat4& parent = glm::mat4(1.0f));
     glm::vec3 LocalAxis(Axis a);
