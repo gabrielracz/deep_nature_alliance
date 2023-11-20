@@ -31,7 +31,6 @@ class SceneGraph {
     void AddNode(SceneNode* node) { node_.push_back(node); }
     void AddLight(Light* light) { lights.push_back(light); }
     void SetPlayer(Player* p);
-    void SetFPPlayer(FP_Player* p);
 
     // Find a scene node with a specific name
     SceneNode* GetNode(std::string node_name) const;
@@ -39,7 +38,6 @@ class SceneGraph {
     std::vector<Light*>& GetLights() { return lights; }
     Camera& GetCamera() { return camera; }
     Player* GetPlayer() { return player; }
-    FP_Player* GetFPPlayer() { return fp_player; }
 
     // Get node const iterator
     std::vector<SceneNode*>::const_iterator begin() const { return node_.begin(); }
@@ -55,8 +53,7 @@ class SceneGraph {
     CollisionManager colman;
     std::vector<Light*> lights;
     Camera camera;
-    Player* player = nullptr;
-    FP_Player* fp_player = nullptr; //This some jank (keeping both players) but fix is a bit of work i dont want to do. fr fr.
+    Player* player;
     Application& app;
 
 };  // class SceneGraph

@@ -1,15 +1,17 @@
 #ifndef AGENT_H_
 #define AGENT_H_
 
-#include "scene_node.h"
+#include "player.h"
 #include "terrain.h"
 
-class Agent : public SceneNode
+class Agent : public Player
 {
 public:
     Agent(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id = "");
 
     virtual void Update(double dt) override;
+
+    virtual void Control(Controls c, float damping = 1.0) = 0;
 
     bool OnGround(void) const;
 

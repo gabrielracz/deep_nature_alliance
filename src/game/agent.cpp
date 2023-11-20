@@ -1,7 +1,7 @@
 #define GLM_FORCE_RADIANS
 #include "agent.h"
 
-Agent::Agent(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id) : SceneNode(name, mesh_id, shader_id, texture_id)
+Agent::Agent(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id) : Player(name, mesh_id, shader_id, texture_id)
 {
 }
 
