@@ -143,6 +143,11 @@ void Agent::Update(double dt)
 
     DownMove(dt);
 
+    forward_ = glm::vec3(0);
+    backward_ = glm::vec3(0);
+    strafe_left_ = glm::vec3(0);
+    strafe_right_ = glm::vec3(0);
+
     SceneNode::Update(dt);
     //printf("%f %f %f \n", walk_direction_.x, walk_direction_.y, walk_direction_.z);
     //printf("%f %f %f \n", transform.GetPosition().x, transform.GetPosition().y, transform.GetPosition().z);
