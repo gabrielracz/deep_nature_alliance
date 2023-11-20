@@ -1,4 +1,5 @@
 #version 330 core
+#pragma optionNV(unroll all)
 
 layout (location = 0) in vec3 vertex;
 layout (location = 1) in vec3 normal;
@@ -31,11 +32,11 @@ struct Light {
     float spread;
 };
 
-out Light lights[6];
+out Light lights[3];
 flat out int num_lights;
 
 layout(std140) uniform LightsBlock {
-    Light world_lights[6];
+    Light world_lights[3];
 };
 uniform int num_world_lights;
 

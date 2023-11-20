@@ -1,4 +1,5 @@
 #version 330
+#pragma optionNV(unroll all)
 
 // Attributes passed from the vertex shader
 in vec3 color_interp;
@@ -16,7 +17,7 @@ struct Light {
     float spread;
 };
 
-in Light lights[6];
+in Light lights[3];
 flat in int num_lights;
 
 uniform sampler2D texture_map;

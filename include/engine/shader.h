@@ -12,7 +12,7 @@
 #include <iostream>
 #include <vector>
 
-static const int MAX_LIGHTS = 6;
+static const int MAX_LIGHTS = 3;
 
 // make sure these fields are alligned on 4 byte boundary
 struct ShaderLight {

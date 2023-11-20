@@ -25,9 +25,10 @@ void Agent::UpMove(float dt)
     //Check if we not doing a raw up jump
     if (jump_axis_.x != 0.0f || jump_axis_.z != 0.0f) {
         glm::vec3 sample_normal = terrain->SampleNormal(up_position_.x, up_position_.z);
+        float sample_height = terrain->SampleHeight(up_position_.x, up_position_.z);
         float slope_angle = glm::degrees(glm::acos(glm::dot(sample_normal, up_)));
     
-        if (slope_angle > max_jumping_angle_) {
+        if (slope_angle > max_jumping_angle_ && up_position_.y < sample_height) {
             vertical_velocity_ = 0.0f;
             vertical_offset_ = 0.0f;
             jumping_ = false;
