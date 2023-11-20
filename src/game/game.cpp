@@ -97,6 +97,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Text", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
     resman.LoadShader("S_Planet", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/textured_fp.glsl");
     resman.LoadShader("S_NormalMap", SHADER_DIRECTORY"/normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl");
+    resman.LoadShader("S_Instanced", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl");
 
     std::cout << "shaders loaded" << std::endl;
 }
@@ -113,8 +114,12 @@ void Game::LoadTextures() {
     // resman.LoadTexture("T_RedPlanet", RESOURCES_DIRECTORY"/red_rubble.png", GL_REPEAT);
     resman.LoadTexture("T_MoonPlanet", RESOURCES_DIRECTORY"/4k_ceres.jpg", GL_REPEAT, GL_LINEAR);
     // resman.LoadTexture("T_KaliaPlanet", RESOURCES_DIRECTORY"/kalia.png", GL_REPEAT);
+    // resman.LoadTexture("T_KaliaPlanet", RESOURCES_DIRECTORY"/kalia.png", GL_REPEAT);
     resman.LoadTexture("T_WallNormalMap", RESOURCES_DIRECTORY"/normal_map2.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_RockNormalMap", RESOURCES_DIRECTORY"/lavarock_normalmap.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Grass", RESOURCES_DIRECTORY"/whispy_grass_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_GrassNormalMap", RESOURCES_DIRECTORY"/whispy_grass_normal_map.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_MetalNormalMap", RESOURCES_DIRECTORY"/metal_normal_map.png", GL_REPEAT, GL_LINEAR);
 
     std::cout << "textures loaded" << std::endl;
 }
@@ -156,8 +161,9 @@ void Game::SetupSpaceScene() {
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    Player* player = new Player("Obj_Player", "M_Ship", "S_Lit", "T_Ship");
+    Player* player = new Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
     player->transform.SetPosition(player_position_g);
+    player->SetNormalMap("T_MetalNormalMap", 0.3);
     camera.Attach(&player->transform, true);
     scn->SetPlayer(player);
     scn->AddNode(player);
@@ -231,10 +237,11 @@ void Game::SetupForestScene() {
     scn->AddNode(p);
 
     int terrain_size = 1000;
-    Terrain* t = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_MoonPlanet", TerrainType::FOREST, terrain_size, terrain_size, 0.25, this);
+    Terrain* t = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.25, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
-    t->material.texture_repetition = 6.0f;
-    t->SetNormalMap("T_WallNormalMap", 40.0f);
+    t->material.texture_repetition = 20.0f;
+    t->material.specular_power = 0.0f;
+    t->SetNormalMap("T_GrassNormalMap", 20.0f);
     p->SetTerrain(t);
     scn->AddNode(t);
 
@@ -342,7 +349,7 @@ void Game::CheckControls(KeyMap& keys) {
     }
 
     if(keys[GLFW_KEY_0]) {
-        SetupResources();
+        LoadShaders();
         keys[GLFW_KEY_0] = false;
     }
 

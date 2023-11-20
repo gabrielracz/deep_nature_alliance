@@ -118,6 +118,14 @@ void View::InitWindow(const std::string& title, int width, int height) {
     if (err != GLEW_OK){
         throw(std::runtime_error(std::string("Could not initialize the GLEW library: ")+std::string((const char *) glewGetErrorString(err))));
     }
+
+    GLint maxUBOSize;
+    glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUBOSize);
+    std:: cout << "Max UBO size: " << maxUBOSize << std::endl;
+
+    GLint mvoc;
+    glGetIntegerv(GL_MAX_FRAGMENT_INPUT_COMPONENTS, &mvoc);
+    std::cout << mvoc << std::endl;
 }
 
 void View::InitView(){

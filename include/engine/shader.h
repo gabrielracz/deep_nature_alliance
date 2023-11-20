@@ -11,8 +11,17 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include "path_config.h"
+#include "transform.h"
 
-static const int MAX_LIGHTS = 6;
+#define STR_IMPL(A) #A
+#define STR(A) STR_IMPL(A)
+#define SHADER_COMMON common.glsl
+#define SHADER_LIB_FILE STR(SHADER_DIRECTORY_TOKEN/SHADER_COMMON)
+
+
+static const int MAX_LIGHTS    = 6;
+static const int MAX_INSTANCES = 256;
 
 // make sure these fields are alligned on 4 byte boundary
 struct ShaderLight {
@@ -24,6 +33,14 @@ struct ShaderLight {
     float spread;
 };
 
+struct ShaderTransform {
+    glm::mat4 transformation;
+};
+
+struct TransformsBlock {
+    ShaderTransform transforms[MAX_INSTANCES];
+};
+
 struct LightsBlock {
     ShaderLight lights[MAX_LIGHTS];
 };
@@ -31,11 +48,14 @@ struct LightsBlock {
 class Light;
 
 class Shader {
+
+static const char* shader_lib;
 public:
 
     LightsBlock lightsblock;
+    TransformsBlock* transformsblock;
 	unsigned int id;
-	Shader(const char* vertex_path, const char* frag_path);
+	Shader(const char* vertex_path, const char* frag_path, bool instanced = false);
 	Shader() = default;
 	~Shader() = default;
 	bool Load();
@@ -43,7 +63,10 @@ public:
 	void Use() const;
     void Finalize(int num_lights);
 
+    void SetupInstancing();
+
     void SetLights(std::vector<Light*>& lights);
+    void SetInstances(std::vector<Transform>& transforms);
     
 	void SetUniform1f(float u, const std::string& name);
 	void SetUniform3f(const glm::vec3& u, const std::string& name);
@@ -63,7 +86,8 @@ private:
 	std::string vert_path;
 	std::string frag_path;
 
-    unsigned int ubo;
+    unsigned int lights_ubo;
+    unsigned int instanced_ubo;
 
 
 };

@@ -91,6 +91,7 @@ Mesh::Mesh(const std::string& obj_file_path)
                 vertices.push_back(verts[v_ix][0]);
                 vertices.push_back(verts[v_ix][1]);
                 vertices.push_back(verts[v_ix][2]);
+
                 vertices.push_back(normals[n_ix][0]);
                 vertices.push_back(normals[n_ix][1]);
                 vertices.push_back(normals[n_ix][2]);
@@ -101,6 +102,18 @@ Mesh::Mesh(const std::string& obj_file_path)
 
                 vertices.push_back(uv_selected.x);
                 vertices.push_back(uv_selected.y);
+
+
+                // calculate tangent
+                const glm::vec3 right = {1.0, 0.0, 0.0};
+                auto& n = normals[n_ix];
+                glm::vec3 norm = glm::vec3(n[0], n[1], n[2]);
+                glm::vec3 estimate = glm::cross(right, norm); //original estimate of tangent
+                glm::vec3 tan = glm::cross(estimate, norm); // get closer to the true tangent
+
+                vertices.push_back(tan.x);
+                vertices.push_back(tan.y);
+                vertices.push_back(tan.z);
                 indices.push_back(f_count++);
             }
         }
@@ -111,6 +124,7 @@ Mesh::Mesh(const std::string& obj_file_path)
         {FLOAT3, "normal"},
         {FLOAT3, "color"},
         {FLOAT2, "uv"},
+        {FLOAT3, "tangent"},
     });
     SetupBuffers();
 }
