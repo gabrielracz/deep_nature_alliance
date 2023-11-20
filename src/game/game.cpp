@@ -248,6 +248,7 @@ void Game::SetupForestScene() {
     SceneNode* forest = new SceneNode("Obj_Forest", "M_Tree", "S_Instanced", "T_Tree");
     // forest->transform.SetScale({5, 5, 5});
     forest->SetNormalMap("T_TreeNormalMap", 1.0f);
+    forest->material.specular_power = 200.0f;
     for(int i = 0; i < 50; i++) {
         Transform t;
         float x = rng.randfloat(-300, 300);
