@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include "terrain.h"
 #include "fp_player.h"
+#include "scene_node.h"
 
 class Collider;
 class BoxCollider;
@@ -25,12 +26,11 @@ public:
 class BoxCollider : public Collider
 {
 private:
-    const glm::vec3* center_;
-    glm::vec3 size_;
+    SceneNode& node_;
 
 public:
-    BoxCollider(const glm::vec3 *center, const glm::vec3 &size)
-        : center_(center), size_(size) {}
+    BoxCollider(SceneNode& node, float radius)
+        : node_(node) {}
 
     bool CollidesWith(Collider *other) override;
     bool CollidesWithBox(BoxCollider *other) override;
@@ -42,13 +42,13 @@ public:
 class SphereCollider : public Collider
 {
 private:
-    const glm::vec3 *center_;
+    SceneNode& node_;
     float radius_;
 
 public:
-    SphereCollider(const glm::vec3 *center, float radius)
-        : center_(center), radius_(radius) {}
-
+    SphereCollider(SceneNode& node, float radius)
+        : node_(node), radius_(radius) {}
+    
     bool CollidesWith(Collider *other) override { return other->CollidesWithSphere(this); }
     bool CollidesWithBox(BoxCollider *other) override;
     bool CollidesWithSphere(SphereCollider *other) override;
@@ -59,26 +59,29 @@ public:
 class TerrainCollider : public Collider
 {
 private:
-    Terrain t_;
+    Terrain& t_;
 public:
-    TerrainCollider(Terrain &terrain)
+    TerrainCollider(Terrain& terrain)
         : t_(terrain) {}
+        
+    Terrain& GetTerrain() const { return t_; }
     bool CollidesWith(Collider *other) override { return other->CollidesWithTerrain(this); }
     bool CollidesWithBox(BoxCollider *other) override;
     bool CollidesWithSphere(SphereCollider *other) override;
-    //bool CollidesWithTerrain(TerrainCollider *other) override;
+    bool CollidesWithTerrain(TerrainCollider *other) override;
     bool CollidesWithPlayer(FPPlayerCollider *other) override;
 };
 
 class FPPlayerCollider : public Collider
 {
 private:
-    FP_Player player_;
+    FP_Player& player_;
 
 public:
-    FPPlayerCollider(FP_Player &player)
+    FPPlayerCollider(FP_Player& player)
         : player_(player) {}
 
+    FP_Player& GetPlayer() const { return player_; }
     bool CollidesWith(Collider *other) override { return other->CollidesWithPlayer(this); }
     bool CollidesWithBox(BoxCollider *other) override;
     bool CollidesWithSphere(SphereCollider *other) override;

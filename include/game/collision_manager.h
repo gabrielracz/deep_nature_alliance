@@ -10,7 +10,7 @@ class Game;
 class CollisionManager{
 
     public:
-        CollisionManager() : triggers(), asteroids(){}
+        CollisionManager() : triggers(), nodes(){}
         // CollisionManager(const std::vector<Trigger *>& t, const std::vector<SceneNode*>& a, Player* p)
         //     : triggers(t), asteroids(a), player(p) {}
 
@@ -31,7 +31,7 @@ class CollisionManager{
         bool rayToSphere(SceneNode *rayNode, SceneNode *sphereNode);
 
         std::vector<Trigger *> triggers;
-        std::vector<SceneNode*> asteroids;
+        std::vector<SceneNode*> nodes;
         Player *player;
         
 };

@@ -4,6 +4,7 @@
 #include "terrain_data.h"
 #include "defines.h"
 #include "game.h"
+#include "colliders/colliders.h"
 
 // index into a 1D array as if it was 2D
 #define GIX(x, z, width) ((x) + (z) * width)
@@ -27,6 +28,8 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     tangents.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {1.0, 0.0, 0.0}));
     uvs.resize(num_xsteps, std::vector<glm::vec2>(num_zsteps, {0.0, 0.0}));
 
+    death_terrain_ = false;
+
     GenerateHeightmap(type);
     GenerateNormals();
     GenerateTangents();
@@ -34,6 +37,8 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     GenerateImPassable();
     GenerateUV();
     GenerateMesh();
+
+    SetCollider(new TerrainCollider(*this));
 }
 
 void Terrain::GenerateHeightmap(TerrainType type) {
@@ -43,6 +48,10 @@ void Terrain::GenerateHeightmap(TerrainType type) {
             break;
         case TerrainType::FOREST:
             GenerateForest();
+            break;
+        case TerrainType::LAVA:
+            GenerateLava();
+            death_terrain_ = true;
             break;
         default:
             break;
@@ -208,6 +217,16 @@ void Terrain::GenerateForest() {
                 glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
                 float height = glm::perlin(sample) * 50.0;
                 heights[x][z] = height;
+        }
+    }
+}
+
+void Terrain::GenerateLava() {
+    for (int z = 0; z < num_zsteps; z++) {
+        for (int x = 0; x < num_xsteps; x++) {
+                glm::vec2 sample = glm::vec2(x * 0.5f, z * 0.5f) ;
+                float height = glm::perlin(sample) * 5.0f;
+                heights[z][x] = height;
         }
     }
 }

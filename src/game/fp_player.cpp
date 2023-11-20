@@ -1,6 +1,12 @@
 #define GLM_FORCE_RADIANS
 #include "fp_player.h"
+#include "colliders/colliders.h"
 
+FP_Player::FP_Player(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id, Camera *c)
+    : Agent(name, mesh_id, shader_id, texture_id), camera_(c) {
+        c->Attach(&transform); 
+        SetCollider(new FPPlayerCollider(*this));
+}
 
 void FP_Player::Control(Controls c, float dt, float damping){
     switch(static_cast<FPControls>(c)) {
@@ -87,6 +93,11 @@ void FP_Player::Update(double dt)
 {
     Agent::Update(dt);
     HeadMovement(dt);
+}
+
+void FP_Player::Reset() {
+    transform.SetPosition(glm::vec3(0.0f));
+    target_position_ = glm::vec3(0.0f);
 }
 
 void FP_Player::MouseControls(Mouse &mouse)

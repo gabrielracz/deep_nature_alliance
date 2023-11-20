@@ -59,6 +59,7 @@ class SceneNode {
         const std::vector<SceneNode*>& GetChildren() const  {return children;}
         const CollisionData& GetCollision() const           {return collision;}
         std::vector<Transform>& GetInstances()              {return instances;}
+        Collider* GetCollider() const                       {return collider;}
 
         Transform transform;
         MaterialProperties material;

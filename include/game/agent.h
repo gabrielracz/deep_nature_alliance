@@ -32,6 +32,8 @@ public:
 
     void Jump(glm::vec3 v = glm::vec3(0.0f, 0.0f, 0.0f));
 
+    float GetHeight() const { return height_; }
+    float GetVerticalStep() const  { return vertical_step_height_; }
     //void Reset(void);
 
 protected:

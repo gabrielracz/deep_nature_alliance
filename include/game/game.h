@@ -99,6 +99,7 @@ class Game {
         void LoadTextures();
 
         void AddToScene(SceneEnum sceneNum, SceneNode* node);
+        void AddColliderToScene(SceneEnum sceneNum, SceneNode* node);
         void AddPlayerToScene(SceneEnum sceneNum, Player* node);
         void AddLightToScene(SceneEnum sceneNum, Light* l);
 

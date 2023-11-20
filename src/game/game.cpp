@@ -99,6 +99,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Planet", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/textured_fp.glsl");
     resman.LoadShader("S_NormalMap", SHADER_DIRECTORY"/normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl");
     resman.LoadShader("S_Instanced", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl", true);
+    resman.LoadShader("S_Lava", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/lit_lava_fp.glsl");
 
     std::cout << "shaders loaded" << std::endl;
 }
@@ -228,6 +229,11 @@ void Game::SetupFPScene(void) {
     t->SetNormalMap("T_WallNormalMap", 40.0f);
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
+
+    Terrain* lt = new Terrain("Obj_MoonLava", "M_MoonLava", "S_Lava", "T_MoonPlanet", TerrainType::LAVA, 400, 400, 0.1, this);
+    lt->transform.Translate({-200.0f, -65.0f, -200.0f});
+    lt->material.texture_repetition = 6.0f;
+    AddColliderToScene(FPTEST, lt);
 }
 
 void Game::SetupForestScene() {
@@ -438,18 +444,28 @@ void Game::AddPlayerToScene(SceneEnum sceneNum, Player* node) {
     } else{
         scenes[sceneNum]->SetPlayer(node);
     }
-    AddToScene(sceneNum, node);
+    AddColliderToScene(sceneNum, node);
+}
+
+void Game::AddColliderToScene(SceneEnum sceneNum, SceneNode* node) {
+    if (sceneNum == SceneEnum::ALL){
+        for (auto s : scenes){
+            s->AddNode(node);
+            s->AddCollider(node);
+        }
+    } else{
+        scenes[sceneNum]->AddNode(node);
+        scenes[sceneNum]->AddCollider(node);
+    }
 }
 
 void Game::AddToScene(SceneEnum sceneNum, SceneNode* node) {
     if (sceneNum == SceneEnum::ALL){
         for (auto s : scenes){
             s->AddNode(node);
-            s->GetColman().AddNode(node);
         }
     } else{
         scenes[sceneNum]->AddNode(node);
-        scenes[sceneNum]->GetColman().AddNode(node);
     }
 }
 
