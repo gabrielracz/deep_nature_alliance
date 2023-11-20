@@ -39,6 +39,7 @@ set(HDRS
     include/game/terrain.h
     include/game/agent.h
     include/game/fp_player.h
+    include/game/colliders/colliders.h
 )
  
 set(SRCS
@@ -68,6 +69,7 @@ set(SRCS
     src/game/terrain.cpp
     src/game/fp_player.cpp
     src/game/agent.cpp
+    src/game/colliders/colliders.cpp
 )
 
 # Add path name to configuration file

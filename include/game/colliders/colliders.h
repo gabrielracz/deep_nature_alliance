@@ -25,11 +25,11 @@ public:
 class BoxCollider : public Collider
 {
 private:
-    glm::vec3* center_;
+    const glm::vec3* center_;
     glm::vec3 size_;
 
 public:
-    BoxCollider(glm::vec3 *center, const glm::vec3 &size)
+    BoxCollider(const glm::vec3 *center, const glm::vec3 &size)
         : center_(center), size_(size) {}
 
     bool CollidesWith(Collider *other) override;
@@ -42,11 +42,11 @@ public:
 class SphereCollider : public Collider
 {
 private:
-    glm::vec3 *center_;
+    const glm::vec3 *center_;
     float radius_;
 
 public:
-    SphereCollider(glm::vec3 *center, float radius)
+    SphereCollider(const glm::vec3 *center, float radius)
         : center_(center), radius_(radius) {}
 
     bool CollidesWith(Collider *other) override { return other->CollidesWithSphere(this); }
@@ -66,7 +66,7 @@ public:
     bool CollidesWith(Collider *other) override { return other->CollidesWithTerrain(this); }
     bool CollidesWithBox(BoxCollider *other) override;
     bool CollidesWithSphere(SphereCollider *other) override;
-    bool CollidesWithTerrain(TerrainCollider *other) override;
+    //bool CollidesWithTerrain(TerrainCollider *other) override;
     bool CollidesWithPlayer(FPPlayerCollider *other) override;
 };
 

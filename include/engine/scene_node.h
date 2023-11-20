@@ -16,7 +16,8 @@
 #include "camera.h"
 #include "collision_data.h"
 #include "defines.h"
-#include "colliders/colliders.h"
+
+class Collider;
 
 // Class that manages one object in a scene 
 class SceneNode {
@@ -30,9 +31,7 @@ class SceneNode {
 
     public:
         // Create scene node from given resources
-        SceneNode(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id = "")
-        : name(name), mesh_id(mesh_id), shader_id(shader_id), texture_id(texture_id), collision(),
-        collider(new SphereCollider(&transform.GetWorldPosition(), 1.0f)) {};
+        SceneNode(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id = "");
 
         // Destructor
         ~SceneNode();
