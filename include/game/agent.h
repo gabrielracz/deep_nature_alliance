@@ -49,6 +49,7 @@ protected:
     float base_jump_speed_ = jump_speed_;
     float speed_ = 0.5f;
     float height_ = 1.0f;
+    float vertical_step_height_ = 1.0f;
 
     // max slope agent can walk up
     float max_walking_angle_ = 35.0f;

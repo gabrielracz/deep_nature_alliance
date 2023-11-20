@@ -5,9 +5,9 @@
 #include <glm/gtx/string_cast.hpp>
 #include "defines.h"
 
-const char* Shader::shader_lib = 
+/*const char* Shader::shader_lib = 
 #include SHADER_LIB_FILE
-; 
+; */
 
 Shader::Shader(const char* vertex_path, const char* fragment_path, bool instanced) {
 	vert_path = vertex_path;

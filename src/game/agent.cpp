@@ -83,7 +83,7 @@ void Agent::DownMove(float dt)
 
     float terrainY = terrain->SampleHeight(target_position_.x, target_position_.z);
     
-    if (target_position_.y < terrainY + height_) {
+    if (target_position_.y < terrainY + height_ || (!jumping_ && target_position_.y < terrainY + height_ + vertical_step_height_)) {
         //We are touching terrain!
 
         glm::vec3 sample_normal = terrain->SampleNormal(target_position_.x, target_position_.z);
