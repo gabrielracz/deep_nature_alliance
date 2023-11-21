@@ -34,6 +34,8 @@ protected:
     float dash_speed_ = 40.0f;
     float sensitivity_ = 0.001f;
 
+    float collider_radius_ = 2.0f;
+
 private:
  enum FPControls {
      FORWARD = (int)(Player::Controls::W),

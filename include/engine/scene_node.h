@@ -61,6 +61,9 @@ class SceneNode {
         std::vector<Transform>& GetInstances()              {return instances;}
         Collider* GetCollider() const                       {return collider;}
 
+        // Collision
+        virtual void HandleCollisionWithSceneNode(SceneNode& collider) {}
+
         Transform transform;
         MaterialProperties material;
         bool active = true;

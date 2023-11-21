@@ -5,7 +5,7 @@
 FP_Player::FP_Player(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id, Camera *c)
     : Agent(name, mesh_id, shader_id, texture_id), camera_(c) {
         c->Attach(&transform); 
-        SetCollider(new FPPlayerCollider(*this));
+        SetCollider(new FPPlayerCollider(*this, collider_radius_));
 }
 
 void FP_Player::Control(Controls c, float dt, float damping){
