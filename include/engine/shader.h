@@ -29,6 +29,7 @@ struct ShaderLight {
 
 struct ShaderTransform {
     glm::mat4 transformation;
+    glm::mat4 normal_matrix;
 };
 
 struct TransformsBlock {

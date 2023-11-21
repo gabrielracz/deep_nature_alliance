@@ -137,13 +137,15 @@ void Shader::SetLights(std::vector<Light*>& world_lights) {
 void Shader::SetInstances(std::vector<Transform> &transforms) {
     int i = 0;
     for(; i < MIN(transforms.size(), MAX_INSTANCES); i++) {
-        transformsblock->transforms[i].transformation = transforms[i].GetLocalMatrix();
+        glm::mat4 t = transforms[i].GetLocalMatrix();
+        transformsblock->transforms[i].transformation = t;
+        transformsblock->transforms[i].normal_matrix = glm::transpose(glm::inverse(t));
     }
 
     glBindBuffer(GL_UNIFORM_BUFFER, instanced_ubo);
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, instanced_ubo);
-    // glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(TransformsBlock), &transformsblock->transforms);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ShaderTransform) * i, &transformsblock->transforms);
+    // glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(TransformsBlock), &transformsblock);
     SetUniform1i(i, "num_instances");
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
