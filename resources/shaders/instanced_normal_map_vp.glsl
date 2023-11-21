@@ -56,8 +56,9 @@ void main()
 
     // Define vertex tangent, bitangent and normal (TBN)
     // These are used to create the tangent space transformation matrix
-    vec3 vertex_normal = vec3(normal_mat * vec4(normal, 0.0));
-    vec3 vertex_tangent_ts = vec3(normal_mat * vec4(tangent, 0.0));
+    mat4 norm = instances[gl_InstanceID].normal_matrix;
+    vec3 vertex_normal = vec3(norm * vec4(normal, 0.0));
+    vec3 vertex_tangent_ts = vec3(norm * vec4(tangent, 0.0));
     vec3 vertex_bitangent_ts = cross(vertex_normal, vertex_tangent_ts);
 
     // Send tangent space transformation matrix to the fragment shader

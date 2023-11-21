@@ -134,12 +134,12 @@ void Shader::SetLights(std::vector<Light*>& world_lights) {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void Shader::SetInstances(std::vector<Transform> &transforms) {
+void Shader::SetInstances(std::vector<Transform> &transforms, const glm::mat4& view_matrix) {
     int i = 0;
     for(; i < MIN(transforms.size(), MAX_INSTANCES); i++) {
         glm::mat4 t = transforms[i].GetLocalMatrix();
         transformsblock->transforms[i].transformation = t;
-        transformsblock->transforms[i].normal_matrix = glm::transpose(glm::inverse(t));
+        transformsblock->transforms[i].normal_matrix = glm::transpose(glm::inverse(view_matrix * t));
     }
 
     glBindBuffer(GL_UNIFORM_BUFFER, instanced_ubo);

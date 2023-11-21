@@ -62,11 +62,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     // if(active_shader != shd->id) {
     cam.SetProjectionUniforms(shd, node->GetDesiredProjection());
 
-    if(node->GetInstances().size() > 0) {
-        shd->SetInstances(node->GetInstances());
-    }
     shd->SetLights(lights);
-
     node->SetUniforms(shd, cam.GetViewMatrix());
 
     // TEXTURE
