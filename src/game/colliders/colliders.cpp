@@ -48,6 +48,10 @@ bool TerrainCollider::CollidesWithPlayer(FPPlayerCollider* other) {
     return false;
 }
 
+bool TerrainCollider::CollidesWithTerrain(TerrainCollider* other) {
+    return false;
+}
+
 // PLAYER COLLIDER
 bool FPPlayerCollider::CollidesWithBox(BoxCollider* other) {
     return false;
@@ -58,6 +62,15 @@ bool FPPlayerCollider::CollidesWithSphere(SphereCollider* other) {
 }
 
 bool FPPlayerCollider::CollidesWithTerrain(TerrainCollider* other) {
+    glm::vec3 position = player_.transform.GetPosition();
+    Terrain& t = other->GetTerrain();
+    float height = t.SampleHeight(position.x, position.z);
+    bool collided = height > position.y - player_.GetHeight() - player_.GetVerticalStep();
+    //printf("Terrain: %f Player: %f Collided: %s \n",height,position.y - player_.GetHeight() - player_.GetVerticalStep(), t.IsDeathTerrain() ? "true" : "false");
+    if (collided && t.IsDeathTerrain()) {
+        printf("We ded! \n");
+        player_.Reset();
+    }
     return false;
 }
 

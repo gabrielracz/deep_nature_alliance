@@ -1,6 +1,7 @@
 #include "collision_manager.h"
 #include "transform.h"
 #include "fp_player.h"
+#include "colliders/colliders.h"
 
 #include <glm/glm.hpp>
 
@@ -12,9 +13,15 @@ void CollisionManager::CheckCollisions(){
         }
     }
 
-    for (auto ast : asteroids){
-        if (sphereToSphere(player, ast)){
-            //do stuff here
+    for (auto victim : nodes){
+        for (auto subject : nodes) {
+            Collider* victim_col = victim->GetCollider();
+            Collider* subject_col = subject->GetCollider();
+            if (victim_col && subject_col) {
+                if (victim_col->CollidesWith(subject_col)) {
+                    // Something bonked
+                }
+            }
         }
     }
 }
@@ -22,12 +29,8 @@ void CollisionManager::CheckCollisions(){
 void CollisionManager::AddNode(SceneNode* node){
     if (Trigger* t = dynamic_cast<Trigger*>(node)) {
         triggers.push_back(t);
-    } else if (Player* p = dynamic_cast<Player*>(node)) {
-        player = p;
-    } else if (FP_Player *f = dynamic_cast<FP_Player*>(node)) {
-     
     } else{
-        asteroids.push_back(node);
+        nodes.push_back(node);
     }
     // else {
     //     throw std::runtime_error("Unsupported node type in CollisionManager::AddNode");

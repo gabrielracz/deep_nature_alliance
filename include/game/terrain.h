@@ -2,11 +2,13 @@
 #define TERRAIN_H
 #include "scene_node.h"
 #include "glm/gtc/random.hpp"
+
 class Game;
 
 enum class TerrainType {
     MOON,
-    FOREST
+    FOREST,
+    LAVA
 };
 
 class Terrain : public SceneNode {
@@ -20,11 +22,13 @@ class Terrain : public SceneNode {
         float SampleAngle(float x, float z, glm::vec3 dir);
         glm::vec3 SampleNormal(float x, float z);
 
+        bool IsDeathTerrain() const { return death_terrain_; }
 
     protected:
         void GenerateHeightmap(TerrainType type);
         void GenerateQMoon();
         void GenerateForest();
+        void GenerateLava();
         void GenerateNormals();
         void GenerateObstacles();
         void GenerateTangents();
@@ -52,6 +56,8 @@ class Terrain : public SceneNode {
         float xstep;
         float zstep;
         float density;
+        
+        bool death_terrain_;
 
         TerrainType type;
 

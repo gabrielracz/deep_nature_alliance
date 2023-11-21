@@ -8,15 +8,14 @@
 class FP_Player : public Agent
 {
 public:
-    FP_Player(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id, Camera *c)
-        : Agent(name, mesh_id, shader_id, texture_id), camera_(c) {c->Attach(&transform);}
+    FP_Player(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id, Camera *c);
 
     virtual void Update(double dt) override;
     virtual void Control(Controls c, float dt, float damping = 1.0) override;
     virtual void MouseControls(Mouse& mouse) override;
 
     void PlayerJump();
-
+    void Reset();
     void TestMove();
 
 protected:
@@ -36,17 +35,17 @@ protected:
     float sensitivity_ = 0.001f;
 
 private:
- enum FPControls {
-     FORWARD = (int)(Player::Controls::W),
-     BACK = (int)(Player::Controls::S),
-     SPRINT = (int)(Player::Controls::SHIFT),
-     CROUCH = (int)(Player::Controls::CTRL),
-     SPINL = (int)(Player::Controls::Q),
-     SPINR = (int)(Player::Controls::E),
-     LEFT = (int)(Player::Controls::A),
-     RIGHT = (int)(Player::Controls::D),
-     JUMP = (int)(Player::Controls::SPACE)
- };
+//  enum FPControls {
+//      FORWARD = (int)(Player::Controls::W),
+//      BACK = (int)(Player::Controls::S),
+//      SPRINT = (int)(Player::Controls::SHIFT),
+//      CROUCH = (int)(Player::Controls::CTRL),
+//      SPINL = (int)(Player::Controls::Q),
+//      SPINR = (int)(Player::Controls::E),
+//      LEFT = (int)(Player::Controls::A),
+//      RIGHT = (int)(Player::Controls::D),
+//      JUMP = (int)(Player::Controls::SPACE)
+//  };
 
  Camera* camera_;
 

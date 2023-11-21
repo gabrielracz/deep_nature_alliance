@@ -29,6 +29,7 @@ class SceneGraph {
 
     // Add an already-created node
     void AddNode(SceneNode* node) { node_.push_back(node); }
+    void AddCollider(SceneNode* node) { colman.AddNode(node); }
     void AddLight(Light* light) { lights.push_back(light); }
     void SetPlayer(Player* p);
 
