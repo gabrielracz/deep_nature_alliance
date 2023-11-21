@@ -1,5 +1,6 @@
 #include "defines.h"
 #include "fp_player.h"
+#include "glm/gtc/random.hpp"
 #include "scene_graph.h"
 #include "application.h"
 #include "shader.h"
@@ -74,7 +75,8 @@ void Game::LoadMeshes() {
     resman.CreateSphere    ("M_Leaf", 1.0, 4, 10);
     resman.CreateSphere    ("M_Sphere", 1.0, 110, 10);
     resman.CreatePointCloud("M_StarCloud", 70000, 2000, {0.8, 0.8, 0.8, 0.8});
-    resman.CreateSphere    ("M_Planet", 1, 200, 200);
+    resman.CreateSphere    ("M_Planet", 1, 100, 100);
+    resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
 
     resman.CreateSimpleCube("M_Skybox");
 
@@ -99,7 +101,7 @@ void Game::LoadShaders() {
 void Game::LoadTextures() {
     // load textures
     resman.LoadTexture("T_Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
-    // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST, 4.0f);
+    resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST);
     resman.LoadTexture("T_Ship", RESOURCES_DIRECTORY"/shiptex.png", GL_REPEAT);
     // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST, 4.0f);
     // resman.LoadTexture("T_SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_LINEAR);
@@ -170,7 +172,7 @@ void Game::SetupSpaceScene() {
     scn->AddNode(player);
 
     SceneNode* stars = new SceneNode("Obj_Starcloud", "M_StarCloud", "S_Default", "");
-    scn->AddNode(stars);
+    // scn->AddNode(stars);
 
     SceneNode* planet = new SceneNode("Obj_Planet", "M_Planet", "S_NormalMap", "T_MarsPlanet");
     planet->transform.SetPosition({0.0, 0.0, -2000.0});
@@ -190,6 +192,39 @@ void Game::SetupSpaceScene() {
     SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[SPACE]->SetSkybox(skybox);
+
+    for(int i = 0; i < 3; i++) {
+        float radius = 600.0f;
+        glm::vec3 base_pos = {radius*i, 0.0, 0.0};
+        SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_Instanced", "T_LavaPlanet");
+        astr->SetNormalMap("T_WallNormalMap", 4.0f);
+        for(int i = 0; i < 512; i++) {
+            bool instanced = true;
+            glm::vec3 pos = base_pos + glm::ballRand(radius);
+            float s = rng.randfloat(3, 10);
+            float y = rng.randfloat(0, 2*PI);
+            float r = rng.randfloat(0, 2*PI);
+            float p = rng.randfloat(0, 2*PI);
+            // float s = 1;
+            if(instanced) {
+                Transform t;
+                t.SetPosition(pos);
+                t.SetScale({s,s,s});
+                t.Yaw(y);
+                t.Roll(r);
+                t.Pitch(p);
+                astr->AddInstance(t);
+            } else {
+                SceneNode* tree = new SceneNode("Obj_Forest", "M_Asteroid", "S_Lit", "T_LavaPlanet");
+                // tree->SetNormalMap("T_TreeNormalMap");
+                tree->transform.SetPosition(pos);
+                tree->transform.SetScale({s,s,s});
+                tree->transform.Yaw(r);
+                scenes[SPACE]->AddNode(tree);
+            }
+        }
+        scenes[SPACE]->AddNode(astr);
+    }
     // Light* flashlight = new Light(Colors::Red);
     // l2->transform.SetPosition({-300.0, -300.0, 0.0});
     // l2->Attach(&player->transform);
