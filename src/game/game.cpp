@@ -66,6 +66,7 @@ void Game::LoadMeshes() {
     // resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/oak.obj");
     resman.LoadMesh        ("M_BirchTree", RESOURCES_DIRECTORY"/birch_tree.obj");
     resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/lowpolytree.obj");
+    resman.LoadMesh        ("M_Soldier", RESOURCES_DIRECTORY"/soldier.obj");
 
     // generate geometry
     resman.CreateQuad      ("M_Quad");
@@ -118,6 +119,7 @@ void Game::LoadTextures() {
     // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/oak_texture.png", GL_REPEAT, GL_LINEAR);
     // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/birch_tree_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Soldier", RESOURCES_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
 
     resman.LoadCubemap("T_SpaceSkybox", RESOURCES_DIRECTORY"/skyboxes/space");
 
@@ -134,7 +136,7 @@ void Game::SetupScenes(void){
 
     //player created temporarily just so when controls query for player not null
     //once player refactor shoudl fix 
-    //also for assignment can just remove control code from game temporarily
+    //also for assignment can just remove control code from game temporarily/
     // CreatePlayer();
 
     SetupSpaceScene();
@@ -231,7 +233,9 @@ void Game::SetupForestScene() {
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
 
     // PLAYER
-    FP_Player* p = new FP_Player("Obj_FP_Player", "", "S_Lit", "T_Ship", &camera);
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
+    p->SetNormalMap("T_MetalNormalMap", 1.0f);
+    p->material.specular_power = 200.0f;
     p->transform.SetPosition({-191.718155, 20.999252, -395.274536});
     p->transform.SetOrientation({0.315484, 0.000000, 0.948931, 0.000000});
     p->visible = false;

@@ -22,6 +22,7 @@ class Collider;
 // Class that manages one object in a scene 
 class SceneNode {
 
+
     struct MaterialProperties {
         float texture_repetition = 1.0f;
         float normal_map_repetition = 1.0f;
