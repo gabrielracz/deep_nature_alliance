@@ -138,7 +138,7 @@ void Game::SetupScenes(void){
     //player created temporarily just so when controls query for player not null
     //once player refactor shoudl fix 
     //also for assignment can just remove control code from game temporarily
-    CreatePlayer();
+    // CreatePlayer();
 
     SetupSpaceScene();
     SetupFPScene(); // FPS TEST SCENE
@@ -221,26 +221,34 @@ void Game::SetupFPScene(void) {
     Terrain* lt = new Terrain("Obj_MoonLava", "M_MoonLava", "S_Lava", "T_MoonPlanet", TerrainType::LAVA, 400, 400, 0.1, this);
     lt->transform.Translate({-200.0f, -65.0f, -200.0f});
     lt->material.texture_repetition = 6.0f;
+    lt->material.diffuse_strength = 1.5f;
     AddColliderToScene(FPTEST, lt);
 }
 
 void Game::SetupForestScene() {
+
     Camera& camera = scenes[FOREST]->GetCamera();
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
 
-    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+    // PLAYER
     FP_Player* p = new FP_Player("Obj_FP_Player", "", "S_Lit", "T_Ship", &camera);
-    p->transform.SetPosition({0,0,-10});
+    p->transform.SetPosition({-191.718155, 20.999252, -395.274536});
+    p->transform.SetOrientation({0.315484, 0.000000, 0.948931, 0.000000});
     p->visible = false;
     AddPlayerToScene(FOREST, p);
-    // scn->SetPlayer(p);
-    // scn->AddNode(p);
+    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
-    skybox->transform.SetScale({2000, 2000, 2000});
-    scenes[FOREST]->SetSkybox(skybox);
+    SceneNode* ship = new SceneNode("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
+    ship->SetNormalMap("T_MetalNormalMap", 10.0f);
+    ship->transform.SetPosition({-200.730484, 25.999245, -427.873383});
+    ship->transform.SetOrientation({0.334468, 0.000000, 0.942407, 0.000000});
+    ship->transform.SetScale({11.0, 11.0, 9.5});
+    ship->material.specular_power = 169.0f;
+    scenes[FOREST]->AddNode(ship);
 
+
+    // ENV
     int terrain_size = 1000;
     Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.2, this);
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
@@ -250,11 +258,16 @@ void Game::SetupForestScene() {
     p->SetTerrain(terr);
     scenes[FOREST]->AddNode(terr);
 
-    Light* light = new Light(Colors::WarmWhite);
+    Light* light = new Light(Colors::Yellow);
     light->transform.SetPosition({1000.0, 1000.0, -2000.0});
     light->ambient_power = 0.05;
     scenes[FOREST]->AddLight(light);
 
+    SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
+    skybox->transform.SetScale({2000, 2000, 2000});
+    scenes[FOREST]->SetSkybox(skybox);
+
+    // TRANSPARENT
     SceneNode* forest = new SceneNode("Obj_Forest", "M_Tree", "S_Instanced", "T_Tree");
     // forest->transform.SetScale({5, 5, 5});
     forest->SetNormalMap("T_WallNormalMap", 1.0f);
@@ -513,6 +526,8 @@ void Game::AddToScene(SceneEnum sceneNum, SceneNode* node) {
 
 void Game::CreateHUD() {
 
+    float brdr = 0.1f;
+
     Text* txt = new Text("Obj_Banner", "M_Quad", "S_Text", "T_Charmap", this, "DEEP NATURE ALLIANCE\nA millenia ago, thousands of soldiers\nwere sent deep into the far reaches of space\nin search of life.\nOne of these soldiers is you...");
     txt->transform.SetPosition({0.0f, 1.0f, 0.0f});
     txt->SetAnchor(Text::Anchor::TOPCENTER);
@@ -530,11 +545,34 @@ void Game::CreateHUD() {
     AddToScene(SceneEnum::ALL, fps);
 
     Text* speedo = new Text("Obj_Speedo", "M_Quad", "S_Text", "T_Charmap", this, "");
-    speedo->transform.SetPosition({0.0, -0.1, 0.0f});
-    speedo->SetColor(HEXCOLORALPH(0xFF00FF, 0.75));
-    speedo->SetAnchor(Text::Anchor::CENTER);
+    speedo->transform.SetPosition({-1.0 + brdr, -1.0 + brdr, 0.0f});
+    speedo->SetColor(Colors::Amber);
+    speedo->SetAnchor(Text::Anchor::BOTTOMLEFT);
     speedo->SetCallback([this]() -> std::string {
-        return std::to_string((glm::length(active_scene->GetPlayer()->velocity)));
+
+        auto draw_bar = [](float in, float max, int total_bars) -> std::string {
+        int num_bars = ((in/max)*(float)total_bars);
+            std::string begin =        "[";
+            std::string bars(num_bars, '#');
+            std::string end = std::string(total_bars - num_bars, ' ') + ']';
+            return begin + bars + end;
+        };
+
+        float velocity = glm::length(active_scene->GetPlayer()->velocity);
+        float ang_vel = glm::length(active_scene->GetPlayer()->ang_velocity);
+        float max_velocity = 190;
+        float max_ang_vel = 1.3;
+        int total_bars = 25;
+
+        std::string vel_bar = draw_bar(velocity, max_velocity, total_bars);
+        std::string rot_bar = draw_bar(ang_vel, max_ang_vel, total_bars);
+
+        std::string out = std::to_string(velocity) + "\n"
+                        + vel_bar + "\n"
+                        + std::to_string(ang_vel) + "\n"
+                        + rot_bar;
+
+        return out;
     });
     // scene->AddNode(speedo);
     AddToScene(SceneEnum::SPACE, speedo);

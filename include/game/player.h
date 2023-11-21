@@ -26,6 +26,7 @@ public:
     virtual void MouseControls(Mouse& mouse) = 0;
 
     glm::vec3 velocity         = {0.0f, 0.0f, 0.0f};
+    glm::vec3 ang_velocity = {0.0f, 0.0f, 0.0f};
 
 };
 

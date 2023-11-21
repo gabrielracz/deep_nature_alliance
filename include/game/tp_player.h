@@ -18,7 +18,6 @@ class Tp_Player : public Player {
 
     glm::vec3 torque = {0.0f, 0.0f, 0.0f};
     glm::vec3 ang_acceleration = {0.0f, 0.0f, 0.0f};
-    glm::vec3 ang_velocity = {0.0f, 0.0f, 0.0f};
 
     glm::vec3 force = {0.0f, 0.0f, 0.0f};
     glm::vec3 acceleration = {0.0f, 0.0f, 0.0f};
