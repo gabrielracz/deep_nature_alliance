@@ -14,12 +14,12 @@ public:
     void SetUniforms(ShaderLight& shader_light);
     void Attach(Transform* transform);
     Transform transform;
-private:
-    Transform* parent_transform {nullptr};
-    glm::vec3 GetColour() const;
     glm::vec4 color;
     float spec_power = 41;
     float ambient_power = 0.15;
+private:
+    Transform* parent_transform {nullptr};
+    glm::vec3 GetColour() const;
 
 };
 

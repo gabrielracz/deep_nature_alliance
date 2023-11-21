@@ -38,6 +38,13 @@ void View::Render(SceneGraph& scene) {
         RenderNode(node, scene.GetCamera(), scene.GetLights());
     }
 
+    // always render skybox last
+    if(scene.GetSkybox()) {
+        glDepthFunc(GL_LEQUAL);
+        RenderNode(scene.GetSkybox(), scene.GetCamera(), scene.GetLights());
+        glDepthFunc(GL_LESS);
+    }
+
     glfwSwapBuffers(win.ptr);
     glfwPollEvents();
 }
@@ -78,7 +85,11 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
         // glDepthMask(false);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     };
-    resman.GetMesh(mesh_id)->Draw(node->GetInstances().size());
+    
+    // check if there is anything to render
+    if(!mesh_id.empty()) {
+        resman.GetMesh(mesh_id)->Draw(node->GetInstances().size());
+    }
 
     // HIERARCHY
     glm::mat4 tm = parent_matrix * Transform::RemoveScaling(node->GetCachedTransformMatrix());  // don't pass scaling to children

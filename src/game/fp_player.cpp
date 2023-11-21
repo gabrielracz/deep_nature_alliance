@@ -30,6 +30,13 @@ void FP_Player::Control(Controls c, float dt, float damping){
             break;
         case Player::Controls::SPACE:
             this->PlayerJump();
+            break;
+        case Player::Controls::UP:
+            camera_->transform.Pitch(turn_speed * dt);
+            break;
+        case Player::Controls::DOWN:
+            camera_->transform.Pitch(-turn_speed * dt);
+            break;
         default:
             break;  
     }

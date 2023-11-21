@@ -32,6 +32,7 @@ class SceneGraph {
     void AddCollider(SceneNode* node) { colman.AddNode(node); }
     void AddLight(Light* light) { lights.push_back(light); }
     void SetPlayer(Player* p);
+    void SetSkybox(SceneNode* s) {skybox = s;};
 
     // Find a scene node with a specific name
     SceneNode* GetNode(std::string node_name) const;
@@ -39,6 +40,7 @@ class SceneGraph {
     std::vector<Light*>& GetLights() { return lights; }
     Camera& GetCamera() { return camera; }
     Player* GetPlayer() { return player; }
+    SceneNode* GetSkybox() { return skybox;}
 
     // Get node const iterator
     std::vector<SceneNode*>::const_iterator begin() const { return node_.begin(); }
@@ -55,6 +57,7 @@ class SceneGraph {
     std::vector<Light*> lights;
     Camera camera;
     Player* player;
+    SceneNode* skybox = nullptr;
     Application& app;
 
 };  // class SceneGraph
