@@ -131,9 +131,6 @@ void Game::SetupScenes(void){
         scenes.push_back(new SceneGraph(app));
     }
 
-    active_scene = scenes[FPTEST];
-    active_scene->SetBackgroundColor(viewport_background_color_g);
-
 
     //player created temporarily just so when controls query for player not null
     //once player refactor shoudl fix 
@@ -143,6 +140,8 @@ void Game::SetupScenes(void){
     SetupSpaceScene();
     SetupFPScene(); // FPS TEST SCENE
     SetupForestScene();
+
+    ChangeScene(FPTEST);
 
 
 
@@ -598,7 +597,8 @@ void Game::CreateLights() {
 void Game::ChangeScene(int sceneIndex) {
     std::cout << "changing scenes" << std::endl;
     active_scene = scenes[sceneIndex];
-    return;
+    app.SetMouseHandler(std::bind(&Player::MouseControls, active_scene->GetPlayer(), std::placeholders::_1));
+    active_scene->SetBackgroundColor(viewport_background_color_g);
 }
 
 /*
