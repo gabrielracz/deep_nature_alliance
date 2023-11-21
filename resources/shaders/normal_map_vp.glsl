@@ -64,7 +64,6 @@ void main()
     }
     num_lights = num_world_lights;
 
-
     color_interp = color;
     uv_interp = uv; 
 }

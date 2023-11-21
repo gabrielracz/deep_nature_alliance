@@ -11,6 +11,7 @@
 
 #include "defines.h"
 #include "mesh.h"
+#include "resource.h"
 #include "resource_manager.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -77,6 +78,45 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
 	stbi_image_free(data);
 
 }
+
+void ResourceManager::LoadCubemap(const std::string &name, const std::string &dir_path) {
+	unsigned int tex_id;
+	glGenTextures(1, &tex_id);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, tex_id);
+
+    std::vector<std::string> faces = {
+        dir_path + "/right.png",
+        dir_path + "/left.png",
+        dir_path + "/bottom.png",
+        dir_path + "/top.png",
+        dir_path + "/front.png",
+        dir_path + "/back.png",
+    };
+
+    // stbi_set_flip_vertically_on_load(0);
+	int w, h, n_channels;
+	for(int i = 0; i < faces.size(); i++) {
+		unsigned char* data = stbi_load(faces[i].c_str(), &w, &h, &n_channels, 0);
+		if(data) {
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+					0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data );
+			stbi_image_free(data);
+		}else {
+			std::cout << "RESMAN ERROR Cube map face " << faces[i] << " failed to load" << std::endl;
+			stbi_image_free(data);
+		}
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    Texture t(tex_id);
+    t.gl_texture_type = GL_TEXTURE_CUBE_MAP;
+    textures.insert({name, t});
+}
+
 
 // Create the geometry for a cylinder
 void ResourceManager::CreateCylinder(std::string object_name, float height, float circle_radius, int num_height_samples, int num_circle_samples) {
@@ -736,6 +776,39 @@ void ResourceManager::CreateQuad(std::string name) {
     });
     
     overwrite_emplace(meshes, name, Mesh(vertices, indices, l));
+}
+
+void ResourceManager::CreateSimpleCube(std::string object_name) {
+const std::vector<float> cube_vertices = {
+    // Vertices
+    -0.5f, -0.5f, -0.5f,  // Vertex 0
+     0.5f, -0.5f, -0.5f,  // Vertex 1
+     0.5f,  0.5f, -0.5f,  // Vertex 2
+    -0.5f,  0.5f, -0.5f,  // Vertex 3
+    -0.5f, -0.5f,  0.5f,  // Vertex 4
+     0.5f, -0.5f,  0.5f,  // Vertex 5
+     0.5f,  0.5f,  0.5f,  // Vertex 6
+    -0.5f,  0.5f,  0.5f   // Vertex 7
+};
+
+const std::vector<unsigned int> cube_indices = {
+    // Indices
+    0, 1, 2,  // Front face
+    2, 3, 0,
+    1, 5, 6,  // Right face
+    6, 2, 1,
+    7, 6, 5,  // Top face
+    5, 4, 7,
+    4, 0, 3,  // Left face
+    3, 7, 4,
+    4, 5, 1,  // Bottom face
+    1, 0, 4,
+    3, 2, 6,  // Back face
+    6, 7, 3
+};
+
+    Layout layout({{FLOAT3, "position"}});
+    overwrite_emplace(meshes, object_name, Mesh(cube_vertices, cube_indices, layout));
 }
 
 std::string ResourceManager::LoadTextFile(const char *filename){

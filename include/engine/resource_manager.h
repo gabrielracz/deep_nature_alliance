@@ -36,6 +36,7 @@ class ResourceManager {
         void LoadMesh(const std::string& name, const std::string& path);
         void AddMesh(const std::string& name, std::vector<float> verts, std::vector<unsigned int> inds, Layout layout);
         void LoadTexture(const std::string& name, const std::string& path, int wrap_option = GL_REPEAT, int sample_option = GL_NEAREST);
+        void LoadCubemap(const std::string& name, const std::string& dir_path);
 
         void CreateTorus(std::string object_name, float loop_radius = 0.6, float circle_radius = 0.2, int num_loop_samples = 90, int num_circle_samples = 30);
         void CreateSphere(std::string object_name, float radius = 0.6, int num_samples_theta = 90, int num_samples_phi = 45);
@@ -45,13 +46,14 @@ class ResourceManager {
         void CreatePointCloud(std::string object_name, int num_points, float size, glm::vec4 color = {0.0f, 0.0f, 0.0f, 0.0f});
         void CreateFire(std::string object_name, int num_points, float size, glm::vec4 color = {0.0f, 0.0f, 0.0f, 0.0f});
         void CreateQuad(std::string object_name);
+        void CreateSimpleCube(std::string object_name);
 
         
     private:
         RandGenerator rng;
         std::unordered_map<std::string, Mesh>         meshes;
         std::unordered_map<std::string, Shader>       shaders;
-        std::unordered_map<std::string, Texture> textures;
+        std::unordered_map<std::string, Texture>      textures;   
         // std::unordered_map<std::string, Sound>     sounds;
 
         std::string LoadTextFile(const char *filename);

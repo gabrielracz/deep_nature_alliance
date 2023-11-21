@@ -39,20 +39,26 @@ layout(std140) uniform LightsBlock {
 };
 uniform int num_world_lights;
 
+struct Instance {
+    mat4 transformation;
+    mat4 normal_matrix;
+};
+
 uniform int num_instances;
 layout(std140) uniform TransformsBlock {
-    mat4 transformations[256];
+    Instance instances[2048];
 };
 
 void main()
 {
-    vec4 position = view_mat * world_mat * transformations[gl_InstanceID] * vec4(vertex, 1.0);
+    vec4 position = view_mat * world_mat * instances[gl_InstanceID].transformation * vec4(vertex, 1.0);
     gl_Position = projection_mat * position;
 
     // Define vertex tangent, bitangent and normal (TBN)
     // These are used to create the tangent space transformation matrix
-    vec3 vertex_normal = vec3(normal_mat * vec4(normal, 0.0));
-    vec3 vertex_tangent_ts = vec3(normal_mat * vec4(tangent, 0.0));
+    mat4 norm = instances[gl_InstanceID].normal_matrix;
+    vec3 vertex_normal = vec3(norm * vec4(normal, 0.0));
+    vec3 vertex_tangent_ts = vec3(norm * vec4(tangent, 0.0));
     vec3 vertex_bitangent_ts = cross(vertex_normal, vertex_tangent_ts);
 
     // Send tangent space transformation matrix to the fragment shader

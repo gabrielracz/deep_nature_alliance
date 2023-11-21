@@ -15,7 +15,7 @@
 #include "transform.h"
 
 static const int MAX_LIGHTS    = 4;
-static const int MAX_INSTANCES = 256;
+static const int MAX_INSTANCES = 2048;
 
 // make sure these fields are alligned on 4 byte boundary
 struct ShaderLight {
@@ -29,6 +29,7 @@ struct ShaderLight {
 
 struct ShaderTransform {
     glm::mat4 transformation;
+    glm::mat4 normal_matrix;
 };
 
 struct TransformsBlock {
@@ -60,7 +61,7 @@ public:
     void SetupInstancing();
 
     void SetLights(std::vector<Light*>& lights);
-    void SetInstances(std::vector<Transform>& transforms);
+    int SetInstances(std::vector<Transform>& transforms, const glm::mat4& view_matrix);
     
 	void SetUniform1f(float u, const std::string& name);
 	void SetUniform3f(const glm::vec3& u, const std::string& name);

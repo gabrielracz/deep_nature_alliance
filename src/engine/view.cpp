@@ -38,6 +38,13 @@ void View::Render(SceneGraph& scene) {
         RenderNode(node, scene.GetCamera(), scene.GetLights());
     }
 
+    // always render skybox last
+    if(scene.GetSkybox()) {
+        glDepthFunc(GL_LEQUAL);
+        RenderNode(scene.GetSkybox(), scene.GetCamera(), scene.GetLights());
+        glDepthFunc(GL_LESS);
+    }
+
     glfwSwapBuffers(win.ptr);
     glfwPollEvents();
 }
@@ -48,17 +55,14 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     std::string norm_id = node->GetNormalMap();
     std::string mesh_id = node->GetMeshID();
 
+    glDisable(GL_BLEND);
     // SHADER
     Shader* shd = resman.GetShader(shd_id);
     shd->Use();
     // if(active_shader != shd->id) {
     cam.SetProjectionUniforms(shd, node->GetDesiredProjection());
 
-    if(node->GetInstances().size() > 0) {
-        shd->SetInstances(node->GetInstances());
-    }
     shd->SetLights(lights);
-
     node->SetUniforms(shd, cam.GetViewMatrix());
 
     // TEXTURE
@@ -71,18 +75,25 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
 
     // MODEL
     if(node->IsAlphaEnabled()) {
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
-    } else {
-        glDisable(GL_BLEND);
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.0f);
+        // glDepthMask(false);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    };
+    
+    // check if there is anything to render
+    if(!mesh_id.empty()) {
+        resman.GetMesh(mesh_id)->Draw(node->GetNumInstances());
     }
-    resman.GetMesh(mesh_id)->Draw(node->GetInstances().size());
 
     // HIERARCHY
     glm::mat4 tm = parent_matrix * Transform::RemoveScaling(node->GetCachedTransformMatrix());  // don't pass scaling to children
     for(auto child : node->GetChildren()) {
         RenderNode(child, cam, lights, tm);
     }
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
 }
 
 void View::Init(const std::string& title, int width, int height) {
@@ -140,7 +151,7 @@ void View::InitView(){
     glEnable(GL_CULL_FACE);  
 
 	//Use this to disable vsync
-	// glfwSwapInterval(0);
+	glfwSwapInterval(0);
 
     glViewport(0, 0, win.width, win.height);
 }

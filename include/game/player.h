@@ -14,7 +14,9 @@ public:
         CTRL,
         Q,
         E,
-        SPACE
+        SPACE,
+        UP,
+        DOWN
     };
 
     Player(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id = "")
@@ -24,6 +26,7 @@ public:
     virtual void MouseControls(Mouse& mouse) = 0;
 
     glm::vec3 velocity         = {0.0f, 0.0f, 0.0f};
+    glm::vec3 ang_velocity = {0.0f, 0.0f, 0.0f};
 
 };
 

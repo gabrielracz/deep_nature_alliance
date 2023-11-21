@@ -25,8 +25,8 @@ Texture::Texture(unsigned char* data, int width, int height, int n_channels, int
     //Filtering
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, sample_option);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sample_option);
-
 	glGenerateMipmap(GL_TEXTURE_2D);
+    gl_texture_type = GL_TEXTURE_2D;
 }
 
 void Texture::Bind(Shader* shader, int offset, const std::string& name) {
@@ -34,5 +34,5 @@ void Texture::Bind(Shader* shader, int offset, const std::string& name) {
         shader->SetUniform1i(offset, name);
     }
     glActiveTexture(GL_TEXTURE0 + offset);
-    glBindTexture(GL_TEXTURE_2D, id);
+    glBindTexture(gl_texture_type, id);
 }

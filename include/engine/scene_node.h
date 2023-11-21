@@ -22,6 +22,7 @@ class Collider;
 // Class that manages one object in a scene 
 class SceneNode {
 
+
     struct MaterialProperties {
         float texture_repetition = 1.0f;
         float normal_map_repetition = 1.0f;
@@ -46,6 +47,7 @@ class SceneNode {
         void SetCollision(const CollisionData& t)           {collision = t;}
         void SetCollider(Collider * col)                    {collider = col;}
         void AddInstance(Transform t)                      {instances.push_back(t);};
+        void SetAlphaEnabled(bool a)                         {alpha_enabled = a;}
         // void SetInstances(std::vector<Transform>& t)        {instances = t;};
 
         const std::string GetName(void) const               {return name;}
@@ -59,6 +61,7 @@ class SceneNode {
         const std::vector<SceneNode*>& GetChildren() const  {return children;}
         const CollisionData& GetCollision() const           {return collision;}
         std::vector<Transform>& GetInstances()              {return instances;}
+        int GetNumInstances()                               {return in_camera_instances;}
         Collider* GetCollider() const                       {return collider;}
 
         // Collision
@@ -75,6 +78,7 @@ class SceneNode {
         std::string name; // Name of the scene node
         std::vector<SceneNode*> children;
         std::vector<Transform> instances;
+        int in_camera_instances = 0;
         double elapsed = 0;
         CollisionData collision;
 

@@ -9,27 +9,34 @@ FP_Player::FP_Player(const std::string name, const std::string &mesh_id, const s
 }
 
 void FP_Player::Control(Controls c, float dt, float damping){
-    switch(static_cast<FPControls>(c)) {
-        case FORWARD:
+    switch(c) {
+        case Player::Controls::W:
             this->SetForward(); 
             break;
-        case BACK:
+        case Player::Controls::S:
             this->SetBackward(); 
             break;
-        case LEFT:
+        case Player::Controls::A:
             this->SetLeft(); 
             break;
-        case RIGHT:
+        case Player::Controls::D:
             this->SetRight();
             break;
-        case SPINL:
+        case Player::Controls::Q:
             this->transform.Yaw(turn_speed * dt); 
             break;
-        case SPINR:
+        case Player::Controls::E:
             this->transform.Yaw(-turn_speed * dt); 
             break;
-        case JUMP:
+        case Player::Controls::SPACE:
             this->PlayerJump();
+            break;
+        case Player::Controls::UP:
+            camera_->transform.Pitch(turn_speed * dt);
+            break;
+        case Player::Controls::DOWN:
+            camera_->transform.Pitch(-turn_speed * dt);
+            break;
         default:
             break;  
     }

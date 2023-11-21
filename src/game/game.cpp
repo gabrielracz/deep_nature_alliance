@@ -2,6 +2,7 @@
 #include "fp_player.h"
 #include "scene_graph.h"
 #include "application.h"
+#include "shader.h"
 #include "tp_player.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtx/string_cast.hpp>
@@ -45,25 +46,6 @@ const float speed_upgrade_g = 0.5f;
 // Materials 
 const std::string material_directory_g = SHADER_DIRECTORY;
 
-glm::vec3 beacon_positions_g[] = {
-    {0      , 0     , 731},                   
-    {-36.2169       , 26.1707       , 665.71},
-    {-71.7758       , 77.3913       , 586.664},     
-    {-81.4512       , 127.351       , 466.188},     
-    {-74.1859       , 121.125       , 271.9}  ,     
-    {-6.60791       , 143.437       , 186.731},     
-    {91.6369        , 182.934       , 226.512},     
-    {127.061        , 171.769       , 338.286},     
-    {129.616        , 149.748       , 421.257},     
-    {82.3724        , 17.3056       , 480.708},     
-    {96.9571        , -86.6217      , 441.634},     
-    {92.5081        , -146.151      , 349.63} ,     
-    {30.3872        , -143.304      , 222.383},     
-    {-33.0518       , -71.9166      , 171.495},
-};
-
-int num_beacons_g = sizeof(beacon_positions_g) / sizeof(beacon_positions_g[0]);
-
 void Game::Init(void){
     SetupResources();
     SetupScenes();
@@ -80,14 +62,21 @@ void Game::SetupResources(void){
 void Game::LoadMeshes() {
     // load .obj meshes
     resman.LoadMesh        ("M_Ship", RESOURCES_DIRECTORY"/h2.obj");
-    resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/tree4.obj");
+    resman.LoadMesh        ("M_Tree4", RESOURCES_DIRECTORY"/tree4.obj");
+    // resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/oak.obj");
+    resman.LoadMesh        ("M_BirchTree", RESOURCES_DIRECTORY"/birch_tree.obj");
+    resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/lowpolytree.obj");
+    resman.LoadMesh        ("M_Soldier", RESOURCES_DIRECTORY"/soldier.obj");
 
     // generate geometry
     resman.CreateQuad      ("M_Quad");
     resman.CreateCone      ("M_Branch", 1.0, 1.0, 2, 10);
     resman.CreateSphere    ("M_Leaf", 1.0, 4, 10);
+    resman.CreateSphere    ("M_Sphere", 1.0, 110, 10);
     resman.CreatePointCloud("M_StarCloud", 70000, 2000, {0.8, 0.8, 0.8, 0.8});
     resman.CreateSphere    ("M_Planet", 1, 200, 200);
+
+    resman.CreateSimpleCube("M_Skybox");
 
     std::cout << "meshes loaded" << std::endl;
 }
@@ -101,6 +90,8 @@ void Game::LoadShaders() {
     resman.LoadShader("S_NormalMap", SHADER_DIRECTORY"/normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl");
     resman.LoadShader("S_Instanced", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl", true);
     resman.LoadShader("S_Lava", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/lit_lava_fp.glsl");
+    resman.LoadShader("S_Skybox", SHADER_DIRECTORY"/skybox_vp.glsl", SHADER_DIRECTORY"/skybox_fp.glsl");
+
 
     std::cout << "shaders loaded" << std::endl;
 }
@@ -123,8 +114,14 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Grass", RESOURCES_DIRECTORY"/whispy_grass_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_GrassNormalMap", RESOURCES_DIRECTORY"/whispy_grass_normal_map.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MetalNormalMap", RESOURCES_DIRECTORY"/metal_normal_map.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/tree4_texture.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_TreeNormalMap", RESOURCES_DIRECTORY"/tree4_normal_map.png", GL_REPEAT, GL_LINEAR);
+    // resman.LoadTexture("T_Tree4", RESOURCES_DIRECTORY"/tree4_texture.png", GL_REPEAT, GL_LINEAR);
+    // resman.LoadTexture("T_TreeNormalMap", RESOURCES_DIRECTORY"/tree4_normal_map.png", GL_REPEAT, GL_LINEAR);
+    // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/oak_texture.png", GL_REPEAT, GL_LINEAR);
+    // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/birch_tree_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Soldier", RESOURCES_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
+
+    resman.LoadCubemap("T_SpaceSkybox", RESOURCES_DIRECTORY"/skyboxes/space");
 
     std::cout << "textures loaded" << std::endl;
 }
@@ -136,18 +133,17 @@ void Game::SetupScenes(void){
         scenes.push_back(new SceneGraph(app));
     }
 
-    active_scene = scenes[FPTEST];
-    active_scene->SetBackgroundColor(viewport_background_color_g);
-
 
     //player created temporarily just so when controls query for player not null
     //once player refactor shoudl fix 
-    //also for assignment can just remove control code from game temporarily
-    CreatePlayer();
+    //also for assignment can just remove control code from game temporarily/
+    // CreatePlayer();
 
     SetupSpaceScene();
     SetupFPScene(); // FPS TEST SCENE
     SetupForestScene();
+
+    ChangeScene(FPTEST);
 
 
 
@@ -169,7 +165,7 @@ void Game::SetupSpaceScene() {
     Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
     player->transform.SetPosition(player_position_g);
     player->SetNormalMap("T_MetalNormalMap", 1.0);
-    camera.Attach(&player->transform, true);
+    camera.Attach(&player->transform, false);
     scn->SetPlayer(player);
     scn->AddNode(player);
 
@@ -190,6 +186,10 @@ void Game::SetupSpaceScene() {
     Light* l2 = new Light(Colors::Yellow);
     l2->transform.SetPosition({-300.0, -300.0, -300.0});
     scn->AddLight(l2);
+
+    SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
+    skybox->transform.SetScale({2000, 2000, 2000});
+    scenes[SPACE]->SetSkybox(skybox);
     // Light* flashlight = new Light(Colors::Red);
     // l2->transform.SetPosition({-300.0, -300.0, 0.0});
     // l2->Attach(&player->transform);
@@ -222,46 +222,84 @@ void Game::SetupFPScene(void) {
     Terrain* lt = new Terrain("Obj_MoonLava", "M_MoonLava", "S_Lava", "T_MoonPlanet", TerrainType::LAVA, 400, 400, 0.1, this);
     lt->transform.Translate({-200.0f, -65.0f, -200.0f});
     lt->material.texture_repetition = 6.0f;
+    lt->material.diffuse_strength = 1.5f;
     AddColliderToScene(FPTEST, lt);
 }
 
 void Game::SetupForestScene() {
+
     Camera& camera = scenes[FOREST]->GetCamera();
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
 
-    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship", &camera);
-    p->transform.SetPosition(player_position_g);
+    // PLAYER
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
+    p->SetNormalMap("T_MetalNormalMap", 1.0f);
+    p->material.specular_power = 200.0f;
+    p->transform.SetPosition({-191.718155, 20.999252, -395.274536});
+    p->transform.SetOrientation({0.315484, 0.000000, 0.948931, 0.000000});
     p->visible = false;
+    p->jump_speed_ = 20;
     AddPlayerToScene(FOREST, p);
-    // scn->SetPlayer(p);
-    // scn->AddNode(p);
+    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
+    SceneNode* ship = new SceneNode("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
+    ship->SetNormalMap("T_MetalNormalMap", 10.0f);
+    ship->transform.SetPosition({-200.730484, 25.999245, -427.873383});
+    ship->transform.SetOrientation({0.334468, 0.000000, 0.942407, 0.000000});
+    ship->transform.SetScale({11.0, 11.0, 9.5});
+    ship->material.specular_power = 169.0f;
+    scenes[FOREST]->AddNode(ship);
+
+
+    // ENV
     int terrain_size = 1000;
-    Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.1, this);
+    Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.2, this);
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     terr->material.specular_power = 0.0f;
-    terr->material.texture_repetition = 20.0f;
-    terr->SetNormalMap("T_GrassNormalMap", 20.0f);
+    terr->material.texture_repetition = 10.0f;
+    terr->SetNormalMap("T_GrassNormalMap", 5.0f);
     p->SetTerrain(terr);
     scenes[FOREST]->AddNode(terr);
 
-    Light* light = new Light(Colors::WarmWhite);
-    light->transform.SetPosition({300.0, 300.0, 0.0});
+    Light* light = new Light(Colors::Yellow);
+    light->transform.SetPosition({1000.0, 1000.0, -2000.0});
+    light->ambient_power = 0.05;
     scenes[FOREST]->AddLight(light);
 
+    SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
+    skybox->transform.SetScale({2000, 2000, 2000});
+    scenes[FOREST]->SetSkybox(skybox);
+
+    // TRANSPARENT
     SceneNode* forest = new SceneNode("Obj_Forest", "M_Tree", "S_Instanced", "T_Tree");
     // forest->transform.SetScale({5, 5, 5});
-    forest->SetNormalMap("T_TreeNormalMap", 1.0f);
-    forest->material.specular_power = 200.0f;
-    for(int i = 0; i < 50; i++) {
-        Transform t;
-        float x = rng.randfloat(-300, 300);
-        float z = rng.randfloat(-300, 300);
+    forest->SetNormalMap("T_WallNormalMap", 1.0f);
+    forest->material.specular_power = 0.0f;
+    forest->SetAlphaEnabled(true);
+    for(int i = 0; i < 100; i++) {
+        bool instanced = true;
+        float x = rng.randfloat(-400, 400);
+        float z = rng.randfloat(-400, 400);
         float y = terr->SampleHeight(x, z);
-        t.SetPosition({x, y, z});
-        forest->AddInstance(t);
+        float s = rng.randfloat(3, 10);
+        float r = rng.randfloat(0, 2*PI);
+        // float s = 1;
+        if(instanced) {
+            Transform t;
+            t.SetPosition({x, y, z});
+            t.SetScale({s,s,s});
+            t.Yaw(r);
+            forest->AddInstance(t);
+        } else {
+            SceneNode* tree = new SceneNode("Obj_Forest", "M_Tree", "S_Lit", "T_Tree");
+            // tree->SetNormalMap("T_TreeNormalMap");
+            tree->transform.SetPosition({x, y, z});
+            tree->transform.SetScale({s,s,s});
+            tree->transform.Yaw(r);
+            tree->SetAlphaEnabled(true);
+            scenes[FOREST]->AddNode(tree);
+        }
     }
     scenes[FOREST]->AddNode(forest);
 }
@@ -313,7 +351,10 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if(keys[GLFW_KEY_P]) {
         glm::vec3 p = player->transform.GetPosition();
         glm::quat o = player->transform.GetOrientation();
-        std::cout << glm::to_string(p) << " " << glm::to_string(o) << std::endl;
+        glm::vec3 c = active_scene->GetCamera().transform.GetPosition();
+        glm::quat co = active_scene->GetCamera().transform.GetOrientation();
+        std::cout << "player: " << glm::to_string(p) << " " << glm::to_string(o) << "\n"
+                  << "camera: " << glm::to_string(c) << " " << glm::to_string(co) << "\n" << std::endl;
         keys[GLFW_KEY_P] = false;
     }
 
@@ -352,10 +393,10 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     };
 
     if(keys[GLFW_KEY_UP]) {
-        active_scene->GetCamera().transform.Pitch(0.05f);
+        player->Control(Player::Controls::UP, dt);
     }
     if(keys[GLFW_KEY_DOWN]) {
-        active_scene->GetCamera().transform.Pitch(-0.05f);
+        player->Control(Player::Controls::DOWN, dt);
     }
 
     if(keys[GLFW_KEY_X]) {
@@ -374,11 +415,18 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     }
 
 
+    float cam_speed = 3.0f * dt;
     if(keys[GLFW_KEY_I]) {
-        active_scene->GetCamera().transform.Translate({0.0, 0.0, -0.1});
+        active_scene->GetCamera().transform.Translate({0.0, 0.0, -cam_speed});
     }
-    if(keys[GLFW_KEY_J]) {
-        active_scene->GetCamera().transform.Translate({0.0, 0.0,0.1});
+    if(keys[GLFW_KEY_K]) {
+        active_scene->GetCamera().transform.Translate({0.0, 0.0,cam_speed});
+    }
+    if(keys[GLFW_KEY_U]) {
+        active_scene->GetCamera().transform.Translate({0.0, -cam_speed, 0.0});
+    }
+    if(keys[GLFW_KEY_O]) {
+        active_scene->GetCamera().transform.Translate({0.0, cam_speed,0.0});
     }
 
 
@@ -394,7 +442,8 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if(keys[GLFW_KEY_Z]) {
         if(active_scene->GetCamera().IsAttached()) {
             if(camera_mode++ % 2 == 0) {
-                // app.GetCamera().MoveTo({0.0, 3.0f, -20.0f});
+                active_scene->GetCamera().transform.SetPosition({0.000000, 0.142563, -1.721907});
+                active_scene->GetCamera().transform.SetOrientation({0.000000, 0.00, 0.0, 0.0});
             } else {
                 active_scene->GetCamera().Reset();
             }
@@ -492,6 +541,8 @@ void Game::AddToScene(SceneEnum sceneNum, SceneNode* node) {
 
 void Game::CreateHUD() {
 
+    float brdr = 0.1f;
+
     Text* txt = new Text("Obj_Banner", "M_Quad", "S_Text", "T_Charmap", this, "DEEP NATURE ALLIANCE\nA millenia ago, thousands of soldiers\nwere sent deep into the far reaches of space\nin search of life.\nOne of these soldiers is you...");
     txt->transform.SetPosition({0.0f, 1.0f, 0.0f});
     txt->SetAnchor(Text::Anchor::TOPCENTER);
@@ -501,7 +552,7 @@ void Game::CreateHUD() {
 
     Text* fps = new Text("Obj_Fps", "M_Quad", "S_Text", "T_Charmap", this, "FPS");
     fps->transform.SetPosition({-1.0, 1.0, 0.0f});
-    fps->SetColor(Colors::Magenta);
+    fps->SetColor(Colors::White);
     fps->SetAnchor(Text::Anchor::TOPLEFT);
     fps->SetCallback([this]() -> std::string {
         return "fps: " + std::to_string(app.GetFPS());
@@ -509,14 +560,37 @@ void Game::CreateHUD() {
     AddToScene(SceneEnum::ALL, fps);
 
     Text* speedo = new Text("Obj_Speedo", "M_Quad", "S_Text", "T_Charmap", this, "");
-    speedo->transform.SetPosition({0.0, -0.1, 0.0f});
-    speedo->SetColor(HEXCOLORALPH(0xFF00FF, 0.75));
-    speedo->SetAnchor(Text::Anchor::CENTER);
+    speedo->transform.SetPosition({-1.0 + brdr, -1.0 + brdr, 0.0f});
+    speedo->SetColor(Colors::Amber);
+    speedo->SetAnchor(Text::Anchor::BOTTOMLEFT);
     speedo->SetCallback([this]() -> std::string {
-        return std::to_string((glm::length(active_scene->GetPlayer()->velocity)));
+
+        auto draw_bar = [](float in, float max, int total_bars) -> std::string {
+        int num_bars = ((in/max)*(float)total_bars);
+            std::string begin =        "[";
+            std::string bars(num_bars, '#');
+            std::string end = std::string(total_bars - num_bars, ' ') + ']';
+            return begin + bars + end;
+        };
+
+        float velocity = glm::length(active_scene->GetPlayer()->velocity);
+        float ang_vel = glm::length(active_scene->GetPlayer()->ang_velocity);
+        float max_velocity = 190;
+        float max_ang_vel = 1.3;
+        int total_bars = 25;
+
+        std::string vel_bar = draw_bar(velocity, max_velocity, total_bars);
+        std::string rot_bar = draw_bar(ang_vel, max_ang_vel, total_bars);
+
+        std::string out = std::to_string(velocity) + "\n"
+                        + vel_bar + "\n"
+                        + std::to_string(ang_vel) + "\n"
+                        + rot_bar;
+
+        return out;
     });
     // scene->AddNode(speedo);
-    AddToScene(SceneEnum::ALL, speedo);
+    AddToScene(SceneEnum::SPACE, speedo);
 
     // Text* crosshair = new Text("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", this, "[ ]");
     // crosshair->transform.SetPosition({0.0, 0.1, 0.0});
@@ -539,7 +613,8 @@ void Game::CreateLights() {
 void Game::ChangeScene(int sceneIndex) {
     std::cout << "changing scenes" << std::endl;
     active_scene = scenes[sceneIndex];
-    return;
+    app.SetMouseHandler(std::bind(&Player::MouseControls, active_scene->GetPlayer(), std::placeholders::_1));
+    active_scene->SetBackgroundColor(viewport_background_color_g);
 }
 
 /*
