@@ -15,7 +15,7 @@
 #include "transform.h"
 
 static const int MAX_LIGHTS    = 4;
-static const int MAX_INSTANCES = 256;
+static const int MAX_INSTANCES = 2048;
 
 // make sure these fields are alligned on 4 byte boundary
 struct ShaderLight {

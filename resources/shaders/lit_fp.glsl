@@ -71,6 +71,7 @@ void main()
     for(int i = 0; i < num_lights; i++) {
         vec3 lv = normalize(lights[i].position - position_interp); // light direction, object position as origin
         vec4 lit_pixel = lighting(pixel, i, lv, n);
+        lit_pixel.a = pixel.a;
         accumulator += lit_pixel;
     }
     gl_FragColor =  accumulator/num_lights;

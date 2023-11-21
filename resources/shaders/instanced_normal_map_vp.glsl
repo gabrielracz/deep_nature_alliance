@@ -41,7 +41,7 @@ uniform int num_world_lights;
 
 uniform int num_instances;
 layout(std140) uniform TransformsBlock {
-    mat4 transformations[256];
+    mat4 transformations[2048];
 };
 
 void main()

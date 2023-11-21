@@ -48,6 +48,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     std::string norm_id = node->GetNormalMap();
     std::string mesh_id = node->GetMeshID();
 
+    glDisable(GL_BLEND);
     // SHADER
     Shader* shd = resman.GetShader(shd_id);
     shd->Use();
@@ -71,11 +72,12 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
 
     // MODEL
     if(node->IsAlphaEnabled()) {
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
-    } else {
-        glDisable(GL_BLEND);
-    }
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.0f);
+        // glDepthMask(false);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    };
     resman.GetMesh(mesh_id)->Draw(node->GetInstances().size());
 
     // HIERARCHY
@@ -83,6 +85,8 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     for(auto child : node->GetChildren()) {
         RenderNode(child, cam, lights, tm);
     }
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
 }
 
 void View::Init(const std::string& title, int width, int height) {
@@ -140,7 +144,7 @@ void View::InitView(){
     glEnable(GL_CULL_FACE);  
 
 	//Use this to disable vsync
-	// glfwSwapInterval(0);
+	glfwSwapInterval(0);
 
     glViewport(0, 0, win.width, win.height);
 }

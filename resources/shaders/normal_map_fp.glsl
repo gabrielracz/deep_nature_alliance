@@ -76,7 +76,7 @@ void main()
         vec4 pixel = texture(texture_map, uv_interp * texture_repetition);                              // sample color texture
         // vec4 pixel = vec4(color_interp, 1.0);                                                                       // mix with underlying model color
         vec4 lit_pixel = lighting(pixel, i, light_vector, normal);
-        // vec4 lit_pixel = pixel;
+        lit_pixel.a = pixel.a;
         accumulator += lit_pixel;
     }
     gl_FragColor = accumulator ;

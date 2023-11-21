@@ -46,6 +46,7 @@ class SceneNode {
         void SetCollision(const CollisionData& t)           {collision = t;}
         void SetCollider(Collider * col)                    {collider = col;}
         void AddInstance(Transform t)                      {instances.push_back(t);};
+        void SetAlphaEnabled(bool a)                         {alpha_enabled = a;}
         // void SetInstances(std::vector<Transform>& t)        {instances = t;};
 
         const std::string GetName(void) const               {return name;}

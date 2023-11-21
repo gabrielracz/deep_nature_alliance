@@ -142,7 +142,8 @@ void Shader::SetInstances(std::vector<Transform> &transforms) {
 
     glBindBuffer(GL_UNIFORM_BUFFER, instanced_ubo);
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, instanced_ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(TransformsBlock), &transformsblock->transforms);
+    // glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(TransformsBlock), &transformsblock->transforms);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ShaderTransform) * i, &transformsblock->transforms);
     SetUniform1i(i, "num_instances");
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }

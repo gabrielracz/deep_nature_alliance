@@ -2,6 +2,7 @@
 #include "fp_player.h"
 #include "scene_graph.h"
 #include "application.h"
+#include "shader.h"
 #include "tp_player.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtx/string_cast.hpp>
@@ -45,25 +46,6 @@ const float speed_upgrade_g = 0.5f;
 // Materials 
 const std::string material_directory_g = SHADER_DIRECTORY;
 
-glm::vec3 beacon_positions_g[] = {
-    {0      , 0     , 731},                   
-    {-36.2169       , 26.1707       , 665.71},
-    {-71.7758       , 77.3913       , 586.664},     
-    {-81.4512       , 127.351       , 466.188},     
-    {-74.1859       , 121.125       , 271.9}  ,     
-    {-6.60791       , 143.437       , 186.731},     
-    {91.6369        , 182.934       , 226.512},     
-    {127.061        , 171.769       , 338.286},     
-    {129.616        , 149.748       , 421.257},     
-    {82.3724        , 17.3056       , 480.708},     
-    {96.9571        , -86.6217      , 441.634},     
-    {92.5081        , -146.151      , 349.63} ,     
-    {30.3872        , -143.304      , 222.383},     
-    {-33.0518       , -71.9166      , 171.495},
-};
-
-int num_beacons_g = sizeof(beacon_positions_g) / sizeof(beacon_positions_g[0]);
-
 void Game::Init(void){
     SetupResources();
     SetupScenes();
@@ -80,12 +62,16 @@ void Game::SetupResources(void){
 void Game::LoadMeshes() {
     // load .obj meshes
     resman.LoadMesh        ("M_Ship", RESOURCES_DIRECTORY"/h2.obj");
-    resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/tree4.obj");
+    resman.LoadMesh        ("M_Tree4", RESOURCES_DIRECTORY"/tree4.obj");
+    // resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/oak.obj");
+    resman.LoadMesh        ("M_BirchTree", RESOURCES_DIRECTORY"/birch_tree.obj");
+    resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/lowpolytree.obj");
 
     // generate geometry
     resman.CreateQuad      ("M_Quad");
     resman.CreateCone      ("M_Branch", 1.0, 1.0, 2, 10);
     resman.CreateSphere    ("M_Leaf", 1.0, 4, 10);
+    resman.CreateSphere    ("M_Sphere", 1.0, 110, 10);
     resman.CreatePointCloud("M_StarCloud", 70000, 2000, {0.8, 0.8, 0.8, 0.8});
     resman.CreateSphere    ("M_Planet", 1, 200, 200);
 
@@ -122,8 +108,12 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Grass", RESOURCES_DIRECTORY"/whispy_grass_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_GrassNormalMap", RESOURCES_DIRECTORY"/whispy_grass_normal_map.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MetalNormalMap", RESOURCES_DIRECTORY"/metal_normal_map.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/tree4_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Tree4", RESOURCES_DIRECTORY"/tree4_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_TreeNormalMap", RESOURCES_DIRECTORY"/tree4_normal_map.png", GL_REPEAT, GL_LINEAR);
+    // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/oak_texture.png", GL_REPEAT, GL_LINEAR);
+    // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/birch_tree_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_RuggedTerrain", RESOURCES_DIRECTORY"/rugged_terrain_texture.png", GL_REPEAT, GL_LINEAR);
 
     std::cout << "textures loaded" << std::endl;
 }
@@ -233,11 +223,11 @@ void Game::SetupForestScene() {
     // scn->AddNode(p);
 
     int terrain_size = 1000;
-    Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.1, this);
+    Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.2, this);
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     terr->material.specular_power = 0.0f;
-    terr->material.texture_repetition = 20.0f;
-    terr->SetNormalMap("T_GrassNormalMap", 20.0f);
+    terr->material.texture_repetition = 10.0f;
+    terr->SetNormalMap("T_GrassNormalMap", 5.0f);
     p->SetTerrain(terr);
     scenes[FOREST]->AddNode(terr);
 
@@ -247,15 +237,32 @@ void Game::SetupForestScene() {
 
     SceneNode* forest = new SceneNode("Obj_Forest", "M_Tree", "S_Instanced", "T_Tree");
     // forest->transform.SetScale({5, 5, 5});
-    forest->SetNormalMap("T_TreeNormalMap", 1.0f);
-    forest->material.specular_power = 200.0f;
-    for(int i = 0; i < 50; i++) {
-        Transform t;
-        float x = rng.randfloat(-300, 300);
-        float z = rng.randfloat(-300, 300);
+    forest->SetNormalMap("T_WallNormalMap", 1.0f);
+    forest->material.specular_power = 0.0f;
+    forest->SetAlphaEnabled(true);
+    for(int i = 0; i < 100; i++) {
+        bool instanced = true;
+        float x = rng.randfloat(-400, 400);
+        float z = rng.randfloat(-400, 400);
         float y = terr->SampleHeight(x, z);
-        t.SetPosition({x, y, z});
-        forest->AddInstance(t);
+        float s = rng.randfloat(3, 10);
+        float r = rng.randfloat(0, 2*PI);
+        // float s = 1;
+        if(instanced) {
+            Transform t;
+            t.SetPosition({x, y, z});
+            t.SetScale({s,s,s});
+            t.Yaw(r);
+            forest->AddInstance(t);
+        } else {
+            SceneNode* tree = new SceneNode("Obj_Forest", "M_Tree", "S_Lit", "T_Tree");
+            // tree->SetNormalMap("T_TreeNormalMap");
+            tree->transform.SetPosition({x, y, z});
+            tree->transform.SetScale({s,s,s});
+            tree->transform.Yaw(r);
+            tree->SetAlphaEnabled(true);
+            scenes[FOREST]->AddNode(tree);
+        }
     }
     scenes[FOREST]->AddNode(forest);
 }
