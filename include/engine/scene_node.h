@@ -60,6 +60,7 @@ class SceneNode {
         const std::vector<SceneNode*>& GetChildren() const  {return children;}
         const CollisionData& GetCollision() const           {return collision;}
         std::vector<Transform>& GetInstances()              {return instances;}
+        int GetNumInstances()                               {return in_camera_instances;}
         Collider* GetCollider() const                       {return collider;}
 
         Transform transform;
@@ -73,6 +74,7 @@ class SceneNode {
         std::string name; // Name of the scene node
         std::vector<SceneNode*> children;
         std::vector<Transform> instances;
+        int in_camera_instances = 0;
         double elapsed = 0;
         CollisionData collision;
 

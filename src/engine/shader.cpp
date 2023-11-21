@@ -134,20 +134,30 @@ void Shader::SetLights(std::vector<Light*>& world_lights) {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void Shader::SetInstances(std::vector<Transform> &transforms, const glm::mat4& view_matrix) {
+int Shader::SetInstances(std::vector<Transform> &transforms, const glm::mat4& view_matrix) {
     int i = 0;
-    for(; i < MIN(transforms.size(), MAX_INSTANCES); i++) {
+    int j = 0;
+    int rejected = 0;
+    // Prototype for culling objects not in front of the camera. this should be in view
+    for(; i < transforms.size() && j < MAX_INSTANCES; i++) {
         glm::mat4 t = transforms[i].GetLocalMatrix();
-        transformsblock->transforms[i].transformation = t;
-        transformsblock->transforms[i].normal_matrix = glm::transpose(glm::inverse(view_matrix * t));
+        glm::vec3 view_point = view_matrix * t * glm::vec4(0, 0, 0, 1);
+        if(view_point.z < 10.0f) {
+            transformsblock->transforms[j].transformation = t;
+            transformsblock->transforms[j].normal_matrix = glm::transpose(glm::inverse(view_matrix * t));
+            j++;
+        } else {
+            rejected++;
+        }
     }
 
     glBindBuffer(GL_UNIFORM_BUFFER, instanced_ubo);
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, instanced_ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ShaderTransform) * i, &transformsblock->transforms);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ShaderTransform) * j, &transformsblock->transforms);
     // glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(TransformsBlock), &transformsblock);
-    SetUniform1i(i, "num_instances");
+    SetUniform1i(j, "num_instances");
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    return j;
 }
 
 void Shader::Finalize(int num_lights) {

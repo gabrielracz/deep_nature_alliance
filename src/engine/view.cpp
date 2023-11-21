@@ -84,7 +84,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     
     // check if there is anything to render
     if(!mesh_id.empty()) {
-        resman.GetMesh(mesh_id)->Draw(node->GetInstances().size());
+        resman.GetMesh(mesh_id)->Draw(node->GetNumInstances());
     }
 
     // HIERARCHY
