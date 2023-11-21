@@ -164,7 +164,7 @@ void Game::SetupSpaceScene() {
     Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
     player->transform.SetPosition(player_position_g);
     player->SetNormalMap("T_MetalNormalMap", 1.0);
-    camera.Attach(&player->transform, true);
+    camera.Attach(&player->transform, false);
     scn->SetPlayer(player);
     scn->AddNode(player);
 
@@ -236,6 +236,7 @@ void Game::SetupForestScene() {
     p->transform.SetPosition({-191.718155, 20.999252, -395.274536});
     p->transform.SetOrientation({0.315484, 0.000000, 0.948931, 0.000000});
     p->visible = false;
+    p->jump_speed_ = 20;
     AddPlayerToScene(FOREST, p);
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
@@ -347,7 +348,10 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if(keys[GLFW_KEY_P]) {
         glm::vec3 p = player->transform.GetPosition();
         glm::quat o = player->transform.GetOrientation();
-        std::cout << glm::to_string(p) << " " << glm::to_string(o) << std::endl;
+        glm::vec3 c = active_scene->GetCamera().transform.GetPosition();
+        glm::quat co = active_scene->GetCamera().transform.GetOrientation();
+        std::cout << "player: " << glm::to_string(p) << " " << glm::to_string(o) << "\n"
+                  << "camera: " << glm::to_string(c) << " " << glm::to_string(co) << "\n" << std::endl;
         keys[GLFW_KEY_P] = false;
     }
 
@@ -408,11 +412,18 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     }
 
 
+    float cam_speed = 3.0f * dt;
     if(keys[GLFW_KEY_I]) {
-        active_scene->GetCamera().transform.Translate({0.0, 0.0, -0.1});
+        active_scene->GetCamera().transform.Translate({0.0, 0.0, -cam_speed});
     }
-    if(keys[GLFW_KEY_J]) {
-        active_scene->GetCamera().transform.Translate({0.0, 0.0,0.1});
+    if(keys[GLFW_KEY_K]) {
+        active_scene->GetCamera().transform.Translate({0.0, 0.0,cam_speed});
+    }
+    if(keys[GLFW_KEY_U]) {
+        active_scene->GetCamera().transform.Translate({0.0, -cam_speed, 0.0});
+    }
+    if(keys[GLFW_KEY_O]) {
+        active_scene->GetCamera().transform.Translate({0.0, cam_speed,0.0});
     }
 
 
@@ -428,7 +439,8 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if(keys[GLFW_KEY_Z]) {
         if(active_scene->GetCamera().IsAttached()) {
             if(camera_mode++ % 2 == 0) {
-                // app.GetCamera().MoveTo({0.0, 3.0f, -20.0f});
+                active_scene->GetCamera().transform.SetPosition({0.000000, 0.142563, -1.721907});
+                active_scene->GetCamera().transform.SetOrientation({0.000000, 0.00, 0.0, 0.0});
             } else {
                 active_scene->GetCamera().Reset();
             }
