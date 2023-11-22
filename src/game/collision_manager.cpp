@@ -18,7 +18,7 @@ void CollisionManager::CheckCollisions(){
             Collider* victim_col = victim->GetCollider();
             Collider* subject_col = subject->GetCollider();
             if (victim_col && subject_col && subject_col->CollidesWith(victim_col)) {
-                victim ->HandleCollisionWith(subject);
+                victim->HandleCollisionWith(subject);
             }
         }
     }

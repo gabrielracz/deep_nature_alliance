@@ -146,7 +146,6 @@ void FP_Player::HandleCollisionWith(SceneNode* collider)
 {
     switch(collider->GetNodeType()) {
         case TLAVA:
-            printf("HIT LAVA \n");
             Reset();
             break;
         default:

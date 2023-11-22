@@ -78,6 +78,8 @@ void Game::LoadMeshes() {
     resman.CreateSphere    ("M_Planet", 1, 100, 100);
     resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
 
+    resman.CreateCone       ("M_MoonObject", 10, 3, 4, 4);
+
     resman.CreateSimpleCube("M_Skybox");
 
     std::cout << "meshes loaded" << std::endl;
@@ -121,9 +123,11 @@ void Game::LoadTextures() {
     // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/oak_texture.png", GL_REPEAT, GL_LINEAR);
     // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/birch_tree_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_MoonObj1", RESOURCES_DIRECTORY"/whitedevil.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Soldier", RESOURCES_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
 
     resman.LoadCubemap("T_SpaceSkybox", RESOURCES_DIRECTORY"/skyboxes/space");
+    resman.LoadCubemap("T_MessedUpSkybox", RESOURCES_DIRECTORY"/skyboxes/messedup");
 
     std::cout << "textures loaded" << std::endl;
 }
@@ -247,6 +251,10 @@ void Game::SetupFPScene(void) {
     n->transform.SetPosition(glm::vec3(0,0,-10));
     AddToScene(FPTEST, n);
 
+    SceneNode* skybox = new SceneNode("Obj_MoonSkybox", "M_Skybox", "S_Skybox", "T_MessedUpSkybox");
+    skybox->transform.SetScale({2000, 2000, 2000});
+    scenes[FPTEST]->SetSkybox(skybox);
+
     int terrain_size = 1000;
     Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, terrain_size, terrain_size, 0.25, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
@@ -259,7 +267,32 @@ void Game::SetupFPScene(void) {
     lt->transform.Translate({-200.0f, -65.0f, -200.0f});
     lt->material.texture_repetition = 6.0f;
     lt->material.diffuse_strength = 1.5f;
+    lt->SetNodeType(TLAVA);
     AddColliderToScene(FPTEST, lt);
+
+    SceneNode* moonobj = new SceneNode("Obj_MoonObject", "M_MoonObject", "S_Instanced", "T_MoonObj1");
+    moonobj->SetNormalMap("T_WallNormalMap", 1.0f);
+    moonobj->material.specular_power = 0.0f;
+    moonobj->SetAlphaEnabled(true);
+    for(int i = 0; i < 800; i++) {
+        bool instanced = true;
+        float x = rng.randfloat(-1000, 1000);
+        float z = rng.randfloat(-1000, 1000);
+        float y = rng.randfloat(-30, 300);
+        float s = rng.randfloat(0.3, 1.3);
+        float r1 = rng.randfloat(-2*PI, 2*PI);
+        float r2 = rng.randfloat(-2*PI, 2*PI);
+        float r3 = rng.randfloat(-2*PI, 2*PI);
+
+        Transform t;
+        t.SetPosition({x, y, z});
+        t.SetScale({s,s,s});
+        t.Yaw(r1);
+        t.Pitch(r2);
+        t.Roll(r3);
+        moonobj->AddInstance(t);
+    }
+    scenes[FPTEST]->AddNode(moonobj);
 }
 
 void Game::SetupForestScene() {
