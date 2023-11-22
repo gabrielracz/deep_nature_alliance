@@ -42,7 +42,7 @@ void View::Render(SceneGraph& scene) {
 
     for (auto light : scene.GetLights()){
         RenderDepthMap(scene, *light);
-        break; //just do first lighr for now
+        break; //just 1 light for now
     }
     // GLubyte* image = new GLubyte[SHADOW_MAP_X * SHADOW_MAP_Y];
 
@@ -52,25 +52,25 @@ void View::Render(SceneGraph& scene) {
 
     // // Write the image data to a file
     // stbi_write_png("depthmap.png", SHADOW_MAP_X, SHADOW_MAP_X, 1, image, SHADOW_MAP_X);
-    Shader *temp = resman.GetShader("S_ShadowMap");
-    Mesh *m = resman.GetMesh("M_Quad");
+    // Shader *temp = resman.GetShader("S_ShadowMap");
+    // Mesh *m = resman.GetMesh("M_Quad");
     
 
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
-    glClear(GL_COLOR_BUFFER_BIT);
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
+    // glClear(GL_COLOR_BUFFER_BIT);
     
 
-    temp->Use();
-    temp->SetUniform1i(0, "depthMap");
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-    m->Draw();
+    // temp->Use();
+    // // temp->SetUniform1i(0, "depthMap");
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+    // m->Draw();
     
-    // for(auto node : scene) {
-    //     RenderNode(node, scene.GetCamera(), scene.GetLights());
-    // }
+    for(auto node : scene) {
+        RenderNode(node, scene.GetCamera(), scene.GetLights());
+    }
 
     glfwSwapBuffers(win.ptr);
     glfwPollEvents();
@@ -95,8 +95,8 @@ void View::RenderDepthMap(SceneGraph& scene, const Light& light) {
  
     // Render the scene from the light's perspective to generate the depth map
     for (auto node : scene) {
-        depth_map_shader->SetUniform4m(light_projection_matrix * light_view_matrix, "lightSpaceMatrix");
-        depth_map_shader->SetUniform4m(scene.GetCamera().GetViewMatrix(),"model");
+        depth_map_shader->SetUniform4m(light_view_matrix, "light_view_matrix");
+        depth_map_shader->SetUniform4m(light_projection_matrix, "light_projection_matrix");
         resman.GetMesh(node->GetMeshID())->Draw();
     }
  
@@ -127,6 +127,13 @@ void View::RenderNode(SceneNode* node, Camera& cam, const std::vector<Light*>& l
     }
     if(!norm_id.empty()) {
         resman.GetTexture(norm_id)->Bind(shd, 1, "normal_map");
+        //only normal has shadow mapping code for now
+        shd->SetUniform1i(3, "depth_map");
+        glActiveTexture(GL_TEXTURE0+3);
+        glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+        glm::mat4 light_view_matrix = glm::lookAt(lights[0]->transform.GetPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        // glm::mat4 light_view_matrix = glm::lookAt(lights[0]->transform.GetPosition(), node->transform.GetPosition(), config::camera_up);
+        shd->SetUniform4m(light_view_matrix, "light_view_matrix");
     }
     
 

@@ -22,9 +22,12 @@ flat in int num_lights;
 
 uniform sampler2D texture_map;
 uniform sampler2D normal_map; // Normal map
+uniform sampler2D shadow_map; // Normal map
 
 uniform float texture_repetition;
 uniform float normal_map_repetition;
+
+uniform mat4 light_view_matrix;
 
 // uniform vec4 light_col;
 uniform float specular_power;
@@ -74,8 +77,14 @@ void main()
         vec3 n_bump = normalize(texture(normal_map, uv_interp * normal_map_repetition).rgb*2.0 - 1.0);  // sample normal map
         vec3 normal = normalize(normal_interp + n_bump) ;                                               // displace fragment normal by bump
         vec4 pixel = texture(texture_map, uv_interp * texture_repetition);                              // sample color texture
+
+        vec3 light_vector_proj = normalize((light_view_matrix * vec4(lights[i].position, 1.0)).xyz);
+        float current_depth = 0.7;
+        float shadow_map_depth = texture(shadow_map, light_vector_proj.xy).r;
+        float shadow_factor = current_depth > shadow_map_depth ? 0.5 : 1.0;
+
         // vec4 pixel = vec4(color_interp, 1.0);                                                                       // mix with underlying model color
-        vec4 lit_pixel = lighting(pixel, i, light_vector, normal);
+        vec4 lit_pixel = lighting(pixel, i, light_vector, normal) * shadow_factor;
         // vec4 lit_pixel = pixel;
         accumulator += lit_pixel;
     }
