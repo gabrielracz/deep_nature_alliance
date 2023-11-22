@@ -224,7 +224,7 @@ void Game::SetupFPScene(void) {
     // AddToScene(FPTEST, n2);
 
     Light* light = new Light(Colors::WarmWhite);
-    light->transform.SetPosition(player_position_g);
+    light->transform.SetPosition({1000.0, 1000.0, 0});
     scenes[FPTEST]->AddLight(light);
 }
 

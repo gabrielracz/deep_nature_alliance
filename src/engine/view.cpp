@@ -52,25 +52,25 @@ void View::Render(SceneGraph& scene) {
 
     // // Write the image data to a file
     // stbi_write_png("depthmap.png", SHADOW_MAP_X, SHADOW_MAP_X, 1, image, SHADOW_MAP_X);
-    // Shader *temp = resman.GetShader("S_ShadowMap");
-    // Mesh *m = resman.GetMesh("M_Quad");
+    Shader *temp = resman.GetShader("S_ShadowMap");
+    Mesh *m = resman.GetMesh("M_Quad");
     
 
 
-    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    // glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
-    // glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
+    glClear(GL_COLOR_BUFFER_BIT);
     
 
-    // temp->Use();
-    // // temp->SetUniform1i(0, "depthMap");
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-    // m->Draw();
+    temp->Use();
+    temp->SetUniform1i(0, "depthMap");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+    m->Draw();
     
-    for(auto node : scene) {
-        RenderNode(node, scene.GetCamera(), scene.GetLights());
-    }
+    // for(auto node : scene) {
+    //     RenderNode(node, scene.GetCamera(), scene.GetLights());
+    // }
 
     glfwSwapBuffers(win.ptr);
     glfwPollEvents();
