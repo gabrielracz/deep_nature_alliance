@@ -29,6 +29,9 @@ namespace config2
     const glm::vec3 fp_camera_position(0.0, 2.0, 0.0);
 };
 
+const int SHADOW_MAP_X = 2048;
+const int SHADOW_MAP_Y = 2048;
+
 class View
 {
 
@@ -67,6 +70,9 @@ private:
     Application &app;
     ResourceManager &resman;
 
+    GLuint depth_map_fbo;
+    GLuint depth_map_texture;
+
     Window win;
     Mouse mouse;
     KeyMap key_controls;
@@ -79,7 +85,8 @@ private:
     void InitEventHandlers();
     void InitControls();
 
-    void RenderNode(SceneNode *node, Camera &cam, std::vector<Light *> &lights, const glm::mat4 &parent_matrix = glm::mat4(1.0f));
+    void RenderDepthMap(SceneGraph& scene, const Light& light);
+    void RenderNode(SceneNode *node, Camera &cam, const std::vector<Light *> &lights, const glm::mat4 &parent_matrix = glm::mat4(1.0f));
 
     static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void ResizeCallback(GLFWwindow *window, int width, int height);

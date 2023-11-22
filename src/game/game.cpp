@@ -98,7 +98,8 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Text", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
     resman.LoadShader("S_Planet", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/textured_fp.glsl");
     resman.LoadShader("S_NormalMap", SHADER_DIRECTORY"/normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl");
-    resman.LoadShader("S_Instanced", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl");
+    resman.LoadShader("S_Depth", SHADER_DIRECTORY"/depth_vp.glsl", SHADER_DIRECTORY"/depth_fp.glsl");
+    resman.LoadShader("S_ShadowMap", SHADER_DIRECTORY"/shad_vp.glsl", SHADER_DIRECTORY"/shad_fp.glsl");
 
     std::cout << "shaders loaded" << std::endl;
 }
@@ -151,7 +152,7 @@ void Game::SetupScenes(void){
     // CreatePlanets();
     // CreateTriggers();
     // // CreateTree();
-    CreateLights();
+    // CreateLights();
     CreateHUD();
 }
 
@@ -216,6 +217,15 @@ void Game::SetupFPScene(void) {
     t->SetNormalMap("T_WallNormalMap", 40.0f);
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
+
+    SceneNode* n2 = new SceneNode("Shippy", "M_Branch", "S_Lit", "T_Grass");
+    n2->transform.SetPosition(glm::vec3(2,-30,-10));
+    n2->transform.SetScale(glm::vec3(4.0, 4.0, 4.0));
+    AddToScene(FPTEST, n2);
+
+    Light* light = new Light(Colors::WarmWhite);
+    light->transform.SetPosition(player_position_g);
+    scenes[FPTEST]->AddLight(light);
 }
 
 void Game::SetupForestScene() {
@@ -508,6 +518,7 @@ void Game::CreateLights() {
 void Game::ChangeScene(int sceneIndex) {
     std::cout << "changing scenes" << std::endl;
     active_scene = scenes[sceneIndex];
+    app.SetMouseHandler(std::bind(&Player::MouseControls, active_scene->GetPlayer(), std::placeholders::_1));
     return;
 }
 

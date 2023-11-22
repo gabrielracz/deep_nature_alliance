@@ -4,10 +4,15 @@
 #include <cmath>
 #include <stdexcept>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 View::View(Application& app, ResourceManager& resman)
-: app(app), resman(resman) {}
+: app(app), resman(resman), depth_map_fbo(0), depth_map_texture(0) {}
 
 View::~View() {
+    glDeleteFramebuffers(1, &depth_map_fbo);
+    glDeleteTextures(1, &depth_map_texture);
     glfwTerminate();
 }
 
@@ -34,16 +39,75 @@ void View::Render(SceneGraph& scene) {
             break;
     }
 
-    for(auto node : scene) {
-        RenderNode(node, scene.GetCamera(), scene.GetLights());
-    }
+
+    // for (auto light : scene.GetLights()){
+    //     RenderDepthMap(scene, *light);
+    //     break; //just do first lighr for now
+    // }
+    // GLubyte* image = new GLubyte[SHADOW_MAP_X * SHADOW_MAP_Y];
+
+    // // Read the texture data into the image array
+    // glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+    // glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_UNSIGNED_BYTE, image);
+
+    // // Write the image data to a file
+    // stbi_write_png("depthmap.png", SHADOW_MAP_X, SHADOW_MAP_X, 1, image, SHADOW_MAP_X);
+    Shader *temp = resman.GetShader("S_ShadowMap");
+    Mesh *m = resman.GetMesh("M_Quad");
+    
+
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+
+    temp->Use();
+    // temp->SetUniform1i(0, "depthMap");
+    // glDisable(GL_DEPTH_TEST);
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+    m->Draw();
+    
+    // for(auto node : scene) {
+    //     RenderNode(node, scene.GetCamera(), scene.GetLights());
+    // }
 
     glfwSwapBuffers(win.ptr);
     glfwPollEvents();
 }
 
-void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix) {
-    std::string shd_id  = node->GetShaderID();
+void View::RenderDepthMap(SceneGraph& scene, const Light& light) {
+    glm::mat4 light_view_matrix = glm::lookAt(light.transform.GetPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 light_projection_matrix = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, config::camera_near_clip_distance, config::camera_far_clip_distance);
+ 
+    // Set up the depth map framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+    glViewport(0, 0, SHADOW_MAP_X, SHADOW_MAP_Y);
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "error" << std::endl;
+ 
+    Shader* depth_map_shader = resman.GetShader("S_Depth");
+    depth_map_shader->Use();
+ 
+    depth_map_shader->SetUniform4m(light_projection_matrix * light_view_matrix, "lightSpaceMatrix");
+ 
+    // Render the scene from the light's perspective to generate the depth map
+    for (auto node : scene) {
+        depth_map_shader->SetUniform4m(light_projection_matrix * light_view_matrix, "lightSpaceMatrix");
+        depth_map_shader->SetUniform4m(scene.GetCamera().GetViewMatrix(),"model");
+        resman.GetMesh(node->GetMeshID())->Draw();
+    }
+ 
+    // Reset the framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glUseProgram(0);
+}
+
+void View::RenderNode(SceneNode* node, Camera& cam, const std::vector<Light*>& lights, const glm::mat4& parent_matrix) {
+    std::string shd_id  =  node->GetShaderID();
     std::string tex_id  = node->GetTextureID();
     std::string norm_id = node->GetNormalMap();
     std::string mesh_id = node->GetMeshID();
@@ -65,6 +129,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     if(!norm_id.empty()) {
         resman.GetTexture(norm_id)->Bind(shd, 1, "normal_map");
     }
+    
 
     // MODEL
     if(node->IsAlphaEnabled()) {
@@ -134,6 +199,7 @@ void View::InitView(){
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DITHER);
     glDepthFunc(GL_LESS);
+    glEnable(GL_CULL_FACE);  
 
 	//Use this to disable vsync
 	// glfwSwapInterval(0);

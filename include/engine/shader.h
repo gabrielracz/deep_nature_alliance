@@ -59,7 +59,7 @@ public:
 
     void SetupInstancing();
 
-    void SetLights(std::vector<Light*>& lights);
+    void SetLights(const std::vector<Light*>& lights);
     void SetInstances(std::vector<Transform>& transforms);
     
 	void SetUniform1f(float u, const std::string& name);

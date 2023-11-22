@@ -5,9 +5,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include "defines.h"
 
-const char* Shader::shader_lib = 
-#include SHADER_LIB_FILE
-; 
 
 Shader::Shader(const char* vertex_path, const char* fragment_path, bool instanced) {
 	vert_path = vertex_path;
@@ -124,7 +121,7 @@ void Shader::Use() const{
 	glUseProgram(id);
 }
 
-void Shader::SetLights(std::vector<Light*>& world_lights) {
+void Shader::SetLights(const std::vector<Light*>& world_lights) {
     int i = 0;
     for(; i < MIN(world_lights.size(), MAX_LIGHTS); i++) {
         world_lights[i]->SetUniforms(lightsblock.lights[i]);
