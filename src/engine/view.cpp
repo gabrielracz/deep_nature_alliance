@@ -98,7 +98,7 @@ void View::RenderDepthMap(SceneGraph& scene, const Light& light) {
         resman.GetMesh(node->GetMeshID())->Draw();
     }
 
-    //Wrapping
+    // //Wrapping
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     //Filtering
@@ -108,8 +108,10 @@ void View::RenderDepthMap(SceneGraph& scene, const Light& light) {
 	glGenerateMipmap(GL_TEXTURE_2D);
  
     // Reset the framebuffer
+    glViewport(0, 0, win.width, win.height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glUseProgram(0);
+    glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void View::RenderNode(SceneNode* node, Camera& cam, const std::vector<Light*>& lights, const glm::mat4& parent_matrix) {
@@ -122,8 +124,9 @@ void View::RenderNode(SceneNode* node, Camera& cam, const std::vector<Light*>& l
     Shader* shd = resman.GetShader(shd_id);
     shd->Use();
     // if(active_shader != shd->id) {
-    cam.SetProjectionUniforms(shd, node->GetDesiredProjection());
-
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "error" << std::endl;
+    
     shd->SetLights(lights);
 
     node->SetUniforms(shd, cam.GetViewMatrix());
@@ -135,13 +138,15 @@ void View::RenderNode(SceneNode* node, Camera& cam, const std::vector<Light*>& l
     if(!norm_id.empty()) {
         resman.GetTexture(norm_id)->Bind(shd, 1, "normal_map");
         //only normal has shadow mapping code for now
-        shd->SetUniform1i(3, "depth_map");
+        shd->SetUniform1i(3, "shadow_map");
         glActiveTexture(GL_TEXTURE0+3);
         glBindTexture(GL_TEXTURE_2D, depth_map_texture);
         glm::mat4 light_view_matrix = glm::lookAt(lights[0]->transform.GetPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         // glm::mat4 light_view_matrix = glm::lookAt(lights[0]->transform.GetPosition(), node->transform.GetPosition(), config::camera_up);
         shd->SetUniform4m(light_view_matrix, "light_view_matrix");
     }
+    cam.SetProjectionUniforms(shd, node->GetDesiredProjection());
+
     
 
     // MODEL

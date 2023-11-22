@@ -21,8 +21,6 @@ out vec3 light_pos;
 out vec3 color_interp;
 out vec3 normal_interp;
 
-out float test;
-
 struct Light {
     vec3 position;
     float ambient_strength;

@@ -29,6 +29,8 @@ uniform float normal_map_repetition;
 
 uniform mat4 light_view_matrix;
 
+
+
 // uniform vec4 light_col;
 uniform float specular_power;
 uniform float diffuse_strength;
@@ -69,6 +71,20 @@ vec4 lighting(vec4 pixel, int i, vec3 lv, vec3 n) {
     return diffuse_strength*diffuse*lights[i].color*pixel + lights[i].ambient_strength*lights[i].ambient_color*pixel + spec*lights[i].color;
 }
 
+float shadow(int i){
+    vec4 fragPosLightSpace = light_view_matrix * vec4(position_interp, 1.0);
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5; // Transform to [0,1] range
+
+    float closestDepth = texture(shadow_map, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+
+    float bias = 0.005; // This value can be adjusted to avoid shadow acne
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
+}
+
 void main() 
 {
     vec4 accumulator = vec4(0.0, 0.0, 0.0, 0.0);
@@ -78,13 +94,9 @@ void main()
         vec3 normal = normalize(normal_interp + n_bump) ;                                               // displace fragment normal by bump
         vec4 pixel = texture(texture_map, uv_interp * texture_repetition);                              // sample color texture
 
-        vec3 light_vector_proj = normalize((light_view_matrix * vec4(lights[i].position, 1.0)).xyz);
-        float current_depth = 0.7;
-        float shadow_map_depth = texture(shadow_map, light_vector_proj.xy).r;
-        float shadow_factor = current_depth > shadow_map_depth ? 0.5 : 1.0;
-
         // vec4 pixel = vec4(color_interp, 1.0);                                                                       // mix with underlying model color
-        vec4 lit_pixel = lighting(pixel, i, light_vector, normal) * shadow_factor;
+        // vec4 lit_pixel = vec4(1.0,1.0,1.0,1.0) * shadow(i);
+        vec4 lit_pixel = lighting(pixel, i, light_vector, normal) * shadow(i);
         // vec4 lit_pixel = pixel;
         accumulator += lit_pixel;
     }

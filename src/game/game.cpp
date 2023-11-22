@@ -523,13 +523,17 @@ idk lmk what u guys think
 //     };
 
 //     for (int i = 0; i < 1; i++){
-//         std::function<void()> triggerAction = std::bind(&Game::ChangeScene, this, 1);
+//         std::function<void(Game&)> triggerAction2 = [](Game& game) {
+// //             game.scene = &game.scenes[1];
+//         };
+//         std::function<void()> triggerAction = std::bind(&triggerAction2, this, 1);
 
 //         Trigger* t = new Trigger("Trigger" + std::to_string(i), "M_Leaf", "S_Default", "", triggerAction);
 //         t->transform.SetPosition(trigger_positions[i]);
-//         AddToScene(BEFORETRIGGER, t);
+//         AddToScene(FPTEST, t);
 //         // scenes[BEFORETRIGGER]->AddNode(t);
 //         // scenes[BEFORETRIGGER]->GetColman().AddTrigger(t);
+    
 //     }
 // }
 
