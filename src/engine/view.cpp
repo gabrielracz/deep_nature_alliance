@@ -40,10 +40,10 @@ void View::Render(SceneGraph& scene) {
     }
 
 
-    // for (auto light : scene.GetLights()){
-    //     RenderDepthMap(scene, *light);
-    //     break; //just do first lighr for now
-    // }
+    for (auto light : scene.GetLights()){
+        RenderDepthMap(scene, *light);
+        break; //just do first lighr for now
+    }
     // GLubyte* image = new GLubyte[SHADOW_MAP_X * SHADOW_MAP_Y];
 
     // // Read the texture data into the image array
@@ -63,10 +63,9 @@ void View::Render(SceneGraph& scene) {
     
 
     temp->Use();
-    // temp->SetUniform1i(0, "depthMap");
-    // glDisable(GL_DEPTH_TEST);
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+    temp->SetUniform1i(0, "depthMap");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, depth_map_texture);
     m->Draw();
     
     // for(auto node : scene) {

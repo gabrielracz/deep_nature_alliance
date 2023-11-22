@@ -33,7 +33,7 @@ const std::string window_title_g = "[] Asteroid Field";
 
 // Viewport and camera settings
 const glm::vec3 viewport_background_color_g(0.0, 0.0, 0.0);
-glm::vec3 player_position_g(0.0, 0.0, 4.0);
+glm::vec3 player_position_g(0.0, -25.0, 4.0);
 
 const float beacon_radius_g = 20.0f;
 const float beacon_hitbox_g = 15.0f;
