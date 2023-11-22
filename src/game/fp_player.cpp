@@ -140,3 +140,16 @@ void FP_Player::MouseControls(Mouse &mouse)
         camera_->transform.Pitch(glm::radians(adjust));
     }
 }
+
+
+void FP_Player::HandleCollisionWith(SceneNode* collider)
+{
+    switch(collider->GetNodeType()) {
+        case TLAVA:
+            printf("HIT LAVA \n");
+            Reset();
+            break;
+        default:
+            break;
+    }
+}

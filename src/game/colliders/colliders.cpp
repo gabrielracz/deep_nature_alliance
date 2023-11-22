@@ -7,11 +7,7 @@ bool BoxCollider::CollidesWithBox(BoxCollider* other) {
 
 bool BoxCollider::CollidesWithSphere(SphereCollider* other) {
 
-    bool collided = SphereCollision(other->GetOwner(), other->GetRadius());
-    if (collided) {
-        owner_.HandleCollisionWithSceneNode(other->GetOwner());
-    }
-    return collided;
+    return SphereCollision(other->GetOwner(), other->GetRadius());
 }
 
 bool BoxCollider::CollidesWithTerrain(TerrainCollider* other) {
@@ -19,11 +15,7 @@ bool BoxCollider::CollidesWithTerrain(TerrainCollider* other) {
 }
 
 bool BoxCollider::CollidesWithPlayer(FPPlayerCollider* other) {
-    bool collided = SphereCollision(other->GetPlayer(), other->GetRadius());
-    if (collided) {
-        owner_.HandleCollisionWithSceneNode(other->GetPlayer());
-    }
-    return collided;
+    return SphereCollision(other->GetPlayer(), other->GetRadius());
 }
 
 bool BoxCollider::SphereCollision(SceneNode& collider, float radius) {
@@ -92,12 +84,11 @@ bool FPPlayerCollider::CollidesWithSphere(SphereCollider* other) {
 bool FPPlayerCollider::CollidesWithTerrain(TerrainCollider* other) {
     glm::vec3 position = player_.transform.GetPosition();
     Terrain& t = other->GetTerrain();
-    float height = t.SampleHeight(position.x, position.z);
-    bool collided = height > position.y + player_.GetHeight() + player_.GetVerticalStep();
-    if (collided && t.IsDeathTerrain()) {
-        player_.Reset();
+    if (!t.SampleOn(position.x, position.z)) {
+        return false;
     }
-    return false;
+    float height = t.SampleHeight(position.x, position.z);
+    return height > position.y + player_.GetHeight() + player_.GetVerticalStep();
 }
 
 bool FPPlayerCollider::CollidesWithPlayer(FPPlayerCollider* other) {

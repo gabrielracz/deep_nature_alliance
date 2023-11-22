@@ -220,7 +220,8 @@ void Game::SetupFPScene(void) {
     p->SetTerrain(t);
 
     Terrain* lt = new Terrain("Obj_MoonLava", "M_MoonLava", "S_Lava", "T_MoonPlanet", TerrainType::LAVA, 400, 400, 0.1, this);
-    lt->transform.Translate({-200.0f, -65.0f, -200.0f});
+    lt->SetNodeType(TLAVA);
+    lt->transform.Translate({-200.0f, -85.0f, -200.0f});
     lt->material.texture_repetition = 6.0f;
     lt->material.diffuse_strength = 1.5f;
     AddColliderToScene(FPTEST, lt);

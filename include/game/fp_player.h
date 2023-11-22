@@ -14,6 +14,8 @@ public:
     virtual void Control(Controls c, float dt, float damping = 1.0) override;
     virtual void MouseControls(Mouse& mouse) override;
 
+    virtual void HandleCollisionWith(SceneNode* collider) override;
+
     void PlayerJump();
     void Reset();
     void TestMove();

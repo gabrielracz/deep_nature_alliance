@@ -37,7 +37,7 @@ public:
 
     glm::vec3 GetHalfSizes() const { return box_half_sizes_; }
     SceneNode& GetOwner() const { return owner_; }
-    bool CollidesWith(Collider *other) override;
+    bool CollidesWith(Collider *other) override { return other->CollidesWithBox(this); };
     bool CollidesWithBox(BoxCollider *other) override;
     bool CollidesWithSphere(SphereCollider *other) override;
     bool CollidesWithTerrain(TerrainCollider *other) override;
