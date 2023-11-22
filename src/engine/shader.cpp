@@ -5,7 +5,7 @@
 #include "defines.h"
 #include "light.h"
 
-Shader::Shader(const std::string& vertex_path, const std::string& fragment_path, const std::string& geom = "", bool instanced) {
+Shader::Shader(const std::string& vertex_path, const std::string& fragment_path, const std::string& geom, bool instanced) {
     vert_path = vertex_path;
     frag_path = fragment_path;
     geom_path = geom;
