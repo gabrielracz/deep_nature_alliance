@@ -17,10 +17,8 @@ void CollisionManager::CheckCollisions(){
         for (auto subject : nodes) {
             Collider* victim_col = victim->GetCollider();
             Collider* subject_col = subject->GetCollider();
-            if (victim_col && subject_col) {
-                if (victim_col->CollidesWith(subject_col)) {
-                    // Something bonked
-                }
+            if (victim_col && subject_col && subject_col->CollidesWith(victim_col)) {
+                victim ->HandleCollisionWith(subject);
             }
         }
     }

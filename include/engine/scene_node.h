@@ -16,11 +16,13 @@
 #include "camera.h"
 #include "collision_data.h"
 #include "defines.h"
+#include "node_types.h"
 
 class Collider;
 
 // Class that manages one object in a scene 
 class SceneNode {
+
 
     struct MaterialProperties {
         float texture_repetition = 1.0f;
@@ -45,6 +47,7 @@ class SceneNode {
         void AddChild(SceneNode* n)                         {children.push_back(n);}
         void SetCollision(const CollisionData& t)           {collision = t;}
         void SetCollider(Collider * col)                    {collider = col;}
+        void SetNodeType(NodeType type)                     {node_type = type;}
         void AddInstance(Transform t)                      {instances.push_back(t);};
         void SetAlphaEnabled(bool a)                         {alpha_enabled = a;}
         // void SetInstances(std::vector<Transform>& t)        {instances = t;};
@@ -62,6 +65,9 @@ class SceneNode {
         std::vector<Transform>& GetInstances()              {return instances;}
         int GetNumInstances()                               {return in_camera_instances;}
         Collider* GetCollider() const                       {return collider;}
+        NodeType GetNodeType() const                        {return node_type;}
+
+        virtual void HandleCollisionWith(SceneNode* collider) {};
 
         Transform transform;
         MaterialProperties material;
@@ -85,6 +91,8 @@ class SceneNode {
 
         Camera::Projection camera_projection = Camera::Projection::PERSPECTIVE;
         bool alpha_enabled = false;
+
+        NodeType node_type = TNODE;
         Collider* collider;
 }; // class SceneNode
 

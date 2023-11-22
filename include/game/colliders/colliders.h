@@ -26,13 +26,18 @@ public:
 class BoxCollider : public Collider
 {
 private:
-    SceneNode& node_;
+    SceneNode& owner_;
+    glm::vec3 box_half_sizes_;
+
+    bool SphereCollision(SceneNode& collider, float radius);
 
 public:
     BoxCollider(SceneNode& node, float radius)
-        : node_(node) {}
+        : owner_(node) {}
 
-    bool CollidesWith(Collider *other) override;
+    glm::vec3 GetHalfSizes() const { return box_half_sizes_; }
+    SceneNode& GetOwner() const { return owner_; }
+    bool CollidesWith(Collider *other) override { return other->CollidesWithBox(this); };
     bool CollidesWithBox(BoxCollider *other) override;
     bool CollidesWithSphere(SphereCollider *other) override;
     bool CollidesWithTerrain(TerrainCollider *other) override;
@@ -42,13 +47,15 @@ public:
 class SphereCollider : public Collider
 {
 private:
-    SceneNode& node_;
+    SceneNode& owner_;
     float radius_;
 
 public:
     SphereCollider(SceneNode& node, float radius)
-        : node_(node), radius_(radius) {}
+        : owner_(node), radius_(radius) {}
     
+    float GetRadius() const { return radius_; }
+    SceneNode& GetOwner() const { return owner_; }
     bool CollidesWith(Collider *other) override { return other->CollidesWithSphere(this); }
     bool CollidesWithBox(BoxCollider *other) override;
     bool CollidesWithSphere(SphereCollider *other) override;
@@ -76,11 +83,13 @@ class FPPlayerCollider : public Collider
 {
 private:
     FP_Player& player_;
+    float radius_;
 
 public:
-    FPPlayerCollider(FP_Player& player)
-        : player_(player) {}
+    FPPlayerCollider(FP_Player& player, float radius)
+        : player_(player), radius_(radius) {}
 
+    float GetRadius() const { return radius_; }
     FP_Player& GetPlayer() const { return player_; }
     bool CollidesWith(Collider *other) override { return other->CollidesWithPlayer(this); }
     bool CollidesWithBox(BoxCollider *other) override;

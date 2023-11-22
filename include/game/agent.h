@@ -36,7 +36,6 @@ public:
     float GetVerticalStep() const  { return vertical_step_height_; }
     //void Reset(void);
 
-protected:
     bool on_ground_ = false;
     bool jumping_ = false;
 
@@ -58,6 +57,7 @@ protected:
     // Slope check for a jump (not totally vertical i.e dash) max angle can traverse
     float max_jumping_angle_ = 45.0f;
 
+protected:
     glm::vec3 up_ = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::vec3 jump_axis_ = glm::vec3(0.0, 1.0, 0.0f);
     glm::vec3 target_position_ = glm::vec3(0.0f);

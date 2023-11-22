@@ -26,6 +26,7 @@ set(HDRS
     include/engine/control.h
     include/engine/light.h
     include/engine/collision_data.h
+    include/engine/node_types.h
     include/lib/stb_image.h
     include/game/game.h 
     include/game/asteroid.h

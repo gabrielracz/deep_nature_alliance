@@ -6,7 +6,8 @@ bool BoxCollider::CollidesWithBox(BoxCollider* other) {
 }
 
 bool BoxCollider::CollidesWithSphere(SphereCollider* other) {
-    return false;
+
+    return SphereCollision(other->GetOwner(), other->GetRadius());
 }
 
 bool BoxCollider::CollidesWithTerrain(TerrainCollider* other) {
@@ -14,7 +15,26 @@ bool BoxCollider::CollidesWithTerrain(TerrainCollider* other) {
 }
 
 bool BoxCollider::CollidesWithPlayer(FPPlayerCollider* other) {
-    return false;
+    return SphereCollision(other->GetPlayer(), other->GetRadius());
+}
+
+bool BoxCollider::SphereCollision(SceneNode& collider, float radius) {
+    glm::vec3 sphereCenter = collider.transform.GetWorldPosition();
+    glm::vec3 boxCenter = owner_.transform.GetWorldPosition();
+    glm::vec3 boxHalfSizes = box_half_sizes_;
+    // Compute distance from the sphere center to the box
+    float distSquared = 0.f;
+    for (int i = 0; i < 3; ++i) {
+        float boxMin = boxCenter[i] - boxHalfSizes[i];
+        float boxMax = boxCenter[i] + boxHalfSizes[i];
+        if (sphereCenter[i] < boxMin) {
+            distSquared += (boxMin - sphereCenter[i]) * (boxMin - sphereCenter[i]);
+        } else if (sphereCenter[i] > boxMax) {
+            distSquared += (sphereCenter[i] - boxMax) * (sphereCenter[i] - boxMax);
+        }
+    }
+
+    return distSquared <= (radius * radius);
 }
 
 
@@ -64,14 +84,11 @@ bool FPPlayerCollider::CollidesWithSphere(SphereCollider* other) {
 bool FPPlayerCollider::CollidesWithTerrain(TerrainCollider* other) {
     glm::vec3 position = player_.transform.GetPosition();
     Terrain& t = other->GetTerrain();
-    float height = t.SampleHeight(position.x, position.z);
-    bool collided = height > position.y - player_.GetHeight() - player_.GetVerticalStep();
-    //printf("Terrain: %f Player: %f Collided: %s \n",height,position.y - player_.GetHeight() - player_.GetVerticalStep(), t.IsDeathTerrain() ? "true" : "false");
-    if (collided && t.IsDeathTerrain()) {
-        printf("We ded! \n");
-        player_.Reset();
+    if (!t.SampleOn(position.x, position.z)) {
+        return false;
     }
-    return false;
+    float height = t.SampleHeight(position.x, position.z);
+    return height > position.y + player_.GetHeight() + player_.GetVerticalStep();
 }
 
 bool FPPlayerCollider::CollidesWithPlayer(FPPlayerCollider* other) {

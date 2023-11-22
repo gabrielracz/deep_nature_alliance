@@ -66,6 +66,7 @@ void Game::LoadMeshes() {
     // resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/oak.obj");
     resman.LoadMesh        ("M_BirchTree", RESOURCES_DIRECTORY"/birch_tree.obj");
     resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/lowpolytree.obj");
+    resman.LoadMesh        ("M_Soldier", RESOURCES_DIRECTORY"/soldier.obj");
 
     // generate geometry
     resman.CreateQuad      ("M_Quad");
@@ -118,6 +119,7 @@ void Game::LoadTextures() {
     // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/oak_texture.png", GL_REPEAT, GL_LINEAR);
     // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/birch_tree_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Soldier", RESOURCES_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
 
     resman.LoadCubemap("T_SpaceSkybox", RESOURCES_DIRECTORY"/skyboxes/space");
 
@@ -134,7 +136,7 @@ void Game::SetupScenes(void){
 
     //player created temporarily just so when controls query for player not null
     //once player refactor shoudl fix 
-    //also for assignment can just remove control code from game temporarily
+    //also for assignment can just remove control code from game temporarily/
     // CreatePlayer();
 
     SetupSpaceScene();
@@ -163,7 +165,7 @@ void Game::SetupSpaceScene() {
     Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
     player->transform.SetPosition(player_position_g);
     player->SetNormalMap("T_MetalNormalMap", 1.0);
-    camera.Attach(&player->transform, true);
+    camera.Attach(&player->transform, false);
     scn->SetPlayer(player);
     scn->AddNode(player);
 
@@ -218,7 +220,8 @@ void Game::SetupFPScene(void) {
     p->SetTerrain(t);
 
     Terrain* lt = new Terrain("Obj_MoonLava", "M_MoonLava", "S_Lava", "T_MoonPlanet", TerrainType::LAVA, 400, 400, 0.1, this);
-    lt->transform.Translate({-200.0f, -65.0f, -200.0f});
+    lt->SetNodeType(TLAVA);
+    lt->transform.Translate({-200.0f, -85.0f, -200.0f});
     lt->material.texture_repetition = 6.0f;
     lt->material.diffuse_strength = 1.5f;
     AddColliderToScene(FPTEST, lt);
@@ -231,10 +234,13 @@ void Game::SetupForestScene() {
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
 
     // PLAYER
-    FP_Player* p = new FP_Player("Obj_FP_Player", "", "S_Lit", "T_Ship", &camera);
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
+    p->SetNormalMap("T_MetalNormalMap", 1.0f);
+    p->material.specular_power = 200.0f;
     p->transform.SetPosition({-191.718155, 20.999252, -395.274536});
     p->transform.SetOrientation({0.315484, 0.000000, 0.948931, 0.000000});
     p->visible = false;
+    p->jump_speed_ = 20;
     AddPlayerToScene(FOREST, p);
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
@@ -346,7 +352,10 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if(keys[GLFW_KEY_P]) {
         glm::vec3 p = player->transform.GetPosition();
         glm::quat o = player->transform.GetOrientation();
-        std::cout << glm::to_string(p) << " " << glm::to_string(o) << std::endl;
+        glm::vec3 c = active_scene->GetCamera().transform.GetPosition();
+        glm::quat co = active_scene->GetCamera().transform.GetOrientation();
+        std::cout << "player: " << glm::to_string(p) << " " << glm::to_string(o) << "\n"
+                  << "camera: " << glm::to_string(c) << " " << glm::to_string(co) << "\n" << std::endl;
         keys[GLFW_KEY_P] = false;
     }
 
@@ -407,11 +416,18 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     }
 
 
+    float cam_speed = 3.0f * dt;
     if(keys[GLFW_KEY_I]) {
-        active_scene->GetCamera().transform.Translate({0.0, 0.0, -0.1});
+        active_scene->GetCamera().transform.Translate({0.0, 0.0, -cam_speed});
     }
-    if(keys[GLFW_KEY_J]) {
-        active_scene->GetCamera().transform.Translate({0.0, 0.0,0.1});
+    if(keys[GLFW_KEY_K]) {
+        active_scene->GetCamera().transform.Translate({0.0, 0.0,cam_speed});
+    }
+    if(keys[GLFW_KEY_U]) {
+        active_scene->GetCamera().transform.Translate({0.0, -cam_speed, 0.0});
+    }
+    if(keys[GLFW_KEY_O]) {
+        active_scene->GetCamera().transform.Translate({0.0, cam_speed,0.0});
     }
 
 
@@ -427,7 +443,8 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if(keys[GLFW_KEY_Z]) {
         if(active_scene->GetCamera().IsAttached()) {
             if(camera_mode++ % 2 == 0) {
-                // app.GetCamera().MoveTo({0.0, 3.0f, -20.0f});
+                active_scene->GetCamera().transform.SetPosition({0.000000, 0.142563, -1.721907});
+                active_scene->GetCamera().transform.SetOrientation({0.000000, 0.00, 0.0, 0.0});
             } else {
                 active_scene->GetCamera().Reset();
             }

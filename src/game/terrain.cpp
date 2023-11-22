@@ -28,8 +28,6 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     tangents.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {1.0, 0.0, 0.0}));
     uvs.resize(num_xsteps, std::vector<glm::vec2>(num_zsteps, {0.0, 0.0}));
 
-    death_terrain_ = false;
-
     GenerateHeightmap(type);
     GenerateNormals();
     GenerateTangents();
@@ -51,7 +49,6 @@ void Terrain::GenerateHeightmap(TerrainType type) {
             break;
         case TerrainType::LAVA:
             GenerateLava();
-            death_terrain_ = true;
             break;
         default:
             break;
@@ -504,4 +501,17 @@ glm::vec3 Terrain::InterpNormals(int x0, int z0, float sx, float sz) {
     glm::vec3 n1 = (1 - sx) * n01 + sx * n11;
     glm::vec3 interp = glm::normalize((1 - sz) * n0 + sz * n1);
     return interp;
+}
+
+
+bool Terrain::SampleOn(float x , float z)
+{
+    float terrainX = x / (xwidth / (heights.size() - 1)) + (num_xsteps / 2.0);
+    float terrainZ = z / (zwidth / (heights[0].size() - 1)) + (num_zsteps / 2.0);
+
+    // Get the integer coordinates of the cell
+    int x0 = static_cast<int>(std::floor(terrainX));
+    int z0 = static_cast<int>(std::floor(terrainZ));
+    return x0 > 0 && x0 < static_cast<int>(heights.size()) && z0 > 0 && z0  < static_cast<int>(heights[0].size());
+
 }
