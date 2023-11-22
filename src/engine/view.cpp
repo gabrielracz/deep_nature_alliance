@@ -37,6 +37,9 @@ void View::Render(SceneGraph& scene) {
     for(auto node : scene) {
         RenderNode(node, scene.GetCamera(), scene.GetLights());
     }
+    for(auto node : scene.GetScreenSpaceNodes()) {
+        RenderNode(node, scene.GetCamera(), scene.GetLights());
+    }
 
     // always render skybox last
     if(scene.GetSkybox()) {

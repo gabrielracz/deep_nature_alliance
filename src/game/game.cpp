@@ -155,6 +155,7 @@ void Game::SetupScenes(void){
     // // CreateTree();
     CreateLights();
     CreateHUD();
+    CreateStory();
 }
 
 void Game::SetupSpaceScene() {
@@ -255,8 +256,7 @@ void Game::SetupFPScene(void) {
     p->SetTerrain(t);
 
     Terrain* lt = new Terrain("Obj_MoonLava", "M_MoonLava", "S_Lava", "T_MoonPlanet", TerrainType::LAVA, 400, 400, 0.1, this);
-    lt->SetNodeType(TLAVA);
-    lt->transform.Translate({-200.0f, -85.0f, -200.0f});
+    lt->transform.Translate({-200.0f, -65.0f, -200.0f});
     lt->material.texture_repetition = 6.0f;
     lt->material.diffuse_strength = 1.5f;
     AddColliderToScene(FPTEST, lt);
@@ -465,6 +465,11 @@ void Game::CheckControls(KeyMap& keys, float dt) {
         active_scene->GetCamera().transform.Translate({0.0, cam_speed,0.0});
     }
 
+    if(keys[GLFW_KEY_ENTER]) {
+        active_scene->DismissStoryText();
+        keys[GLFW_KEY_ENTER] = false;
+    }
+
 
     // if(keys[GLFW_KEY_2]) {
     //     SetActiveScene(FPTEST);
@@ -557,6 +562,31 @@ void Game::AddToScene(SceneEnum sceneNum, SceneNode* node) {
     }
 }
 
+void Game::AddTextToScene(SceneEnum sceneNum, Text* text) {
+    if (sceneNum == SceneEnum::ALL){
+        for (auto s : scenes){
+            s->AddText(text);
+        }
+    } else{
+        scenes[sceneNum]->AddText(text);
+    }
+}
+
+void Game::AddStoryToScene(SceneEnum sceneNum, StoryBeat index) {
+    // cringe, need to cast away the const to allow pointer access
+    if (sceneNum == SceneEnum::ALL){
+        for (auto s : scenes){
+        for(const Text& t: STORY.at(index)) {
+            s->PushStoryText(const_cast<Text*>(&t));
+        }
+        }
+    } else{
+        for(const Text& t: STORY.at(index)) {
+            scenes[sceneNum]->PushStoryText(const_cast<Text*>(&t));
+        }
+    }
+}
+
 // void Game::CreatePlanets() {
 //     SceneNode* planet = new SceneNode("Obj_Sun", "M_Planet", "S_Planet", "T_LavaPlanet");
 //     planet->transform.SetScale({800, 800, 800});
@@ -579,23 +609,23 @@ void Game::CreateHUD() {
 
     float brdr = 0.1f;
 
-    Text* txt = new Text("Obj_Banner", "M_Quad", "S_Text", "T_Charmap", this, "DEEP NATURE ALLIANCE\nA millenia ago, thousands of soldiers\nwere sent deep into the far reaches of space\nin search of life.\nOne of these soldiers is you...");
+    Text* txt = new Text("Obj_Banner", "M_Quad", "S_Text", "T_Charmap","DEEP NATURE ALLIANCE\nA millenia ago, thousands of soldiers\nwere sent deep into the far reaches of space\nin search of life.\nOne of these soldiers is you...");
     txt->transform.SetPosition({0.0f, 1.0f, 0.0f});
     txt->SetAnchor(Text::Anchor::TOPCENTER);
     txt->SetColor(Colors::SlimeGreen);
     txt->SetSize(15);
-    // AddToScene(SceneEnum::AFTERTRIGGER, txt);
+    // AddTextToScene(SceneEnum::ALL, txt);
 
-    Text* fps = new Text("Obj_Fps", "M_Quad", "S_Text", "T_Charmap", this, "FPS");
+    Text* fps = new Text("Obj_Fps", "M_Quad", "S_Text", "T_Charmap", "FPS");
     fps->transform.SetPosition({-1.0, 1.0, 0.0f});
     fps->SetColor(Colors::White);
     fps->SetAnchor(Text::Anchor::TOPLEFT);
     fps->SetCallback([this]() -> std::string {
         return "fps: " + std::to_string(app.GetFPS());
     });
-    AddToScene(SceneEnum::ALL, fps);
+    AddTextToScene(SceneEnum::ALL, fps);
 
-    Text* speedo = new Text("Obj_Speedo", "M_Quad", "S_Text", "T_Charmap", this, "");
+    Text* speedo = new Text("Obj_Speedo", "M_Quad", "S_Text", "T_Charmap", "");
     speedo->transform.SetPosition({-1.0 + brdr, -1.0 + brdr, 0.0f});
     speedo->SetColor(Colors::Amber);
     speedo->SetAnchor(Text::Anchor::BOTTOMLEFT);
@@ -626,7 +656,7 @@ void Game::CreateHUD() {
         return out;
     });
     // scene->AddNode(speedo);
-    AddToScene(SceneEnum::SPACE, speedo);
+    AddTextToScene(SceneEnum::SPACE, speedo);
 
     // Text* crosshair = new Text("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", this, "[ ]");
     // crosshair->transform.SetPosition({0.0, 0.1, 0.0});
@@ -635,6 +665,12 @@ void Game::CreateHUD() {
     // crosshair->SetBackgroundColor(Colors::Transparent);
     // crosshair->SetAnchor(Text::Anchor::CENTER);
     // AddToScene(SceneEnum::AFTERTRIGGER, crosshair);
+}
+
+void Game::CreateStory() {
+    AddStoryToScene(SceneEnum::SPACE, StoryBeat::INTRO);
+    AddStoryToScene(SceneEnum::FOREST, StoryBeat::EXPOSITION);
+    AddStoryToScene(SceneEnum::FOREST, StoryBeat::TOLKIEN);
 }
 
 void Game::CreateLights() {

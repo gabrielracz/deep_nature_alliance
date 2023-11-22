@@ -2,6 +2,7 @@
 #define SCENE_GRAPH_H_
 
 #include <vector>
+#include <deque>
 
 // #include "application.h"
 #include "camera.h"
@@ -11,6 +12,7 @@
 #include "resource.h"
 #include "scene_node.h"
 #include "fp_player.h"
+#include "text.h"
 
 class Application;
 
@@ -29,10 +31,14 @@ class SceneGraph {
 
     // Add an already-created node
     void AddNode(SceneNode* node) { node_.push_back(node); }
+    void AddText(Text* t) {texts.push_back(t);}
     void AddCollider(SceneNode* node) { colman.AddNode(node); }
     void AddLight(Light* light) { lights.push_back(light); }
     void SetPlayer(Player* p);
     void SetSkybox(SceneNode* s) {skybox = s;};
+
+    void PushStoryText(Text* text);
+    void DismissStoryText();
 
     // Find a scene node with a specific name
     SceneNode* GetNode(std::string node_name) const;
@@ -41,6 +47,7 @@ class SceneGraph {
     Camera& GetCamera() { return camera; }
     Player* GetPlayer() { return player; }
     SceneNode* GetSkybox() { return skybox;}
+    std::vector<SceneNode*> GetScreenSpaceNodes();
 
     // Get node const iterator
     std::vector<SceneNode*>::const_iterator begin() const { return node_.begin(); }
@@ -55,6 +62,8 @@ class SceneGraph {
     std::vector<SceneNode*> node_;
     CollisionManager colman;
     std::vector<Light*> lights;
+    std::deque<Text*> story_text;
+    std::vector<Text*> texts;
     Camera camera;
     Player* player;
     SceneNode* skybox = nullptr;

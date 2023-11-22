@@ -33,10 +33,38 @@ void SceneGraph::Update(double dt) {
         node_[i]->Update(dt);
     }
 
+    int w = camera.GetWinWidth();
+    int h = camera.GetWinHeight();
+    for(auto st : story_text) {
+        st->Update(dt, w, h);
+    }
+    for(auto t : texts) {
+        t->Update(dt, w, h);
+    }
+
     colman.CheckCollisions();
 
     // UPDATE CAMERA AFTER NODES ALWAYS !!!!!
-    // TODO: this scene should own the camera
-    // app.GetCamera().Update(dt);
     camera.Update(dt);
+}
+
+void SceneGraph::PushStoryText(Text* text) {
+    story_text.push_back(text);
+}
+
+void SceneGraph::DismissStoryText() {
+    if(!story_text.empty()) {
+        story_text.pop_front();
+    }
+}
+
+
+std::vector<SceneNode*> SceneGraph::GetScreenSpaceNodes() {
+    std::vector<SceneNode*> nodes;
+    nodes.reserve(texts.size() + 1);
+    nodes.insert(nodes.end(), texts.begin(), texts.end());
+    if(!story_text.empty()) {
+        nodes.push_back(story_text.front());
+    }
+    return nodes;
 }

@@ -41,6 +41,7 @@ set(HDRS
     include/game/agent.h
     include/game/fp_player.h
     include/game/colliders/colliders.h
+    include/game/story_data.h
 )
  
 set(SRCS

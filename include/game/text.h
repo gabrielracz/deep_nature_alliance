@@ -16,12 +16,15 @@ public:
         BOTTOMRIGHT,
         CENTER,
         TOPCENTER,
-        BOTTOMCENTER
+        BOTTOMCENTER,
+        LEFTCENTER,
+        RIGHTCENTER
     };
 
-    Text(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, Game* game, const std::string& content = "");
+    Text(std::string content, Anchor anchor = Anchor::RIGHTCENTER, const glm::vec4 col = {1.0f, 1.0f, 1.0f, 1.0f}, const glm::vec4 back_col = {0.0f, 0.0f, 0.0f, 0.5f});
+    Text(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, const std::string& content = "");
 
-    virtual void Update(double dt) override;
+    void Update(double dt, int win_width, int win_height);
     void SetContent(const std::string& c);
 
     Anchor anchor = Anchor::TOPLEFT;
@@ -39,8 +42,10 @@ protected:
     std::string content = "";
     glm::vec4 color = {1.0f, 1.0f, 1.0f, 1.0f};
     glm::vec4 background_color = {0.0f, 0.0f, 0.0f, 0.5f};
-    std::function<std::string(void)> update_callback;
-    Game* game;
+    std::function<std::string(void)> update_callback {nullptr};
+    // Game* game;
+    int win_width = 1920;
+    int win_height = 1080;
 };
 
 #endif

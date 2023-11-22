@@ -46,7 +46,7 @@ struct Instance {
 
 uniform int num_instances;
 layout(std140) uniform TransformsBlock {
-    Instance instances[2048];
+    Instance instances[512];
 };
 
 void main()

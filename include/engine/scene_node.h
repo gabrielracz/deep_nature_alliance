@@ -93,7 +93,7 @@ class SceneNode {
         bool alpha_enabled = false;
 
         NodeType node_type = TNODE;
-        Collider* collider;
+        Collider* collider = nullptr;
 }; // class SceneNode
 
 #endif // SCENE_NODE_H_

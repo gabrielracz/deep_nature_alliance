@@ -21,7 +21,7 @@ float char_height = 1.0/float(num_rows);
 // Text input
 uniform int line_len;
 uniform int num_lines;
-uniform int text_content[512];
+uniform int text_content[2048];
 
 void main()
 {

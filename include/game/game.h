@@ -21,6 +21,7 @@
 #include "collision_manager.h"
 #include "defines.h"
 #include "fp_player.h"
+#include "story_data.h"
 
 class Application;
 
@@ -102,6 +103,8 @@ class Game {
         void AddColliderToScene(SceneEnum sceneNum, SceneNode* node);
         void AddPlayerToScene(SceneEnum sceneNum, Player* node);
         void AddLightToScene(SceneEnum sceneNum, Light* l);
+        void AddTextToScene(SceneEnum sceneNum, Text* l);
+        void AddStoryToScene(SceneEnum sceneNum, StoryBeat l);
 
         void CreatePlayer();
         void CreatePlanets();
@@ -111,6 +114,7 @@ class Game {
         void CreateTree();
         void CreateLights();
         void CreateTriggers();
+        void CreateStory();
         // void GrowTree(SceneNode* root, int branches, float height, float width, int level, int max_iterations);
         // void GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width);
 

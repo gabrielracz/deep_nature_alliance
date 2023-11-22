@@ -1,17 +1,30 @@
 #include "text.h"
 #include "game.h"
 #include "application.h"
+#include "scene_node.h"
 #include <cstring>
 #include <cstring>
 
-Text::Text(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, Game* game, const std::string& content)
-: SceneNode(name, mesh_id, shader_id, texture_id), content(content), game(game) {
+Text::Text(std::string content, Anchor anchor, const glm::vec4 col, const glm::vec4 back_col)
+: SceneNode("Obj_StoryText", "M_Quad", "S_Text", "T_Charmap"), anchor(anchor), color(col), background_color(back_col), content(content) {
+    camera_projection = Camera::Projection::ORTHOGRAPHIC;
+    alpha_enabled = true;
+    transform.SetPosition({1.0, 0.0, 0.0});
+    SetContent(content);
+}
+
+Text::Text(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, const std::string& content)
+: SceneNode(name, mesh_id, shader_id, texture_id), content(content){
     camera_projection = Camera::Projection::ORTHOGRAPHIC;
     alpha_enabled = true;
     SetContent(content);
 }
 
-void Text::Update(double dt) {
+void Text::Update(double dt, int w, int h) {
+    // these really should be globally accessible
+    win_width = w;
+    win_height = h;
+    std::cout << name << std::endl;
     if(update_callback) {
         SetContent(update_callback());
     }
@@ -82,13 +95,10 @@ void Text::SetUniforms(Shader* shader, const glm::mat4 &view_matrix) {
 	float sx = text_width;
 	float sy = size*num_lines;
 
-    int winwidth = game->app.GetWinWidth();
-    int winheight = game->app.GetWinHeight();
-
-    float asp = 1.0f/((float)winwidth/(float)winheight);
+    float asp = 1.0f/((float)win_width/(float)win_height);
     
-    float ndc_width_distance = (text_width/((float)(winwidth)/2));
-    float ndc_height_distance = ((size*num_lines)/((float)winheight/2));
+    float ndc_width_distance = (text_width/((float)(win_width)/2));
+    float ndc_height_distance = ((size*num_lines)/((float)win_height/2));
 
     float x = transform.GetPosition().x;
     float y = transform.GetPosition().y;
@@ -117,6 +127,12 @@ void Text::SetUniforms(Shader* shader, const glm::mat4 &view_matrix) {
         case Anchor::BOTTOMCENTER:
             translation = glm::translate(glm::vec3(x, y + ndc_height_distance, 0.0f));
             break;
+        case Anchor::LEFTCENTER:
+            translation = glm::translate(glm::vec3(x + ndc_width_distance, y, 0.0f));
+            break;
+        case Anchor::RIGHTCENTER:
+            translation = glm::translate(glm::vec3(x - ndc_width_distance, y, 0.0f));
+            break;
     }
 
     glm::mat4 transformation_matrix = translation * glm::scale(glm::vec3(sx, sy, 1.0f));
@@ -127,13 +143,12 @@ void Text::SetUniforms(Shader* shader, const glm::mat4 &view_matrix) {
     shader->SetUniform4f(background_color, "background_color");
 
 	// Set the text data
-	assert(512 > len);
-	int data[512] = {0};
+    std::vector<int> data;
 	for (int i = 0; i < len; i++){
-		data[i] = content[i];
+		data.push_back(content[i]);
 	}
 
-    shader->SetUniform1iv(data, len, "text_content");
+    shader->SetUniform1iv(data.data(), len, "text_content");
     // camera->SetProjectionUniforms(shader, Camera::Projection::ORTHOGRAPHIC);
     alpha_enabled = true;
 }

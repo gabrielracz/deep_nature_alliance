@@ -12,14 +12,16 @@
 #include "colliders/colliders.h"
 
 SceneNode::SceneNode(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id)
-    : name(name), mesh_id(mesh_id), shader_id(shader_id), texture_id(texture_id), collision(),
-    collider(new SphereCollider(*this, 1.0f)) {};
+    : name(name), mesh_id(mesh_id), shader_id(shader_id), texture_id(texture_id), collision()
+     {}
 
 SceneNode::~SceneNode(){
     for(auto child : children) {
         delete child;
     }
-    delete collider;
+    if(collider != nullptr) {
+        delete collider;
+    }
 }
 
 void SceneNode::Update(double dt){

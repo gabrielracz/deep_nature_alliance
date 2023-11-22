@@ -40,6 +40,8 @@ class Camera {
         void Move(const glm::vec3 newpos);
         void Reset();
         bool IsAttached();
+        int GetWinWidth() {return saved_screen_width;}
+        int GetWinHeight() {return saved_screen_height;}
         void SetupViewMatrix(void);
         const glm::mat4& GetViewMatrix() {return view_matrix_;}
 
