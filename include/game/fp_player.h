@@ -14,6 +14,8 @@ public:
     virtual void Control(Controls c, float dt, float damping = 1.0) override;
     virtual void MouseControls(Mouse& mouse) override;
 
+    virtual void HandleCollisionWith(SceneNode* collider) override;
+
     void PlayerJump();
     void Reset();
     void TestMove();
@@ -33,6 +35,8 @@ protected:
     float dash_angle_ = 15.0f;
     float dash_speed_ = 40.0f;
     float sensitivity_ = 0.001f;
+
+    float collider_radius_ = 2.0f;
 
 private:
 //  enum FPControls {

@@ -5,7 +5,7 @@
 FP_Player::FP_Player(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id, Camera *c)
     : Agent(name, mesh_id, shader_id, texture_id), camera_(c) {
         c->Attach(&transform); 
-        SetCollider(new FPPlayerCollider(*this));
+        SetCollider(new FPPlayerCollider(*this, collider_radius_));
 }
 
 void FP_Player::Control(Controls c, float dt, float damping){
@@ -138,5 +138,18 @@ void FP_Player::MouseControls(Mouse &mouse)
     else if (pitch < -max_pitch) {
         float adjust = -max_pitch - pitch;
         camera_->transform.Pitch(glm::radians(adjust));
+    }
+}
+
+
+void FP_Player::HandleCollisionWith(SceneNode* collider)
+{
+    switch(collider->GetNodeType()) {
+        case TLAVA:
+            printf("HIT LAVA \n");
+            Reset();
+            break;
+        default:
+            break;
     }
 }

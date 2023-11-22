@@ -20,9 +20,8 @@ class Terrain : public SceneNode {
         float SampleSlope(float x, float z, glm::vec3 dir = {0.0f, 0.0f, 0.0f});
         bool SamplePassable(float x, float z);
         float SampleAngle(float x, float z, glm::vec3 dir);
+        bool SampleOn(float x , float z);
         glm::vec3 SampleNormal(float x, float z);
-
-        bool IsDeathTerrain() const { return death_terrain_; }
 
     protected:
         void GenerateHeightmap(TerrainType type);
@@ -56,8 +55,6 @@ class Terrain : public SceneNode {
         float xstep;
         float zstep;
         float density;
-        
-        bool death_terrain_;
 
         TerrainType type;
 
