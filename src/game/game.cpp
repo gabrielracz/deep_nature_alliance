@@ -218,10 +218,10 @@ void Game::SetupFPScene(void) {
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
 
-    SceneNode* n2 = new SceneNode("Shippy", "M_Branch", "S_Lit", "T_Grass");
-    n2->transform.SetPosition(glm::vec3(2,-30,-10));
-    n2->transform.SetScale(glm::vec3(4.0, 4.0, 4.0));
-    AddToScene(FPTEST, n2);
+    // SceneNode* n2 = new SceneNode("Shippy", "M_Branch", "S_Lit", "T_Grass");
+    // n2->transform.SetPosition(glm::vec3(2,-30,-10));
+    // n2->transform.SetScale(glm::vec3(4.0, 4.0, 4.0));
+    // AddToScene(FPTEST, n2);
 
     Light* light = new Light(Colors::WarmWhite);
     light->transform.SetPosition(player_position_g);
@@ -418,16 +418,6 @@ void Game::CreatePlayer() {
     // scenes[AFTERTRIGGER]->SetPlayer(player);
 }
 
-void Game::AddLightToScene(SceneEnum sceneNum, Light* l){
-    if (sceneNum == SceneEnum::ALL){
-        for (auto s : scenes){
-            s->AddLight(l);
-        }
-    } else{
-        scenes[sceneNum]->AddLight(l);
-    }
-}
-
 void Game::AddPlayerToScene(SceneEnum sceneNum, Player* node) {
     if (sceneNum == SceneEnum::ALL){
         for (auto s : scenes){
@@ -506,13 +496,6 @@ void Game::CreateHUD() {
     // AddToScene(SceneEnum::AFTERTRIGGER, crosshair);
 }
 
-void Game::CreateLights() {
-    Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
-    light->transform.SetPosition({50.5, 100.5, 50.5});
-    AddLightToScene(SceneEnum::ALL, light);
-    // scenes[BEFORETRIGGER]->GetLights().push_back(light);
-    // scenes[AFTERTRIGGER]->GetLights().push_back(light);
-}
 
 
 void Game::ChangeScene(int sceneIndex) {

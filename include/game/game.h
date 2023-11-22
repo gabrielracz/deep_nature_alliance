@@ -100,7 +100,6 @@ class Game {
 
         void AddToScene(SceneEnum sceneNum, SceneNode* node);
         void AddPlayerToScene(SceneEnum sceneNum, Player* node);
-        void AddLightToScene(SceneEnum sceneNum, Light* l);
 
         void CreatePlayer();
         void CreatePlanets();
@@ -108,7 +107,6 @@ class Game {
         void CreateAsteroidField(int num_asteroids);
         void CreateHUD();
         void CreateTree();
-        void CreateLights();
         void CreateTriggers();
         // void GrowTree(SceneNode* root, int branches, float height, float width, int level, int max_iterations);
         // void GrowLeaves(SceneNode* root, int leaves, float parent_length, float parent_width);

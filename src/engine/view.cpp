@@ -91,8 +91,6 @@ void View::RenderDepthMap(SceneGraph& scene, const Light& light) {
     Shader* depth_map_shader = resman.GetShader("S_Depth");
     depth_map_shader->Use();
  
-    depth_map_shader->SetUniform4m(light_projection_matrix * light_view_matrix, "lightSpaceMatrix");
- 
     // Render the scene from the light's perspective to generate the depth map
     for (auto node : scene) {
         depth_map_shader->SetUniform4m(light_view_matrix, "light_view_matrix");
@@ -131,9 +129,9 @@ void View::RenderNode(SceneNode* node, Camera& cam, const std::vector<Light*>& l
         shd->SetUniform1i(3, "depth_map");
         glActiveTexture(GL_TEXTURE0+3);
         glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-        glm::mat4 light_view_matrix = glm::lookAt(lights[0]->transform.GetPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        // glm::mat4 light_view_matrix = glm::lookAt(lights[0]->transform.GetPosition(), node->transform.GetPosition(), config::camera_up);
-        shd->SetUniform4m(light_view_matrix, "light_view_matrix");
+        // glm::mat4 light_view_matrix = glm::lookAt(lights[0]->transform.GetPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        // // glm::mat4 light_view_matrix = glm::lookAt(lights[0]->transform.GetPosition(), node->transform.GetPosition(), config::camera_up);
+        // shd->SetUniform4m(light_view_matrix, "light_view_matrix");
     }
     
 
