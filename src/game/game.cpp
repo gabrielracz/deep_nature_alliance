@@ -638,6 +638,7 @@ void Game::CreateHUD() {
 
 void Game::CreateLights() {
     Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
+    light->ambient_power = 0.1f;
     light->transform.SetPosition({50.5, 100.5, 50.5});
     AddLightToScene(SceneEnum::ALL, light);
     // scenes[BEFORETRIGGER]->GetLights().push_back(light);

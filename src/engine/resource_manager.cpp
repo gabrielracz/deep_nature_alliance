@@ -765,10 +765,10 @@ void ResourceManager::CreateQuad(std::string name) {
 		-1.0f,  1.0f, 0.0f,  0.0f, 1.0f
 	};
 
-	std::vector<unsigned int> indices = {
-		0, 2, 1,
-		0, 3, 2
-	};
+    std::vector<unsigned int> indices = {
+        3, 2, 1,
+        3, 1, 0
+    };
 
     Layout l = Layout({
         {FLOAT3, "vertex"},
