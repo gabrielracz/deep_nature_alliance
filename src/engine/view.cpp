@@ -83,7 +83,7 @@ void View::RenderDepthMap(SceneGraph& scene, const Light& light) {
     // Set up the depth map framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
     glViewport(0, 0, SHADOW_MAP_X, SHADOW_MAP_Y);
-    glClear(GL_DEPTH_BUFFER_BIT);
+    // glClear(GL_DEPTH_BUFFER_BIT);
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "error" << std::endl;
@@ -97,6 +97,15 @@ void View::RenderDepthMap(SceneGraph& scene, const Light& light) {
         depth_map_shader->SetUniform4m(light_projection_matrix, "light_projection_matrix");
         resman.GetMesh(node->GetMeshID())->Draw();
     }
+
+    //Wrapping
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    //Filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
  
     // Reset the framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -129,9 +138,9 @@ void View::RenderNode(SceneNode* node, Camera& cam, const std::vector<Light*>& l
         shd->SetUniform1i(3, "depth_map");
         glActiveTexture(GL_TEXTURE0+3);
         glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-        // glm::mat4 light_view_matrix = glm::lookAt(lights[0]->transform.GetPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        // // glm::mat4 light_view_matrix = glm::lookAt(lights[0]->transform.GetPosition(), node->transform.GetPosition(), config::camera_up);
-        // shd->SetUniform4m(light_view_matrix, "light_view_matrix");
+        glm::mat4 light_view_matrix = glm::lookAt(lights[0]->transform.GetPosition(), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        // glm::mat4 light_view_matrix = glm::lookAt(lights[0]->transform.GetPosition(), node->transform.GetPosition(), config::camera_up);
+        shd->SetUniform4m(light_view_matrix, "light_view_matrix");
     }
     
 
