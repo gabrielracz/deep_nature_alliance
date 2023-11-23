@@ -228,7 +228,7 @@ void Game::SetupFPScene(void) {
     AddToScene(FPTEST, n2);
 
     Light* light = new Light(Colors::WarmWhite);
-    light->transform.SetPosition(glm::vec3(0, 100, 0));
+    light->transform.SetPosition(glm::vec3(0, 1000, 1000));
     scenes[FPTEST]->AddLight(light);
 }
 

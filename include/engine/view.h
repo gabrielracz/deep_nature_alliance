@@ -52,6 +52,8 @@ public:
     void Update(double dt);
     void Render(SceneGraph &scene);
 
+    void SetupDepthMap();
+
     void ToggleMouseCapture();
     void SetMouseHandler(MouseHandler h) { mouse_handler = h; }
     void SetResizeHandler(ResizeHandler h) { resize_handler = h; }
@@ -72,6 +74,7 @@ private:
 
     GLuint depth_map_fbo;
     GLuint depth_map_texture;
+    GLuint depth_map_buffer;
 
     Window win;
     Mouse mouse;
