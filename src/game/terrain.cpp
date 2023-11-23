@@ -44,6 +44,8 @@ void Terrain::GenerateHeightmap(TerrainType type) {
         case TerrainType::FOREST:
             GenerateForest();
             break;
+        case TerrainType::FLAT:
+            GenerateFlat();
         default:
             break;
     }
@@ -198,6 +200,17 @@ void Terrain::GenerateQMoon() {
                 heights[z][x] += item_crater_spire_height;
             }
 
+        }
+    }
+}
+
+void Terrain::GenerateFlat() {
+    for (int z = 0; z < num_zsteps; z++) {
+        for (int x = 0; x < num_xsteps; x++) {
+                float height = -1.0;
+                glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 50.0f;
+                float perlin = glm::perlin(sample);
+                heights[x][z] = height + perlin;
         }
     }
 }

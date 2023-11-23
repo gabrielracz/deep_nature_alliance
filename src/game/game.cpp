@@ -210,21 +210,25 @@ void Game::SetupFPScene(void) {
     n->transform.SetPosition(glm::vec3(0,0,-10));
     AddToScene(FPTEST, n);
 
+    n = new SceneNode("Shippy22", "M_Ship", "S_Lit");
+    n->transform.SetPosition(glm::vec3(3,-10,5));
+    AddToScene(FPTEST, n);
+
     int terrain_size = 1000;
-    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, terrain_size, terrain_size, 0.25, this);
+    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::FLAT, terrain_size, terrain_size, 0.25, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     t->material.texture_repetition = 6.0f;
     t->SetNormalMap("T_WallNormalMap", 40.0f);
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
 
-    // SceneNode* n2 = new SceneNode("Shippy", "M_Branch", "S_Lit", "T_Grass");
-    // n2->transform.SetPosition(glm::vec3(2,-30,-10));
-    // n2->transform.SetScale(glm::vec3(4.0, 4.0, 4.0));
-    // AddToScene(FPTEST, n2);
+    SceneNode* n2 = new SceneNode("Shippy25", "M_Branch", "S_Lit", "T_Grass");
+    n2->transform.SetPosition(glm::vec3(2,-27,-10));
+    n2->transform.SetScale(glm::vec3(4.0, 4.0, 4.0));
+    AddToScene(FPTEST, n2);
 
     Light* light = new Light(Colors::WarmWhite);
-    light->transform.SetPosition(player_position_g);
+    light->transform.SetPosition(glm::vec3(0, 100, 0));
     scenes[FPTEST]->AddLight(light);
 }
 

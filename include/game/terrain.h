@@ -6,7 +6,8 @@ class Game;
 
 enum class TerrainType {
     MOON,
-    FOREST
+    FOREST,
+    FLAT
 };
 
 class Terrain : public SceneNode {
@@ -24,6 +25,7 @@ class Terrain : public SceneNode {
     protected:
         void GenerateHeightmap(TerrainType type);
         void GenerateQMoon();
+        void GenerateFlat();
         void GenerateForest();
         void GenerateNormals();
         void GenerateObstacles();

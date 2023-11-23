@@ -44,33 +44,26 @@ void View::Render(SceneGraph& scene) {
         RenderDepthMap(scene, *light);
         break; //just 1 light for now
     }
-    // GLubyte* image = new GLubyte[SHADOW_MAP_X * SHADOW_MAP_Y];
 
-    // // Read the texture data into the image array
-    // glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-    // glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_UNSIGNED_BYTE, image);
-
-    // // Write the image data to a file
-    // stbi_write_png("depthmap.png", SHADOW_MAP_X, SHADOW_MAP_X, 1, image, SHADOW_MAP_X);
-    // Shader *temp = resman.GetShader("S_ShadowMap");
-    // Mesh *m = resman.GetMesh("M_Quad");
+    Shader *temp = resman.GetShader("S_ShadowMap");
+    Mesh *m = resman.GetMesh("M_Quad");
     
 
 
-    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    // glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
-    // glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); 
+    glClear(GL_COLOR_BUFFER_BIT);
     
 
-    // temp->Use();
-    // // temp->SetUniform1i(0, "depthMap");
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-    // m->Draw();
+    temp->Use();
+    temp->SetUniform1i(0, "depthMap");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+    m->Draw();
     
-    for(auto node : scene) {
-        RenderNode(node, scene.GetCamera(), scene.GetLights());
-    }
+    // for(auto node : scene) {
+    //     RenderNode(node, scene.GetCamera(), scene.GetLights());
+    // }
 
     glfwSwapBuffers(win.ptr);
     glfwPollEvents();
@@ -83,7 +76,6 @@ void View::RenderDepthMap(SceneGraph& scene, const Light& light) {
     // Set up the depth map framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
     glViewport(0, 0, SHADOW_MAP_X, SHADOW_MAP_Y);
-    // glClear(GL_DEPTH_BUFFER_BIT);
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "error" << std::endl;
@@ -93,23 +85,24 @@ void View::RenderDepthMap(SceneGraph& scene, const Light& light) {
  
     // Render the scene from the light's perspective to generate the depth map
     for (auto node : scene) {
-        depth_map_shader->SetUniform4m(light_view_matrix, "light_view_matrix");
-        depth_map_shader->SetUniform4m(light_projection_matrix, "light_projection_matrix");
+        depth_map_shader->SetUniform4m(light_projection_matrix * light_view_matrix, "light_space_matrix");
         resman.GetMesh(node->GetMeshID())->Draw();
     }
 
-    //Wrapping
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    //Filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // //Wrapping
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // //Filtering
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glGenerateMipmap(GL_TEXTURE_2D);
+	// glGenerateMipmap(GL_TEXTURE_2D);
  
-    // Reset the framebuffer
+    // Reset the framebuffer and viewport
+    glViewport(0, 0, win.width, win.height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glUseProgram(0);
+    glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void View::RenderNode(SceneNode* node, Camera& cam, const std::vector<Light*>& lights, const glm::mat4& parent_matrix) {
