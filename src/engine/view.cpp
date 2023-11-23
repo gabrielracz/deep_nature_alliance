@@ -8,7 +8,7 @@
 #include "stb_image_write.h"
 
 View::View(Application& app, ResourceManager& resman)
-    : app(app), resman(resman), depth_map_fbo(0), depth_map_texture(0), depth_map_buffer(0) {}
+    : app(app), resman(resman) {}
 
 View::~View() {
     glDeleteFramebuffers(1, &depth_map_fbo);
@@ -67,19 +67,19 @@ void View::Render(SceneGraph& scene) {
 
 void View::SetupDepthMap() {
     // Set up the depth map framebuffer
-    // glGenFramebuffers(1, &depth_map_fbo);  
-    // glGenTextures(1, &depth_map_texture);
-    // glBindTexture(GL_TEXTURE_2D, depth_map_texture);
-    // glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_MAP_X, SHADOW_MAP_Y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);  
-    // glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
-    // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map_texture, 0);
-    // glDrawBuffer(GL_NONE);
-    // glReadBuffer(GL_NONE);
-    // glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+    glGenFramebuffers(1, &depth_map_fbo);  
+    glGenTextures(1, &depth_map_texture);
+    glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_MAP_X, SHADOW_MAP_Y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);  
+    glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map_texture, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);  
     //    // Set up the depth map framebuffer
     //     glGenFramebuffers(1, &depth_map_fbo);
     //     glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
@@ -130,6 +130,7 @@ void View::RenderDepthMap(SceneGraph& scene, const Light& light) {
     // Render the scene from the light's perspective to generate the depth map
     for (auto node : scene) {
         depth_map_shader->SetUniform4m(light_projection_matrix * light_view_matrix, "light_space_matrix");
+        depth_map_shader->SetUniform4m(node->transform.GetWorldMatrix(), "model");
         resman.GetMesh(node->GetMeshID())->Draw();
     }
 
