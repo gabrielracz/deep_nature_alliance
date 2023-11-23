@@ -9,5 +9,8 @@ void main()
 {
     float depthValue = texture(depthMap, TexCoords).r;
     FragColor = vec4(vec3(depthValue), 1.0);
-    // FragColor = vec4(0.3, 0.8, 0.36, 1.0);
+    // // FragColor = vec4(0.3, 0.8, 0.36, 1.0);
+    // float Depth = texture(depthMap, TexCoords).x;
+    // Depth = 1.0 - (1.0 - Depth) * 25.0;
+    // FragColor = vec4(Depth);
 }
