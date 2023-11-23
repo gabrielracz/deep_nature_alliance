@@ -86,38 +86,38 @@ void View::SetupDepthMap() {
 
 
     // Set up the depth map framebuffer
-    glGenFramebuffers(1, &depth_map_fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
+    // glGenFramebuffers(1, &depth_map_fbo);
+    // glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
 
-    // Set up target texture for rendering
-    glGenTextures(1, &depth_map_texture);
-    glBindTexture(GL_TEXTURE_2D, depth_map_texture);
+    // // Set up target texture for rendering
+    // glGenTextures(1, &depth_map_texture);
+    // glBindTexture(GL_TEXTURE_2D, depth_map_texture);
 
-    // Set up an image for the texture
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SHADOW_MAP_X, SHADOW_MAP_Y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);  
+    // // Set up an image for the texture
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SHADOW_MAP_X, SHADOW_MAP_Y, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);  
 
-    // Set up a depth buffer for rendering
-    glGenRenderbuffers(1, &depth_map_buffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, depth_map_buffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT,SHADOW_MAP_X, SHADOW_MAP_Y);
+    // // Set up a depth buffer for rendering
+    // glGenRenderbuffers(1, &depth_map_buffer);
+    // glBindRenderbuffer(GL_RENDERBUFFER, depth_map_buffer);
+    // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT,SHADOW_MAP_X, SHADOW_MAP_Y);
 
-    // Configure frame buffer (attach rendering buffers)
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, depth_map_texture, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_map_fbo);
-    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, DrawBuffers);
+    // // Configure frame buffer (attach rendering buffers)
+    // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, depth_map_texture, 0);
+    // glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_map_fbo);
+    // GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    // glDrawBuffers(1, DrawBuffers);
 
-    // Check if frame buffer was setup successfully
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
-        throw(std::ios_base::failure(std::string("Error setting up frame buffer")));
-    }
+    // // Check if frame buffer was setup successfully
+    // if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE){
+    //     throw(std::ios_base::failure(std::string("Error setting up frame buffer")));
+    // }
 
     // Reset frame buffer
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void View::RenderDepthMap(SceneGraph& scene, const Light& light) {
