@@ -71,6 +71,12 @@ private:
     Mouse mouse;
     KeyMap key_controls;
 
+    GLuint fbo;
+    GLuint fb_tex;
+    GLuint rbo;
+    int FBWIDTH = 1024;
+    int FBHEIGHT = 1024;
+
     int render_mode = RenderMode::FILL;
     int active_shader = -1;
 
@@ -78,6 +84,7 @@ private:
     void InitView();
     void InitEventHandlers();
     void InitControls();
+    void InitFramebuffers();
 
     void RenderNode(SceneNode *node, Camera &cam, std::vector<Light *> &lights, const glm::mat4 &parent_matrix = glm::mat4(1.0f));
 

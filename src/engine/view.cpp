@@ -34,6 +34,10 @@ void View::Render(SceneGraph& scene) {
             break;
     }
 
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glViewport(0,0,FBWIDTH, FBHEIGHT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     for(auto node : scene) {
         RenderNode(node, scene.GetCamera(), scene.GetLights());
     }
@@ -47,6 +51,19 @@ void View::Render(SceneGraph& scene) {
         RenderNode(scene.GetSkybox(), scene.GetCamera(), scene.GetLights());
         glDepthFunc(GL_LESS);
     }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0,0,win.width,win.height);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    Mesh* scrquad  = resman.GetMesh("M_Quad");
+    Shader* scrshd = resman.GetShader("S_Texture");
+    scrshd->Use();
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, fb_tex);
+
+    scrquad->Draw();
 
     glfwSwapBuffers(win.ptr);
     glfwPollEvents();
@@ -99,11 +116,40 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     glDisable(GL_BLEND);
 }
 
+void View::InitFramebuffers() {
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    glGenTextures(1, &fb_tex);
+
+    glBindTexture(GL_TEXTURE_2D, fb_tex);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, FBWIDTH, FBHEIGHT, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+    // Poor filtering. Needed !
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, FBWIDTH, FBHEIGHT);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fb_tex, 0);
+    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, DrawBuffers);
+
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        std::cout << "Framebuffer init errors" << std::endl;
+    }
+        
+}
+
 void View::Init(const std::string& title, int width, int height) {
     InitWindow(title, width, height);
     InitView();
     InitEventHandlers();
     InitControls();
+    InitFramebuffers();
 }
 
 void View::InitWindow(const std::string& title, int width, int height) {
