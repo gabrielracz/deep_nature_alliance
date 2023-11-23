@@ -71,11 +71,18 @@ private:
     Mouse mouse;
     KeyMap key_controls;
 
-    GLuint fbo;
-    GLuint fb_tex;
+    int PPWIDTH = 256;
+    int PPHEIGHT = 256;
+    GLuint postprocess_fbo;
+    GLuint postprocess_tex;
     GLuint rbo;
-    int FBWIDTH = 1024;
-    int FBHEIGHT = 1024;
+
+    GLuint depth_fbo;    
+    GLuint depth_tex;
+    int DEPTHWIDTH = 1024;
+    int DEPTHHEIGHT = 1024;
+
+
 
     int render_mode = RenderMode::FILL;
     int active_shader = -1;

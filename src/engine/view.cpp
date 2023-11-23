@@ -34,8 +34,8 @@ void View::Render(SceneGraph& scene) {
             break;
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    glViewport(0,0,FBWIDTH, FBHEIGHT);
+    glBindFramebuffer(GL_FRAMEBUFFER, postprocess_fbo);
+    glViewport(0,0, PPWIDTH, PPHEIGHT);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for(auto node : scene) {
@@ -61,7 +61,7 @@ void View::Render(SceneGraph& scene) {
     scrshd->Use();
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, fb_tex);
+    glBindTexture(GL_TEXTURE_2D, postprocess_tex);
 
     scrquad->Draw();
 
@@ -117,13 +117,15 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
 }
 
 void View::InitFramebuffers() {
-    glGenFramebuffers(1, &fbo);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    // Create framebuffer to render a normal scene to a texture output.
+    // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
+    glGenFramebuffers(1, &postprocess_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, postprocess_fbo);
 
-    glGenTextures(1, &fb_tex);
+    glGenTextures(1, &postprocess_tex);
 
-    glBindTexture(GL_TEXTURE_2D, fb_tex);
-    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, FBWIDTH, FBHEIGHT, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glBindTexture(GL_TEXTURE_2D, postprocess_tex);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, PPWIDTH, PPHEIGHT, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
 
     // Poor filtering. Needed !
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -131,17 +133,34 @@ void View::InitFramebuffers() {
 
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, FBWIDTH, FBHEIGHT);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, PPWIDTH, PPHEIGHT);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fb_tex, 0);
-    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, postprocess_tex, 0);
+    // GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    GLenum DrawBuffers[1] = {GL_DEPTH_ATTACHMENT};
     glDrawBuffers(1, DrawBuffers);
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cout << "Framebuffer init errors" << std::endl;
     }
-        
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Depth framebuffer
+    // glGenTextures(1, &depth_tex);
+    // glBindTexture(GL_TEXTURE_2D, depth_tex);
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
+    //             DEPTHWIDTH, DEPTHWIDTH, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);  
+
+    // glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
+    // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_tex, 0);
+    // glDrawBuffer(GL_NONE);
+    // glReadBuffer(GL_NONE);
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 }
 
 void View::Init(const std::string& title, int width, int height) {
