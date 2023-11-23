@@ -461,11 +461,23 @@ void Game::CheckControls(KeyMap& keys, float dt) {
         keys[GLFW_KEY_SPACE] = false;
     };
 
+    float tilt_speed = 1.5f;
     if(keys[GLFW_KEY_UP]) {
-        player->Control(Player::Controls::UP, dt);
+        active_scene->GetCamera().transform.Pitch(tilt_speed * dt);
+        // player->Control(Player::Controls::UP, dt);
     }
     if(keys[GLFW_KEY_DOWN]) {
-        player->Control(Player::Controls::DOWN, dt);
+        active_scene->GetCamera().transform.Pitch(-tilt_speed * dt);
+        // player->Control(Player::Controls::DOWN, dt);
+    }
+    if(keys[GLFW_KEY_RIGHT]) {
+        active_scene->GetCamera().transform.Yaw(-tilt_speed * dt);
+    }
+    if(keys[GLFW_KEY_LEFT]) {
+        active_scene->GetCamera().transform.Yaw(tilt_speed * dt);
+    }
+    if(keys[GLFW_KEY_RIGHT_CONTROL]) {
+        active_scene->GetCamera().transform.SetOrientation({0.0, 0.0, 0.0, 0.0});
     }
 
     if(keys[GLFW_KEY_X]) {
@@ -640,7 +652,7 @@ void Game::AddStoryToScene(SceneEnum sceneNum, StoryBeat index) {
 
 void Game::CreateHUD() {
 
-    float brdr = 0.1f;
+    float brdr = 0.0f;
 
     Text* txt = new Text("Obj_Banner", "M_Quad", "S_Text", "T_Charmap","DEEP NATURE ALLIANCE\nA millenia ago, thousands of soldiers\nwere sent deep into the far reaches of space\nin search of life.\nOne of these soldiers is you...");
     txt->transform.SetPosition({0.0f, 1.0f, 0.0f});
