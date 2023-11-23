@@ -35,8 +35,8 @@ void SceneGraph::Update(double dt) {
 
     int w = camera.GetWinWidth();
     int h = camera.GetWinHeight();
-    for(auto st : story_text) {
-        st->Update(dt, w, h);
+    if(!story_text.empty()){
+        story_text.front()->Update(dt, w, h);
     }
     for(auto t : texts) {
         t->Update(dt, w, h);

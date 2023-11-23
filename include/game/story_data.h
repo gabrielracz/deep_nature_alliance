@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "defines.h"
 #include "text.h"
 
 enum StoryBeat {
@@ -13,6 +14,8 @@ enum StoryBeat {
     TOLKIEN,
     NUM_STORY_BEATS
 };
+
+#define FEDERATION_TRANSMISSION Colors::Amber, Colors::TranspBlack, Text::Anchor::LEFTCENTER, {-1.0, 0.0, 0.0}, 0.05f
 
 // json 2.0
 static const std::unordered_map<int, std::vector<Text>> STORY = {
@@ -27,7 +30,8 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "goddamn restricted airspace I'm\n"
                 "sure you know.\n"
                 " \n"
-                "give it up kid... they're gone.\n"
+                "give it up kid... they're gone.\n",
+                FEDERATION_TRANSMISSION
              }
     }},
     {EXPOSITION,{

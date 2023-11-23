@@ -52,7 +52,6 @@ enum SceneEnum {
     ALL
 };
 
-
 namespace config
 {
     const float camera_near_clip_distance = 0.01;

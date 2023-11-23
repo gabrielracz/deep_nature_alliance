@@ -5,12 +5,15 @@
 #include <cstring>
 #include <cstring>
 
-Text::Text(std::string content, Anchor anchor, const glm::vec4 col, const glm::vec4 back_col)
+// Default Story text constructor
+Text::Text(std::string content, const glm::vec4 col, const glm::vec4 back_col, Anchor anchor, const glm::vec3& position, float delay)
 : SceneNode("Obj_StoryText", "M_Quad", "S_Text", "T_Charmap"), anchor(anchor), color(col), background_color(back_col), content(content) {
+    transform.SetPosition(position);
     camera_projection = Camera::Projection::ORTHOGRAPHIC;
     alpha_enabled = true;
-    transform.SetPosition({1.0, 0.0, 0.0});
     SetContent(content);
+    // create an identical buffer, but make it blank with the same dimensions
+    SetScrolling(delay);
 }
 
 Text::Text(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, const std::string& content)
@@ -22,16 +25,22 @@ Text::Text(const std::string name, const std::string& mesh_id, const std::string
 
 void Text::Update(double dt, int w, int h) {
     // these really should be globally accessible
+    update_timer += dt;
     win_width = w;
     win_height = h;
-    std::cout << name << std::endl;
-    if(update_callback) {
-        SetContent(update_callback());
+
+    if((update_callback || scrolling) && update_timer > update_delay) {
+        if(update_callback) {
+            SetContent(update_callback());
+        }
+        if(scrolling) {
+            content = ScrollText();
+        }
+        update_timer = 0.0f;
     }
 
     SceneNode::Update(dt);
 }
-
 
 // Please avert your eyes
 void Text::SetContent(const std::string& str) {
@@ -151,4 +160,27 @@ void Text::SetUniforms(Shader* shader, const glm::mat4 &view_matrix) {
     shader->SetUniform1iv(data.data(), len, "text_content");
     // camera->SetProjectionUniforms(shader, Camera::Projection::ORTHOGRAPHIC);
     alpha_enabled = true;
+
+}
+
+std::string Text::ScrollText() {
+    if(scroll_index >= scroll_buffer.size())  {return scroll_buffer;}
+    char ch = scroll_buffer[scroll_index];
+    content[scroll_index++] = ch;
+    while(scroll_buffer[scroll_index] == '\n' || scroll_buffer[scroll_index] == ' ' && scroll_index < scroll_buffer.size()){
+        scroll_index++;
+    }
+    return content;
+}
+
+void Text::SetScrolling(float delay) {
+    update_delay = delay;
+    scrolling = true;
+
+    scroll_buffer = content;
+    for(int i = 0; i < content.size(); i++) {
+        if(scroll_buffer[i] != '\n') {
+            content[i] = ' ';
+        }
+    }
 }

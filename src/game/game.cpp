@@ -498,9 +498,9 @@ void Game::CheckControls(KeyMap& keys, float dt) {
         active_scene->GetCamera().transform.Translate({0.0, cam_speed,0.0});
     }
 
-    if(keys[GLFW_KEY_ENTER]) {
+    if(keys[GLFW_KEY_R]) {
         active_scene->DismissStoryText();
-        keys[GLFW_KEY_ENTER] = false;
+        keys[GLFW_KEY_R] = false;
     }
 
 
@@ -661,9 +661,8 @@ void Game::CreateHUD() {
     Text* speedo = new Text("Obj_Speedo", "M_Quad", "S_Text", "T_Charmap", "");
     speedo->transform.SetPosition({-1.0 + brdr, -1.0 + brdr, 0.0f});
     speedo->SetColor(Colors::Amber);
-    speedo->SetAnchor(Text::Anchor::BOTTOMLEFT);
+    speedo->SetAnchor(Text::Anchor::BOTTOMLEFT); 
     speedo->SetCallback([this]() -> std::string {
-
         auto draw_bar = [](float in, float max, int total_bars) -> std::string {
         int num_bars = ((in/max)*(float)total_bars);
             std::string begin =        "[";

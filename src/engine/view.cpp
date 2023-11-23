@@ -80,7 +80,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     if(node->IsAlphaEnabled()) {
         glEnable(GL_BLEND);
         glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_GREATER, 0.0f);
+        // glAlphaFunc(GL_GREATER, 0.0f);
         // glDepthMask(false);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     };
