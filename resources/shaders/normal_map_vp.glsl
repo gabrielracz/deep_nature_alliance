@@ -20,6 +20,7 @@ out vec2 uv_interp;
 out vec3 light_pos;
 out vec3 color_interp;
 out vec3 normal_interp;
+
 out vec4 shadow_space_pos;
 
 out float test;

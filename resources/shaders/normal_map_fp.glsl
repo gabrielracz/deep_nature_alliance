@@ -7,6 +7,7 @@ in vec3 position_interp;
 in vec2 uv_interp;
 in vec3 normal_interp;
 in vec3 light_pos;
+
 in vec4 shadow_space_pos;
 
 struct Light {
@@ -37,6 +38,7 @@ uniform sampler2D shadow_map;
 
 layout(location=0) out vec3 FragColor;
 
+bool in_shadow;
 
 float phong_specular(vec3 lv, vec3 n) {
 	vec3 v = vec3(0,0,0);
@@ -60,14 +62,18 @@ float blinnphong_specular(vec3 lv, vec3 n) {
 }
 
 
-vec4 lighting(vec4 pixel, int i, vec3 lv, vec3 n) {
+vec4 lighting(vec4 pixel, int i, vec3 lv, vec3 n, float shadow) {
 
 	float diffuse = max(0.0, dot(n,lv));
     float spec = blinnphong_specular(lv, n);
     // float spec = phong_specular(lv, n);
     if(diffuse == 0.0 || specular_power == 0.0) {spec = 0.0;}
 
-    return diffuse_strength*diffuse*lights[i].color*pixel + lights[i].ambient_strength*lights[i].ambient_color*pixel + spec*lights[i].color;
+    vec4 lit = lights[i].ambient_strength*lights[i].ambient_color*pixel + (1.0 - shadow)*(
+               diffuse_strength*diffuse*lights[i].color*pixel + 
+               spec*lights[i].color);
+
+    return lit;
 }
 
 float ShadowCalculation(vec4 fragPosLightSpace)
@@ -81,11 +87,13 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
-    float bias = 0.005;
+    float bias = 0.003;
     // float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
     float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
-    if(projCoords.z > 1.0)
+    // outside shadow map
+    if(projCoords.x > 1.0 || projCoords.x < 0.0 || projCoords.y > 1.0 || projCoords.y < 0.0) {
             shadow = 0.0;
+    }
     return shadow;
 }  
 
@@ -98,17 +106,17 @@ void main()
         vec3 normal = normalize(normal_interp + n_bump) ;                                               // displace fragment normal by bump
         vec4 pixel = texture(texture_map, uv_interp * texture_repetition);                              // sample color texture
         // vec4 pixel = vec4(color_interp, 1.0);                                                                       // mix with underlying model color
-        vec4 lit_pixel = lighting(pixel, i, light_vector, normal);
         float shadow = ShadowCalculation(shadow_space_pos);
-        if(shadow > 0) {
-            accumulator = vec4(1.0, 0.0, 1.0, 1.0);
-            break;
-        }
+        // if(shadow > 0.0) {
+        //     in_shadow = true;
+        //     // accumulator = vec4(1.0, 0.0, 1.0, 1.0);
+        // }
+        vec4 lit_pixel = lighting(pixel, i, light_vector, normal, shadow);
         lit_pixel.a = 1.0f;
         accumulator += lit_pixel;
     }
-    // gl_FragColor = accumulator ;
-    FragColor = vec3(accumulator);
+    gl_FragColor = accumulator ;
+    // FragColor = vec3(accumulator);
     // float depth = gl_FragCoord.w * 4 + 0.1;
     // FragColor = vec3(depth, depth, depth);
 }

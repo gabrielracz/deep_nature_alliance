@@ -77,7 +77,7 @@ void View::RenderPostProcessing(SceneGraph& scene) {
     glViewport(0,0,win.width,win.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    bool postprocess = false;
+    bool postprocess = true;
     if(postprocess) {
         Mesh* scrquad  = resman.GetMesh("M_Quad");
         Shader* scrshd = resman.GetShader("S_Texture");
@@ -110,13 +110,13 @@ void View::RenderDepthMap(SceneGraph& scene) {
 
     // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
     // Light* l = scene.GetLights().back();
-    glm::mat4 view_mat = glm::lookAt({100.0, 100.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-    // glm::mat4 proj_mat = glm::ortho(-100.0f, 100.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
+    glm::mat4 view_mat = glm::lookAt({1000.0, 400.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 proj_mat = glm::ortho(-1000.0f, 1000.0f, -1000.0f, 1000.0f, 0.1f, 2000.0f);
 
     // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
     // glm::mat4 proj_mat = scene.GetCamera().GetPerspectiveMatrix();
 
-    glm::mat4 proj_mat = glm::perspective(90.0f, 16.0f/9.0f, 0.1f, 400.0f);
+    // glm::mat4 proj_mat = glm::perspective(45.0f, 16.0f/9.0f, 0.1f, 400.0f);
     // glm::mat4 proj_mat = glm::perspective(90.0f, 16.0f/9.0f, 0.1f, 100.0f);
 
     for(auto node : scene) {
@@ -146,14 +146,14 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
 
     shd->SetLights(lights);
     // Light* l = lights.back();
-    // glm::mat4 view_mat = glm::lookAt(l->transform.GetPosition(), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-    // glm::mat4 proj_mat = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
+    glm::mat4 view_mat = glm::lookAt({1000.0, 400.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 proj_mat = glm::ortho(-1000.0f, 1000.0f, -1000.0f, 1000.0f, 0.1f, 2000.0f);
 
     // glm::mat4 view_mat = cam.GetViewMatrix();
 
-    glm::mat4 view_mat = glm::lookAt({100.0, 100.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    // glm::mat4 view_mat = glm::lookAt({40.0, 130.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
     // glm::mat4 proj_mat = cam.GetPerspectiveMatrix();
-    glm::mat4 proj_mat = glm::perspective(90.0f, 16.0f/9.0f, 0.1f, 400.0f);
+    // glm::mat4 proj_mat = glm::perspective(45.0f, 16.0f/9.0f, 0.1f, 400.0f);
 
     // glm::mat4 proj_mat = glm::ortho(-100.0f, 100.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
 

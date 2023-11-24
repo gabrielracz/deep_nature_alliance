@@ -373,6 +373,7 @@ void Game::SetupForestScene() {
             tree->transform.SetPosition({x, y, z});
             tree->transform.SetScale({s,s,s});
             tree->transform.Yaw(r);
+            tree->material.specular_power = 0.0f;
             tree->SetAlphaEnabled(true);
             scenes[FOREST]->AddNode(tree);
         }

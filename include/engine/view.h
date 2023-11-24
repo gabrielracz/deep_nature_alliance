@@ -79,8 +79,8 @@ private:
 
     GLuint depth_fbo;    
     GLuint depth_tex;
-    int DEPTHWIDTH = 2048;
-    int DEPTHHEIGHT = 2048;
+    int DEPTHWIDTH = 4096;
+    int DEPTHHEIGHT = 4096;
 
 
 
