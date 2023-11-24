@@ -37,16 +37,23 @@ void View::Render(SceneGraph& scene) {
             break;
     }
 
+    glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
     RenderDepthMap(scene);
-
     glBindFramebuffer(GL_FRAMEBUFFER, postprocess_fbo);
+    RenderScene(scene);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    RenderPostProcessing(scene);
+    RenderScreenspace(scene);
+
+    glfwSwapBuffers(win.ptr);
+    glfwPollEvents();
+}
+
+void View::RenderScene(SceneGraph& scene) {
     glViewport(0,0, PPWIDTH, PPHEIGHT);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for(auto node : scene) {
-        RenderNode(node, scene.GetCamera(), scene.GetLights());
-    }
-    for(auto node : scene.GetScreenSpaceNodes()) {
         RenderNode(node, scene.GetCamera(), scene.GetLights());
     }
 
@@ -56,11 +63,24 @@ void View::Render(SceneGraph& scene) {
         RenderNode(scene.GetSkybox(), scene.GetCamera(), scene.GetLights());
         glDepthFunc(GL_LESS);
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void View::RenderScreenspace(SceneGraph& scene) {
+    glDisable(GL_DEPTH_TEST);
+    // glEnable(GL_BLEND);
+    // glEnable(GL_ALPHA_TEST);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glViewport(0,0,win.width,win.height);
+    for(auto node : scene.GetScreenSpaceNodes()) {
+        RenderNode(node, scene.GetCamera(), scene.GetLights());
+    }
+}
+
+void View::RenderPostProcessing(SceneGraph& scene) {
     glViewport(0,0,win.width,win.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    bool postprocess = false;
+    bool postprocess = true;
     if(postprocess) {
         Mesh* scrquad  = resman.GetMesh("M_Quad");
         Shader* scrshd = resman.GetShader("S_Texture");
@@ -80,15 +100,10 @@ void View::Render(SceneGraph& scene) {
         glBindTexture(GL_TEXTURE_2D, depth_tex);
         scrquad->Draw();
     }
-
-
-    glfwSwapBuffers(win.ptr);
-    glfwPollEvents();
 }
 
 void View::RenderDepthMap(SceneGraph& scene) {
     glViewport(0, 0, DEPTHWIDTH, DEPTHHEIGHT);
-    glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
     glClear(GL_DEPTH_BUFFER_BIT);
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
@@ -137,7 +152,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     }
 
     // MODEL
-    if(node->IsAlphaEnabled() && false) {
+    if(node->IsAlphaEnabled()) {
         glEnable(GL_BLEND);
         glEnable(GL_ALPHA_TEST);
         // glAlphaFunc(GL_GREATER, 0.0f);

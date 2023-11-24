@@ -93,8 +93,11 @@ private:
     void InitControls();
     void InitFramebuffers();
 
-    void RenderNode(SceneNode *node, Camera &cam, std::vector<Light *> &lights, const glm::mat4 &parent_matrix = glm::mat4(1.0f));
+    void RenderScene(SceneGraph& scene);
+    void RenderScreenspace(SceneGraph& scene);
+    void RenderPostProcessing(SceneGraph& scene);
     void RenderDepthMap(SceneGraph& scene);
+    void RenderNode(SceneNode *node, Camera &cam, std::vector<Light *> &lights, const glm::mat4 &parent_matrix = glm::mat4(1.0f));
 
     static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void ResizeCallback(GLFWwindow *window, int width, int height);

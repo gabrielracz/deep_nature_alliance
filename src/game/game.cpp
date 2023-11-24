@@ -350,7 +350,7 @@ void Game::SetupForestScene() {
     // forest->transform.SetScale({5, 5, 5});
     forest->SetNormalMap("T_WallNormalMap", 1.0f);
     forest->material.specular_power = 0.0f;
-    forest->SetAlphaEnabled(true);
+    forest->SetAlphaEnabled(false); // TODO: figure out why they are transp
     for(int i = 0; i < 100; i++) {
         bool instanced = true;
         float x = rng.randfloat(-400, 400);

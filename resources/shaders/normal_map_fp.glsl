@@ -33,6 +33,8 @@ uniform float amb;
 uniform vec4 ambcol;
 uniform float timer;
 
+layout(location=0) out vec3 FragColor;
+
 
 float phong_specular(vec3 lv, vec3 n) {
 	vec3 v = vec3(0,0,0);
@@ -76,8 +78,11 @@ void main()
         vec4 pixel = texture(texture_map, uv_interp * texture_repetition);                              // sample color texture
         // vec4 pixel = vec4(color_interp, 1.0);                                                                       // mix with underlying model color
         vec4 lit_pixel = lighting(pixel, i, light_vector, normal);
-        lit_pixel.a = pixel.a;
+        lit_pixel.a = 1.0f;
         accumulator += lit_pixel;
     }
-    gl_FragColor = accumulator ;
+    // gl_FragColor = accumulator ;
+    FragColor = vec3(accumulator);
+    // float depth = gl_FragCoord.w * 4 + 0.1;
+    // FragColor = vec3(depth, depth, depth);
 }
