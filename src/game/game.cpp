@@ -51,6 +51,7 @@ void Game::Init(void){
     SetupResources();
     SetupScenes();
     app.SetResizeHandler(std::bind(&Game::ResizeCameras, this, std::placeholders::_1, std::placeholders::_2));
+    app.ToggleMouseCapture(); // disable mouse by default
 }
 
        
@@ -495,7 +496,7 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     }
 
     if(keys[GLFW_KEY_0]) {
-        SetupResources();
+        LoadShaders(); 
         keys[GLFW_KEY_0] = false;
     }
 
