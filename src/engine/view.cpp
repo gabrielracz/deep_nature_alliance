@@ -102,16 +102,14 @@ void View::RenderPostProcessing(SceneGraph& scene) {
 void View::RenderDepthMap(SceneGraph& scene) {
     glViewport(0, 0, DEPTHWIDTH, DEPTHHEIGHT);
     glClear(GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
 
     Shader* shd = resman.GetShader("S_Depth");
 
     // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
     // Light* l = scene.GetLights().back();
-    glm::mat4 view_mat = glm::lookAt({1000.0, 400.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-    glm::mat4 proj_mat = glm::ortho(-1000.0f, 1000.0f, -1000.0f, 1000.0f, 0.1f, 2000.0f);
+    glm::mat4 view_mat = glm::lookAt({300.0, 800.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 proj_mat = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 20.0f, 1300.0f);
 
     // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
     // glm::mat4 proj_mat = scene.GetCamera().GetPerspectiveMatrix();
@@ -146,17 +144,8 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
 
     shd->SetLights(lights);
     // Light* l = lights.back();
-    glm::mat4 view_mat = glm::lookAt({1000.0, 400.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-    glm::mat4 proj_mat = glm::ortho(-1000.0f, 1000.0f, -1000.0f, 1000.0f, 0.1f, 2000.0f);
-
-    // glm::mat4 view_mat = cam.GetViewMatrix();
-
-    // glm::mat4 view_mat = glm::lookAt({40.0, 130.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-    // glm::mat4 proj_mat = cam.GetPerspectiveMatrix();
-    // glm::mat4 proj_mat = glm::perspective(45.0f, 16.0f/9.0f, 0.1f, 400.0f);
-
-    // glm::mat4 proj_mat = glm::ortho(-100.0f, 100.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
-
+    glm::mat4 view_mat = glm::lookAt({300.0, 800.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 proj_mat = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 20.0f, 1300.0f);
 
 
     shd->SetUniform4m(proj_mat * view_mat, "shadow_light_mat");
@@ -179,7 +168,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     if(node->IsAlphaEnabled()) {
         glEnable(GL_BLEND);
         glEnable(GL_ALPHA_TEST);
-        // glAlphaFunc(GL_GREATER, 0.0f);
+        glAlphaFunc(GL_GREATER, 0.0f);
         // glDepthMask(false);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     };

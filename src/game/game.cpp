@@ -126,7 +126,7 @@ void Game::LoadTextures() {
     // resman.LoadTexture("T_Tree4", RESOURCES_DIRECTORY"/tree4_texture.png", GL_REPEAT, GL_LINEAR);
     // resman.LoadTexture("T_TreeNormalMap", RESOURCES_DIRECTORY"/tree4_normal_map.png", GL_REPEAT, GL_LINEAR);
     // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/oak_texture.png", GL_REPEAT, GL_LINEAR);
-    // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/birch_tree_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_BirchTree", RESOURCES_DIRECTORY"/birch_tree_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MoonObj1", RESOURCES_DIRECTORY"/whitedevil.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Soldier", RESOURCES_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
@@ -379,6 +379,11 @@ void Game::SetupForestScene() {
         }
     }
     // scenes[FOREST]->AddNode(forest);
+
+    SceneNode* birch = new SceneNode("Obj_Birch", "M_BirchTree", "S_NormalMap", "T_BirchTree");
+    birch->transform.SetPosition({410.245483, 18.229790, -122.216019});
+    birch->transform.SetScale({5, 5, 5});
+    scenes[FOREST]->AddNode(birch);
 }
 
 void Game::Update(double dt, KeyMap &keys) {

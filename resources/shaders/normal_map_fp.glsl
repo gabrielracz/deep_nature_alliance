@@ -87,7 +87,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
-    float bias = 0.003;
+    float bias = 0.0004;
     // float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
     float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
     // outside shadow map
@@ -112,7 +112,7 @@ void main()
         //     // accumulator = vec4(1.0, 0.0, 1.0, 1.0);
         // }
         vec4 lit_pixel = lighting(pixel, i, light_vector, normal, shadow);
-        lit_pixel.a = 1.0f;
+        // lit_pixel.a = 1.0f;
         accumulator += lit_pixel;
     }
     gl_FragColor = accumulator ;
