@@ -22,6 +22,7 @@ class Terrain : public SceneNode {
         float SampleAngle(float x, float z, glm::vec3 dir);
         bool SampleOn(float x , float z);
         glm::vec3 SampleNormal(float x, float z);
+        void SampleTerrainForHeight(const std::vector<std::vector<float>>& terrainArray, float heightMultiplier, int tileX, int tileZ);
 
     protected:
         void GenerateHeightmap(TerrainType type);

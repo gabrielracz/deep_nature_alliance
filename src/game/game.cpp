@@ -68,6 +68,8 @@ void Game::LoadMeshes() {
     resman.LoadMesh        ("M_BirchTree", RESOURCES_DIRECTORY"/birch_tree.obj");
     resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/lowpolytree.obj");
     resman.LoadMesh        ("M_Soldier", RESOURCES_DIRECTORY"/soldier.obj");
+    resman.LoadMesh        ("M_Cactus1", RESOURCES_DIRECTORY"/cactus1.obj");
+    resman.LoadMesh        ("M_Cactus6", RESOURCES_DIRECTORY"/cactus6.obj");
 
     // generate geometry
     resman.CreateQuad      ("M_Quad");
@@ -125,6 +127,11 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MoonObj1", RESOURCES_DIRECTORY"/whitedevil.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Soldier", RESOURCES_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
+
+    resman.LoadTexture("T_Cactus1", RESOURCES_DIRECTORY"/cactus1.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus1_n", RESOURCES_DIRECTORY"/cactus1_n.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus6", RESOURCES_DIRECTORY"/cactus6.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus6_n", RESOURCES_DIRECTORY"/cactus6_n.png", GL_REPEAT, GL_LINEAR);
 
     resman.LoadCubemap("T_SpaceSkybox", RESOURCES_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", RESOURCES_DIRECTORY"/skyboxes/messedup");
@@ -341,11 +348,12 @@ void Game::SetupForestScene() {
     scenes[FOREST]->SetSkybox(skybox);
 
     // TRANSPARENT
-    SceneNode* forest = new SceneNode("Obj_Forest", "M_Tree", "S_Instanced", "T_Tree");
+    SceneNode* forest = new SceneNode("Obj_Forest", "M_Cactus6", "S_Instanced", "T_Cactus6");
     // forest->transform.SetScale({5, 5, 5});
-    forest->SetNormalMap("T_WallNormalMap", 1.0f);
+    forest->SetNormalMap("T_Cactus6_n", 1.0f);
     forest->material.specular_power = 0.0f;
-    forest->SetAlphaEnabled(true);
+    // forest->transform.SetScale(glm::vec3(4.0f));
+    // forest->SetAlphaEnabled(true);
     for(int i = 0; i < 100; i++) {
         bool instanced = true;
         float x = rng.randfloat(-400, 400);

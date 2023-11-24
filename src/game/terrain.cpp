@@ -208,6 +208,43 @@ void Terrain::GenerateQMoon() {
     }
 }
 
+void Terrain::SampleTerrainForHeight(const std::vector<std::vector<float>>& terrainArray, float heightMultiplier, int tileX = 1, int tileZ = 1) {
+    float image_xstep = terrainArray[0].size() / num_xsteps;
+    float image_zstep = terrainArray.size() / num_zsteps;
+    for (int z = 0; z < num_zsteps; z++) {
+        for (int x = 0; x < num_xsteps; x++) {
+            // Calculate the tiled sample coordinates
+            float sampleX = fmod(x * image_xstep * tileX, terrainArray[0].size());
+            float sampleZ = fmod(z * image_zstep * tileZ, terrainArray.size());
+
+            int x0 = static_cast<int>(sampleX);
+            int z0 = static_cast<int>(sampleZ);
+
+            // Wrap the coordinates within valid range
+            x0 = (x0 + terrainArray[0].size()) % terrainArray[0].size();
+            z0 = (z0 + terrainArray.size()) % terrainArray.size();
+
+            // Get the fractional part of the coordinates
+            float sx = sampleX - static_cast<float>(x0);
+            float sz = sampleZ - static_cast<float>(z0);
+
+            // Perform bilinear interpolation on the terrain heights
+            float h00 = terrainArray[x0][z0] * heightMultiplier;
+            float h10 = terrainArray[(x0 + 1) % terrainArray[0].size()][z0] * heightMultiplier;
+            float h01 = terrainArray[x0][(z0 + 1) % terrainArray.size()] * heightMultiplier;
+            float h11 = terrainArray[(x0 + 1) % terrainArray[0].size()][(z0 + 1) % terrainArray.size()] * heightMultiplier;
+
+            float h0 = (1 - sx) * h00 + sx * h10;
+            float h1 = (1 - sx) * h01 + sx * h11;
+
+            glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 50.0f;
+            float perlin = glm::perlin(sample);
+
+            heights[x][z] = (1 - sz) * h0 + sz * h1 + perlin;
+        }
+    }
+}
+
 void Terrain::GenerateForest() {
     float image_xstep = sizeof(rocky_terrain[0]) / sizeof(*rocky_terrain[0]) / num_xsteps;
     float image_zstep = sizeof(rocky_terrain) / sizeof(*rocky_terrain) / num_zsteps;
