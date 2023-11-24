@@ -8,6 +8,7 @@ class Game;
 enum class TerrainType {
     MOON,
     FOREST,
+    DUNES,
     LAVA
 };
 
@@ -22,7 +23,6 @@ class Terrain : public SceneNode {
         float SampleAngle(float x, float z, glm::vec3 dir);
         bool SampleOn(float x , float z);
         glm::vec3 SampleNormal(float x, float z);
-        void SampleTerrainForHeight(const std::vector<std::vector<float>>& terrainArray, float heightMultiplier, int tileX, int tileZ);
 
     protected:
         void GenerateHeightmap(TerrainType type);
@@ -35,6 +35,8 @@ class Terrain : public SceneNode {
         void GenerateUV();
         void GenerateMesh();
         void GenerateImPassable();
+
+        void SampleTerrainForHeight(const std::vector<std::vector<float>>& terrainArray, float heightMultiplier, int tileX = 1, int tileZ = 1);
 
         glm::vec2 IndexGrid(float x, float z);
         glm::vec3 InterpNormals(int x0, int z0, float sx, float sz);

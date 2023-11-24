@@ -90,9 +90,10 @@ class Game {
         float wind_speed = 1.5f;
         int camera_mode;
 
-        void SetupFPScene(void);
-        void SetupSpaceScene(void);
-        void SetupForestScene(void);
+        void SetupFPScene();
+        void SetupSpaceScene();
+        void SetupForestScene();
+        void SetupDesertScene();
 
         void LoadMeshes();
         void LoadShaders();

@@ -135,6 +135,7 @@ void Game::LoadTextures() {
 
     resman.LoadCubemap("T_SpaceSkybox", RESOURCES_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", RESOURCES_DIRECTORY"/skyboxes/messedup");
+    resman.LoadCubemap("T_BlueSkybox", RESOURCES_DIRECTORY"/skyboxes/bluesky");
 
     std::cout << "textures loaded" << std::endl;
 }
@@ -155,6 +156,7 @@ void Game::SetupScenes(void){
     SetupSpaceScene();
     SetupFPScene(); // FPS TEST SCENE
     SetupForestScene();
+    SetupDesertScene();
 
     ChangeScene(FPTEST);
 
@@ -348,12 +350,11 @@ void Game::SetupForestScene() {
     scenes[FOREST]->SetSkybox(skybox);
 
     // TRANSPARENT
-    SceneNode* forest = new SceneNode("Obj_Forest", "M_Cactus6", "S_Instanced", "T_Cactus6");
+    SceneNode* forest = new SceneNode("Obj_Forest", "M_Tree", "S_Instanced", "T_Tree");
     // forest->transform.SetScale({5, 5, 5});
-    forest->SetNormalMap("T_Cactus6_n", 1.0f);
+    forest->SetNormalMap("T_WallNormalMap", 1.0f);
     forest->material.specular_power = 0.0f;
-    // forest->transform.SetScale(glm::vec3(4.0f));
-    // forest->SetAlphaEnabled(true);
+    forest->SetAlphaEnabled(true);
     for(int i = 0; i < 100; i++) {
         bool instanced = true;
         float x = rng.randfloat(-400, 400);
@@ -379,6 +380,59 @@ void Game::SetupForestScene() {
         }
     }
     scenes[FOREST]->AddNode(forest);
+}
+
+void Game::SetupDesertScene() {
+    Camera& camera = scenes[DESERT]->GetCamera();
+    camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
+
+    // PLAYER
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
+    p->SetNormalMap("T_MetalNormalMap", 1.0f);
+    p->material.specular_power = 200.0f;
+    p->transform.SetPosition({-191.718155, 20.999252, -395.274536});
+    p->transform.SetOrientation({0.315484, 0.000000, 0.948931, 0.000000});
+    p->visible = false;
+    p->jump_speed_ = 20;
+    AddPlayerToScene(DESERT, p);
+    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+
+    // ENV
+    int terrain_size = 10000;
+    Terrain* terr = new Terrain("Obj_DesertTerrain", "M_ForestTerain", "S_NormalMap", "T_MarsPlanet", TerrainType::DUNES, terrain_size, terrain_size, 0.2, this);
+    terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
+    terr->material.specular_power = 0.0f;
+    terr->material.texture_repetition = 100.0f;
+    terr->SetNormalMap("T_GrassNormalMap", 100.0f);
+    p->SetTerrain(terr);
+    scenes[DESERT]->AddNode(terr);
+
+    Light* light = new Light(Colors::SeaBlue);
+    light->transform.SetPosition({1000.0, 1000.0, -2000.0});
+    light->ambient_power = 0.05;
+    scenes[DESERT]->AddLight(light);
+
+    SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_BlueSkybox");
+    skybox->transform.SetScale({2000, 2000, 2000});
+    scenes[DESERT]->SetSkybox(skybox);
+
+    // TRANSPARENT
+    SceneNode* cacti = new SceneNode("Obj_Catci6", "M_Cactus6", "S_Instanced", "T_Cactus6");
+    cacti->SetNormalMap("T_Cactus6_n", 1.0f);
+    for (int i = 0; i < 400; i++) {
+        float x = rng.randfloat(-400, 400);
+        float z = rng.randfloat(-400, 400);
+        float y = terr->SampleHeight(x, z);
+        float s = rng.randfloat(8, 14);
+        float r = rng.randfloat(0, 2 * PI);
+        Transform t;
+        t.SetPosition({x, y, z});
+        t.SetScale({s, s, s});
+        t.Yaw(r);
+        cacti->AddInstance(t);
+    }
+    scenes[DESERT]->AddNode(cacti);
 }
 
 void Game::Update(double dt, KeyMap &keys) {
@@ -419,6 +473,10 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if(keys[GLFW_KEY_3]) {
         ChangeScene(FOREST);
         keys[GLFW_KEY_3] = false;
+    }
+    if(keys[GLFW_KEY_4]) {
+        ChangeScene(DESERT);
+        keys[GLFW_KEY_4] = false;
     }
 
 

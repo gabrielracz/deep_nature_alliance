@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     image_path = sys.argv[1]
     output_file = f"{image_path.split('.')[0]}.txt"
-    vector_name = image_path.split('.')[0]
+    vector_name = image_path.split('.')[0] + "_terrain"
 
     img = Image.open(image_path)
     img_gray = img.convert('L')
