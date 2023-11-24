@@ -332,12 +332,14 @@ void Game::SetupForestScene() {
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     terr->material.specular_power = 0.0f;
     terr->material.texture_repetition = 10.0f;
-    terr->SetNormalMap("T_GrassNormalMap", 5.0f);
+    // terr->SetNormalMap("T_GrassNormalMap", 5.0f);
+    terr->SetNormalMap("T_WallNormalMap", 5.0f);
     p->SetTerrain(terr);
     scenes[FOREST]->AddNode(terr);
 
     Light* light = new Light(Colors::Yellow);
-    light->transform.SetPosition({1000.0, 1000.0, -2000.0});
+    // light->transform.SetPosition({1000.0, 1000.0, -2000.0});
+    light->transform.SetPosition({1000.0, 1000.0, 0.0});
     light->ambient_power = 0.05;
     scenes[FOREST]->AddLight(light);
 
@@ -351,8 +353,8 @@ void Game::SetupForestScene() {
     forest->SetNormalMap("T_WallNormalMap", 1.0f);
     forest->material.specular_power = 0.0f;
     forest->SetAlphaEnabled(false); // TODO: figure out why they are transp
-    for(int i = 0; i < 100; i++) {
-        bool instanced = true;
+    for(int i = 0; i < 75; i++) {
+        bool instanced = false;
         float x = rng.randfloat(-400, 400);
         float z = rng.randfloat(-400, 400);
         float y = terr->SampleHeight(x, z);
@@ -375,7 +377,7 @@ void Game::SetupForestScene() {
             scenes[FOREST]->AddNode(tree);
         }
     }
-    scenes[FOREST]->AddNode(forest);
+    // scenes[FOREST]->AddNode(forest);
 }
 
 void Game::Update(double dt, KeyMap &keys) {

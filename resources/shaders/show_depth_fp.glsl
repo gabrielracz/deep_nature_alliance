@@ -8,8 +8,8 @@ uniform sampler2D depth_map;
 void main()
 {             
     float depth_value = texture(depth_map, uv_interp).r;
-    float near = 0.1;
-    float far = 10.0;
-    float normalized_depth = depth_value;
+    float zNear = 0.1;
+    float zFar = 400.0;
+    float normalized_depth = (2*zNear ) / (zFar + zNear - depth_value*(zFar -zNear));
     FragColor = vec4(vec3(normalized_depth), 1.0);
 }  

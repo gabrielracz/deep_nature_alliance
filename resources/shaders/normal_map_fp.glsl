@@ -7,6 +7,7 @@ in vec3 position_interp;
 in vec2 uv_interp;
 in vec3 normal_interp;
 in vec3 light_pos;
+in vec4 shadow_space_pos;
 
 struct Light {
     vec3 position;
@@ -20,9 +21,6 @@ struct Light {
 in Light lights[3];
 flat in int num_lights;
 
-uniform sampler2D texture_map;
-uniform sampler2D normal_map; // Normal map
-
 uniform float texture_repetition;
 uniform float normal_map_repetition;
 
@@ -32,6 +30,10 @@ uniform float diffuse_strength;
 uniform float amb;
 uniform vec4 ambcol;
 uniform float timer;
+
+uniform sampler2D texture_map;
+uniform sampler2D normal_map; // Normal map
+uniform sampler2D shadow_map;
 
 layout(location=0) out vec3 FragColor;
 
@@ -68,9 +70,24 @@ vec4 lighting(vec4 pixel, int i, vec3 lv, vec3 n) {
     return diffuse_strength*diffuse*lights[i].color*pixel + lights[i].ambient_strength*lights[i].ambient_color*pixel + spec*lights[i].color;
 }
 
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadow_map, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+    return shadow;
+}  
+
 void main() 
 {
-    vec4 accumulator = vec4(0.0, 0.0, 0.0, 0.0);
+    vec4 accumulator = vec4(0.0, 0.0, 0.0, 1.0);
     for(int i = 0; i < num_lights; i++) {
         vec3 light_vector = normalize(lights[i].position - position_interp);                                     // light direction, object position as origin
         vec3 n_bump = normalize(texture(normal_map, uv_interp * normal_map_repetition).rgb*2.0 - 1.0);  // sample normal map
@@ -78,6 +95,11 @@ void main()
         vec4 pixel = texture(texture_map, uv_interp * texture_repetition);                              // sample color texture
         // vec4 pixel = vec4(color_interp, 1.0);                                                                       // mix with underlying model color
         vec4 lit_pixel = lighting(pixel, i, light_vector, normal);
+        float shadow = ShadowCalculation(shadow_space_pos);
+        if(shadow > 0) {
+            accumulator = vec4(1.0, 0.0, 1.0, 1.0);
+            break;
+        }
         lit_pixel.a = 1.0f;
         accumulator += lit_pixel;
     }

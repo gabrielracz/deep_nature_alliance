@@ -71,16 +71,16 @@ private:
     Mouse mouse;
     KeyMap key_controls;
 
-    int PPWIDTH = 256;
-    int PPHEIGHT = 256;
+    int PPWIDTH = 2048;
+    int PPHEIGHT = 2048;
     GLuint postprocess_fbo;
     GLuint postprocess_tex;
     GLuint rbo;
 
     GLuint depth_fbo;    
     GLuint depth_tex;
-    int DEPTHWIDTH = 1024;
-    int DEPTHHEIGHT = 1024;
+    int DEPTHWIDTH = 2048;
+    int DEPTHHEIGHT = 2048;
 
 
 

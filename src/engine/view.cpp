@@ -67,9 +67,6 @@ void View::RenderScene(SceneGraph& scene) {
 
 void View::RenderScreenspace(SceneGraph& scene) {
     glDisable(GL_DEPTH_TEST);
-    // glEnable(GL_BLEND);
-    // glEnable(GL_ALPHA_TEST);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glViewport(0,0,win.width,win.height);
     for(auto node : scene.GetScreenSpaceNodes()) {
         RenderNode(node, scene.GetCamera(), scene.GetLights());
@@ -80,7 +77,7 @@ void View::RenderPostProcessing(SceneGraph& scene) {
     glViewport(0,0,win.width,win.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    bool postprocess = true;
+    bool postprocess = false;
     if(postprocess) {
         Mesh* scrquad  = resman.GetMesh("M_Quad");
         Shader* scrshd = resman.GetShader("S_Texture");
@@ -111,10 +108,16 @@ void View::RenderDepthMap(SceneGraph& scene) {
 
     Shader* shd = resman.GetShader("S_Depth");
 
-    glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
+    // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
+    // Light* l = scene.GetLights().back();
+    // glm::mat4 view_mat = glm::lookAt(l->transform.GetPosition(), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    // glm::mat4 proj_mat = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
 
-    // glm::mat4 proj_mat = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
-    glm::mat4 proj_mat = glm::perspective(90.0f, 16.0f/9.0f, 0.1f, 100.0f);
+    glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
+    // glm::mat4 proj_mat = scene.GetCamera().GetPerspectiveMatrix();
+
+    glm::mat4 proj_mat = glm::perspective(90.0f, 16.0f/9.0f, 0.1f, 400.0f);
+    // glm::mat4 proj_mat = glm::perspective(90.0f, 16.0f/9.0f, 0.1f, 100.0f);
 
     for(auto node : scene) {
         Mesh* mesh = resman.GetMesh(node->GetMeshID());
@@ -136,11 +139,23 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     glDisable(GL_BLEND);
     // SHADER
     Shader* shd = resman.GetShader(shd_id);
+
     shd->Use();
     // if(active_shader != shd->id) {
     cam.SetProjectionUniforms(shd, node->GetDesiredProjection());
 
     shd->SetLights(lights);
+    // Light* l = lights.back();
+    // glm::mat4 view_mat = glm::lookAt(l->transform.GetPosition(), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    // glm::mat4 proj_mat = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
+
+    glm::mat4 view_mat = cam.GetViewMatrix();
+    // glm::mat4 proj_mat = cam.GetPerspectiveMatrix();
+    glm::mat4 proj_mat = glm::perspective(90.0f, 16.0f/9.0f, 0.1f, 400.0f);
+
+
+
+    shd->SetUniform4m(proj_mat * view_mat, "shadow_light_mat");
     node->SetUniforms(shd, cam.GetViewMatrix());
 
     // TEXTURE
@@ -149,6 +164,11 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     }
     if(!norm_id.empty()) {
         resman.GetTexture(norm_id)->Bind(shd, 1, "normal_map");
+    }
+    if(shd_id == "S_NormalMap") {
+        glActiveTexture(GL_TEXTURE0 + 2);
+        glBindTexture(GL_TEXTURE_2D, depth_tex);
+        shd->SetUniform1i(2, "shadow_map");
     }
 
     // MODEL
@@ -211,14 +231,14 @@ void View::InitFramebuffers() {
     glBindTexture(GL_TEXTURE_2D, depth_tex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
                 DEPTHWIDTH, DEPTHWIDTH, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);  
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);  
 
     glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depth_tex, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
+    // glDrawBuffer(GL_NONE);
+    // glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 }
 
