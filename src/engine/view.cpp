@@ -110,10 +110,10 @@ void View::RenderDepthMap(SceneGraph& scene) {
 
     // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
     // Light* l = scene.GetLights().back();
-    // glm::mat4 view_mat = glm::lookAt(l->transform.GetPosition(), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-    // glm::mat4 proj_mat = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
+    glm::mat4 view_mat = glm::lookAt({100.0, 100.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    // glm::mat4 proj_mat = glm::ortho(-100.0f, 100.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
 
-    glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
+    // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
     // glm::mat4 proj_mat = scene.GetCamera().GetPerspectiveMatrix();
 
     glm::mat4 proj_mat = glm::perspective(90.0f, 16.0f/9.0f, 0.1f, 400.0f);
@@ -149,9 +149,13 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     // glm::mat4 view_mat = glm::lookAt(l->transform.GetPosition(), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
     // glm::mat4 proj_mat = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
 
-    glm::mat4 view_mat = cam.GetViewMatrix();
+    // glm::mat4 view_mat = cam.GetViewMatrix();
+
+    glm::mat4 view_mat = glm::lookAt({100.0, 100.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
     // glm::mat4 proj_mat = cam.GetPerspectiveMatrix();
     glm::mat4 proj_mat = glm::perspective(90.0f, 16.0f/9.0f, 0.1f, 400.0f);
+
+    // glm::mat4 proj_mat = glm::ortho(-100.0f, 100.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
 
 
 
@@ -231,14 +235,14 @@ void View::InitFramebuffers() {
     glBindTexture(GL_TEXTURE_2D, depth_tex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
                 DEPTHWIDTH, DEPTHWIDTH, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);  
 
     glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depth_tex, 0);
-    // glDrawBuffer(GL_NONE);
-    // glReadBuffer(GL_NONE);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 }
 

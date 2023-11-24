@@ -66,7 +66,7 @@ void main()
     num_lights = num_world_lights;
 
     // shadow_space_pos = vec4(TBN_mat * vec3(shadow_light_mat * position), 1.0);
-    shadow_space_pos = shadow_light_mat * vec4(vec3(world_mat * vec4(vertex, 1.0f)), 1.0);
+    shadow_space_pos = shadow_light_mat * world_mat * vec4(vertex, 1.0f);
 
     color_interp = color;
     uv_interp = uv; 

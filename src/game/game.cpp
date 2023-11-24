@@ -368,8 +368,8 @@ void Game::SetupForestScene() {
             t.Yaw(r);
             forest->AddInstance(t);
         } else {
-            SceneNode* tree = new SceneNode("Obj_Forest", "M_Tree", "S_Lit", "T_Tree");
-            // tree->SetNormalMap("T_TreeNormalMap");
+            SceneNode* tree = new SceneNode("Obj_Forest", "M_Tree", "S_NormalMap", "T_Tree");
+            tree->SetNormalMap("T_WallNormalMap", 1.0f);
             tree->transform.SetPosition({x, y, z});
             tree->transform.SetScale({s,s,s});
             tree->transform.Yaw(r);
