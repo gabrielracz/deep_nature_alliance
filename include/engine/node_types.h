@@ -11,5 +11,6 @@ enum NodeType {
     TCABIN,
     TTOWER,
     TTREE,
-    TITEM
+    TITEM,
+    TTRIGGER
 };

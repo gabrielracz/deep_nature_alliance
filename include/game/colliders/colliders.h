@@ -5,6 +5,7 @@
 #include "terrain.h"
 #include "fp_player.h"
 #include "scene_node.h"
+#include <optional>
 
 class Collider;
 class BoxCollider;
@@ -15,12 +16,27 @@ class FPPlayerCollider;
 class Collider
 {
 public:
+    using CallbackNoCollider = std::function<void()>;
+    using CallbackCollider = std::function<void(SceneNode*)>;
     virtual ~Collider() = default;
     virtual bool CollidesWith(Collider *other) = 0;
     virtual bool CollidesWithBox(BoxCollider *other) = 0;
     virtual bool CollidesWithSphere(SphereCollider *other) = 0;
     virtual bool CollidesWithTerrain(TerrainCollider *other) = 0;
     virtual bool CollidesWithPlayer(FPPlayerCollider *other) = 0;
+    void SetCallback(CallbackCollider f) { callback_col = std::move(f); };
+    void SetCallback(CallbackNoCollider f) { callback_no = std::move(f); };
+    void invokeCallback(SceneNode* collider) { 
+        if(callback_col) {
+            callback_col(collider);
+        } else if(callback_no) {
+            callback_no();
+        }
+     };
+    void invokeCallback() { if(callback_no) callback_no(); };
+private:
+    CallbackNoCollider callback_no;
+    CallbackCollider callback_col;
 };
 
 class BoxCollider : public Collider
