@@ -100,6 +100,8 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Texture", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/passthrough_fp.glsl");
     resman.LoadShader("S_ShowDepth", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/show_depth_fp.glsl");
     resman.LoadShader("S_Depth", SHADER_DIRECTORY"/depth_vp.glsl", SHADER_DIRECTORY"/depth_fp.glsl");
+    resman.LoadShader("S_InstancedDepth", SHADER_DIRECTORY"/depth_instanced_vp.glsl", SHADER_DIRECTORY"/depth_fp.glsl", true);
+    resman.LoadShader("S_InstancedShadow", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl", true);
 
 
     std::cout << "shaders loaded" << std::endl;
@@ -126,7 +128,7 @@ void Game::LoadTextures() {
     // resman.LoadTexture("T_Tree4", RESOURCES_DIRECTORY"/tree4_texture.png", GL_REPEAT, GL_LINEAR);
     // resman.LoadTexture("T_TreeNormalMap", RESOURCES_DIRECTORY"/tree4_normal_map.png", GL_REPEAT, GL_LINEAR);
     // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/oak_texture.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_BirchTree", RESOURCES_DIRECTORY"/birch_tree_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_BirchTree", RESOURCES_DIRECTORY"/birch_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MoonObj1", RESOURCES_DIRECTORY"/whitedevil.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Soldier", RESOURCES_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
@@ -348,17 +350,19 @@ void Game::SetupForestScene() {
     scenes[FOREST]->SetSkybox(skybox);
 
     // TRANSPARENT
-    SceneNode* forest = new SceneNode("Obj_Forest", "M_Tree", "S_Instanced", "T_Tree");
+    // SceneNode* forest = new SceneNode("Obj_Forest", "M_Tree", "S_Instanced", "T_Tree");
+    SceneNode* forest = new SceneNode("Obj_Forest", "M_BirchTree", "S_InstancedShadow", "T_BirchTree");
     // forest->transform.SetScale({5, 5, 5});
     forest->SetNormalMap("T_WallNormalMap", 1.0f);
     forest->material.specular_power = 0.0f;
     forest->SetAlphaEnabled(false); // TODO: figure out why they are transp
-    for(int i = 0; i < 75; i++) {
-        bool instanced = false;
+    for(int i = 0; i < 50; i++) {
+        bool instanced = true;
         float x = rng.randfloat(-400, 400);
         float z = rng.randfloat(-400, 400);
         float y = terr->SampleHeight(x, z);
-        float s = rng.randfloat(3, 10);
+        // float s = rng.randfloat(3, 10);
+        float s = rng.randfloat(0.5, 3);
         float r = rng.randfloat(0, 2*PI);
         // float s = 1;
         if(instanced) {
@@ -368,7 +372,7 @@ void Game::SetupForestScene() {
             t.Yaw(r);
             forest->AddInstance(t);
         } else {
-            SceneNode* tree = new SceneNode("Obj_Forest", "M_Tree", "S_NormalMap", "T_Tree");
+            SceneNode* tree = new SceneNode("Obj_Forest", "M_BirchTree", "S_NormalMap", "T_BirchTree");
             tree->SetNormalMap("T_WallNormalMap", 1.0f);
             tree->transform.SetPosition({x, y, z});
             tree->transform.SetScale({s,s,s});
@@ -378,11 +382,11 @@ void Game::SetupForestScene() {
             scenes[FOREST]->AddNode(tree);
         }
     }
-    // scenes[FOREST]->AddNode(forest);
+    scenes[FOREST]->AddNode(forest);
 
     SceneNode* birch = new SceneNode("Obj_Birch", "M_BirchTree", "S_NormalMap", "T_BirchTree");
     birch->transform.SetPosition({410.245483, 18.229790, -122.216019});
-    birch->transform.SetScale({5, 5, 5});
+    birch->transform.SetScale({3, 3, 3});
     scenes[FOREST]->AddNode(birch);
 }
 

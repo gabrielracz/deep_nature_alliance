@@ -23,8 +23,6 @@ out vec3 normal_interp;
 
 out vec4 shadow_space_pos;
 
-out float test;
-
 struct Light {
     vec3 position;
     float ambient_strength;

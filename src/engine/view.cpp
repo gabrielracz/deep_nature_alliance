@@ -40,6 +40,7 @@ void View::Render(SceneGraph& scene) {
     glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
     RenderDepthMap(scene);
     glBindFramebuffer(GL_FRAMEBUFFER, postprocess_fbo);
+    glViewport(0,0, PPWIDTH, PPHEIGHT);
     RenderScene(scene);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     RenderPostProcessing(scene);
@@ -50,7 +51,6 @@ void View::Render(SceneGraph& scene) {
 }
 
 void View::RenderScene(SceneGraph& scene) {
-    glViewport(0,0, PPWIDTH, PPHEIGHT);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for(auto node : scene) {
@@ -104,7 +104,13 @@ void View::RenderDepthMap(SceneGraph& scene) {
     glClear(GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
+    // glEnable(GL_BLEND);
+    // glEnable(GL_ALPHA_TEST);
+    // glAlphaFunc(GL_GREATER, 0.5f);
+
     Shader* shd = resman.GetShader("S_Depth");
+    Shader* shdinst = resman.GetShader("S_InstancedDepth");
+    shd->Use();
 
     // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
     // Light* l = scene.GetLights().back();
@@ -119,12 +125,25 @@ void View::RenderDepthMap(SceneGraph& scene) {
 
     for(auto node : scene) {
         Mesh* mesh = resman.GetMesh(node->GetMeshID());
-        shd->Use();
-        // set world_mat
-        shd->SetUniform4m(node->transform.GetLocalMatrix(), "world_mat");
-        // set light_mat
-        shd->SetUniform4m(proj_mat * view_mat, "light_mat");
-        mesh->Draw();
+        std::vector<Transform>& instances = node->GetInstances();
+        if(instances.size() > 0) {
+            shdinst->Use();
+            shdinst->SetInstances(instances, scene.GetCamera().GetViewMatrix());
+            shdinst->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
+            // set light_mat
+            shdinst->SetUniform4m(proj_mat * view_mat, "light_mat");
+            mesh->Draw(instances.size());
+            shd->Use();
+        } else {
+            // set world_mat
+            shd->SetUniform4m(node->transform.GetLocalMatrix(), "world_mat");
+            // set light_mat
+            shd->SetUniform4m(proj_mat * view_mat, "light_mat");
+            mesh->Draw();
+        }
+
+        // if(!node->GetTextureID().empty()) 
+        //     resman.GetTexture(node->GetTextureID())->Bind(shd, 0, "texture_map"); //alpha test
     }
 }
 
@@ -158,17 +177,17 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     if(!norm_id.empty()) {
         resman.GetTexture(norm_id)->Bind(shd, 1, "normal_map");
     }
-    if(shd_id == "S_NormalMap") {
+    // if(shd_id == "S_NormalMap" || shd_id == "S_") {
         glActiveTexture(GL_TEXTURE0 + 2);
         glBindTexture(GL_TEXTURE_2D, depth_tex);
         shd->SetUniform1i(2, "shadow_map");
-    }
+    // }
 
     // MODEL
     if(node->IsAlphaEnabled()) {
         glEnable(GL_BLEND);
-        glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_GREATER, 0.0f);
+        // glEnable(GL_ALPHA_TEST);
+        // glAlphaFunc(GL_GREATER, 0.0f);
         // glDepthMask(false);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     };

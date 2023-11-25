@@ -12,4 +12,5 @@ void main()
     float zFar = 400.0;
     float normalized_depth = (2*zNear ) / (zFar + zNear - depth_value*(zFar -zNear));
     FragColor = vec4(vec3(normalized_depth), 1.0);
+    FragColor = vec4(vec3(depth_value), 1.0);
 }  

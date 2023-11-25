@@ -12,6 +12,7 @@ uniform mat4 world_mat;
 uniform mat4 view_mat;
 uniform mat4 projection_mat;
 uniform mat4 normal_mat;
+uniform mat4 shadow_light_mat;
 
 // Attributes forwarded to the fragment shader
 out vec3 position_interp;
@@ -20,7 +21,7 @@ out vec3 light_pos;
 out vec3 color_interp;
 out vec3 normal_interp;
 
-out float test;
+out vec4 shadow_space_pos;
 
 struct Light {
     vec3 position;
@@ -73,6 +74,7 @@ void main()
         lights[i].ambient_strength = world_lights[i].ambient_strength;
     }
     num_lights = num_world_lights;
+    shadow_space_pos = shadow_light_mat * world_mat * instances[gl_InstanceID].transformation * vec4(vertex, 1.0f);
 
 
     color_interp = color;

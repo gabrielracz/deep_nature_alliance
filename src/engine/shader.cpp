@@ -142,7 +142,7 @@ int Shader::SetInstances(std::vector<Transform> &transforms, const glm::mat4& vi
     for(; i < transforms.size() && j < MAX_INSTANCES; i++) {
         glm::mat4 t = transforms[i].GetLocalMatrix();
         glm::vec3 view_point = view_matrix * t * glm::vec4(0, 0, 0, 1);
-        if(view_point.z < 10.0f) {
+        if(view_point.z < 70.0f) {
             transformsblock->transforms[j].transformation = t;
             transformsblock->transforms[j].normal_matrix = glm::transpose(glm::inverse(view_matrix * t));
             j++;
