@@ -62,7 +62,7 @@ public:
     void SetupInstancing();
 
     void SetLights(std::vector<Light*>& lights);
-    int SetInstances(std::vector<Transform>& transforms, const glm::mat4& view_matrix);
+    int SetInstances(std::vector<Transform>& transforms, const glm::mat4& view_matrix, bool cull = true);
     
 	void SetUniform1f(float u, const std::string& name);
 	void SetUniform3f(const glm::vec3& u, const std::string& name);

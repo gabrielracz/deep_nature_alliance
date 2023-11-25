@@ -34,6 +34,7 @@ public:
     void SetAnchor(Anchor a) {anchor = a;}
     void SetSize(float newsize) {size = newsize;}
     void SetScrolling(float character_delay = 0.25f);
+    float asp_ratio =8/15.0f;
 protected:
     virtual void SetUniforms(Shader* shader, const glm::mat4 &parent_matrix) override;
     std::string ScrollText();

@@ -67,7 +67,6 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "mantled shoulders vast and dark.\n"
                 "From a mouth unseen\n"
                 "there came a deadly laughter.\n",
-                NARRATION
             },
             {
                 "The Road goes ever on and on\n"
@@ -78,7 +77,6 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "Until it joins some larger way\n"
                 "Where many paths and errands meet.\n"
                 "And whither then? I cannot say\n",
-                NARRATION
             },
             {
                 "I sit beside the fire and think\n"
@@ -110,7 +108,6 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "Of times there were before\n"
                 "I listen for returning feet\n"
                 "And voices at the door\n",
-                NARRATION
             }
     }}
 };

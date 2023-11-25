@@ -130,6 +130,7 @@ void Game::LoadTextures() {
     // resman.LoadTexture("T_TreeNormalMap", RESOURCES_DIRECTORY"/tree4_normal_map.png", GL_REPEAT, GL_LINEAR);
     // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/oak_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_BirchTree", RESOURCES_DIRECTORY"/birch_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_BirchNormalMap", RESOURCES_DIRECTORY"/birch_normal_map.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MoonObj1", RESOURCES_DIRECTORY"/whitedevil.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Soldier", RESOURCES_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
@@ -318,7 +319,10 @@ void Game::SetupForestScene() {
     p->visible = false;
     p->jump_speed_ = 20;
     AddPlayerToScene(FOREST, p);
-    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+
+    // Tp_Player* p = new Tp_Player("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship");
+    // p->SetNormalMap("T_MetalNormalMap", 1.0f);
+    // AddPlayerToScene(FOREST, p);
 
     SceneNode* ship = new SceneNode("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
     ship->SetNormalMap("T_MetalNormalMap", 10.0f);
@@ -340,12 +344,18 @@ void Game::SetupForestScene() {
     p->SetTerrain(terr);
     scenes[FOREST]->AddTerrain(terr);
 
-    Light* light = new Light(Colors::Yellow);
+    Light* light = new Light(Colors::BrightYellow);
     // light->transform.SetPosition({1000.0, 1000.0, -2000.0});
     light->transform.SetPosition({1000.0, 1000.0, 0.0});
     light->ambient_power = 0.15;
-
     scenes[FOREST]->AddLight(light);
+
+    Light* hilight = new Light(HEXCOLOR(0xdec183));
+    // light->transform.SetPosition({1000.0, 1000.0, -2000.0});
+    hilight->transform.SetPosition({800.0, 1300.0, 0.0});
+    hilight->ambient_power = 0.025;
+    scenes[FOREST]->AddLight(hilight);
+
 
     SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
     skybox->transform.SetScale({2000, 2000, 2000});
@@ -356,8 +366,7 @@ void Game::SetupForestScene() {
     SceneNode* forest = new SceneNode("Obj_Forest", "M_BirchTree", "S_InstancedShadow", "T_BirchTree");
     // forest->transform.SetScale({5, 5, 5});
     forest->SetNormalMap("T_WallNormalMap", 1.0f);
-    // forest->material.specular_power = 0.0f;
-    forest->SetAlphaEnabled(false); // TODO: figure out why they are transp
+    forest->material.specular_power = 150.0;
     for(int i = 0; i < 50; i++) {
         bool instanced = true;
         float x = rng.randfloat(-400, 400);
@@ -732,14 +741,15 @@ void Game::CreateHUD() {
     Text* fp_map = new Text("Obj_FPMap", "M_Quad", "S_Text", "T_Charmap", "waiting");
     fp_map->SetAnchor(Text::Anchor::BOTTOMRIGHT);
     fp_map->transform.SetPosition({1.0, -1.0, 0.0});
-    fp_map->SetColor(Colors::Amber);
+    fp_map->SetColor(Colors::White);
+    fp_map->SetSize(15.0f);
     fp_map->SetCallback([this]() -> std::string {
         Terrain* terr = active_scene->GetTerrain();
         if(terr == nullptr) {
             return "MAP NULL DATA";
         }
         int map_width = 28;
-        int map_height = 14;
+        int map_height = map_width/2 + 1;
         
         int terr_width = terr->GetWidth();
         int terr_height = terr->GetDepth();
@@ -756,9 +766,9 @@ void Game::CreateHUD() {
 
         // return "FUK"    ;
 
-        char bg_char = '_';
+        char bg_char = '.';
         char player_char = '@';
-        char wall_char = '~'+1;
+        char wall_char = ' ';
         std::string map;
         map.reserve();
         map += std::string(map_width+2, wall_char) + "\n";

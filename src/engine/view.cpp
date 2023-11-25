@@ -128,7 +128,7 @@ void View::RenderDepthMap(SceneGraph& scene) {
         std::vector<Transform>& instances = node->GetInstances();
         if(instances.size() > 0) {
             shdinst->Use();
-            shdinst->SetInstances(instances, scene.GetCamera().GetViewMatrix());
+            shdinst->SetInstances(instances, scene.GetCamera().GetViewMatrix(), false);
             shdinst->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
             // set light_mat
             shdinst->SetUniform4m(proj_mat * view_mat, "light_mat");
@@ -243,8 +243,8 @@ void View::InitFramebuffers() {
     glBindTexture(GL_TEXTURE_2D, depth_tex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
                 DEPTHWIDTH, DEPTHWIDTH, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);  
 
@@ -352,14 +352,14 @@ void View::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
 }
 
 void View::ResizeBuffers(int width, int height) {
-	glBindTexture(GL_TEXTURE_2D, postprocess_tex);
-    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, width, height, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
-    // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, hieght);
-    // and depth buffer attachment
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
     PPWIDTH = width;
     PPHEIGHT = height;
+	glBindTexture(GL_TEXTURE_2D, postprocess_tex);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, PPWIDTH, PPHEIGHT, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+    // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, PPWIDTH, hieght);
+    // and depth buffer attachment
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, PPWIDTH, PPHEIGHT);
 }
 
 void View::ResizeCallback(GLFWwindow* window, int width, int height){

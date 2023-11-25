@@ -100,7 +100,8 @@ void Text::SetUniforms(Shader* shader, const glm::mat4 &view_matrix) {
     shader->SetUniform1i(num_lines, "num_lines");
 
     //chars are 8x15 pixels
-    float text_width = line_len*8/15.0f*(size);
+    
+    float text_width = line_len*asp_ratio*(size);
 	float sx = text_width;
 	float sy = size*num_lines;
 
