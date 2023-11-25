@@ -2,6 +2,7 @@
 
 void Trigger::ActivateTrigger(){
     action();
+    SetNodeType(TTRIGGER);
 }
 
 // void Trigger::ActivateTrigger(){

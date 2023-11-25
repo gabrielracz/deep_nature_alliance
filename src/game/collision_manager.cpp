@@ -13,26 +13,63 @@ void CollisionManager::CheckCollisions(){
         }
     }
 
-    for (auto victim : nodes){
-        for (auto subject : nodes) {
-            Collider* victim_col = victim->GetCollider();
-            Collider* subject_col = subject->GetCollider();
-            if (victim_col && subject_col && subject_col->CollidesWith(victim_col)) {
-                victim->HandleCollisionWith(subject);
-            }
+    for (auto asteroid : asteroids){
+            GetCollision(asteroid, player);
+    }
+
+    for (auto item : items) {
+        GetCollision(item, player);
+    }
+
+    for (auto beacon : beacons) {
+        GetCollision(beacon, player);
+    }
+
+    for (auto other : othercollideables) {
+        GetCollision(other, player);
+    }
+}
+
+void CollisionManager::GetCollision(SceneNode* obj1, SceneNode* obj2) {
+    Collider* col = obj1->GetCollider();
+    Collider* other = obj2->GetCollider();
+    if (col && other) {
+        if (other->CollidesWith(col)) {
+            // Backwards because visitor pattern
+            col->invokeCallback(obj2);
+        } 
+        if (col->CollidesWith(other)) {
+            // Backwards because visitor pattern
+            other->invokeCallback(obj1);
         }
     }
 }
 
 void CollisionManager::AddNode(SceneNode* node){
-    if (Trigger* t = dynamic_cast<Trigger*>(node)) {
-        triggers.push_back(t);
-    } else{
-        nodes.push_back(node);
+
+    switch(node->GetNodeType()) {
+        case TTRIGGER:
+            triggers.push_back(dynamic_cast<Trigger*>(node));
+            break;
+        case TITEM:
+            items.push_back(node);
+            break;
+        case TBEACON:
+            beacons.push_back(node);
+            break;
+        case TASTEROID:
+            asteroids.push_back(node);
+            break;
+        case TPLAYER:
+            player = node;
+            break;
+        case TSHIP:
+            player = node;
+            break;
+        default:
+            othercollideables.push_back(node);
+            break;
     }
-    // else {
-    //     throw std::runtime_error("Unsupported node type in CollisionManager::AddNode");
-    // }
 }
 
 bool CollisionManager::sphereToSphere(SceneNode *first, SceneNode *second) {

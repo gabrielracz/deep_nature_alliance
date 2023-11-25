@@ -4,13 +4,15 @@
 #include "scene_node.h"
 #include "trigger.h"
 #include "player.h"
+#include "item.h"
+#include "asteroid.h"
 
 class Game;
 
 class CollisionManager{
 
     public:
-        CollisionManager() : triggers(), nodes(){}
+        CollisionManager() : triggers(), items(), asteroids(), beacons(), othercollideables() {}
         // CollisionManager(const std::vector<Trigger *>& t, const std::vector<SceneNode*>& a, Player* p)
         //     : triggers(t), asteroids(a), player(p) {}
 
@@ -30,9 +32,14 @@ class CollisionManager{
         bool sphereToBox(SceneNode *sphereNode, SceneNode *boxNode);
         bool rayToSphere(SceneNode *rayNode, SceneNode *sphereNode);
 
+        void GetCollision(SceneNode* obj1, SceneNode* obj2);
+
         std::vector<Trigger *> triggers;
-        std::vector<SceneNode*> nodes;
-        Player *player;
+        std::vector<SceneNode*> items;
+        std::vector<SceneNode*> asteroids;
+        std::vector<SceneNode*> beacons;
+        std::vector<SceneNode*> othercollideables;
+        SceneNode *player;
         
 };
 

@@ -21,7 +21,9 @@ float char_height = 1.0/float(num_rows);
 // Text input
 uniform int line_len;
 uniform int num_lines;
-uniform int text_content[2048];
+// Sorry boys but i cant render text with such a large value i had to reduce it :(
+// My gpu can only handle 1024 registers or else it wont load the shader
+uniform int text_content[1000];
 
 void main()
 {

@@ -351,7 +351,7 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
 
     // append the single bottom cap vertex
     unsigned int cap_index = vertices.size() / vertex_att;
-    APPEND_VEC3(vertices, glm::vec3(0.0f, 0.0f, -height/2.0f));
+    APPEND_VEC3(vertices, glm::vec3(0.0f, -height/2.0f, 0.0f));
     APPEND_VEC3(vertices, glm::vec3(0.0f, 0.0f, 1.0f));
     APPEND_VEC3(vertices, glm::vec3(0.0f, 1.0f, 1.0f));
     APPEND_VEC2(vertices, glm::vec2(1.0f, 1.0f));

@@ -149,8 +149,7 @@ void Terrain::GenerateQMoon() {
     float spawn_canyon_radius = 40.0f;
     float item_crater_depth = 50.0f;
     float item_crater_spire_height = 20.0f;
-    float max_spawn_canyon_depth = 500.0f;
-    float min_spawn_canyon_depth = 200.0f;
+    float min_spawn_canyon_depth = 80.0f;
     float player_platform_radius = 10.0f;
     float player_platform_depth = 8.0f;
 
@@ -161,7 +160,7 @@ void Terrain::GenerateQMoon() {
         for (int x = 0; x < num_xsteps; ++x) {
             float distance = glm::distance(glm::vec2(x, z), spawn_position);
             if (distance < spawn_canyon_radius && distance > player_platform_radius) {
-                float spawn_canyon_depth = glm::linearRand(min_spawn_canyon_depth, max_spawn_canyon_depth);
+                float spawn_canyon_depth = min_spawn_canyon_depth;
                 heights[z][x] -= spawn_canyon_depth;
                 continue;
             } else if ( distance < player_platform_radius + 1) {

@@ -44,7 +44,9 @@ bool SphereCollider::CollidesWithBox(BoxCollider* other) {
 }
 
 bool SphereCollider::CollidesWithSphere(SphereCollider* other) {
-    return false;
+    glm::vec3 pos1 = owner_.transform.GetPosition();
+    glm::vec3 pos2 = other->GetOwner().transform.GetWorldPosition();
+    return glm::distance(pos1, pos2) < radius_ + other->GetRadius();
 }
 
 bool SphereCollider::CollidesWithTerrain(TerrainCollider* other) {
@@ -52,7 +54,9 @@ bool SphereCollider::CollidesWithTerrain(TerrainCollider* other) {
 }
 
 bool SphereCollider::CollidesWithPlayer(FPPlayerCollider* other) {
-    return false;
+    glm::vec3 pos1 = owner_.transform.GetPosition();
+    glm::vec3 pos2 = other->GetPlayer().transform.GetWorldPosition();
+    return glm::distance(pos1, pos2) < radius_ + other->GetRadius();
 }
 
 // TERRAIN COLLIDER
@@ -78,7 +82,9 @@ bool FPPlayerCollider::CollidesWithBox(BoxCollider* other) {
 }
 
 bool FPPlayerCollider::CollidesWithSphere(SphereCollider* other) {
-    return false;
+    glm::vec3 pos1 = player_.transform.GetPosition();
+    glm::vec3 pos2 = other->GetOwner().transform.GetWorldPosition();
+    return glm::distance(pos1, pos2) < radius_ + other->GetRadius();
 }
 
 bool FPPlayerCollider::CollidesWithTerrain(TerrainCollider* other) {
