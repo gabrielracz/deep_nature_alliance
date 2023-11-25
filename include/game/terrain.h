@@ -23,6 +23,9 @@ class Terrain : public SceneNode {
         bool SampleOn(float x , float z);
         glm::vec3 SampleNormal(float x, float z);
 
+        float GetWidth() {return xwidth;}
+        float GetDepth() {return zwidth;}
+
     protected:
         void GenerateHeightmap(TerrainType type);
         void GenerateQMoon();

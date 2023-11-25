@@ -351,6 +351,17 @@ void View::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
 	}
 }
 
+void View::ResizeBuffers(int width, int height) {
+	glBindTexture(GL_TEXTURE_2D, postprocess_tex);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, width, height, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+    // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, hieght);
+    // and depth buffer attachment
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+    PPWIDTH = width;
+    PPHEIGHT = height;
+}
+
 void View::ResizeCallback(GLFWwindow* window, int width, int height){
 
     // Set up viewport and camera projection based on new window size
@@ -360,7 +371,8 @@ void View::ResizeCallback(GLFWwindow* window, int width, int height){
     view->win.width = width;
     view->win.height = height;
     view->mouse.first_captured = true;
-    view->resize_handler(width, height);
+    view->ResizeBuffers(width, height);
+    view->game_resize_handler(width, height);
 }
 
 void View::MouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {

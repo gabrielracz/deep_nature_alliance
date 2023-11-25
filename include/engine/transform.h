@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "glm/fwd.hpp"
 #include "glm/gtx/quaternion.hpp"
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -56,6 +57,7 @@ public:
     void SetScale(const glm::vec3& newscale) { scale = newscale; dirty = true;} 
     void SetOrientation(const glm::quat& newori) { orientation = newori; dirty = true;} 
     void SetAxis(Axis a, const glm::vec3& v ) {axes[a] = v;}
+    void SetOrbit(glm::quat q) {orbit = q;}
 
     const glm::mat4 GetLocalMatrix() {return CalculateMatrix();}
     const glm::mat4& GetWorldMatrix() const {return transf_world;}

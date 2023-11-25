@@ -6,6 +6,7 @@
 #include "shader.h"
 #include "tp_player.h"
 #include <GLFW/glfw3.h>
+#include <algorithm>
 #include <glm/gtx/string_cast.hpp>
 #include <string>
 #define GLM_FORCE_RADIANS
@@ -23,7 +24,7 @@
 #include "path_config.h"
 #include "resource.h"
 #include "scene_node.h"
-#include "tree.h"
+// #include "tree.h"
 #include "text.h"
 #include "terrain.h"
 
@@ -337,12 +338,13 @@ void Game::SetupForestScene() {
     // terr->SetNormalMap("T_GrassNormalMap", 5.0f);
     terr->SetNormalMap("T_WallNormalMap", 5.0f);
     p->SetTerrain(terr);
-    scenes[FOREST]->AddNode(terr);
+    scenes[FOREST]->AddTerrain(terr);
 
     Light* light = new Light(Colors::Yellow);
     // light->transform.SetPosition({1000.0, 1000.0, -2000.0});
     light->transform.SetPosition({1000.0, 1000.0, 0.0});
-    light->ambient_power = 0.05;
+    light->ambient_power = 0.15;
+
     scenes[FOREST]->AddLight(light);
 
     SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
@@ -354,7 +356,7 @@ void Game::SetupForestScene() {
     SceneNode* forest = new SceneNode("Obj_Forest", "M_BirchTree", "S_InstancedShadow", "T_BirchTree");
     // forest->transform.SetScale({5, 5, 5});
     forest->SetNormalMap("T_WallNormalMap", 1.0f);
-    forest->material.specular_power = 0.0f;
+    // forest->material.specular_power = 0.0f;
     forest->SetAlphaEnabled(false); // TODO: figure out why they are transp
     for(int i = 0; i < 50; i++) {
         bool instanced = true;
@@ -530,6 +532,11 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if(keys[GLFW_KEY_R]) {
         active_scene->DismissStoryText();
         keys[GLFW_KEY_R] = false;
+    }
+
+    if(keys[GLFW_KEY_C]) {
+        active_scene->ToggleHUD();
+        keys[GLFW_KEY_C] = false;
     }
 
 
@@ -719,6 +726,56 @@ void Game::CreateHUD() {
     // scene->AddNode(speedo);
     AddTextToScene(SceneEnum::SPACE, speedo);
 
+
+
+
+    Text* fp_map = new Text("Obj_FPMap", "M_Quad", "S_Text", "T_Charmap", "waiting");
+    fp_map->SetAnchor(Text::Anchor::BOTTOMRIGHT);
+    fp_map->transform.SetPosition({1.0, -1.0, 0.0});
+    fp_map->SetColor(Colors::Amber);
+    fp_map->SetCallback([this]() -> std::string {
+        Terrain* terr = active_scene->GetTerrain();
+        if(terr == nullptr) {
+            return "MAP NULL DATA";
+        }
+        int map_width = 28;
+        int map_height = 14;
+        
+        int terr_width = terr->GetWidth();
+        int terr_height = terr->GetDepth();
+        glm::vec3 pt = active_scene->GetPlayer()->transform.GetPosition();
+
+        // int 0 --> MAP_WIDTH_CHARS
+        glm::vec3 prel = pt  - terr->transform.GetPosition(); // top left
+
+        // std::cout << prel.y / terr_height << std::endl;
+
+
+        int playerx = std::max(std::min((int)((prel.x / terr_width) * map_width), map_width), 1);
+        int playery = std::max(std::min((int)((prel.z / terr_height) * map_height), map_height), 1);
+
+        // return "FUK"    ;
+
+        char bg_char = '_';
+        char player_char = '@';
+        char wall_char = '~'+1;
+        std::string map;
+        map.reserve();
+        map += std::string(map_width+2, wall_char) + "\n";
+        for(int i = 1; i < map_height; i++) {
+            if(i != playery) {
+                map += wall_char + std::string(map_width, bg_char) + wall_char + "\n";
+            }else {
+                map += wall_char + std::string(playerx-1, bg_char) + player_char + std::string(map_width - playerx, bg_char) + wall_char + "\n";
+            }
+        }
+        map += std::string(map_width+2, wall_char) + "\n";
+        return map;
+    });
+    AddTextToScene(FOREST, fp_map);
+
+
+
     // Text* crosshair = new Text("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", this, "[ ]");
     // crosshair->transform.SetPosition({0.0, 0.1, 0.0});
     // crosshair->SetSize(10.0f);
@@ -729,7 +786,7 @@ void Game::CreateHUD() {
 }
 
 void Game::CreateStory() {
-    AddStoryToScene(SceneEnum::SPACE, StoryBeat::INTRO);
+    AddStoryToScene(SceneEnum::SPACE,  StoryBeat::INTRO);
     AddStoryToScene(SceneEnum::FOREST, StoryBeat::EXPOSITION);
     AddStoryToScene(SceneEnum::FOREST, StoryBeat::TOLKIEN);
 }
@@ -738,7 +795,9 @@ void Game::CreateLights() {
     Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
     light->ambient_power = 0.1f;
     light->transform.SetPosition({50.5, 100.5, 50.5});
-    AddLightToScene(SceneEnum::ALL, light);
+    AddLightToScene(SceneEnum::SPACE, light);
+    AddLightToScene(SceneEnum::FPTEST, light);
+
     // scenes[BEFORETRIGGER]->GetLights().push_back(light);
     // scenes[AFTERTRIGGER]->GetLights().push_back(light);
 }

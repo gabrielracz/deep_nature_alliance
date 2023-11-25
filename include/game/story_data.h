@@ -57,8 +57,7 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "From the ashes a fire shall be woken,\n"
                 "A light from the shadows shall spring;\n"
                 "Renewed shall be blade that was broken,\n"
-                "The crownless again shall be king.\n",
-                NARRATION
+                "The crownless again shall be king.\n"
             },
             {
                 "The Black Rider flung back his hood,\n"

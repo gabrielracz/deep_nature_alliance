@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <functional>
+#include <chrono>
+#include <random> 
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
@@ -63,5 +65,6 @@ enum RenderMode
     WIREFRAME,
     NUM_RENDERMODES
 };
+
 
 #endif

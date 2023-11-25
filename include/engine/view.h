@@ -51,7 +51,7 @@ public:
 
     void ToggleMouseCapture();
     void SetMouseHandler(MouseHandler h) { mouse_handler = h; }
-    void SetResizeHandler(ResizeHandler h) { resize_handler = h; }
+    void SetResizeHandler(ResizeHandler h) { game_resize_handler = h; }
 
     void ToggleRenderMode();
 
@@ -98,13 +98,14 @@ private:
     void RenderPostProcessing(SceneGraph& scene);
     void RenderDepthMap(SceneGraph& scene);
     void RenderNode(SceneNode *node, Camera &cam, std::vector<Light *> &lights, const glm::mat4 &parent_matrix = glm::mat4(1.0f));
+    void ResizeBuffers(int width, int height);
 
     static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void ResizeCallback(GLFWwindow *window, int width, int height);
     static void MouseMoveCallback(GLFWwindow *window, double xpos, double ypos);
 
     MouseHandler mouse_handler;
-    ResizeHandler resize_handler;
+    ResizeHandler game_resize_handler;
 };
 
 #endif
