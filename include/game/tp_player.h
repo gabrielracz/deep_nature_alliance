@@ -10,8 +10,8 @@ class Tp_Player : public Player {
 
     virtual void Update(double dt) override;
 
-    virtual void Control(Controls c, float dt, float damping = 1.0);
-    virtual void MouseControls(Mouse& mouse);
+    virtual void Control(Controls c, float dt, float damping = 1.0) override;
+    virtual void MouseControls(Mouse& mouse) override;
 
     // void Thrust(int d);
     // void ShipControl(Controls c, float damping = 1.0);

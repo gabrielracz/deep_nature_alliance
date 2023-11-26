@@ -42,6 +42,7 @@ class Camera {
         bool IsAttached();
         int GetWinWidth() {return saved_screen_width;}
         int GetWinHeight() {return saved_screen_height;}
+        glm::mat4 GetPerspectiveMatrix() {return perspective_matrix;}
         void SetupViewMatrix(void);
         const glm::mat4& GetViewMatrix() {return view_matrix_;}
 

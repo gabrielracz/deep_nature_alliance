@@ -61,6 +61,10 @@ void SceneGraph::DismissStoryText() {
 
 std::vector<SceneNode*> SceneGraph::GetScreenSpaceNodes() {
     std::vector<SceneNode*> nodes;
+    if(!show_hud) {
+        return nodes;
+    }
+
     nodes.reserve(texts.size() + 1);
     nodes.insert(nodes.end(), texts.begin(), texts.end());
     if(!story_text.empty()) {

@@ -12,6 +12,7 @@
 #include "resource.h"
 #include "scene_node.h"
 #include "fp_player.h"
+#include "terrain.h"
 #include "text.h"
 
 class Application;
@@ -34,8 +35,10 @@ class SceneGraph {
     void AddText(Text* t) {texts.push_back(t);}
     void AddCollider(SceneNode* node) { colman.AddNode(node); }
     void AddLight(Light* light) { lights.push_back(light); }
+    void AddTerrain(Terrain* terr) {terrain = terr; node_.push_back(terr);}
     void SetPlayer(Player* p);
     void SetSkybox(SceneNode* s) {skybox = s;};
+    void ToggleHUD(){ show_hud = !show_hud;}
 
     void PushStoryText(Text* text);
     void DismissStoryText();
@@ -48,6 +51,7 @@ class SceneGraph {
     Player* GetPlayer() { return player; }
     SceneNode* GetSkybox() { return skybox;}
     std::vector<SceneNode*> GetScreenSpaceNodes();
+    Terrain* GetTerrain() {return terrain;}
 
     // Get node const iterator
     std::vector<SceneNode*>::const_iterator begin() const { return node_.begin(); }
@@ -64,10 +68,12 @@ class SceneGraph {
     std::vector<Light*> lights;
     std::deque<Text*> story_text;
     std::vector<Text*> texts;
+    bool show_hud = true;
     Camera camera;
     Player* player;
     SceneNode* skybox = nullptr;
     Application& app;
+    Terrain* terrain;
 
 };  // class SceneGraph
 

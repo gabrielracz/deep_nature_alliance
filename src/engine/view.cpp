@@ -1,6 +1,9 @@
 #include "view.h"
 #include "application.h"
+#include "glm/ext/matrix_clip_space.hpp"
+#include "glm/ext/matrix_transform.hpp"
 #include "resource_manager.h"
+#include "scene_graph.h"
 #include <cmath>
 #include <stdexcept>
 
@@ -34,10 +37,23 @@ void View::Render(SceneGraph& scene) {
             break;
     }
 
+    glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
+    RenderDepthMap(scene);
+    glBindFramebuffer(GL_FRAMEBUFFER, postprocess_fbo);
+    glViewport(0,0, PPWIDTH, PPHEIGHT);
+    RenderScene(scene);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    RenderPostProcessing(scene);
+    RenderScreenspace(scene);
+
+    glfwSwapBuffers(win.ptr);
+    glfwPollEvents();
+}
+
+void View::RenderScene(SceneGraph& scene) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     for(auto node : scene) {
-        RenderNode(node, scene.GetCamera(), scene.GetLights());
-    }
-    for(auto node : scene.GetScreenSpaceNodes()) {
         RenderNode(node, scene.GetCamera(), scene.GetLights());
     }
 
@@ -47,9 +63,88 @@ void View::Render(SceneGraph& scene) {
         RenderNode(scene.GetSkybox(), scene.GetCamera(), scene.GetLights());
         glDepthFunc(GL_LESS);
     }
+}
 
-    glfwSwapBuffers(win.ptr);
-    glfwPollEvents();
+void View::RenderScreenspace(SceneGraph& scene) {
+    glDisable(GL_DEPTH_TEST);
+    glViewport(0,0,win.width,win.height);
+    for(auto node : scene.GetScreenSpaceNodes()) {
+        RenderNode(node, scene.GetCamera(), scene.GetLights());
+    }
+}
+
+void View::RenderPostProcessing(SceneGraph& scene) {
+    glViewport(0,0,win.width,win.height);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    bool postprocess = true;
+    if(postprocess) {
+        Mesh* scrquad  = resman.GetMesh("M_Quad");
+        Shader* scrshd = resman.GetShader("S_Texture");
+        scrshd->Use();
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, postprocess_tex);
+
+        scrquad->Draw();
+    } else {
+        Mesh* scrquad  = resman.GetMesh("M_Quad");
+        Shader* scrshd = resman.GetShader("S_ShowDepth");
+        scrshd->Use();
+
+        scrshd->SetUniform1i(0, "depth_map");
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, depth_tex);
+        scrquad->Draw();
+    }
+}
+
+void View::RenderDepthMap(SceneGraph& scene) {
+    glViewport(0, 0, DEPTHWIDTH, DEPTHHEIGHT);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+
+    // glEnable(GL_BLEND);
+    // glEnable(GL_ALPHA_TEST);
+    // glAlphaFunc(GL_GREATER, 0.5f);
+
+    Shader* shd = resman.GetShader("S_Depth");
+    Shader* shdinst = resman.GetShader("S_InstancedDepth");
+    shd->Use();
+
+    // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
+    // Light* l = scene.GetLights().back();
+    glm::mat4 view_mat = glm::lookAt({300.0, 800.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 proj_mat = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 20.0f, 1300.0f);
+
+    // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
+    // glm::mat4 proj_mat = scene.GetCamera().GetPerspectiveMatrix();
+
+    // glm::mat4 proj_mat = glm::perspective(45.0f, 16.0f/9.0f, 0.1f, 400.0f);
+    // glm::mat4 proj_mat = glm::perspective(90.0f, 16.0f/9.0f, 0.1f, 100.0f);
+
+    for(auto node : scene) {
+        Mesh* mesh = resman.GetMesh(node->GetMeshID());
+        std::vector<Transform>& instances = node->GetInstances();
+        if(instances.size() > 0) {
+            shdinst->Use();
+            shdinst->SetInstances(instances, scene.GetCamera().GetViewMatrix(), false);
+            shdinst->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
+            // set light_mat
+            shdinst->SetUniform4m(proj_mat * view_mat, "light_mat");
+            mesh->Draw(instances.size());
+            shd->Use();
+        } else {
+            // set world_mat
+            shd->SetUniform4m(node->transform.GetLocalMatrix(), "world_mat");
+            // set light_mat
+            shd->SetUniform4m(proj_mat * view_mat, "light_mat");
+            mesh->Draw();
+        }
+
+        // if(!node->GetTextureID().empty()) 
+        //     resman.GetTexture(node->GetTextureID())->Bind(shd, 0, "texture_map"); //alpha test
+    }
 }
 
 void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix) {
@@ -61,11 +156,18 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     glDisable(GL_BLEND);
     // SHADER
     Shader* shd = resman.GetShader(shd_id);
+
     shd->Use();
     // if(active_shader != shd->id) {
     cam.SetProjectionUniforms(shd, node->GetDesiredProjection());
 
     shd->SetLights(lights);
+    // Light* l = lights.back();
+    glm::mat4 view_mat = glm::lookAt({300.0, 800.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 proj_mat = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 20.0f, 1300.0f);
+
+
+    shd->SetUniform4m(proj_mat * view_mat, "shadow_light_mat");
     node->SetUniforms(shd, cam.GetViewMatrix());
 
     // TEXTURE
@@ -75,11 +177,16 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     if(!norm_id.empty()) {
         resman.GetTexture(norm_id)->Bind(shd, 1, "normal_map");
     }
+    // if(shd_id == "S_NormalMap" || shd_id == "S_") {
+        glActiveTexture(GL_TEXTURE0 + 2);
+        glBindTexture(GL_TEXTURE_2D, depth_tex);
+        shd->SetUniform1i(2, "shadow_map");
+    // }
 
     // MODEL
     if(node->IsAlphaEnabled()) {
         glEnable(GL_BLEND);
-        glEnable(GL_ALPHA_TEST);
+        // glEnable(GL_ALPHA_TEST);
         // glAlphaFunc(GL_GREATER, 0.0f);
         // glDepthMask(false);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -99,11 +206,60 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     glDisable(GL_BLEND);
 }
 
+void View::InitFramebuffers() {
+    // Create framebuffer to render a normal scene to a texture output.
+    // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
+    glGenFramebuffers(1, &postprocess_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, postprocess_fbo);
+
+    glGenTextures(1, &postprocess_tex);
+
+    glBindTexture(GL_TEXTURE_2D, postprocess_tex);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, PPWIDTH, PPHEIGHT, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+    // Poor filtering. Needed !
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, PPWIDTH, PPHEIGHT);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, postprocess_tex, 0);
+    // GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    GLenum DrawBuffers[1] = {GL_DEPTH_ATTACHMENT};
+    glDrawBuffers(1, DrawBuffers);
+
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        std::cout << "Framebuffer init errors" << std::endl;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glGenFramebuffers(1, &depth_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
+    // Depth framebuffer
+    glGenTextures(1, &depth_tex);
+    glBindTexture(GL_TEXTURE_2D, depth_tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
+                DEPTHWIDTH, DEPTHWIDTH, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);  
+
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depth_tex, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);  
+}
+
 void View::Init(const std::string& title, int width, int height) {
     InitWindow(title, width, height);
     InitView();
     InitEventHandlers();
     InitControls();
+    InitFramebuffers();
 }
 
 void View::InitWindow(const std::string& title, int width, int height) {
@@ -195,6 +351,17 @@ void View::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
 	}
 }
 
+void View::ResizeBuffers(int width, int height) {
+    PPWIDTH = width;
+    PPHEIGHT = height;
+	glBindTexture(GL_TEXTURE_2D, postprocess_tex);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, PPWIDTH, PPHEIGHT, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+    // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, PPWIDTH, hieght);
+    // and depth buffer attachment
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, PPWIDTH, PPHEIGHT);
+}
+
 void View::ResizeCallback(GLFWwindow* window, int width, int height){
 
     // Set up viewport and camera projection based on new window size
@@ -204,7 +371,8 @@ void View::ResizeCallback(GLFWwindow* window, int width, int height){
     view->win.width = width;
     view->win.height = height;
     view->mouse.first_captured = true;
-    view->resize_handler(width, height);
+    view->ResizeBuffers(width, height);
+    view->game_resize_handler(width, height);
 }
 
 void View::MouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {

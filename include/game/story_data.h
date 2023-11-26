@@ -15,7 +15,9 @@ enum StoryBeat {
     NUM_STORY_BEATS
 };
 
+//                              Text Color     Background Color     Anchor Point              Screen Position   Scroll Delay
 #define FEDERATION_TRANSMISSION Colors::Amber, Colors::TranspBlack, Text::Anchor::LEFTCENTER, {-1.0, 0.0, 0.0}, 0.05f
+#define NARRATION               Colors::White, Colors::TBrown
 
 // json 2.0
 static const std::unordered_map<int, std::vector<Text>> STORY = {
@@ -64,7 +66,7 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "The red fires shone between it and the\n"
                 "mantled shoulders vast and dark.\n"
                 "From a mouth unseen\n"
-                "there came a deadly laughter.\n"
+                "there came a deadly laughter.\n",
             },
             {
                 "The Road goes ever on and on\n"
@@ -74,7 +76,7 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "Pursuing it with eager feet,\n"
                 "Until it joins some larger way\n"
                 "Where many paths and errands meet.\n"
-                "And whither then? I cannot say\n"
+                "And whither then? I cannot say\n",
             },
             {
                 "I sit beside the fire and think\n"
@@ -105,7 +107,7 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "But all the while I sit and think\n"
                 "Of times there were before\n"
                 "I listen for returning feet\n"
-                "And voices at the door\n"
+                "And voices at the door\n",
             }
     }}
 };
