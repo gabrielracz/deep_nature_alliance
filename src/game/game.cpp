@@ -130,7 +130,7 @@ void Game::LoadTextures() {
     // resman.LoadTexture("T_TreeNormalMap", RESOURCES_DIRECTORY"/tree4_normal_map.png", GL_REPEAT, GL_LINEAR);
     // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/oak_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_BirchTree", RESOURCES_DIRECTORY"/birch_texture.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_BirchNormalMap", RESOURCES_DIRECTORY"/birch_normal_map.png", GL_REPEAT, GL_LINEAR);
+    // resman.LoadTexture("T_BirchNormalMap", RESOURCES_DIRECTORY"/birch_normal_map.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MoonObj1", RESOURCES_DIRECTORY"/whitedevil.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Soldier", RESOURCES_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
@@ -251,7 +251,8 @@ void Game::SetupFPScene(void) {
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_Lit", "T_Ship", &camera);
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
+    p->SetNormalMap("T_MetalNormalMap");
     p->transform.SetPosition(player_position_g);
     p->visible = false;
     AddPlayerToScene(FPTEST, p);
@@ -365,7 +366,7 @@ void Game::SetupForestScene() {
     // SceneNode* forest = new SceneNode("Obj_Forest", "M_Tree", "S_Instanced", "T_Tree");
     SceneNode* forest = new SceneNode("Obj_Forest", "M_BirchTree", "S_InstancedShadow", "T_BirchTree");
     // forest->transform.SetScale({5, 5, 5});
-    forest->SetNormalMap("T_WallNormalMap", 1.0f);
+    forest->SetNormalMap("T_WallNormalMap", 0.005f);
     forest->material.specular_power = 150.0;
     for(int i = 0; i < 50; i++) {
         bool instanced = true;
