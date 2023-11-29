@@ -114,7 +114,7 @@ void View::RenderDepthMap(SceneGraph& scene) {
 
     // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
     // Light* l = scene.GetLights().back();
-    glm::mat4 view_mat = glm::lookAt({300.0, 800.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 view_mat = glm::lookAt({300.0, 600.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
     glm::mat4 proj_mat = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 20.0f, 1300.0f);
 
     // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
@@ -163,12 +163,12 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
 
     shd->SetLights(lights);
     // Light* l = lights.back();
-    glm::mat4 view_mat = glm::lookAt({300.0, 800.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 view_mat = glm::lookAt({300.0, 600.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
     glm::mat4 proj_mat = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 20.0f, 1300.0f);
 
 
     shd->SetUniform4m(proj_mat * view_mat, "shadow_light_mat");
-    node->SetUniforms(shd, cam.GetViewMatrix());
+    node->SetUniforms(shd, cam.GetViewMatrix(), parent_matrix);
 
     // TEXTURE
     if(!tex_id.empty()) {
@@ -177,19 +177,21 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     if(!norm_id.empty()) {
         resman.GetTexture(norm_id)->Bind(shd, 1, "normal_map");
     }
-    // if(shd_id == "S_NormalMap" || shd_id == "S_") {
+    // disgusting
+    if(shd_id == "S_NormalMap" || shd_id == "S_InstancedShadow") {
         glActiveTexture(GL_TEXTURE0 + 2);
         glBindTexture(GL_TEXTURE_2D, depth_tex);
         shd->SetUniform1i(2, "shadow_map");
-    // }
+    }
 
     // MODEL
     if(node->IsAlphaEnabled()) {
+        glDepthMask(GL_FALSE);
         glEnable(GL_BLEND);
         // glEnable(GL_ALPHA_TEST);
         // glAlphaFunc(GL_GREATER, 0.0f);
         // glDepthMask(false);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     };
     
     // check if there is anything to render
@@ -198,7 +200,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     }
 
     // HIERARCHY
-    glm::mat4 tm = parent_matrix * Transform::RemoveScaling(node->GetCachedTransformMatrix());  // don't pass scaling to children
+    glm::mat4 tm = parent_matrix * Transform::RemoveScaling(node->transform.GetWorldMatrix());  // don't pass scaling to children
     for(auto child : node->GetChildren()) {
         RenderNode(child, cam, lights, tm);
     }
@@ -307,7 +309,8 @@ void View::InitView(){
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DITHER);
     glDepthFunc(GL_LESS);
-    glEnable(GL_CULL_FACE);  
+    // glEnable(GL_CULL_FACE);  
+    glPointSize(2.0f);
 
 	//Use this to disable vsync
 	glfwSwapInterval(0);

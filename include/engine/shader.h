@@ -51,7 +51,7 @@ public:
     LightsBlock lightsblock;
     TransformsBlock* transformsblock;
 	unsigned int id;
-	Shader(const char* vertex_path, const char* frag_path, bool instanced = false);
+	Shader(const char* vertex_path, const char* frag_path, const char* geom_path = "", bool instanced = false);
 	Shader() = default;
 	~Shader() = default;
 	bool Load();
@@ -60,6 +60,7 @@ public:
     void Finalize(int num_lights);
 
     void SetupInstancing();
+    void SetupLighting();
 
     void SetLights(std::vector<Light*>& lights);
     int SetInstances(std::vector<Transform>& transforms, const glm::mat4& view_matrix, bool cull = true);
@@ -81,6 +82,7 @@ public:
 private:
 	std::string vert_path;
 	std::string frag_path;
+    std::string geom_path;
 
     unsigned int lights_ubo;
     unsigned int instanced_ubo;

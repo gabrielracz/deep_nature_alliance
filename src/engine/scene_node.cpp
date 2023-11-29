@@ -30,7 +30,11 @@ void SceneNode::Update(double dt){
 
     // transf_matrix = transform.ScaledMatrix();
     // transf_matrix = transform.ScaledMatrix();
-    transform.Update();
+    if(parent) {
+        transform.Update(parent->transform.GetWorldMatrix());
+    } else {
+        transform.Update();
+    }
 
     for(auto child : children) {
         child->Update(dt);
@@ -38,10 +42,11 @@ void SceneNode::Update(double dt){
 }
 
 
-void SceneNode::SetUniforms(Shader* shader, const glm::mat4& view_matrix){
+void SceneNode::SetUniforms(Shader* shader, const glm::mat4& view_matrix, const glm::mat4& parent_matrix){
     // object transform
-    glm::mat4 normal_matrix = glm::transpose(glm::inverse(view_matrix * transform.GetWorldMatrix()));
-    shader->SetUniform4m(transform.GetWorldMatrix(), "world_mat");
+    glm::mat4 world = parent_matrix * transform.GetLocalMatrix();
+    glm::mat4 normal_matrix = glm::transpose(glm::inverse(view_matrix * world));
+    shader->SetUniform4m(world, "world_mat");
     shader->SetUniform4m(normal_matrix,              "normal_mat");
 
     // material properties
@@ -51,8 +56,7 @@ void SceneNode::SetUniforms(Shader* shader, const glm::mat4& view_matrix){
     shader->SetUniform1f(material.diffuse_strength,      "diffuse_strength");
 
     // extras
-    shader->SetUniform1f(glfwGetTime(), "timer");
-    shader->SetUniform1i(0, "inverted");
+    shader->SetUniform1f(elapsed, "timer");
 
     // instances
     if(instances.size() > 0) {
@@ -68,4 +72,9 @@ void SceneNode::SetNormalMap(const std::string &new_tex_id, float normal_map_rep
 void SceneNode::SetTexture(std::string& new_tex_id, float texture_repetition) {
     texture_id = new_tex_id;
     material.texture_repetition = texture_repetition;
+}
+
+void SceneNode::AddChild(SceneNode *n) {
+    children.push_back(n);
+    n->SetParent(this);
 }
