@@ -8,7 +8,7 @@
 class FP_Player : public Agent
 {
 public:
-    FP_Player(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id, Camera *c);
+    FP_Player(const std::string name, const std::string &mesh_id, const std::string& shader_id, const std::string &texture_id, Camera *c);
 
     virtual void Update(double dt) override;
     virtual void Control(Controls c, float dt, float damping = 1.0) override;
