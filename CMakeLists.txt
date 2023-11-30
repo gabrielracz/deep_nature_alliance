@@ -42,6 +42,7 @@ set(HDRS
     include/game/fp_player.h
     include/game/colliders/colliders.h
     include/game/story_data.h
+    include/game/menu_controller.h
 )
  
 set(SRCS
@@ -72,6 +73,7 @@ set(SRCS
     src/game/fp_player.cpp
     src/game/agent.cpp
     src/game/colliders/colliders.cpp
+    src/game/menu_controller.cpp
 )
 
 # Add path name to configuration file
