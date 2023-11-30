@@ -15,7 +15,7 @@ class Button{
         float zSpan;
         std::function<void()> action;
         bool click(glm::vec2 mousePos, Window *win){
-
+            return false;
         }
 };
 
