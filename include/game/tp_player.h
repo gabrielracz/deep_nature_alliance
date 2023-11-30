@@ -5,7 +5,7 @@
 #include "player.h"
 class Tp_Player : public Player {
    public:
-    Tp_Player(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id = "")
+    Tp_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id = "")
         : Player(name, mesh_id, shader_id, texture_id) {}
 
     virtual void Update(double dt) override;

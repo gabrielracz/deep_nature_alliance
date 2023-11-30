@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <functional>
 
+#define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -32,16 +33,7 @@ namespace config2
 class View
 {
 
-
 public:
-
-    typedef struct
-    {
-        GLFWwindow *ptr;
-        std::string title;
-        int width;
-        int height;
-    } Window;
 
     View(Application &app, ResourceManager &resman);
     ~View();

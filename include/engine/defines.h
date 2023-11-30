@@ -7,6 +7,9 @@
 #include <chrono>
 #include <random> 
 
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 #define PI glm::pi<float>()
@@ -28,6 +31,14 @@ struct Mouse {
     glm::vec2 prev;
     glm::vec2 move;
 };
+
+typedef struct
+{
+    GLFWwindow *ptr;
+    std::string title;
+    int width;
+    int height;
+} Window;
 
 #define HEXCOLOR(h) {((h&0xFF0000)>>16)/255.0f, ((h&0x00FF00)>>8)/255.0f, (h&0x0000FF)/255.0f, 1.0f}
 #define HEXCOLORALPH(h, a) {((h&0xFF0000)>>16)/255.0f, ((h&0x00FF00)>>8)/255.0f, (h&0x0000FF)/255.0f, a}

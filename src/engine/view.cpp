@@ -387,6 +387,8 @@ void View::MouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
     }
 
 	Mouse& mouse = view->mouse;
+
+
 	if (mouse.first_captured) {
         mouse.prev = {xpos, ypos};
 		mouse.first_captured = false;

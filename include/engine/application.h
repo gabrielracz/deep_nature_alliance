@@ -1,9 +1,13 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
+
+#include <memory>
+
 #include "resource_manager.h"
 #include "view.h"
 #include "game.h"
-#include <memory>
+#include "defines.h"
+
 
 
 class Application {
@@ -28,7 +32,7 @@ public:
 
     int GetWinWidth() {return view.GetWidth();}
     int GetWinHeight() {return view.GetHeight();}
-    View::Window GetWindow() { return view.GetWindow(); }
+    Window GetWindow() { return view.GetWindow(); }
     float GetFPS() {return fps;}
 
 };

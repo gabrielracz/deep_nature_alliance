@@ -2,7 +2,7 @@
 #include "fp_player.h"
 #include "colliders/colliders.h"
 
-FP_Player::FP_Player(const std::string name, const std::string &mesh_id, const std::string shader_id, const std::string &texture_id, Camera *c)
+FP_Player::FP_Player(const std::string name, const std::string &mesh_id, const std::string& shader_id, const std::string &texture_id, Camera *c)
     : Agent(name, mesh_id, shader_id, texture_id), camera_(c) {
         c->Attach(&transform); 
         FPPlayerCollider* col = new FPPlayerCollider(*this, collider_radius_);

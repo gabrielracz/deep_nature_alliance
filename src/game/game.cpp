@@ -445,7 +445,6 @@ void Game::CheckControls(KeyMap& keys, float dt) {
 
     Player* player = active_scene->GetPlayer();
     // Debug print the player's location
-    if(player != nullptr) {
     if(keys[GLFW_KEY_P]) {
         glm::vec3 p = player->transform.GetPosition();
         glm::quat o = player->transform.GetOrientation();
@@ -516,7 +515,6 @@ void Game::CheckControls(KeyMap& keys, float dt) {
             active_scene->GetCamera().Attach(&player->transform);
         }
         keys[GLFW_KEY_X] = false;
-    }
     }
 
     if(keys[GLFW_KEY_0]) {

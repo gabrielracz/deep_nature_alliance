@@ -19,7 +19,7 @@ public:
         DOWN
     };
 
-    Player(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id = "")
+    Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id = "")
     : SceneNode(name, mesh_id, shader_id, texture_id) {}
 
     virtual void Control(Controls c, float dt, float damping = 1.0) = 0;

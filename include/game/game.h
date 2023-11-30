@@ -48,6 +48,7 @@ enum SceneEnum {
     DESERT,
     MOON,
     FPTEST,
+    MAIN_MENU,
     NUM_SCENES,
     ALL
 };
