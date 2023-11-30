@@ -7,14 +7,26 @@
 #include "player.h"
 #include "defines.h"
 
-class Button{
+class Button {
     public:
-        float xCoord;
-        float zCoord;
-        float xSpan;
-        float zSpan;
+        glm::vec2 topLeftCoordPercentage;
+        float xSpanPercentage;
+        float ySpanPercentage;
         std::function<void()> action;
-        bool click(glm::vec2 mousePos, Window *win){
+        bool click(const glm::vec2& mousePos, Window* win) {
+            // Calculate the actual coordinates and size of the button in pixels
+            int buttonX = static_cast<int>(topLeftCoordPercentage.x * win->width);
+            int buttonY = static_cast<int>(topLeftCoordPercentage.y * win->height);
+            int buttonWidth = static_cast<int>(xSpanPercentage * win->width);
+            int buttonHeight = static_cast<int>(ySpanPercentage * win->height);
+
+            if (mousePos.x >= buttonX && mousePos.x <= buttonX + buttonWidth &&
+                mousePos.y >= buttonY && mousePos.y <= buttonY + buttonHeight) {
+                if (action) {
+                    action();
+                }
+                return true;
+            }
             return false;
         }
 };
