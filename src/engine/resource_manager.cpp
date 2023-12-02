@@ -79,42 +79,32 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
 
 }
 
-void ResourceManager::LoadCubemap(const std::string &name, const std::string &dir_path) {
-	unsigned int tex_id;
-	glGenTextures(1, &tex_id);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, tex_id);
-
+void ResourceManager::LoadCubemap(const std::string &name, const std::string &dir_path, bool legacyLoading) {
     std::vector<std::string> faces = {
         dir_path + "/right.png",
         dir_path + "/left.png",
-        dir_path + "/bottom.png",
-        dir_path + "/top.png",
+        legacyLoading ? dir_path + "/bottom.png" : dir_path + "/top.png",
+        legacyLoading ? dir_path + "/top.png" : dir_path + "/bottom.png",
         dir_path + "/front.png",
-        dir_path + "/back.png",
+        dir_path + "/back.png"
     };
 
-    // stbi_set_flip_vertically_on_load(0);
-	int w, h, n_channels;
-	for(int i = 0; i < faces.size(); i++) {
-		unsigned char* data = stbi_load(faces[i].c_str(), &w, &h, &n_channels, 0);
-		if(data) {
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-					0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data );
-			stbi_image_free(data);
-		}else {
-			std::cout << "RESMAN ERROR Cube map face " << faces[i] << " failed to load" << std::endl;
-			stbi_image_free(data);
-		}
-	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    stbi_set_flip_vertically_on_load(legacyLoading ? 1 : 0);
 
-    Texture t(tex_id);
-    t.gl_texture_type = GL_TEXTURE_CUBE_MAP;
-    textures.insert({name, t});
+    int w, h, n_channels;
+    unsigned char* data[6];
+    for(int i = 0; i < faces.size(); i++) {
+        data[i] = stbi_load(faces[i].c_str(), &w, &h, &n_channels, 0);
+        if(!data[i]) {
+            std::cout << "RESMAN ERROR Cube map face " << faces[i] << " failed to load" << std::endl;
+        }
+    }
+
+    overwrite_emplace(textures, name, Texture(data, w, h, n_channels, GL_CLAMP_TO_EDGE, GL_LINEAR));
+    
+    for(int i = 0; i < faces.size(); i++) {
+        stbi_image_free(data[i]); // Free individual face data
+    }
 }
 
 
