@@ -63,8 +63,6 @@ private:
     Mouse mouse;
     KeyMap key_controls;
 
-    int PPWIDTH = 512;
-    int PPHEIGHT = 512;
     GLuint postprocess_fbo;
     GLuint postprocess_tex;
     GLuint rbo;
@@ -90,7 +88,7 @@ private:
     void RenderPostProcessing(SceneGraph& scene);
     void RenderDepthMap(SceneGraph& scene);
     void RenderNode(SceneNode *node, Camera &cam, std::vector<Light *> &lights, const glm::mat4 &parent_matrix = glm::mat4(1.0f));
-    void ResizeBuffers(int width, int height);
+    void ResizeBuffers();
 
     static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
     static void ResizeCallback(GLFWwindow *window, int width, int height);
