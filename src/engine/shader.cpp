@@ -6,9 +6,10 @@
 #include <glm/gtx/string_cast.hpp>
 #include "defines.h"
 
-Shader::Shader(const char* vertex_path, const char* fragment_path, bool instanced) {
+Shader::Shader(const std::string& vertex_path, const std::string& fragment_path, bool instanced, const std::string& geometry_path) {
 	vert_path = vertex_path;
 	frag_path = fragment_path;
+	geom_path = geometry_path;
     memset(lightsblock.lights, 0, MAX_LIGHTS * sizeof(ShaderLight));
     Load();
     if(instanced) {
@@ -81,6 +82,44 @@ bool Shader::Load() {
 	id = glCreateProgram();
 	glAttachShader(id, vertex_shader);
 	glAttachShader(id, frag_shader);
+
+	//geometry shader stuff, is seperate because it is optional
+	std::string geom_code;
+	std::ifstream gshader_file;
+
+    if (!geom_path.empty()) {
+        gshader_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        try {
+            gshader_file.open(geom_path);
+            if (!gshader_file.good()) {
+                std::cout << "error on geometry shader file open" << std::endl;
+            }
+            std::stringstream gshader_stream;
+            gshader_stream << gshader_file.rdbuf();
+            gshader_file.close();
+            geom_code = gshader_stream.str();
+        } catch (std::exception& e) {
+            std::cout << "[ERROR][SHADER] file read error" << e.what() << std::endl;
+            return false;
+        }
+    }
+
+    unsigned int geom_shader;
+    if (!geom_code.empty()) {
+        const char* geom_source = geom_code.c_str();
+        geom_shader = glCreateShader(GL_GEOMETRY_SHADER);
+        glShaderSource(geom_shader, 1, &geom_source, NULL);
+        glCompileShader(geom_shader);
+        glGetShaderiv(geom_shader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(geom_shader, 512, NULL, infolog);
+            std::cout << "[ERROR][SHADER] geometry compilation failed " << geom_path << ":\n"
+                      << infolog << std::endl;
+            return false;
+        }
+        glAttachShader(id, geom_shader);
+    }
+
 	glLinkProgram(id);
 
 	glGetProgramiv(id, GL_LINK_STATUS, &success);
@@ -92,6 +131,9 @@ bool Shader::Load() {
 
 	glDeleteShader(vertex_shader);
 	glDeleteShader(frag_shader);
+	if (geom_shader) {
+		glDeleteShader(geom_shader);
+	}
 
     glGenBuffers(1, &lights_ubo);
     GLuint bindingPoint = 0;  // Choose a suitable binding point
@@ -104,6 +146,7 @@ bool Shader::Load() {
     // Associate the buffer with the block index
 	return true;
 }
+
 
 void Shader::SetupInstancing() {
     transformsblock = new TransformsBlock();

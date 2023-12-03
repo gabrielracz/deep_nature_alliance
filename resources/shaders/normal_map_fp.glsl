@@ -89,13 +89,10 @@ float PCSSShadowCalculation(vec4 fragPosLightSpace) {
    float penumbraWidth = 0.0; // Initial penumbra width
 
    // Search for the blocker
-   for(int x = -2; x <= 2; ++x)
-   {
-       for(int y = -2; y <= 2; ++y)
-       {
+   for(int x = -2; x <= 2; ++x){
+       for(int y = -2; y <= 2; ++y){
            float pcfDepth = texture(shadow_map, projCoords.xy + vec2(x, y) * texelSize).r; 
-           if(currentDepth - bias > pcfDepth)
-           {
+           if(currentDepth - bias > pcfDepth){
                blockerSearchSize = vec2(x, y) * texelSize;
                break;
            }
@@ -103,13 +100,10 @@ float PCSSShadowCalculation(vec4 fragPosLightSpace) {
    }
 
    // Calculate penumbra width
-   for(int x = -2; x <= 2; ++x)
-   {
-       for(int y = -2; y <= 2; ++y)
-       {
+   for(int x = -2; x <= 2; ++x){
+       for(int y = -2; y <= 2; ++y){
            float pcfDepth = texture(shadow_map, projCoords.xy + vec2(x, y) * texelSize).r; 
-           if(currentDepth - bias > pcfDepth)
-           {
+           if(currentDepth - bias > pcfDepth){
                penumbraWidth = max(penumbraWidth, length(vec2(x, y) * texelSize - blockerSearchSize));
            }
        }
@@ -117,16 +111,15 @@ float PCSSShadowCalculation(vec4 fragPosLightSpace) {
 
    // Calculate shadow
    float shadow = 0.0;
-   for(int x = -2; x <= 2; ++x)
-   {
-       for(int y = -2; y <= 2; ++y)
-       {
+   for(int x = -2; x <= 2; ++x){
+       for(int y = -2; y <= 2; ++y){
            float pcfDepth = texture(shadow_map, projCoords.xy + vec2(x, y) * texelSize).r; 
            float distanceFromBlocker = length(vec2(x, y) * texelSize - blockerSearchSize);
            float falloff = smoothstep(0.0, penumbraWidth, distanceFromBlocker);
            shadow += currentDepth - bias > pcfDepth ? falloff : 0.0;       
        }   
    }
+
    shadow /= 25.0;
 
    shadow *= 1.25; //darkness modifier
@@ -138,8 +131,7 @@ float PCSSShadowCalculation(vec4 fragPosLightSpace) {
    return shadow;
 }
 
-float ShadowCalculation(vec4 fragPosLightSpace)
-{
+float ShadowCalculation(vec4 fragPosLightSpace) {
     // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // transform to [0,1] range
@@ -173,8 +165,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
 
 
 
-void main() 
-{
+void main() {
     vec4 accumulator = vec4(0.0, 0.0, 0.0, 1.0);
     for(int i = 0; i < num_lights; i++) {
         vec3 light_vector = normalize(lights[i].position - position_interp);                                     // light direction, object position as origin
