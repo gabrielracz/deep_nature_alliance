@@ -13,6 +13,7 @@ class Tp_Player : public Player {
     virtual void Control(Controls c, float dt, float damping = 1.0) override;
     virtual void MouseControls(Mouse& mouse) override;
 
+
     // void Thrust(int d);
     // void ShipControl(Controls c, float damping = 1.0);
 
@@ -27,6 +28,7 @@ class Tp_Player : public Player {
     float accel_amt = 0.25;
     bool braking = false;
     float brake_width = 1.0f;
+    bool thrusting = false;
 
     int lives = 1;
     glm::vec3 angular_velocity{0.0f, 0.0f, 0.0f};

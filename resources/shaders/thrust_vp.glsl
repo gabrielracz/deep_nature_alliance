@@ -10,6 +10,7 @@ uniform mat4 world_mat;
 uniform mat4 view_mat;
 uniform mat4 normal_mat;
 uniform float timer;
+uniform float thrust_amount;
 
 // Attributes forwarded to the geometry shader
 out vec4 particle_color;
@@ -39,11 +40,11 @@ void main()
     // float phase = two_pi*particle_id; // Start the sin wave later depending on the particle_id
     float phase = shash(particle_id, 0.0, two_pi); // Start the sin wave later depending on the particle_id
     float param = timer + phase; // The constant that divides "timer" also helps to adjust the "speed" of the fire
-    float rem = mod(8*param*vertex.z, pi_over_two); // Use the remainder of dividing by pi/2 so that we are always in the range [0..pi/2] where sin() gives values in [0..1]
+    float rem = mod(12*param*vertex.z, pi_over_two); // Use the remainder of dividing by pi/2 so that we are always in the range [0..pi/2] where sin() gives values in [0..1]
     float circtime = sin(rem); // Get time value in [0..1], according to a sinusoidal wave
                                     
     // Set up parameters of the particle motion
-    float t = abs(circtime)*(0.3 + abs(normal.z)); 
+    float t = abs(circtime/2.8)*(0.3 + abs(normal.z)); 
 
     vec3 position = vertex;
     position += speed*out_vec*accel*t*t; // Particle moves up
@@ -51,9 +52,9 @@ void main()
     gl_Position = view_mat * world_mat * vec4(position, 1.0);
     
     // Define amount of blending depending on the cyclic time
-    float alpha = 1.0 - (circtime*circtime)/2;
     vec4 blue_heat = 1/(position.z + 2) * vec4(0.0, 0.7, 3.0, 1.0);
-    vec4 fire_col = vec4(0.6, 0.225, 0.01, 1.0);
-    particle_color = fire_col + blue_heat;
+    vec4 fire_col = vec4(0.6, 0.225, 0.01, 1.0)*1.5;
+    particle_color = fire_col;// + blue_heat;
+    float alpha = 1.0 - (circtime*circtime)/2;
     particle_color.a = alpha;
 }

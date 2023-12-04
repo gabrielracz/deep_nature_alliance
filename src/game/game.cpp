@@ -79,6 +79,7 @@ void Game::LoadMeshes() {
     resman.CreatePointCloud("M_StarCloud", 70000, 2000, {0.8, 0.8, 0.8, 0.8});
     resman.CreateSphere    ("M_Planet", 1, 100, 100);
     resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
+    resman.CreatePointCloud("M_Thrust", 1200, 0.35f);
 
     resman.CreateCone       ("M_MoonObject", 10, 3, 4, 4);
 
@@ -103,6 +104,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Depth", SHADER_DIRECTORY"/depth_vp.glsl", SHADER_DIRECTORY"/depth_fp.glsl");
     resman.LoadShader("S_InstancedDepth", SHADER_DIRECTORY"/depth_instanced_vp.glsl", SHADER_DIRECTORY"/depth_fp.glsl", "", true);
     resman.LoadShader("S_InstancedShadow", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl", "", true);
+    resman.LoadShader("S_Thrust", SHADER_DIRECTORY"/thrust_vp.glsl", SHADER_DIRECTORY"/thrust_fp.glsl", SHADER_DIRECTORY"/thrust_gp.glsl");
 
 
     std::cout << "shaders loaded" << std::endl;
@@ -134,6 +136,7 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MoonObj1", RESOURCES_DIRECTORY"/whitedevil.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Soldier", RESOURCES_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Fire", RESOURCES_DIRECTORY"/flame4x4orig.png", GL_REPEAT, GL_LINEAR);
 
     resman.LoadCubemap("T_SpaceSkybox", RESOURCES_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", RESOURCES_DIRECTORY"/skyboxes/messedup");
@@ -174,16 +177,10 @@ void Game::SetupScenes(void){
 void Game::SetupSpaceScene() {
     SceneGraph* scn = scenes[SPACE];
     Camera& camera = scn->GetCamera();
-    camera.SetView(config::camera_position, config::camera_look_at, config::camera_up);
+    camera.SetView({0.0, 1.75, 15.0}, config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
-    player->transform.SetPosition(player_position_g);
-    player->SetNormalMap("T_MetalNormalMap", 1.0);
-    camera.Attach(&player->transform, false);
-    scn->SetPlayer(player);
-    scn->AddNode(player);
 
     SceneNode* stars = new SceneNode("Obj_Starcloud", "M_StarCloud", "S_Default", "");
     // scn->AddNode(stars);
@@ -205,17 +202,17 @@ void Game::SetupSpaceScene() {
 
     SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
     skybox->transform.SetScale({2000, 2000, 2000});
-    scenes[SPACE]->SetSkybox(skybox);
+    // scenes[SPACE]->SetSkybox(skybox);
 
-    for(int i = 0; i < 3; i++) {
-        float radius = 600.0f;
+    for(int i = 0; i < 1; i++) {
+        float radius = 1200.0f;
         glm::vec3 base_pos = {radius*i, 0.0, 0.0};
         SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_Instanced", "T_LavaPlanet");
         astr->SetNormalMap("T_WallNormalMap", 4.0f);
         for(int i = 0; i < 512; i++) {
             bool instanced = true;
             glm::vec3 pos = base_pos + glm::ballRand(radius);
-            float s = rng.randfloat(3, 10);
+            float s = rng.randfloat(10, 30);
             float y = rng.randfloat(0, 2*PI);
             float r = rng.randfloat(0, 2*PI);
             float p = rng.randfloat(0, 2*PI);
@@ -239,6 +236,28 @@ void Game::SetupSpaceScene() {
         }
         scenes[SPACE]->AddNode(astr);
     }
+
+    Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
+    player->transform.SetPosition(player_position_g);
+    player->SetNormalMap("T_MetalNormalMap", 1.0);
+    camera.Attach(&player->transform, false);
+    scn->SetPlayer(player);
+    scn->AddNode(player);
+
+
+    float thrust_scale = 0.05f;
+    SceneNode* thrust1 = new SceneNode("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
+    thrust1->transform.SetPosition(glm::vec3(-0.85, -0.25, 5.0));
+    thrust1->SetAlphaEnabled(true);
+    // thrust1->transform.SetScale({thrust_scale, thrust_scale, thrust_scale});
+    player->AddChild(thrust1);
+
+    SceneNode* thrust2 = new SceneNode("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
+    thrust2->transform.SetPosition(glm::vec3(0.85, -0.25, 5.0));
+    thrust2->SetAlphaEnabled(true);
+    // thrust2->transform.SetScale({thrust_scale, thrust_scale, thrust_scale});
+    player->AddChild(thrust2);
+
     // Light* flashlight = new Light(Colors::Red);
     // l2->transform.SetPosition({-300.0, -300.0, 0.0});
     // l2->Attach(&player->transform);
@@ -319,6 +338,7 @@ void Game::SetupForestScene() {
     p->transform.SetOrientation({0.315484, 0.000000, 0.948931, 0.000000});
     p->visible = false;
     p->jump_speed_ = 20;
+    p->gravity_ = 9.8* 6;
     AddPlayerToScene(FOREST, p);
 
     // Tp_Player* p = new Tp_Player("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship");
