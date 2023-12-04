@@ -421,7 +421,7 @@ void Game::SetupDesertScene() {
 
     FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_NormalMapNoShadow", "T_Ship", &camera);
     p->SetNormalMap("T_MetalNormalMap");
-    p->transform.SetPosition({0, 20, 0});
+    p->transform.SetPosition({-191.718155, 20.999252, -395.274536});
     AddPlayerToScene(DESERT, p);
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 

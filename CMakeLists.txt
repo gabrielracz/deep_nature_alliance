@@ -43,6 +43,7 @@ set(HDRS
     include/game/colliders/colliders.h
     include/game/story_data.h
     include/game/menu_controller.h
+    include/game/skybox.h
 )
  
 set(SRCS
