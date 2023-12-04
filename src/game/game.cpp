@@ -27,6 +27,7 @@
 // #include "tree.h"
 #include "text.h"
 #include "terrain.h"
+#include "menu_controller.cpp"
 
 // Some configuration constants
 // They are written here as global variables, but ideally they should be loaded from a configuration file
@@ -169,9 +170,9 @@ void Game::SetupScenes(void){
     SetupFPScene(); // FPS TEST SCENE
     SetupForestScene();
     SetupDesertScene();
+    SetupMainMenuScene();
 
     ChangeScene(FPTEST);
-
 
 
     // // CreateTerrain();
@@ -429,8 +430,8 @@ void Game::SetupDesertScene() {
     Terrain* terr = new Terrain("Obj_DesertTerrain", "M_DesertTerain", "S_NormalMapNoShadow", "T_Sand", TerrainType::DUNES, terrain_size, terrain_size, 0.2, this);
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     terr->material.specular_power = 0.0f;
-    terr->material.texture_repetition = 100.0f;
-    terr->SetNormalMap("T_Sand_n", 20.0f);
+    terr->material.texture_repetition = 50.0f;
+    terr->SetNormalMap("T_Sand_n", 50.0f);
     p->SetTerrain(terr);
     scenes[DESERT]->AddNode(terr);
 
@@ -479,6 +480,16 @@ void Game::SetupDesertScene() {
     scenes[DESERT]->AddNode(cacti2);
 }
 
+void Game::SetupMainMenuScene() {
+    Camera& camera = scenes[MAIN_MENU]->GetCamera();
+    camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
+
+    Menu_Player* p = new Menu_Player("Obj_FP_Player", "M_Ship", "S_NormalMapNoShadow", "T_Ship");
+    p->transform.SetPosition({0,0,0});
+    AddPlayerToScene(MAIN_MENU, p);
+    
+}
 
 void Game::Update(double dt, KeyMap &keys) {
     CheckControls(keys, dt);
@@ -523,9 +534,18 @@ void Game::CheckControls(KeyMap& keys, float dt) {
         ChangeScene(DESERT);
         keys[GLFW_KEY_4] = false;
     }
+    if(keys[GLFW_KEY_5]) {
+        ChangeScene(MAIN_MENU);
+        keys[GLFW_KEY_5] = false;
+    }
 
 
     Player* player = active_scene->GetPlayer();
+
+    if (glfwGetMouseButton(app.GetWindow().ptr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        player->Control(Player::Controls::LEFTCLICK, dt);
+    }
+
     // Debug print the player's location
     if(keys[GLFW_KEY_P]) {
         glm::vec3 p = player->transform.GetPosition();
