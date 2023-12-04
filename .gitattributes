@@ -1,1 +1,3 @@
 *.h linguist-language=C++
+
+resources/sand_n.png filter=lfs diff=lfs merge=lfs

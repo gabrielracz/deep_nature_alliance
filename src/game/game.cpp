@@ -70,6 +70,8 @@ void Game::LoadMeshes() {
     resman.LoadMesh        ("M_BirchTree", RESOURCES_DIRECTORY"/birch_tree.obj");
     resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/lowpolytree.obj");
     resman.LoadMesh        ("M_Soldier", RESOURCES_DIRECTORY"/soldier.obj");
+    resman.LoadMesh        ("M_Cactus2", RESOURCES_DIRECTORY"/cactus2.obj");
+    resman.LoadMesh        ("M_Cactus9", RESOURCES_DIRECTORY"/cactus9.obj");
 
     // generate geometry
     resman.CreateQuad      ("M_Quad");
@@ -94,7 +96,8 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Text", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
     resman.LoadShader("S_Planet", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/textured_fp.glsl");
     resman.LoadShader("S_NormalMap", SHADER_DIRECTORY"/normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl");
-    resman.LoadShader("S_Instanced", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl", true);
+    resman.LoadShader("S_NormalMapNoShadow", SHADER_DIRECTORY"/normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_noshadows_fp.glsl");
+    resman.LoadShader("S_Instanced", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_noshadows_fp.glsl", true);
     resman.LoadShader("S_Lava", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/lit_lava_fp.glsl");
     resman.LoadShader("S_Skybox", SHADER_DIRECTORY"/skybox_vp.glsl", SHADER_DIRECTORY"/skybox_fp.glsl");
 
@@ -134,9 +137,17 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MoonObj1", RESOURCES_DIRECTORY"/whitedevil.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Soldier", RESOURCES_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus2", RESOURCES_DIRECTORY"/cactus2.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus2_n", RESOURCES_DIRECTORY"/cactus2_n.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus9", RESOURCES_DIRECTORY"/cactus9.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus9_n", RESOURCES_DIRECTORY"/cactus9_n.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Sand", RESOURCES_DIRECTORY"/sand.jpg", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Sand_n", RESOURCES_DIRECTORY"/sand_n.png", GL_REPEAT, GL_LINEAR);
+    
 
     resman.LoadCubemap("T_SpaceSkybox", RESOURCES_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", RESOURCES_DIRECTORY"/skyboxes/messedup");
+    resman.LoadCubemap("T_BlueSkybox", RESOURCES_DIRECTORY"/skyboxes/bluesky", false);
 
     std::cout << "textures loaded" << std::endl;
 }
@@ -157,6 +168,7 @@ void Game::SetupScenes(void){
     SetupSpaceScene();
     SetupFPScene(); // FPS TEST SCENE
     SetupForestScene();
+    SetupDesertScene();
 
     ChangeScene(FPTEST);
 
@@ -280,7 +292,7 @@ void Game::SetupFPScene(void) {
     lt->SetNodeType(TLAVA);
     AddColliderToScene(FPTEST, lt);
 
-    SceneNode* moonobj = new SceneNode("Obj_MoonObject", "M_MoonObject", "S_Instanced", "T_MoonObj1");
+    SceneNode* moonobj = new SceneNode("Obj_MoonObject", "M_MoonObject", "S_InstancedShadow", "T_MoonObj1");
     moonobj->SetNormalMap("T_WallNormalMap", 1.0f);
     moonobj->material.specular_power = 0.0f;
     moonobj->SetAlphaEnabled(true);
@@ -402,6 +414,72 @@ void Game::SetupForestScene() {
     scenes[FOREST]->AddNode(birch);
 }
 
+void Game::SetupDesertScene() {
+    Camera& camera = scenes[DESERT]->GetCamera();
+    camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
+
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_NormalMapNoShadow", "T_Ship", &camera);
+    p->SetNormalMap("T_MetalNormalMap");
+    p->transform.SetPosition({0, 20, 0});
+    AddPlayerToScene(DESERT, p);
+    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+
+    int terrain_size = 10000;
+    Terrain* terr = new Terrain("Obj_DesertTerrain", "M_DesertTerain", "S_NormalMapNoShadow", "T_Sand", TerrainType::DUNES, terrain_size, terrain_size, 0.2, this);
+    terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
+    terr->material.specular_power = 0.0f;
+    terr->material.texture_repetition = 100.0f;
+    terr->SetNormalMap("T_Sand_n", 20.0f);
+    p->SetTerrain(terr);
+    scenes[DESERT]->AddNode(terr);
+
+    Light* light = new Light(Colors::SeaBlue);
+    light->transform.SetPosition({1000.0, 10000.0, -2000.0});
+    light->ambient_power = 0.05;
+    scenes[DESERT]->AddLight(light);
+
+    SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_BlueSkybox");
+    skybox->transform.SetScale({100, 100, 100});
+    scenes[DESERT]->SetSkybox(skybox);
+
+    SceneNode* cacti = new SceneNode("Obj_Catci9", "M_Cactus9", "S_Instanced", "T_Cactus9");
+    SceneNode* cacti2 = new SceneNode("Obj_Catci2", "M_Cactus2", "S_Instanced", "T_Cactus2");
+    cacti->SetNormalMap("T_Cactus9_n", 1.0f);
+    cacti2->SetNormalMap("T_Cactus2_n", 1.0f);
+    cacti->material.specular_power = 1250.0f;
+    cacti2->material.specular_power = 1250.0f;
+    float CACTI_SPAWN_X = 5000.0;
+    float CACTI_SPAWN_Z = 5000.0;
+    float x,y,z,s,r;
+    for (int i = 0; i < 1000; i++) {
+        x = rng.randfloat(-CACTI_SPAWN_X, CACTI_SPAWN_X);
+        z = rng.randfloat(-CACTI_SPAWN_Z, CACTI_SPAWN_Z);
+        y = terr->SampleHeight(x, z);
+        s = rng.randfloat(8, 14);
+        r = rng.randfloat(0, 2 * PI);
+        Transform t;
+        t.SetPosition({x, y, z});
+        t.SetScale({s, s, s});
+        t.Yaw(r);
+        cacti->AddInstance(t);
+ 
+        x = rng.randfloat(-CACTI_SPAWN_X, CACTI_SPAWN_X);
+        z = rng.randfloat(-CACTI_SPAWN_Z, CACTI_SPAWN_Z);
+        y = terr->SampleHeight(x, z);
+        s = rng.randfloat(8, 14);
+        r = rng.randfloat(0, 2 * PI);
+        Transform t2;
+        t2.SetPosition({x, y, z});
+        t2.SetScale({s, s, s});
+        t2.Yaw(r);
+        cacti2->AddInstance(t2);
+    }
+    scenes[DESERT]->AddNode(cacti);
+    scenes[DESERT]->AddNode(cacti2);
+}
+
+
 void Game::Update(double dt, KeyMap &keys) {
     CheckControls(keys, dt);
     active_scene->Update(dt);
@@ -440,6 +518,10 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if(keys[GLFW_KEY_3]) {
         ChangeScene(FOREST);
         keys[GLFW_KEY_3] = false;
+    }
+    if(keys[GLFW_KEY_4]) {
+        ChangeScene(DESERT);
+        keys[GLFW_KEY_4] = false;
     }
 
 
