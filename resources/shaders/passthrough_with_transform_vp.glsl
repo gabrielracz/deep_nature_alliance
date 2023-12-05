@@ -8,7 +8,7 @@ uniform mat4 world_mat;
 out vec2 uv_interp;
 
 void main() {
-    gl_Position = world_mat * vec4(vertex.xy, 0.0, 1.0);
+    gl_Position = world_mat * vec4(vertex.xy, -0.1, 1.0);
     // gl_Position = vec4(vertex.xy, 0.0, 1.0);
     uv_interp = uv;
 }

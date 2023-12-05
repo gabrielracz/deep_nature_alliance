@@ -11,14 +11,12 @@ Menu_Player::Menu_Player(const std::string name, const std::string& mesh_id, con
 
 void Menu_Player::Update(double dt){
     glm::vec2 mpos = getMousePos();
-    std::cout << "xpos " << mpos.x  << " ypos " << mpos.y << std::endl;
 
     float screenX = mpos.x / win->width;
     float screenY = mpos.y / win->height;
 
-    std::cout << "screen x " << screenX  << " screen y " << screenY << std::endl;
-
-    cursor->transform.SetPosition(glm::vec3(screenX, screenY, 0.0));
+    // cursor->transform.SetPosition(glm::vec3(screenX, screenY, 0.0));
+    cursor->transform.SetPosition(glm::vec3(screenX * 2.0f - 1.0f, 1.0f - screenY * 2.0f, 0.0));
 
     float radius = 1.0f;
     float angularSpeed = 0.2f;  // in radians per second
@@ -30,7 +28,7 @@ void Menu_Player::Update(double dt){
     // Set the new position
     // transform.SetPosition(glm::vec3(newX, transform.GetPosition().y, newZ));
 
-    // Player::Update(dt);
+    Player::Update(dt);
 }
 
 void Menu_Player::Control(Controls c, float dt, float damping){
