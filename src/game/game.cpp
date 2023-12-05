@@ -55,8 +55,7 @@ void Game::Init(void){
     app.SetResizeHandler(std::bind(&Game::ResizeCameras, this, std::placeholders::_1, std::placeholders::_2));
     app.ToggleMouseCapture(); // disable mouse by default
 }
-
-       
+   
 void Game::SetupResources(void){
     LoadMeshes();
     LoadShaders();
@@ -422,14 +421,14 @@ void Game::SetupDesertScene() {
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
 
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_NormalMapNoShadow", "T_Ship", &camera);
+    FP_Player* p = new FP_Player("Obj_Desert_player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
     p->SetNormalMap("T_MetalNormalMap");
-    p->transform.SetPosition({-191.718155, 20.999252, -395.274536});
+    p->SetTargetStartPos(glm::vec3(0,100,0));
     AddPlayerToScene(DESERT, p);
-    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+    // camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
     int terrain_size = 10000;
-    Terrain* terr = new Terrain("Obj_DesertTerrain", "M_DesertTerain", "S_NormalMapNoShadow", "T_Sand", TerrainType::DUNES, terrain_size, terrain_size, 0.2, this);
+    Terrain* terr = new Terrain("Obj_DesertTerrain", "M_DesertTerain", "S_NormalMap", "T_Sand", TerrainType::DUNES, terrain_size, terrain_size, 0.2, this);
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     terr->material.specular_power = 0.0f;
     terr->material.texture_repetition = 50.0f;
@@ -437,17 +436,17 @@ void Game::SetupDesertScene() {
     p->SetTerrain(terr);
     scenes[DESERT]->AddNode(terr);
 
-    Light* light = new Light(Colors::SeaBlue);
-    light->transform.SetPosition({1000.0, 10000.0, -2000.0});
-    light->ambient_power = 0.05;
+    Light* light = new Light(Colors::SunLight);
+    light->transform.SetPosition({1000.0, 1000.0, 0.0});
+    // light->ambient_power = 0.05;
     scenes[DESERT]->AddLight(light);
 
     SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_BlueSkybox");
-    skybox->transform.SetScale({100, 100, 100});
+    skybox->transform.SetScale({1000, 1000, 1000});
     scenes[DESERT]->SetSkybox(skybox);
 
-    SceneNode* cacti = new SceneNode("Obj_Catci9", "M_Cactus9", "S_Instanced", "T_Cactus9");
-    SceneNode* cacti2 = new SceneNode("Obj_Catci2", "M_Cactus2", "S_Instanced", "T_Cactus2");
+    SceneNode* cacti = new SceneNode("Obj_Catci9", "M_Cactus9", "S_InstancedShadow", "T_Cactus9");
+    SceneNode* cacti2 = new SceneNode("Obj_Catci2", "M_Cactus2", "S_InstancedShadow", "T_Cactus2");
     cacti->SetNormalMap("T_Cactus9_n", 1.0f);
     cacti2->SetNormalMap("T_Cactus2_n", 1.0f);
     cacti->material.specular_power = 1250.0f;
