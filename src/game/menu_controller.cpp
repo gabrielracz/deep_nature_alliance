@@ -13,7 +13,12 @@ void Menu_Player::Update(double dt){
     glm::vec2 mpos = getMousePos();
     std::cout << "xpos " << mpos.x  << " ypos " << mpos.y << std::endl;
 
-    cursor->transform.SetPosition(glm::vec3(mpos.x, mpos.y, 0.0));
+    float screenX = mpos.x / win->width;
+    float screenY = mpos.y / win->height;
+
+    std::cout << "screen x " << screenX  << " screen y " << screenY << std::endl;
+
+    cursor->transform.SetPosition(glm::vec3(screenX, screenY, 0.0));
 
     float radius = 1.0f;
     float angularSpeed = 0.2f;  // in radians per second
