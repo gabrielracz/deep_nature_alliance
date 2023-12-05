@@ -6,21 +6,37 @@ Menu_Player::Menu_Player(const std::string name, const std::string& mesh_id, con
 }
 
 void Menu_Player::Update(double dt){
+    glm::vec2 mpos = getMousePos();
+    std::cout << "xpos " << mpos.x  << " ypos " << mpos.y << std::endl;
 
+    float radius = 1.0f;
+    float angularSpeed = 0.2f;  // in radians per second
+
+    // Calculate the new position in a circular motion
+    float newX = radius * cos(angularSpeed * dt);
+    float newZ = radius * sin(angularSpeed * dt);
+
+    // Set the new position
+    // transform.SetPosition(glm::vec3(newX, transform.GetPosition().y, newZ));
+
+    // Player::Update(dt);
 }
 
 void Menu_Player::Control(Controls c, float dt, float damping){
-    double x, y;
-    glfwGetCursorPos(win->ptr, &x, &y);
+    glm::vec2 mpos = getMousePos();
     if (c == Player::Controls::LEFTCLICK){
-        for (auto button: buttons){
-            button->click(glm::vec2(x, y), win);
+        for (auto button : buttons){
+            button->click(mpos, win);
         }
     }
 }
 
 void Menu_Player::MouseControls(Mouse& mouse) {
-    //need to do something to display cursor here maybe just have a child scenenode with another quad and texture which i move with mouse.prev
-    //or use system cursor and disable capturing
-    //just set quad stuff here
+    //just handle in update and control
+}
+
+glm::vec2 Menu_Player::getMousePos() {
+    double x, y;
+    glfwGetCursorPos(win->ptr, &x, &y);
+    return {x,y};
 }

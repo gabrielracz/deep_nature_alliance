@@ -47,6 +47,8 @@ class Menu_Player : public Player {
         //needed for aspect ratio and shit 
         Window *win;
 
+        glm::vec2 getMousePos();
+
         
 
 };

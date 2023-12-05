@@ -157,7 +157,7 @@ void Game::LoadTextures() {
 void Game::SetupScenes(void){
     // allocate all scenes
     for(int i = 0; i < SceneEnum::NUM_SCENES; i++) {
-        scenes.push_back(new SceneGraph(app));
+        scenes.push_back(new SceneGraph());
     }
 
 
@@ -498,8 +498,49 @@ void Game::SetupMainMenuScene() {
     right->topLeftCoordPercentage = {0.5,0};
     right->spanPercentage = {0.5, 1.0};
     p->addButton(right);
-
     AddPlayerToScene(MAIN_MENU, p);
+    // camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+    // camera.Attach(&p->transform, false);
+
+    Light* light = new Light(Colors::WarmWhite);
+    light->transform.SetPosition({300.0, 300.0, 0.0});
+    AddLightToScene(MAIN_MENU, light);
+
+    // SceneNode* stars = new SceneNode("Obj_Starcloud", "M_StarCloud", "S_Default", "");
+    // AddToScene(MAIN_MENU, stars);
+
+    for(int i = 0; i < 3; i++) {
+        float radius = 600.0f;
+        glm::vec3 base_pos = {radius*i, 0.0, 0.0};
+        SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_Instanced", "T_LavaPlanet");
+        astr->SetNormalMap("T_WallNormalMap", 4.0f);
+        for(int i = 0; i < 512; i++) {
+            bool instanced = true;
+            glm::vec3 pos = base_pos + glm::ballRand(radius);
+            float s = rng.randfloat(3, 10);
+            float y = rng.randfloat(0, 2*PI);
+            float r = rng.randfloat(0, 2*PI);
+            float p = rng.randfloat(0, 2*PI);
+            // float s = 1;
+            if(instanced) {
+                Transform t;
+                t.SetPosition(pos);
+                t.SetScale({s,s,s});
+                t.Yaw(y);
+                t.Roll(r);
+                t.Pitch(p);
+                astr->AddInstance(t);
+            } else {
+                SceneNode* tree = new SceneNode("Obj_Forest", "M_Asteroid", "S_Lit", "T_LavaPlanet");
+                // tree->SetNormalMap("T_TreeNormalMap");
+                tree->transform.SetPosition(pos);
+                tree->transform.SetScale({s,s,s});
+                tree->transform.Yaw(r);
+                scenes[MAIN_MENU]->AddNode(tree);
+            }
+        }
+        scenes[MAIN_MENU]->AddNode(astr);
+    }
 }
 
 void Game::Update(double dt, KeyMap &keys) {
