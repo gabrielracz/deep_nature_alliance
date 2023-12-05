@@ -1,8 +1,8 @@
 #include "menu_controller.h"
 
-Menu_Player::Menu_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id, Window *w): 
+Menu_Player::Menu_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id, RenderBundle mouseCursor, Window *w): 
     Player(name, mesh_id, shader_id, texture_id), buttons(), win(w){
-
+        AddChild(new SceneNode("mychilddawg", mouseCursor.mesh_id, mouseCursor.shader_id, mouseCursor.texture_id));
 }
 
 void Menu_Player::Update(double dt){
