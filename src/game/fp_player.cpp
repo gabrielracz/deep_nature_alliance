@@ -85,7 +85,7 @@ void FP_Player::PlayerJump()
         Jump();
         has_dashed_ = false;
     }
-    else if (!has_dashed_ && jumping_)
+    else if (!has_dashed_ && jumping_ && dash_unlocked_)
     {
         glm::vec3 dash_vector = glm::normalize(glm::vec3(0.0f, 0.0f, -10.0f) + glm::vec3(0.0f, glm::abs(sin(dash_angle_)), 0.0f));
         dash_vector = glm::normalize(glm::vec3(transform.GetOrientation() * glm::vec4(glm::normalize(dash_vector), 0.0)));

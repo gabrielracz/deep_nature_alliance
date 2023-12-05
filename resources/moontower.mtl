@@ -1,4 +1,4 @@
-# Blender 4.0.1 MTL File: 'None'
+# Blender 4.0.1 MTL File: 'giga_tower.blend'
 # www.blender.org
 
 newmtl Material.001
@@ -9,4 +9,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd home/q/Downloads/tree.type.1.texture.png
+map_Kd /home/q/Downloads/spacemetal.webp

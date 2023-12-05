@@ -48,3 +48,42 @@ float RandGenerator::randfloat(float min, float max) {
 int RandGenerator::randsign() {
     return rand() % 2 == 0 ? 1 : -1;
 }
+
+float RandGenerator::squaredDistance(const glm::vec3& p1, const glm::vec3& p2) {
+    return glm::dot(p1 - p2, p1 - p2);
+}
+
+float RandGenerator::squaredDistanceXZ(const glm::vec3& p1, const glm::vec3& p2) {
+    return (p1.x - p2.x) * (p1.x - p2.x) + (p1.z - p2.z) * (p1.z - p2.z);
+}
+
+std::vector<glm::vec3> RandGenerator::generateUniqueRandomPoints(int num_points, float min_dist, float range, bool xz) {
+    std::vector<glm::vec3> generatedPoints;
+	int max_count = 0.0;
+    while (generatedPoints.size() < static_cast<size_t>(num_points) && max_count < 1000) {
+        glm::vec3 point = glm::linearRand(glm::vec3(-range), glm::vec3(range));
+
+        bool tooClose = false;
+        for (const glm::vec3& existingPoint : generatedPoints) {
+			if (xz) {
+				if (squaredDistanceXZ(point, existingPoint) < min_dist * min_dist) {
+                	tooClose = true;
+                	break;
+            	}
+			} else {
+            	if (squaredDistance(point, existingPoint) < min_dist * min_dist) {
+                	tooClose = true;
+                	break;
+            	}
+			}
+        }
+
+        if (!tooClose) {
+            generatedPoints.push_back(point);
+        } else {
+			++max_count;
+		}
+    }
+
+    return generatedPoints;
+}

@@ -20,6 +20,8 @@ public:
     void Reset();
     void TestMove();
 
+    void UnlockDash() {dash_unlocked_ = true;}
+
 protected:
     void HeadMovement(float dt);
 
@@ -37,6 +39,7 @@ protected:
     float sensitivity_ = 0.001f;
 
     float collider_radius_ = 2.0f;
+    bool dash_unlocked_ = false;
 
 private:
 //  enum FPControls {
