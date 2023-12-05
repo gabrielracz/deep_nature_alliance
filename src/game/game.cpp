@@ -281,17 +281,10 @@ void Game::SetupFPScene(void) {
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[FPTEST]->SetSkybox(skybox);
 
-    Item* pill = new Item("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill");
-    pill->transform.SetPosition({10,-25,10});
-    pill->transform.SetScale({5,5,5});
-    pill->SetAlphaEnabled(true);
-    pill->SetCollectCallback([p]() { p->UnlockDash(); });
-    AddColliderToScene(FPTEST, pill);
-
     int terrain_size = 1000;
-    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, terrain_size, terrain_size, 0.25, this);
+    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, terrain_size, terrain_size, 0.2, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
-    t->material.texture_repetition = 6.0f;
+    t->material.texture_repetition = 5.0f;
     t->SetNormalMap("T_WallNormalMap", 40.0f);
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
@@ -389,6 +382,13 @@ void Game::SetupFPScene(void) {
         }
     }
     scenes[FPTEST]->AddNode(tower);
+
+    Item* pill = new Item("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill");
+    pill->transform.SetPosition({10,-25,10});
+    pill->transform.SetScale({5,5,5});
+    pill->SetAlphaEnabled(true);
+    pill->SetCollectCallback([p]() { p->UnlockDash(); });
+    AddColliderToScene(FPTEST, pill);
 }
 
 void Game::SetupForestScene() {

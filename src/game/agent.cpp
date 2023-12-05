@@ -110,6 +110,7 @@ void Agent::DownMove(float dt)
 void Agent::Update(double dt)
 {
     prev_position_ = transform.GetPosition();
+    target_position_ = prev_position_;
 
     on_ground_ = OnGround();
 

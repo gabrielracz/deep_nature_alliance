@@ -106,8 +106,7 @@ void FP_Player::Update(double dt)
 }
 
 void FP_Player::Reset() {
-    transform.SetPosition(glm::vec3(0.0f));
-    target_position_ = glm::vec3(0.0f);
+    transform.SetPosition({0.0f, 0.0f, 0.0f});
 }
 
 void FP_Player::MouseControls(Mouse &mouse)
