@@ -65,14 +65,14 @@ void Game::SetupResources(void){
 
 void Game::LoadMeshes() {
     // load .obj meshes
-    resman.LoadMesh        ("M_Ship", RESOURCES_DIRECTORY"/h2.obj");
-    resman.LoadMesh        ("M_Tree4", RESOURCES_DIRECTORY"/tree4.obj");
-    // resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/oak.obj");
-    resman.LoadMesh        ("M_BirchTree", RESOURCES_DIRECTORY"/birch_tree.obj");
-    resman.LoadMesh        ("M_Tree", RESOURCES_DIRECTORY"/lowpolytree.obj");
-    resman.LoadMesh        ("M_Soldier", RESOURCES_DIRECTORY"/soldier.obj");
-    resman.LoadMesh        ("M_Cactus2", RESOURCES_DIRECTORY"/cactus2.obj");
-    resman.LoadMesh        ("M_Cactus9", RESOURCES_DIRECTORY"/cactus9.obj");
+    resman.LoadMesh        ("M_Ship", MESH_DIRECTORY"/h2.obj");
+    resman.LoadMesh        ("M_Tree4", MESH_DIRECTORY"/tree4.obj");
+    // resman.LoadMesh        ("M_Tree", MESH_DIRECTORY"/oak.obj");
+    resman.LoadMesh        ("M_BirchTree", MESH_DIRECTORY"/birch_tree.obj");
+    resman.LoadMesh        ("M_Tree", MESH_DIRECTORY"/lowpolytree.obj");
+    resman.LoadMesh        ("M_Soldier", MESH_DIRECTORY"/soldier.obj");
+    resman.LoadMesh        ("M_Cactus2", MESH_DIRECTORY"/cactus2.obj");
+    resman.LoadMesh        ("M_Cactus9", MESH_DIRECTORY"/cactus9.obj");
 
     // generate geometry
     resman.CreateQuad      ("M_Quad");
@@ -114,41 +114,41 @@ void Game::LoadShaders() {
 
 void Game::LoadTextures() {
     // load textures
-    resman.LoadTexture("T_Charmap", RESOURCES_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
-    resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST);
-    resman.LoadTexture("T_Ship", RESOURCES_DIRECTORY"/shiptex.png", GL_REPEAT);
-    // resman.LoadTexture("T_LavaPlanet", RESOURCES_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST, 4.0f);
-    // resman.LoadTexture("T_SnowPlanet", RESOURCES_DIRECTORY"/snow_planet.png", GL_LINEAR);
-    resman.LoadTexture("T_MarsPlanet", RESOURCES_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
-    // resman.LoadTexture("T_RockPlanet", RESOURCES_DIRECTORY"/mine_rocks.png", GL_REPEAT);
-    // resman.LoadTexture("T_RedPlanet", RESOURCES_DIRECTORY"/red_rubble.png", GL_REPEAT);
-    resman.LoadTexture("T_MoonPlanet", RESOURCES_DIRECTORY"/4k_ceres.jpg", GL_REPEAT, GL_LINEAR);
-    // resman.LoadTexture("T_KaliaPlanet", RESOURCES_DIRECTORY"/kalia.png", GL_REPEAT);
-    // resman.LoadTexture("T_KaliaPlanet", RESOURCES_DIRECTORY"/kalia.png", GL_REPEAT);
-    resman.LoadTexture("T_WallNormalMap", RESOURCES_DIRECTORY"/normal_map2.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_RockNormalMap", RESOURCES_DIRECTORY"/lavarock_normalmap.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_Grass", RESOURCES_DIRECTORY"/whispy_grass_texture.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_GrassNormalMap", RESOURCES_DIRECTORY"/whispy_grass_normal_map.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_MetalNormalMap", RESOURCES_DIRECTORY"/metal_normal_map.png", GL_REPEAT, GL_LINEAR);
-    // resman.LoadTexture("T_Tree4", RESOURCES_DIRECTORY"/tree4_texture.png", GL_REPEAT, GL_LINEAR);
-    // resman.LoadTexture("T_TreeNormalMap", RESOURCES_DIRECTORY"/tree4_normal_map.png", GL_REPEAT, GL_LINEAR);
-    // resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/oak_texture.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_BirchTree", RESOURCES_DIRECTORY"/birch_texture.png", GL_REPEAT, GL_LINEAR);
-    // resman.LoadTexture("T_BirchNormalMap", RESOURCES_DIRECTORY"/birch_normal_map.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_Tree", RESOURCES_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_MoonObj1", RESOURCES_DIRECTORY"/whitedevil.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_Soldier", RESOURCES_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_Cactus2", RESOURCES_DIRECTORY"/cactus2.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_Cactus2_n", RESOURCES_DIRECTORY"/cactus2_n.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_Cactus9", RESOURCES_DIRECTORY"/cactus9.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_Cactus9_n", RESOURCES_DIRECTORY"/cactus9_n.png", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_Sand", RESOURCES_DIRECTORY"/sand.jpg", GL_REPEAT, GL_LINEAR);
-    resman.LoadTexture("T_Sand_n", RESOURCES_DIRECTORY"/sand_n.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Charmap", TEXTURE_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
+    resman.LoadTexture("T_LavaPlanet", TEXTURE_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST);
+    resman.LoadTexture("T_Ship", TEXTURE_DIRECTORY"/shiptex.png", GL_REPEAT);
+    // resman.LoadTexture("T_LavaPlanet", TEXTURE_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST, 4.0f);
+    // resman.LoadTexture("T_SnowPlanet", TEXTURE_DIRECTORY"/snow_planet.png", GL_LINEAR);
+    resman.LoadTexture("T_MarsPlanet", TEXTURE_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
+    // resman.LoadTexture("T_RockPlanet", TEXTURE_DIRECTORY"/mine_rocks.png", GL_REPEAT);
+    // resman.LoadTexture("T_RedPlanet", TEXTURE_DIRECTORY"/red_rubble.png", GL_REPEAT);
+    resman.LoadTexture("T_MoonPlanet", TEXTURE_DIRECTORY"/4k_ceres.jpg", GL_REPEAT, GL_LINEAR);
+    // resman.LoadTexture("T_KaliaPlanet", TEXTURE_DIRECTORY"/kalia.png", GL_REPEAT);
+    // resman.LoadTexture("T_KaliaPlanet", TEXTURE_DIRECTORY"/kalia.png", GL_REPEAT);
+    resman.LoadTexture("T_WallNormalMap", TEXTURE_DIRECTORY"/normal_map2.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_RockNormalMap", TEXTURE_DIRECTORY"/lavarock_normalmap.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Grass", TEXTURE_DIRECTORY"/whispy_grass_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_GrassNormalMap", TEXTURE_DIRECTORY"/whispy_grass_normal_map.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_MetalNormalMap", TEXTURE_DIRECTORY"/metal_normal_map.png", GL_REPEAT, GL_LINEAR);
+    // resman.LoadTexture("T_Tree4", TEXTURE_DIRECTORY"/tree4_texture.png", GL_REPEAT, GL_LINEAR);
+    // resman.LoadTexture("T_TreeNormalMap", TEXTURE_DIRECTORY"/tree4_normal_map.png", GL_REPEAT, GL_LINEAR);
+    // resman.LoadTexture("T_Tree", TEXTURE_DIRECTORY"/oak_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_BirchTree", TEXTURE_DIRECTORY"/birch_texture.png", GL_REPEAT, GL_LINEAR);
+    // resman.LoadTexture("T_BirchNormalMap", TEXTURE_DIRECTORY"/birch_normal_map.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Tree", TEXTURE_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_MoonObj1", TEXTURE_DIRECTORY"/whitedevil.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Soldier", TEXTURE_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus2", TEXTURE_DIRECTORY"/cactus2.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus2_n", TEXTURE_DIRECTORY"/cactus2_n.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus9", TEXTURE_DIRECTORY"/cactus9.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus9_n", TEXTURE_DIRECTORY"/cactus9_n.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Sand", TEXTURE_DIRECTORY"/sand.jpg", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Sand_n", TEXTURE_DIRECTORY"/sand_n.png", GL_REPEAT, GL_LINEAR);
     
 
-    resman.LoadCubemap("T_SpaceSkybox", RESOURCES_DIRECTORY"/skyboxes/space");
-    resman.LoadCubemap("T_MessedUpSkybox", RESOURCES_DIRECTORY"/skyboxes/messedup");
-    resman.LoadCubemap("T_BlueSkybox", RESOURCES_DIRECTORY"/skyboxes/bluesky", false);
+    resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
+    resman.LoadCubemap("T_MessedUpSkybox", TEXTURE_DIRECTORY"/skyboxes/messedup");
+    resman.LoadCubemap("T_BlueSkybox", TEXTURE_DIRECTORY"/skyboxes/bluesky", false);
 
     std::cout << "textures loaded" << std::endl;
 }
