@@ -33,7 +33,7 @@ class Button {
 class Menu_Player : public Player {
 
     public:
-        Menu_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id);
+        Menu_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id, Window *w);
 
         virtual void Update(double dt) override;
         virtual void Control(Controls c, float dt, float damping = 1.0) override;

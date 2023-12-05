@@ -27,7 +27,7 @@
 // #include "tree.h"
 #include "text.h"
 #include "terrain.h"
-#include "menu_controller.cpp"
+#include "menu_controller.h"
 
 // Some configuration constants
 // They are written here as global variables, but ideally they should be loaded from a configuration file
@@ -485,10 +485,21 @@ void Game::SetupMainMenuScene() {
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
 
-    Menu_Player* p = new Menu_Player("Obj_FP_Player", "M_Ship", "S_NormalMapNoShadow", "T_Ship");
+    Menu_Player* p = new Menu_Player("Obj_FP_Player", "M_Ship", "S_NormalMapNoShadow", "T_Ship", app.GetWindow());
     p->transform.SetPosition({0,0,0});
+    Button *left = new Button();
+    left->action = std::bind(&Game::ChangeScene, this, DESERT);
+    left->topLeftCoordPercentage = {0,0};
+    left->spanPercentage = {0.5, 1.0};
+    p->addButton(left);
+
+    Button *right = new Button();
+    right->action = std::bind(&Game::ChangeScene, this, FOREST);
+    right->topLeftCoordPercentage = {0.5,0};
+    right->spanPercentage = {0.5, 1.0};
+    p->addButton(right);
+
     AddPlayerToScene(MAIN_MENU, p);
-    
 }
 
 void Game::Update(double dt, KeyMap &keys) {
@@ -542,7 +553,7 @@ void Game::CheckControls(KeyMap& keys, float dt) {
 
     Player* player = active_scene->GetPlayer();
 
-    if (glfwGetMouseButton(app.GetWindow().ptr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+    if (glfwGetMouseButton(app.GetWindow()->ptr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
         player->Control(Player::Controls::LEFTCLICK, dt);
     }
 
