@@ -61,7 +61,7 @@ public:
 
     const glm::mat4 GetLocalMatrix() {return CalculateMatrix();}
     const glm::mat4& GetWorldMatrix() const {return transf_world;}
-    const glm::mat4& GetWorldMatrixNoScale() const {return transf_world;}
+    const glm::mat4& GetWorldMatrixNoScale() const {return transf_world_no_scale;}
     const glm::vec3& GetPosition() const { return position;}
     glm::vec3 GetWorldPosition() const {return transf_world * glm::vec4(0.0, 0.0, 0.0, 1.0f);}
     const glm::quat& GetOrientation() const { return orientation;}
