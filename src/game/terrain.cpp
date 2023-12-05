@@ -45,7 +45,7 @@ void Terrain::GenerateHeightmap(TerrainType type) {
             GenerateQMoon();
             break;
         case TerrainType::FOREST:
-            SampleTerrainForHeight(rocky_terrain, 500);
+            SampleTerrainForHeight(rocky_terrain, 50);
             break;
         case TerrainType::DUNES:
             SampleTerrainForHeight(dunes_terrain, 500.0f);

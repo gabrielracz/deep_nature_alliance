@@ -421,7 +421,7 @@ void Game::SetupForestScene() {
 
 
     // ENV
-    int terrain_size = 10000;
+    int terrain_size = 1000;
     Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.2, this);
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     terr->material.specular_power = 0.0f;
