@@ -53,6 +53,9 @@ class Menu_Player : public Player {
         //needed for aspect ratio and shit 
         Window *win;
 
+        //better then checkign child each time
+        SceneNode *cursor;
+
         glm::vec2 getMousePos();
 
         

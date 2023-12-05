@@ -2,12 +2,18 @@
 
 Menu_Player::Menu_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id, RenderBundle mouseCursor, Window *w): 
     Player(name, mesh_id, shader_id, texture_id), buttons(), win(w){
-        AddChild(new SceneNode("mychilddawg", mouseCursor.mesh_id, mouseCursor.shader_id, mouseCursor.texture_id));
+        cursor = new SceneNode("mychilddawg", mouseCursor.mesh_id, mouseCursor.shader_id, mouseCursor.texture_id);
+        cursor->transform.SetScale(glm::vec3(0.1));
+        // cursor->transform.SetPosition(glm::vec3(0))
+        AddChild(cursor);
+
 }
 
 void Menu_Player::Update(double dt){
     glm::vec2 mpos = getMousePos();
     std::cout << "xpos " << mpos.x  << " ypos " << mpos.y << std::endl;
+
+    cursor->transform.SetPosition(glm::vec3(mpos.x, mpos.y, 0.0));
 
     float radius = 1.0f;
     float angularSpeed = 0.2f;  // in radians per second
