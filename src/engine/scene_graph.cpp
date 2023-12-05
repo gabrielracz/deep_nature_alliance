@@ -1,9 +1,8 @@
 #include "scene_graph.h"
-#include "application.h"
 
 //TODO: Add SceneGraph INIT
-SceneGraph::SceneGraph(Application& app)
-    : colman(), app(app) {
+SceneGraph::SceneGraph()
+    : colman(){
     background_color_ = glm::vec3(0.0, 0.0, 0.0);
 }
 
@@ -67,7 +66,6 @@ void SceneGraph::DismissStoryText() {
         story_text.pop_front();
     }
 }
-
 
 std::vector<SceneNode*> SceneGraph::GetScreenSpaceNodes() {
     std::vector<SceneNode*> nodes;

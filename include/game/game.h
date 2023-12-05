@@ -95,6 +95,7 @@ class Game {
         void SetupSpaceScene(void);
         void SetupForestScene(void);
         void SetupDesertScene();
+        void SetupMainMenuScene();
 
         void LoadMeshes();
         void LoadShaders();

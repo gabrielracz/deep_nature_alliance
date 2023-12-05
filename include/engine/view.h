@@ -53,7 +53,7 @@ public:
     int GetWidth() { return win.width; }
     int GetHeight() { return win.height; }
 
-    Window GetWindow() { return win; }
+    Window* GetWindow() { return &win; }
 
 private:
     Application &app;

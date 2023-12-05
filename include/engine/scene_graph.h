@@ -15,15 +15,13 @@
 #include "terrain.h"
 #include "text.h"
 
-class Application;
-
 // Class that manages all the objects in a scene
 class SceneGraph {
    public:
     // Scene nodes to render
 
     // Constructor and destructor
-    SceneGraph(Application& app);
+    SceneGraph();
     ~SceneGraph();
 
     // Background color
@@ -72,7 +70,6 @@ class SceneGraph {
     Camera camera;
     Player* player;
     SceneNode* skybox = nullptr;
-    Application& app;
     Terrain* terrain;
 
 };  // class SceneGraph
