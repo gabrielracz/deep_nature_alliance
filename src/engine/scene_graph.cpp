@@ -28,8 +28,18 @@ SceneNode* SceneGraph::GetNode(std::string node_name) const {
 }
 
 void SceneGraph::Update(double dt) {
-    for (int i = 0; i < node_.size(); i++) {
+    /*for (int i = 0; i < node_.size(); i++) {
         node_[i]->Update(dt);
+    }*/
+
+    for (auto it = node_.begin(); it != node_.end();) {
+        SceneNode *sn = *it;
+        if (sn->deleted) {
+            it = node_.erase(it);
+        } else{
+            sn->Update(dt);
+            ++it;
+        } 
     }
 
     int w = camera.GetWinWidth();

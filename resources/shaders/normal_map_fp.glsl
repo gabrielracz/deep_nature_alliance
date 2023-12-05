@@ -172,6 +172,8 @@ void main() {
         vec3 n_bump = normalize(texture(normal_map, uv_interp * normal_map_repetition).rgb*2.0 - 1.0);  // sample normal map
         vec3 normal = normalize(normal_interp + n_bump) ;                                               // displace fragment normal by bump
         vec4 pixel = texture(texture_map, uv_interp * texture_repetition);                              // sample color texture
+        if(pixel.a < 0.1)
+            discard;
         // vec4 pixel = vec4(color_interp, 1.0);                                                                       // mix with underlying model color
         float shadow = ShadowCalculation(shadow_space_pos);
         // if(shadow > 0.0) {

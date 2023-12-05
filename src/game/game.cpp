@@ -72,6 +72,8 @@ void Game::LoadMeshes() {
     resman.LoadMesh        ("M_Soldier", MESH_DIRECTORY"/soldier.obj");
     resman.LoadMesh        ("M_Cactus2", MESH_DIRECTORY"/cactus2.obj");
     resman.LoadMesh        ("M_Cactus9", MESH_DIRECTORY"/cactus9.obj");
+    resman.LoadMesh        ("M_MoonTree", MESH_DIRECTORY"/moontree.obj");
+    resman.LoadMesh        ("M_SELTower", MESH_DIRECTORY"/moontower.obj");
 
     // generate geometry
     resman.CreateQuad      ("M_Quad");
@@ -81,7 +83,7 @@ void Game::LoadMeshes() {
     resman.CreatePointCloud("M_StarCloud", 70000, 2000, {0.8, 0.8, 0.8, 0.8});
     resman.CreateSphere    ("M_Planet", 1, 100, 100);
     resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
-
+    resman.CreateSaplingQuad("M_Sapling");
     resman.CreateCone       ("M_MoonObject", 10, 3, 4, 4);
 
     resman.CreateSimpleCube("M_Skybox");
@@ -136,6 +138,7 @@ void Game::LoadTextures() {
     // resman.LoadTexture("T_BirchNormalMap", TEXTURE_DIRECTORY"/birch_normal_map.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Tree", TEXTURE_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MoonObj1", TEXTURE_DIRECTORY"/whitedevil.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_MoonObj2", TEXTURE_DIRECTORY"/reddevil.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Soldier", TEXTURE_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Cactus2", TEXTURE_DIRECTORY"/cactus2.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Cactus2_n", TEXTURE_DIRECTORY"/cactus2_n.png", GL_REPEAT, GL_LINEAR);
@@ -145,6 +148,9 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Sand_n", TEXTURE_DIRECTORY"/sand_n.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Cursor", TEXTURE_DIRECTORY"/cursor.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
     resman.LoadTexture("T_Splash", TEXTURE_DIRECTORY"/splash.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
+    resman.LoadTexture("T_Pill", TEXTURE_DIRECTORY"/scaledpill.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_MoonTree", TEXTURE_DIRECTORY"/moontreetex.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_SpaceMetal", TEXTURE_DIRECTORY"/spacemetal.png", GL_REPEAT, GL_LINEAR);
     
 
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
@@ -271,18 +277,14 @@ void Game::SetupFPScene(void) {
     p->visible = false;
     AddPlayerToScene(FPTEST, p);
 
-    SceneNode* n = new SceneNode("Shippy", "M_Ship", "S_Lit");
-    n->transform.SetPosition(glm::vec3(0,0,-10));
-    AddToScene(FPTEST, n);
-
     SceneNode* skybox = new SceneNode("Obj_MoonSkybox", "M_Skybox", "S_Skybox", "T_MessedUpSkybox");
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[FPTEST]->SetSkybox(skybox);
 
     int terrain_size = 1000;
-    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, terrain_size, terrain_size, 0.25, this);
+    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, terrain_size, terrain_size, 0.2, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
-    t->material.texture_repetition = 6.0f;
+    t->material.texture_repetition = 5.0f;
     t->SetNormalMap("T_WallNormalMap", 40.0f);
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
@@ -297,8 +299,7 @@ void Game::SetupFPScene(void) {
     SceneNode* moonobj = new SceneNode("Obj_MoonObject", "M_MoonObject", "S_InstancedShadow", "T_MoonObj1");
     moonobj->SetNormalMap("T_WallNormalMap", 1.0f);
     moonobj->material.specular_power = 0.0f;
-    moonobj->SetAlphaEnabled(true);
-    for(int i = 0; i < 800; i++) {
+    for(int i = 0; i < 400; i++) {
         bool instanced = true;
         float x = rng.randfloat(-1000, 1000);
         float z = rng.randfloat(-1000, 1000);
@@ -317,6 +318,77 @@ void Game::SetupFPScene(void) {
         moonobj->AddInstance(t);
     }
     scenes[FPTEST]->AddNode(moonobj);
+
+    SceneNode* moonobj2 = new SceneNode("Obj_MoonObject", "M_MoonObject", "S_InstancedShadow", "T_MoonObj2");
+    moonobj2->SetNormalMap("T_WallNormalMap", 1.0f);
+    moonobj2->material.specular_power = 0.0f;
+    for(int i = 0; i < 400; i++) {
+        bool instanced = true;
+        float x = rng.randfloat(-1000, 1000);
+        float z = rng.randfloat(-1000, 1000);
+        float y = rng.randfloat(-30, 300);
+        float s = rng.randfloat(0.3, 1.3);
+        float r1 = rng.randfloat(-2*PI, 2*PI);
+        float r2 = rng.randfloat(-2*PI, 2*PI);
+        float r3 = rng.randfloat(-2*PI, 2*PI);
+
+        Transform t;
+        t.SetPosition({x, y, z});
+        t.SetScale({s,s,s});
+        t.Yaw(r1);
+        t.Pitch(r2);
+        t.Roll(r3);
+        moonobj2->AddInstance(t);
+    }
+    scenes[FPTEST]->AddNode(moonobj2);
+
+    SceneNode* tree = new SceneNode("Obj_MoonTree", "M_MoonTree", "S_InstancedShadow", "T_MoonTree");
+    tree->SetNormalMap("T_WallNormalMap", 0.005f);
+    tree->material.specular_power = 150.0;
+    for(int i = 0; i < 50; i++) {
+        bool instanced = true;
+        float x = rng.randfloat(-400, 400);
+        float z = rng.randfloat(-400, 400);
+        float y = t->SampleHeight(x, z);
+        float s = rng.randfloat(0.5, 3);
+        float r = rng.randfloat(0, 2*PI);
+        if(instanced) {
+            Transform tra;
+            tra.SetPosition({x, y, z});
+            tra.SetScale({s,s,s});
+            tra.Yaw(r);
+            tree->AddInstance(tra);
+        }
+    }
+    scenes[FPTEST]->AddNode(tree);
+
+    SceneNode* tower = new SceneNode("Obj_SpaceTower", "M_SELTower", "S_InstancedShadow", "T_SpaceMetal");
+    tower->SetNormalMap("T_WallNormalMap", 0.005f);
+    tower->material.specular_power = 150.0;
+    std::vector<glm::vec3> points = rng.generateUniqueRandomPoints(10, 100.0f, 400.0f);
+    for (int i = 0; i < points.size(); ++i) {
+        bool instanced = true;
+        float x = points[i].x;
+        float z = points[i].z;
+        float y = t->SampleHeight(x, z);
+        float s = rng.randfloat(15, 16);
+        float r = rng.randfloat(0, 2*PI);
+        if(instanced) {
+            Transform tra;
+            tra.SetPosition({x, y, z});
+            tra.SetScale({s,s,s});
+            tra.Yaw(r);
+            tower->AddInstance(tra);
+        }
+    }
+    scenes[FPTEST]->AddNode(tower);
+
+    Item* pill = new Item("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill");
+    pill->transform.SetPosition({10,-25,10});
+    pill->transform.SetScale({5,5,5});
+    pill->SetAlphaEnabled(true);
+    pill->SetCollectCallback([p]() { p->UnlockDash(); });
+    AddColliderToScene(FPTEST, pill);
 }
 
 void Game::SetupForestScene() {

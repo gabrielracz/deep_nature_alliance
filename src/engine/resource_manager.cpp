@@ -768,6 +768,48 @@ void ResourceManager::CreateQuad(std::string name) {
     overwrite_emplace(meshes, name, Mesh(vertices, indices, l));
 }
 
+void ResourceManager::CreateSaplingQuad(std::string name) {
+    std::vector<float> vertices = {
+        // Front Face
+		 0.5f, -0.5f, 0.0f,  0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  1.0f, 0.0f, // Bottom Right
+         0.5f,  0.5f, 0.0f,  0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  1.0f, 1.0f, // Top Right
+		-0.5f, -0.5f, 0.0f,  0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  0.0f, 0.0f, // Bottom Left
+		-0.5f,  0.5f, 0.0f,  0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  0.0f, 1.0f, // Top Left
+
+        // Back face
+         0.5f,  0.5f, 0.0f,  0.0, 0.0, -1.0,  1.0, 1.0, 1.0,  0.0f, 1.0f,
+         0.5f, -0.5f, 0.0f,  0.0, 0.0, -1.0,  1.0, 1.0, 1.0,  1.0f, 1.0f,
+        -0.5f,  0.5f, 0.0f,  0.0, 0.0, -1.0,  1.0, 1.0, 1.0,  0.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f,  0.0, 0.0, -1.0,  1.0, 1.0, 1.0,  1.0f, 0.0f,
+
+        0.0f, -0.5f, -0.5f,  0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  1.0f, 0.0f, // Bottom-left
+        0.0f,  0.5f, -0.5f,  0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  1.0f, 1.0f, // Top-left
+        0.0f, -0.5f,  0.5f,  0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  0.0f, 0.0f, // Bottom-right
+        0.0f,  0.5f,  0.5f,  0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  0.0f, 1.0f,  // Top-right
+
+        0.0f, -0.5f,  0.5f,  0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  1.0f, 0.0f, // Bottom-left
+        0.0f,  0.5f,  0.5f,  0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  1.0f, 1.0f, // Top-left
+        0.0f, -0.5f, -0.5f,  0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  0.0f, 0.0f, // Bottom-right
+        0.0f,  0.5f, -0.5f,  0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  0.0f, 1.0f,  // Top-right
+	};
+
+    std::vector<unsigned int> indices = {
+        0, 1, 2,
+        2, 1, 3,
+
+        4, 5, 6,
+        6, 5, 7,
+
+        8, 9, 10,
+        10, 9, 11,
+
+        12, 13, 14,
+        14, 13, 15
+    };
+    
+    overwrite_emplace(meshes, name, Mesh(vertices, indices, generator_layout));
+}
+
 void ResourceManager::CreateSimpleCube(std::string object_name) {
 const std::vector<float> cube_vertices = {
     // Vertices

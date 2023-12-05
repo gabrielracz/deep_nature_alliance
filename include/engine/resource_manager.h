@@ -47,6 +47,7 @@ class ResourceManager {
         void CreateFire(std::string object_name, int num_points, float size, glm::vec4 color = {0.0f, 0.0f, 0.0f, 0.0f});
         void CreateQuad(std::string object_name);
         void CreateSimpleCube(std::string object_name);
+        void CreateSaplingQuad(std::string name);
 
         
     private:

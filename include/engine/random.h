@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <random>
 #include <chrono>
+#include <glm/glm.hpp>
+#include "glm/gtc/random.hpp"
 
 class RandGenerator {
 public:
@@ -16,6 +18,9 @@ public:
 	int randint();
 	float randfloat();
     int randsign();
+	float squaredDistance(const glm::vec3& p1, const glm::vec3& p2);
+	float squaredDistanceXZ(const glm::vec3& p1, const glm::vec3& p2);
+	std::vector<glm::vec3> generateUniqueRandomPoints(int num_points, float min_dist, float range, bool xz = true);
 private:
 	std::random_device rd;
 	std::default_random_engine eng;

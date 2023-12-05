@@ -66,6 +66,8 @@ void main()
 
 	vec3 n = normalize(normal_interp); 
     vec4 pixel = texture2D(texture_map, uv_interp * texture_repetition);
+    if(pixel.a < 0.1)
+        discard;
     // pixel *= color_interp;
     vec4 accumulator = vec4(0.0, 0.0, 0.0, 0.0);
     for(int i = 0; i < num_lights; i++) {

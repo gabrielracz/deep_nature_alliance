@@ -73,6 +73,7 @@ class SceneNode {
         MaterialProperties material;
         bool active = true;
         bool visible = true;
+        bool deleted = false;
         int inverted = 0;
         RenderMode render_mode = FILL;
     protected:
