@@ -39,7 +39,7 @@ glm::vec3 Transform::LocalAxis(Axis a){
 
 
 void Transform::Rotate(const glm::quat& rot) {
-    orientation = orientation * rot;
+    orientation =  orientation * rot;
     orientation = glm::normalize(orientation);
     dirty = true;
 }
@@ -55,13 +55,18 @@ void Transform::Translate(const glm::vec3& trans) {
     dirty = true;
 }
 
+void Transform::TranslateRelative(const glm::vec3& trans) {
+    position += orientation * trans;
+    dirty = true;
+}
+
 void Transform::Pitch(float angle) {
     glm::quat rotation = glm::angleAxis(angle, axes[SIDE]); 
     Rotate(rotation);
 }
 
 void Transform::Yaw(float angle) {
-    glm::quat rotation = glm::angleAxis(angle, axes[UP]); // not the correct axis
+    glm::quat rotation = glm::angleAxis(angle, axes[UP]); 
     Rotate(rotation);
 }
 

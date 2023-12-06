@@ -2,126 +2,93 @@
 #include "light.h"
 #include <GL/glext.h>
 #include <exception>
+#include <fstream>
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
 #include "defines.h"
 
-Shader::Shader(const std::string& vertex_path, const std::string& fragment_path, bool instanced, const std::string& geometry_path) {
+Shader::Shader(const char* vertex_path, const char* fragment_path, const char* geometry_path, bool instanced) {
 	vert_path = vertex_path;
 	frag_path = fragment_path;
-	geom_path = geometry_path;
+    geom_path = geometry_path;
     memset(lightsblock.lights, 0, MAX_LIGHTS * sizeof(ShaderLight));
     Load();
+    SetupLighting();
     if(instanced) {
         SetupInstancing();
     }
 }
 
-bool Shader::Load() {
-	//Read Files
-	std::string vertex_code;
-	std::string frag_code;
-	std::ifstream vshader_file;
-	std::ifstream fshader_file;
-
-	vshader_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	fshader_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+static bool read_file(std::string path, std::string& dest) {
+	std::ifstream file_stream;
+	file_stream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	try {
-		vshader_file.open(vert_path);
-        if(!vshader_file.good()) {
-            std::cout << "error on vertex shader file open" << std::endl;
+		file_stream.open(path);
+        if(!file_stream.good()) {
+            std::cout << "error on file " << path <<  " open" << std::endl;
         }
-		fshader_file.open(frag_path);
-        if(!fshader_file.good()) {
-            std::cout << "error on fragment shader file open" << std::endl;
-        }
-		std::stringstream vshader_stream, fshader_stream;
-		vshader_stream << vshader_file.rdbuf();
-		fshader_stream << fshader_file.rdbuf();
+		std::stringstream read_stream;
+		read_stream << file_stream.rdbuf();
+		file_stream.close();
 
-		vshader_file.close();
-		fshader_file.close();
-
-		vertex_code = vshader_stream.str();
-		frag_code = fshader_stream.str();
+		dest = read_stream.str();
 	}
 	catch (std::exception& e) {
-		std::cout << "[ERROR][SHADER] file read error"<< e.what() << std::endl;
+		std::cout << "[ERROR][SHADER] file read error " << path << " " << e.what() << std::endl;
 		return false;
 	}
+    return true;
+}
+
+static int compile_shader(std::string code, GLuint type, std::string path) {
+	int success = 0;
+	char infolog[512];
+    int shader_id = 0;
+    const char* source = code.c_str();
+	shader_id = glCreateShader(type);
+	glShaderSource(shader_id, 1, &source, NULL);
+	glCompileShader(shader_id);
+	glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		glGetShaderInfoLog(shader_id, 512, NULL, infolog);
+		std::cout << "[ERROR][SHADER] shader compilation failed " << path << ":\n"
+        << infolog << std::endl;
+	}
+    return shader_id;
+}
+
+
+bool Shader::Load() {
+	//Read Files
+	std::string vertex_code = "";
+	std::string frag_code   = "";
+	std::string geom_code   = "";
+
+    read_file(vert_path, vertex_code);
+    read_file(frag_path, frag_code);
+    if(!geom_path.empty()) {
+        read_file(geom_path, geom_code);
+    }
 
 	//Compile and link shaders
-	const char* vertex_source = vertex_code.c_str();
-	const char* frag_source = frag_code.c_str();
+	unsigned int vertex_shader, frag_shader, geom_shader;
 
-	unsigned int vertex_shader, frag_shader;
-	int success;
-	char infolog[512];
-
-	vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex_shader, 1, &vertex_source, NULL);
-	glCompileShader(vertex_shader);
-	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(vertex_shader, 512, NULL, infolog);
-		std::cout << "[ERROR][SHADER] vertex compilation failed " << vert_path << ":\n"
-        << infolog << std::endl;
-		return false;
-	}
-
-	frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(frag_shader, 1, &frag_source, NULL);
-	glCompileShader(frag_shader);
-	glGetShaderiv(frag_shader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(frag_shader, 512, NULL, infolog);
-		std::cout << "[ERROR][SHADER] fragment compilation failed " << frag_path << ":\n" << infolog << std::endl;
-		return false;
-	}
+    vertex_shader = compile_shader(vertex_code, GL_VERTEX_SHADER, vert_path);
+    frag_shader = compile_shader(frag_code, GL_FRAGMENT_SHADER, frag_path);
+    if(!geom_code.empty()) {
+        geom_shader = compile_shader(geom_code, GL_GEOMETRY_SHADER, geom_path);
+    }
 
 	id = glCreateProgram();
 	glAttachShader(id, vertex_shader);
 	glAttachShader(id, frag_shader);
-
-	//geometry shader stuff, is seperate because it is optional
-	std::string geom_code;
-	std::ifstream gshader_file;
-
-    if (!geom_path.empty()) {
-        gshader_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-        try {
-            gshader_file.open(geom_path);
-            if (!gshader_file.good()) {
-                std::cout << "error on geometry shader file open" << std::endl;
-            }
-            std::stringstream gshader_stream;
-            gshader_stream << gshader_file.rdbuf();
-            gshader_file.close();
-            geom_code = gshader_stream.str();
-        } catch (std::exception& e) {
-            std::cout << "[ERROR][SHADER] file read error" << e.what() << std::endl;
-            return false;
-        }
-    }
-
-    unsigned int geom_shader;
-    if (!geom_code.empty()) {
-        const char* geom_source = geom_code.c_str();
-        geom_shader = glCreateShader(GL_GEOMETRY_SHADER);
-        glShaderSource(geom_shader, 1, &geom_source, NULL);
-        glCompileShader(geom_shader);
-        glGetShaderiv(geom_shader, GL_COMPILE_STATUS, &success);
-        if (!success) {
-            glGetShaderInfoLog(geom_shader, 512, NULL, infolog);
-            std::cout << "[ERROR][SHADER] geometry compilation failed " << geom_path << ":\n"
-                      << infolog << std::endl;
-            return false;
-        }
+    if(!geom_code.empty()) {
         glAttachShader(id, geom_shader);
     }
-
 	glLinkProgram(id);
 
+	int success;
+	char infolog[512];
 	glGetProgramiv(id, GL_LINK_STATUS, &success);
 	if (!success) {
 		glGetProgramInfoLog(id, 512, NULL, infolog);
@@ -131,10 +98,14 @@ bool Shader::Load() {
 
 	glDeleteShader(vertex_shader);
 	glDeleteShader(frag_shader);
-	if (geom_shader) {
-		glDeleteShader(geom_shader);
-	}
+    if(!geom_code.empty()) {
+        glDeleteShader(geom_shader);
+    }
 
+	return true;
+}
+
+void Shader::SetupLighting() {
     glGenBuffers(1, &lights_ubo);
     GLuint bindingPoint = 0;  // Choose a suitable binding point
     GLuint lightsBlockIndex = glGetUniformBlockIndex(id, "LightsBlock");
@@ -142,9 +113,6 @@ bool Shader::Load() {
     glUniformBlockBinding(id, lightsBlockIndex, bindingPoint);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(LightsBlock), nullptr, GL_STREAM_DRAW);
     SetUniform1i(0, "LightsBlock");
-
-    // Associate the buffer with the block index
-	return true;
 }
 
 

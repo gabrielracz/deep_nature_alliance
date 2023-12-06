@@ -94,7 +94,7 @@ void Text::SetContent(const std::string& str) {
     num_lines = lines.size();
 }
 
-void Text::SetUniforms(Shader* shader, const glm::mat4 &view_matrix) {
+void Text::SetUniforms(Shader* shader, const glm::mat4& view_matrix, const glm::mat4 &parent_matrix) {
     int len = content.size();
     shader->SetUniform1i(line_len, "line_len");
     shader->SetUniform1i(num_lines, "num_lines");
