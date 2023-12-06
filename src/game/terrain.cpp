@@ -45,7 +45,7 @@ void Terrain::GenerateHeightmap(TerrainType type) {
             GenerateQMoon();
             break;
         case TerrainType::FOREST:
-            GenerateForest();
+            SampleTerrainForHeight(rocky_terrain, 50);
             break;
         case TerrainType::DUNES:
             SampleTerrainForHeight(dunes_terrain, 500.0f);
@@ -93,52 +93,53 @@ void Terrain::SampleTerrainForHeight(const std::vector<std::vector<float>>& terr
 }
 
 void Terrain::GenerateQMoon() {
-    float image_xstep = sizeof(terrain[0]) / sizeof(*terrain[0]) / num_xsteps;
-    float image_zstep = sizeof(terrain) / sizeof(*terrain) / num_zsteps;
-    for (int z = 0; z < num_zsteps; z++) {
-        for (int x = 0; x < num_xsteps; x++) {
-            float height;
-            bool imageTerrain = true;
-            if (imageTerrain) {
-                float sampleX = x * image_xstep;
-                float sampleZ = z * image_zstep;
+//     float image_xstep = sizeof(terrain[0]) / sizeof(*terrain[0]) / num_xsteps;
+//     float image_zstep = sizeof(terrain) / sizeof(*terrain) / num_zsteps;
+//     for (int z = 0; z < num_zsteps; z++) {
+//         for (int x = 0; x < num_xsteps; x++) {
+//             float height;
+//             bool imageTerrain = true;
+//             if (imageTerrain) {
+//                 float sampleX = x * image_xstep;
+//                 float sampleZ = z * image_zstep;
 
-                int x0 = static_cast<int>(std::floor(sampleX));
-                int z0 = static_cast<int>(std::floor(sampleZ));
+//                 int x0 = static_cast<int>(std::floor(sampleX));
+//                 int z0 = static_cast<int>(std::floor(sampleZ));
 
-                // Clamp the coordinates to be within valid range
-                x0 = glm::clamp(x0, 0, static_cast<int>(sizeof(terrain[0]) / sizeof(*terrain[0])) - 2);
-                z0 = glm::clamp(z0, 0, static_cast<int>(sizeof(terrain) / sizeof(*terrain) - 2));
+//                 // Clamp the coordinates to be within valid range
+//                 x0 = glm::clamp(x0, 0, static_cast<int>(sizeof(terrain[0]) / sizeof(*terrain[0])) - 2);
+//                 z0 = glm::clamp(z0, 0, static_cast<int>(sizeof(terrain) / sizeof(*terrain) - 2));
 
-                // Get the fractional part of the coordinates
-                float sx = sampleX - static_cast<float>(x0);
-                float sz = sampleZ - static_cast<float>(z0);
+//                 // Get the fractional part of the coordinates
+//                 float sx = sampleX - static_cast<float>(x0);
+//                 float sz = sampleZ - static_cast<float>(z0);
 
-                // Perform bilinear interpolation on the terrain heights
-                float h00 = terrain[x0][z0] * 10;
-                float h10 = terrain[x0 + 1][z0] * 10;
-                float h01 = terrain[x0][z0 + 1] * 10;
-                float h11 = terrain[x0 + 1][z0 + 1] * 10;
+//                 // Perform bilinear interpolation on the terrain heights
+//                 float h00 = terrain[x0][z0] * 10;
+//                 float h10 = terrain[x0 + 1][z0] * 10;
+//                 float h01 = terrain[x0][z0 + 1] * 10;
+//                 float h11 = terrain[x0 + 1][z0 + 1] * 10;
 
-                float h0 = (1 - sx) * h00 + sx * h10;
-                float h1 = (1 - sx) * h01 + sx * h11;
+//                 float h0 = (1 - sx) * h00 + sx * h10;
+//                 float h1 = (1 - sx) * h01 + sx * h11;
 
-                glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 50.0f;
-                float perlin = glm::perlin(sample);
+//                 glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 50.0f;
+//                 float perlin = glm::perlin(sample);
 
-                height = (1 - sz) * h0 + sz * h1 + perlin;
-            } else {
-                glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
-                height = glm::perlin(sample) * 50.0;
-                // shelf generation:
-                // float height = 0.0;
-                // if (x > 150){
-                //     height = 100.0;
-                // }
-            }
-            heights[x][z] = height;
-        }
-    }
+//                 height = (1 - sz) * h0 + sz * h1 + perlin;
+//             } else {
+//                 glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
+//                 height = glm::perlin(sample) * 50.0;
+//                 // shelf generation:
+//                 // float height = 0.0;
+//                 // if (x > 150){
+//                 //     height = 100.0;
+//                 // }
+//             }
+//             heights[x][z] = height;
+//         }
+//     }
+    SampleTerrainForHeight(terrain, 10);
 
     int min_craters = 40;
     int max_craters = 60;
@@ -245,45 +246,45 @@ void Terrain::GenerateQMoon() {
 }
 
 void Terrain::GenerateForest() {
-    float image_xstep = sizeof(rocky_terrain[0]) / sizeof(*rocky_terrain[0]) / num_xsteps;
-    float image_zstep = sizeof(rocky_terrain) / sizeof(*rocky_terrain) / num_zsteps;
-    for (int z = 0; z < num_zsteps; z++) {
-        for (int x = 0; x < num_xsteps; x++) {
-                float sampleX = x * image_xstep;
-                float sampleZ = z * image_zstep;
+    // float image_xstep = sizeof(rocky_terrain[0]) / sizeof(*rocky_terrain[0]) / num_xsteps;
+    // float image_zstep = sizeof(rocky_terrain) / sizeof(*rocky_terrain) / num_zsteps;
+    // for (int z = 0; z < num_zsteps; z++) {
+    //     for (int x = 0; x < num_xsteps; x++) {
+    //             float sampleX = x * image_xstep;
+    //             float sampleZ = z * image_zstep;
 
-                int x0 = static_cast<int>(std::floor(sampleX));
-                int z0 = static_cast<int>(std::floor(sampleZ));
+    //             int x0 = static_cast<int>(std::floor(sampleX));
+    //             int z0 = static_cast<int>(std::floor(sampleZ));
 
-                // Clamp the coordinates to be within valid range
-                x0 = glm::clamp(x0, 0, static_cast<int>(sizeof(rocky_terrain[0]) / sizeof(*rocky_terrain[0])) - 2);
-                z0 = glm::clamp(z0, 0, static_cast<int>(sizeof(rocky_terrain) / sizeof(*rocky_terrain) - 2));
+    //             // Clamp the coordinates to be within valid range
+    //             x0 = glm::clamp(x0, 0, static_cast<int>(sizeof(rocky_terrain[0]) / sizeof(*rocky_terrain[0])) - 2);
+    //             z0 = glm::clamp(z0, 0, static_cast<int>(sizeof(rocky_terrain) / sizeof(*rocky_terrain) - 2));
 
-                // Get the fractional part of the coordinates
-                float sx = sampleX - static_cast<float>(x0);
-                float sz = sampleZ - static_cast<float>(z0);
+    //             // Get the fractional part of the coordinates
+    //             float sx = sampleX - static_cast<float>(x0);
+    //             float sz = sampleZ - static_cast<float>(z0);
 
-                // Perform bilinear interpolation on the rocky_terrain heights
-                float h00 = rocky_terrain[x0][z0]         * 50;
-                float h10 = rocky_terrain[x0 + 1][z0]     * 50;
-                float h01 = rocky_terrain[x0][z0 + 1]     * 50;
-                float h11 = rocky_terrain[x0 + 1][z0 + 1] * 50;
+    //             // Perform bilinear interpolation on the rocky_terrain heights
+    //             float h00 = rocky_terrain[x0][z0]         * 50;
+    //             float h10 = rocky_terrain[x0 + 1][z0]     * 50;
+    //             float h01 = rocky_terrain[x0][z0 + 1]     * 50;
+    //             float h11 = rocky_terrain[x0 + 1][z0 + 1] * 50;
 
-                float h0 = (1 - sx) * h00 + sx * h10;
-                float h1 = (1 - sx) * h01 + sx * h11;
+    //             float h0 = (1 - sx) * h00 + sx * h10;
+    //             float h1 = (1 - sx) * h01 + sx * h11;
 
-                // glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 50.0f;
-                // float perlin = glm::perlin(sample);
+    //             // glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 50.0f;
+    //             // float perlin = glm::perlin(sample);
 
-                float height = (1 - sz) * h0 + sz * h1;
+    //             float height = (1 - sz) * h0 + sz * h1;
 
 
-                // glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
-                // float height = glm::perlin(sample) * 50.0;
-                heights[x][z] = height;
-                // heights[x][z] = height;
-        }
-    }
+    //             // glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
+    //             // float height = glm::perlin(sample) * 50.0;
+    //             heights[x][z] = height;
+    //             // heights[x][z] = height;
+    //     }
+    // }
 }
 
 void Terrain::GenerateLava() {

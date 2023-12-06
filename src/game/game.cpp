@@ -425,15 +425,16 @@ void Game::SetupForestScene() {
     Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.2, this);
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     terr->material.specular_power = 0.0f;
-    terr->material.texture_repetition = 10.0f;
+    terr->material.texture_repetition = 100.0f;
     // terr->SetNormalMap("T_GrassNormalMap", 5.0f);
-    terr->SetNormalMap("T_WallNormalMap", 5.0f);
+    terr->SetNormalMap("T_WallNormalMap", 50.0f);
     p->SetTerrain(terr);
     scenes[FOREST]->AddTerrain(terr);
 
     Light* light = new Light(Colors::BrightYellow);
     // light->transform.SetPosition({1000.0, 1000.0, -2000.0});
     light->transform.SetPosition({1000.0, 1000.0, 0.0});
+    // ship->transform.SetOrientation({0.334468, 0.000000, 0.942407, 0.000000});
     light->ambient_power = 0.15;
     scenes[FOREST]->AddLight(light);
 
