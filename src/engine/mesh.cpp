@@ -126,6 +126,7 @@ Mesh::Mesh(const std::string& obj_file_path)
         {FLOAT2, "uv"},
         {FLOAT3, "tangent"},
     });
+
     SetupBuffers();
 }
 

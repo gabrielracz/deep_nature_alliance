@@ -19,7 +19,7 @@ typedef enum {
 class Transform { 
 private:
     glm::vec3 position    {glm::vec3(0.0f)};
-    glm::quat orientation {};
+    glm::quat orientation {glm::quat(0.0, 0.0, 0.0, 0.0)};
     glm::vec3 scale       {glm::vec3(1.0f)};
     glm::quat orbit {};
     glm::vec3 joint = {0.0f, 0.0f, 0.0f};
@@ -47,6 +47,7 @@ public:
     void Rotate(const glm::quat& rot);
     void RotateOrbit(const glm::quat& rot);
     void Translate(const glm::vec3& trans);
+    void TranslateRelative(const glm::vec3& trans);
     void Pitch(float angle);
     void Yaw(float angle);
     void Roll(float angle);

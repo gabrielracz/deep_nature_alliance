@@ -84,6 +84,10 @@ void Tp_Player::Update(double dt) {
     transform.Roll(angular_velocity.z);
 
     torque = glm::vec3(0.0f);
+
+    if(thrusting) {
+
+    }
     SceneNode::Update(dt);
 }
 
@@ -102,6 +106,7 @@ void Tp_Player::Control(Controls c, float dt, float damping){
         case Player::Controls::SHIFT:
             // f;worce += -transform.LocalAxis(FORWARD) * thrust_force;
             force += transform.GetAxis(FORWARD) * thrust_force;
+            thrusting = true;
             break;
         case Player::Controls::CTRL:
             braking = true;
