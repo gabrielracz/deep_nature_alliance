@@ -32,7 +32,7 @@ public:
 
     int GetWinWidth() {return view.GetWidth();}
     int GetWinHeight() {return view.GetHeight();}
-    Window GetWindow() { return view.GetWindow(); }
+    Window* GetWindow() { return view.GetWindow(); }
     float GetFPS() {return fps;}
 
 };

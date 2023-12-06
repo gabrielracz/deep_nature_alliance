@@ -45,8 +45,8 @@ bool SphereCollider::CollidesWithBox(BoxCollider* other) {
 
 bool SphereCollider::CollidesWithSphere(SphereCollider* other) {
     glm::vec3 pos1 = owner_.transform.GetPosition();
-    glm::vec3 pos2 = other->GetOwner().transform.GetWorldPosition();
-    return glm::distance(pos1, pos2) < radius_ + other->GetRadius();
+    glm::vec3 pos2 = other->GetOwner().transform.GetPosition();
+    return glm::distance(pos1, pos2) < GetRadius() + other->GetRadius();
 }
 
 bool SphereCollider::CollidesWithTerrain(TerrainCollider* other) {
@@ -56,25 +56,10 @@ bool SphereCollider::CollidesWithTerrain(TerrainCollider* other) {
 bool SphereCollider::CollidesWithPlayer(FPPlayerCollider* other) {
     glm::vec3 pos1 = owner_.transform.GetPosition();
     glm::vec3 pos2 = other->GetPlayer().transform.GetWorldPosition();
-    return glm::distance(pos1, pos2) < radius_ + other->GetRadius();
+    return glm::distance(pos1, pos2) < GetRadius() + other->GetRadius();
 }
 
 // TERRAIN COLLIDER
-bool TerrainCollider::CollidesWithBox(BoxCollider* other) {
-    return false;
-}
-
-bool TerrainCollider::CollidesWithSphere(SphereCollider* other) {
-    return false;
-}
-
-bool TerrainCollider::CollidesWithPlayer(FPPlayerCollider* other) {
-    return false;
-}
-
-bool TerrainCollider::CollidesWithTerrain(TerrainCollider* other) {
-    return false;
-}
 
 // PLAYER COLLIDER
 bool FPPlayerCollider::CollidesWithBox(BoxCollider* other) {
@@ -100,4 +85,59 @@ bool FPPlayerCollider::CollidesWithTerrain(TerrainCollider* other) {
 bool FPPlayerCollider::CollidesWithPlayer(FPPlayerCollider* other) {
     return false;
 }
+
+bool FPPlayerCollider::CollidesWithCylinder(CylinderCollider *other) {
+    glm::vec3 sphere_position = player_.transform.GetPosition();
+    glm::vec3 cylinder_position = other->GetOwner().transform.GetPosition();
+    float closestPointOnAxis = glm::clamp(sphere_position.y, cylinder_position.y, cylinder_position.y + other->GetHeight());
+    float distanceSquared = glm::distance2(glm::vec3(sphere_position.x, closestPointOnAxis, sphere_position.z), cylinder_position);
+    return distanceSquared <= (radius_ + other->GetRadius()) * (radius_ + other->GetRadius());
+}
+
+bool FPPlayerCollider::CollidesWithScalingCylinder(ScalingCylinderCollider *other) {
+    glm::vec3 sphere_position = player_.transform.GetPosition();
+    glm::vec3 cylinder_position = other->GetOwner().transform.GetPosition();
+    float height = other->GetOwner().transform.GetScale().y;
+    float radius = other->GetOwner().transform.GetScale().x * 0.5f;
+    float closestPointOnAxis = glm::clamp(sphere_position.y, cylinder_position.y, cylinder_position.y + height);
+    float distanceSquared = glm::distance2(glm::vec3(sphere_position.x, closestPointOnAxis, sphere_position.z), cylinder_position);
+    return distanceSquared <= (radius + radius_) * (radius + radius_);
+}
+
+//CYLINDER COLLIDER
+bool CylinderCollider::CollidesWithPlayer(FPPlayerCollider *other) {
+    glm::vec3 sphere_position = other->GetPlayer().transform.GetPosition();
+    glm::vec3 cylinder_position = owner_.transform.GetPosition();
+    float closestPointOnAxis = glm::clamp(sphere_position.y, cylinder_position.y, cylinder_position.y + height_);
+    float distanceSquared = glm::distance2(glm::vec3(sphere_position.x, closestPointOnAxis, sphere_position.z), cylinder_position);
+    return distanceSquared <= (radius_ + other->GetRadius()) * (radius_ + other->GetRadius());
+}
+bool CylinderCollider::CollidesWithSphere(SphereCollider *other) {
+    glm::vec3 sphere_position = other->GetOwner().transform.GetPosition();
+    glm::vec3 cylinder_position = owner_.transform.GetPosition();
+    float closestPointOnAxis = glm::clamp(sphere_position.y, cylinder_position.y, cylinder_position.y + height_);
+    float distanceSquared = glm::distance2(glm::vec3(sphere_position.x, closestPointOnAxis, sphere_position.z), cylinder_position);
+    return distanceSquared <= (radius_ + other->GetRadius()) * (radius_ + other->GetRadius());
+}
+
+// SCALING CYLINDER COLLIDER
+bool ScalingCylinderCollider::CollidesWithPlayer(FPPlayerCollider *other) {
+    glm::vec3 sphere_position = other->GetPlayer().transform.GetPosition();
+    glm::vec3 cylinder_position = owner_.transform.GetPosition();
+    float height = owner_.transform.GetScale().y;
+    float radius = owner_.transform.GetScale().x * 0.5f;
+    float closestPointOnAxis = glm::clamp(sphere_position.y, cylinder_position.y, cylinder_position.y + height);
+    float distanceSquared = glm::distance2(glm::vec3(sphere_position.x, closestPointOnAxis, sphere_position.z), cylinder_position);
+    return distanceSquared <= (radius + other->GetRadius()) * (radius + other->GetRadius());
+}
+bool ScalingCylinderCollider::CollidesWithSphere(SphereCollider *other) {
+    glm::vec3 sphere_position = other->GetOwner().transform.GetPosition();
+    glm::vec3 cylinder_position = owner_.transform.GetPosition();
+    float height = owner_.transform.GetScale().y;
+    float radius = owner_.transform.GetScale().x * 0.5f;
+    float closestPointOnAxis = glm::clamp(sphere_position.y, cylinder_position.y - (height * 0.5f), cylinder_position.y + (height * 0.5f));
+    float distanceSquared = glm::distance2(glm::vec3(cylinder_position.x, closestPointOnAxis, cylinder_position.z), sphere_position);
+    return distanceSquared <= (radius + other->GetRadius()) * (radius + other->GetRadius());
+}
+
 

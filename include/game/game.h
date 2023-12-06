@@ -4,6 +4,8 @@
 #include <exception>
 #include <string>
 #include <unordered_map>
+#include <thread>
+#include <chrono>
 // #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -22,6 +24,7 @@
 #include "defines.h"
 #include "fp_player.h"
 #include "story_data.h"
+#include "beacon.h"
 
 class Application;
 
@@ -61,7 +64,7 @@ namespace config
     const glm::vec3 camera_position(0.0, 1.0, 15.0);
     const glm::vec3 camera_look_at(0.0, 0.0, -1.0);
     const glm::vec3 camera_up(0.0, 1.0, 0.0);
-    const glm::vec3 fp_camera_position(0.0, 4.0, 0.0);
+    const glm::vec3 fp_camera_position(0.0, 10.0, 0.0);
 };
 
 // Game application
@@ -84,16 +87,25 @@ class Game {
         int rng_seed = 1804289383;
         RandGenerator rng {rng_seed};
 
+        // Callback Shit
+        void PlayerHitPlanet(glm::vec3 respawn_pos);
+        void BeaconOneHit(void) { ChangeScene(FOREST); }
+
     private:
         SceneGraph* active_scene;
+        int active_scene_num = 0;
         std::vector<SceneGraph*> scenes;
 
         float wind_speed = 1.5f;
         int camera_mode;
 
+        glm::vec3 current_respawn_position = glm::vec3(0.0);
+
         void SetupFPScene(void);
         void SetupSpaceScene(void);
         void SetupForestScene(void);
+        void SetupDesertScene();
+        void SetupMainMenuScene();
 
         void LoadMeshes();
         void LoadShaders();
@@ -122,6 +134,7 @@ class Game {
         void ResizeCameras(int width, int height);
 
         void ChangeScene(int sceneIndex);
+        
 
 }; // class Game
 

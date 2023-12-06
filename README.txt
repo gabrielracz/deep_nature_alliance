@@ -3,6 +3,8 @@
 Attributions:
 Planetary textures taken from https://www.solarsystemscope.com/textures/ (CC BY 4.0)
 Habitable worlds textures taken from https://www.texturesforplanets.com/texture-packs.shtml
+Cactus meshes and textures taken from Cactus | Pack by YadroGames https://sketchfab.com/3d-models/cactus-pack-588596f1601d48e6ad4cb24b31c3f33c
+Sand /desert texture taken from https://polyhaven.com/a/excavated_soil_wall
 
 For Assignment 6:
 Quentin Wolkensperg, Sean Meaney, Gabe Racz

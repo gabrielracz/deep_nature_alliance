@@ -1,12 +1,14 @@
-#ifndef BEACON_H
-#define BEACON_H
+#ifndef BEACON_H_
+#define BEACON_H_
 
-#include "asteroid.h"
+#include "item.h"
+class Beacon : public Item {
 
-// class Beacon : public SceneNode {
-// public:
-//     Beacon(const std::string name, const Resource *geometry, const Resource *material)
-//         : SceneNode(name, geometry, material) {}
-// };
+    public:
+        Beacon(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id);
 
-#endif
+        ~Beacon();
+        virtual void Update(double dt) override;
+};
+
+#endif 

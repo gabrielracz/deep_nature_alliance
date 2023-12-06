@@ -1,13 +1,13 @@
 #include "scene_graph.h"
-#include "application.h"
 
 //TODO: Add SceneGraph INIT
-SceneGraph::SceneGraph(Application& app)
-    : colman(), app(app) {
+SceneGraph::SceneGraph()
+    : colman(){
     background_color_ = glm::vec3(0.0, 0.0, 0.0);
 }
 
 SceneGraph::~SceneGraph() {
+    Reset();
     for (auto n : node_) {
         delete n;
     }
@@ -29,8 +29,18 @@ SceneNode* SceneGraph::GetNode(std::string node_name) const {
 }
 
 void SceneGraph::Update(double dt) {
-    for (int i = 0; i < node_.size(); i++) {
+    /*for (int i = 0; i < node_.size(); i++) {
         node_[i]->Update(dt);
+    }*/
+
+    for (auto it = node_.begin(); it != node_.end();) {
+        SceneNode *sn = *it;
+        if (sn->deleted) {
+            it = node_.erase(it);
+        } else{
+            sn->Update(dt);
+            ++it;
+        } 
     }
 
     int w = camera.GetWinWidth();
@@ -42,7 +52,9 @@ void SceneGraph::Update(double dt) {
         t->Update(dt, w, h);
     }
 
-    colman.CheckCollisions();
+    if(collision_enabled) {
+        colman.CheckCollisions();
+    }
 
     // UPDATE CAMERA AFTER NODES ALWAYS !!!!!
     camera.Update(dt);
@@ -58,6 +70,35 @@ void SceneGraph::DismissStoryText() {
     }
 }
 
+void SceneGraph::ClearStoryText() {
+    story_text.clear();
+}
+
+void SceneGraph::ClearAllNodes() {
+    node_.clear();
+}
+
+void SceneGraph::ClearText() {
+    texts.clear();
+}
+
+void SceneGraph::ClearLights() {
+    lights.clear();
+}
+
+void SceneGraph::ClearEverything() {
+    ClearStoryText();
+    ClearAllNodes();
+    ClearText();
+}
+
+void SceneGraph::Reset() {
+    colman.Reset();
+    ClearEverything();
+    if(reset_callback) {
+        reset_callback();
+    }
+}
 
 std::vector<SceneNode*> SceneGraph::GetScreenSpaceNodes() {
     std::vector<SceneNode*> nodes;

@@ -5,8 +5,7 @@
 #include "player.h"
 class Tp_Player : public Player {
    public:
-    Tp_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id = "")
-        : Player(name, mesh_id, shader_id, texture_id) {}
+    Tp_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id = "");
 
     virtual void Update(double dt) override;
 
@@ -29,6 +28,7 @@ class Tp_Player : public Player {
     bool braking = false;
     float brake_width = 1.0f;
     bool thrusting = false;
+    float collider_radius_ = 5.0f;
 
     int lives = 1;
     glm::vec3 angular_velocity{0.0f, 0.0f, 0.0f};

@@ -5,7 +5,7 @@ set(PROJ_NAME "dna")
 project(${PROJ_NAME})
 
 set (CMAKE_CXX_STANDARD 17)
-set(COMPILER_FLAGS "-g")
+set(COMPILER_FLAGS "-O3")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Specify project files: header files and source files
@@ -43,6 +43,9 @@ set(HDRS
     include/game/colliders/colliders.h
     include/game/story_data.h
     include/game/menu_controller.h
+    include/game/skybox.h
+    include/game/item.h
+    include/game/beacon.h
 )
  
 set(SRCS
@@ -74,6 +77,8 @@ set(SRCS
     src/game/agent.cpp
     src/game/colliders/colliders.cpp
     src/game/menu_controller.cpp
+    src/game/item.cpp
+    src/game/beacon.cpp
 )
 
 # Add path name to configuration file
@@ -115,6 +120,12 @@ target_link_libraries(${PROJ_NAME} ${GLFW_LIBRARY})
 if(WIN32)
     # Avoid ZERO_CHECK target in Visual Studio
     set(CMAKE_SUPPRESS_REGENERATION TRUE)
+
+    set_target_properties(${PROJ_NAME} PROPERTIES
+        VS_GLOBAL_CXX_FLAGS "${VS_GLOBAL_CXX_FLAGS} /STACK:8388608"
+    )
+    
+    target_compile_options(${PROJ_NAME} PRIVATE "/bigobj")
  
     # This will use the proper libraries in debug mode in Visual Studio
     set_target_properties(${PROJ_NAME} PROPERTIES DEBUG_POSTFIX _d)

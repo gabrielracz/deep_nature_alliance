@@ -40,7 +40,7 @@ void View::Render(SceneGraph& scene) {
     glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
     RenderDepthMap(scene);
     glBindFramebuffer(GL_FRAMEBUFFER, postprocess_fbo);
-    glViewport(0,0, PPWIDTH, PPHEIGHT);
+    glViewport(0,0, win.width, win.height);
     RenderScene(scene);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     RenderPostProcessing(scene);
@@ -215,7 +215,7 @@ void View::InitFramebuffers() {
     glGenTextures(1, &postprocess_tex);
 
     glBindTexture(GL_TEXTURE_2D, postprocess_tex);
-    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, PPWIDTH, PPHEIGHT, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, win.width, win.height, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
 
     // Poor filtering. Needed !
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -223,7 +223,7 @@ void View::InitFramebuffers() {
 
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, PPWIDTH, PPHEIGHT);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, win.width, win.height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, postprocess_tex, 0);
@@ -352,15 +352,13 @@ void View::KeyCallback(GLFWwindow* window, int key, int scancode, int action, in
 	}
 }
 
-void View::ResizeBuffers(int width, int height) {
-    PPWIDTH = width;
-    PPHEIGHT = height;
+void View::ResizeBuffers() {
 	glBindTexture(GL_TEXTURE_2D, postprocess_tex);
-    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, PPWIDTH, PPHEIGHT, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, win.width, win.height, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
     // glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, PPWIDTH, hieght);
     // and depth buffer attachment
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, PPWIDTH, PPHEIGHT);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, win.width, win.height);
 }
 
 void View::ResizeCallback(GLFWwindow* window, int width, int height){
@@ -372,7 +370,7 @@ void View::ResizeCallback(GLFWwindow* window, int width, int height){
     view->win.width = width;
     view->win.height = height;
     view->mouse.first_captured = true;
-    view->ResizeBuffers(width, height);
+    view->ResizeBuffers();
     view->game_resize_handler(width, height);
 }
 
@@ -385,8 +383,6 @@ void View::MouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
     }
 
 	Mouse& mouse = view->mouse;
-
-
 	if (mouse.first_captured) {
         mouse.prev = {xpos, ypos};
 		mouse.first_captured = false;

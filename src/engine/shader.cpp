@@ -115,6 +115,7 @@ void Shader::SetupLighting() {
     SetUniform1i(0, "LightsBlock");
 }
 
+
 void Shader::SetupInstancing() {
     transformsblock = new TransformsBlock();
     memset(transformsblock, 0, sizeof(TransformsBlock));

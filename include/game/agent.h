@@ -24,6 +24,8 @@ public:
     void UnSetForward(void);
     void UnSetBackward(void);
 
+    void SetTargetStartPos(const glm::vec3& start) { target_position_ = start; }
+
     void DownCollision(float collision_point_y = 0.0f);
     void UpCollision();
     void HorizontalCollision();

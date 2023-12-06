@@ -16,16 +16,23 @@
 class Item : public SceneNode {
 
     public:
-        Item(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id = "")
-        : SceneNode(name, mesh_id, shader_id, texture_id) {};
-
-        ~Item();
+        Item(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id);
         
         void SetCollectCallback(std::function<void()> f) { callback = f; };
         virtual void Update(double dt) override;
+        virtual void HandleCollisionWith(SceneNode* collider) override;
+        void DeleteOnCollect(bool value) { del_on_collect_ = value; }
         
-    private:
+    protected:
         std::function<void()> callback;
-}; 
+        float item_col_radius_ = 3.0f;
+        float current_time_ = 0.0f;
+        float hover_amplitude_ = 0.005f;
+        float hover_speed_ = 2.0f;
+        float hover_offset_ = 0.0f;
+        bool del_on_collect_ = false;
+};
+
+ 
 
 #endif 

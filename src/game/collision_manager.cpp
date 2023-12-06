@@ -125,3 +125,13 @@ bool CollisionManager::rayToSphere(SceneNode *rayNode, SceneNode *sphereNode) {
         t = 0.f;
     return true;
 }
+
+void CollisionManager::Reset()
+{
+    triggers.clear();
+    items.clear();
+    asteroids.clear();
+    beacons.clear();
+    othercollideables.clear();
+    delete player;
+}
