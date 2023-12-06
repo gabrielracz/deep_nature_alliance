@@ -382,6 +382,119 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
 	overwrite_emplace(meshes, object_name, Mesh(vertices, faces, generator_layout));
 }
 
+   void ResourceManager::CreateCone2(std::string object_name, float height, float circle_radius, int num_height_samples, int num_circle_samples)
+    {
+        // Number of attributes for vertices and faces
+        const int vertex_att = 11; // 11 attributes per vertex: 3D position (3), 3D normal (3), RGB color (3), 2D texture coordinates (2)
+        const int face_att = 3;    // Vertex indices (3)
+
+        // Data buffers for the shape
+        std::vector<GLuint> faces;
+        std::vector<GLfloat> vertices;
+
+        // Create vertices
+        float theta;        // Angle for circle
+        float local_radius; // radius of this spot on the cone
+        float h;            // height
+        float s, t;         // parameters zero to one
+        glm::vec3 loop_center;
+        glm::vec3 vertex_position;
+        glm::vec3 vertex_normal;
+        glm::vec3 vertex_color;
+        glm::vec2 vertex_coord;
+
+        glm::vec3 tip_pos {0.0f, height/2, 0.0f};
+
+        for (int i = 0; i < num_height_samples; i++)
+        { // along the side
+
+            s = i / (float)num_height_samples; // parameter s (vertical)
+            h = (-0.5 + s) * height;
+            for (int j = 0; j < num_circle_samples; j++)
+            { // small circle
+                t = j / (float)num_circle_samples;
+                theta = 2.0 * glm::pi<GLfloat>() * t; // circle sample (angle theta)
+
+                // Define position, normal and color of vertex
+                vertex_normal = glm::cross(vertex_position, tip_pos);
+                local_radius = circle_radius * (num_height_samples - i) / num_height_samples; // fraction of the way along
+                vertex_position = glm::vec3(cos(theta) * local_radius, h, sin(theta) * local_radius);
+                vertex_color = glm::vec3(1.0 - s,t,s);
+                vertex_coord = glm::vec2(s, t);
+
+                APPEND_VEC3(vertices, vertex_position);
+                APPEND_VEC3(vertices, vertex_normal);
+                APPEND_VEC3(vertices, vertex_color);
+                APPEND_VEC2(vertices, vertex_coord);
+            }
+        }
+
+        int topvertex = num_circle_samples * num_height_samples;
+        int bottomvertex = num_circle_samples * num_height_samples + 1; // indices for top and bottom vertex
+
+        vertex_position = glm::vec3(0, height * (num_height_samples) / (float)num_height_samples - height * 0.5, 0); // location of tip
+        vertex_normal = glm::vec3(0, 1, 0);
+        vertex_color = glm::vec3(1, 1, 1);
+        vertex_coord = glm::vec2(0, 0); // no good way to texture top and bottom
+
+        APPEND_VEC3(vertices, vertex_position);
+        APPEND_VEC3(vertices, vertex_normal);
+        APPEND_VEC3(vertices, vertex_color);
+        APPEND_VEC2(vertices, vertex_coord);
+
+        //================== bottom vertex
+
+        vertex_position = glm::vec3(0, -0.5 * height, 0); // location of middle of base of cone
+        vertex_normal = glm::vec3(0, -1, 0);
+        // leave the color and uv alone
+
+        APPEND_VEC3(vertices, vertex_position);
+        APPEND_VEC3(vertices, vertex_normal);
+        APPEND_VEC3(vertices, vertex_color);
+        APPEND_VEC2(vertices, vertex_coord);
+
+        //===================== end of vertices
+
+        // Create triangles
+        for (int i = 0; i < num_height_samples - 1; i++)
+        {
+            for (int j = 0; j < num_circle_samples; j++)
+            {
+                // Two triangles per quad
+                glm::uvec3 t1(((i + 1) % num_height_samples) * num_circle_samples + j,
+                             i * num_circle_samples + ((j + 1) % num_circle_samples),
+                             i * num_circle_samples + j);
+                glm::uvec3 t2(((i + 1) % num_height_samples) * num_circle_samples + j,
+                             ((i + 1) % num_height_samples) * num_circle_samples + ((j + 1) % num_circle_samples),
+                             i * num_circle_samples + ((j + 1) % num_circle_samples));
+                APPEND_VEC3(faces, t1);
+                APPEND_VEC3(faces, t2);
+            }
+        }
+        int cylbodysize = num_circle_samples * (num_height_samples - 1) * 2; // amount of array filled so far, start adding from here
+        // triangles for top disc (fan shape)
+        int i = num_height_samples - 1;
+        for (int j = 0; j < num_circle_samples; j++)
+        {
+            // Bunch of wedges pointing to the centre
+            glm::uvec3 topwedge(
+                i * num_circle_samples + j,
+                topvertex,
+                i * num_circle_samples + ((j + 1) % num_circle_samples));
+
+            // note order reversed so that all triangles point outward
+            glm::uvec3 botwedge(
+                0 + (j + 1) % num_circle_samples,
+                bottomvertex,
+                0 + j);
+
+            APPEND_VEC3(faces, topwedge);
+            APPEND_VEC3(faces, botwedge);
+        }
+
+        overwrite_emplace(meshes, object_name, Mesh(vertices, faces, generator_layout));
+    }
+
 /*
 void ResourceManager::CreateCone(std::string object_name, float height, float circle_radius, int num_height_samples, int num_circle_samples) {
 

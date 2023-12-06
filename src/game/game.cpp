@@ -74,6 +74,7 @@ void Game::LoadMeshes() {
     resman.LoadMesh        ("M_Cactus9", MESH_DIRECTORY"/cactus9.obj");
     resman.LoadMesh        ("M_MoonTree", MESH_DIRECTORY"/moontree.obj");
     resman.LoadMesh        ("M_SELTower", MESH_DIRECTORY"/moontower.obj");
+    resman.LoadMesh        ("M_MoonObject", MESH_DIRECTORY"/moonobj.obj");
 
     // generate geometry
     resman.CreateSimpleQuad("M_Quad");
@@ -86,7 +87,7 @@ void Game::LoadMeshes() {
     resman.CreatePointCloud("M_Thrust", 1200, 0.35f);
 
     resman.CreateSaplingQuad("M_Sapling");
-    resman.CreateCone       ("M_MoonObject", 10, 3, 4, 4);
+    //resman.CreateCone2       ("M_MoonObject", 10, 3, 4, 4);
     resman.CreateSphere   ("M_Beacon", 1.0, 20, 10);
 
     resman.CreateSimpleCube("M_Skybox");
@@ -324,7 +325,7 @@ void Game::SetupFPScene(void) {
     Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, terrain_size, terrain_size, 0.2, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     t->material.texture_repetition = 5.0f;
-    t->SetNormalMap("T_WallNormalMap", 40.0f);
+    t->SetNormalMap("T_RockNormalMap", 40.0f);
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
 
@@ -382,7 +383,7 @@ void Game::SetupFPScene(void) {
     scenes[FPTEST]->AddNode(moonobj2);
 
     SceneNode* tree = new SceneNode("Obj_MoonTree", "M_MoonTree", "S_InstancedShadow", "T_MoonTree");
-    tree->SetNormalMap("T_WallNormalMap", 0.005f);
+    tree->SetNormalMap("T_WallNormalMap", 1.0f);
     tree->material.specular_power = 150.0;
     std::vector<glm::vec3> tree_points = rng.generateUniqueRandomPoints(50, 10.0f, 400.0f);
     for(int i = 0; i < tree_points.size(); i++) {
@@ -404,6 +405,8 @@ void Game::SetupFPScene(void) {
 
     SceneNode* mooneyes = new SceneNode("Obj_MoonEyes", "M_MoonObject", "S_InstancedShadow", "T_MoonEyes");
     mooneyes->material.specular_power = 0.0;
+    mooneyes->material.texture_repetition = 2.0f;
+    //mooneyes->material.diffuse_strength = 10.0f;
     for(int i = 0; i < 150; i++) {
         bool instanced = true;
         float x = rng.randfloat(-400, 400);
@@ -1178,7 +1181,7 @@ void Game::PlayerHitPlanet(glm::vec3 respawn_pos) {
     active_scene->ClearStoryText();
     active_scene->ClearText();
     active_scene->GetPlayer()->deleted = true;
-    Text* dead = new Text("You were forgotten to history...", {0.8f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.8f}, Text::Anchor::CENTER, {0.0, 0.0, 0.0});
+    Text* dead = new Text("Your ship is obliterated. You die instantly...", {0.8f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.8f}, Text::Anchor::CENTER, {0.0, 0.0, 0.0});
     active_scene->AddText(dead);
     // Add delay????
     Text* dead_info = new Text("Press [9] to restart", {0.8f, 0.0f, 0.0f, 1.0f}, {0.0f, -2.0f, 0.0f, 0.8f}, Text::Anchor::CENTER, {0.0, -0.5, 0.0}, 0.2f);
