@@ -38,7 +38,7 @@ protected:
     float dash_speed_ = 40.0f;
     float sensitivity_ = 0.001f;
 
-    float collider_radius_ = 2.0f;
+    float collider_radius_ = 5.0f;
     bool dash_unlocked_ = false;
 
 private:

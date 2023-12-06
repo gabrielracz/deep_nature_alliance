@@ -26,7 +26,7 @@ class Item : public SceneNode {
         
     private:
         std::function<void()> callback;
-        float item_col_radius_ = 1.0f;
+        float item_col_radius_ = 3.0f;
         float current_time_ = 0.0f;
         float hover_amplitude_ = 0.005f;
         float hover_speed_ = 2.0f;
