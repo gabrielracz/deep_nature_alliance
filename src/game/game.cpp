@@ -140,6 +140,7 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Tree", TEXTURE_DIRECTORY"/lowpolytree_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MoonObj1", TEXTURE_DIRECTORY"/whitedevil.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MoonObj2", TEXTURE_DIRECTORY"/reddevil.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_MoonEyes", TEXTURE_DIRECTORY"/mooneyes.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Soldier", TEXTURE_DIRECTORY"/soldier_texture.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Cactus2", TEXTURE_DIRECTORY"/cactus2.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Cactus2_n", TEXTURE_DIRECTORY"/cactus2_n.png", GL_REPEAT, GL_LINEAR);
@@ -362,10 +363,11 @@ void Game::SetupFPScene(void) {
     SceneNode* tree = new SceneNode("Obj_MoonTree", "M_MoonTree", "S_InstancedShadow", "T_MoonTree");
     tree->SetNormalMap("T_WallNormalMap", 0.005f);
     tree->material.specular_power = 150.0;
-    for(int i = 0; i < 50; i++) {
+    std::vector<glm::vec3> tree_points = rng.generateUniqueRandomPoints(50, 10.0f, 400.0f);
+    for(int i = 0; i < tree_points.size(); i++) {
         bool instanced = true;
-        float x = rng.randfloat(-400, 400);
-        float z = rng.randfloat(-400, 400);
+        float x = tree_points[i].x;
+        float z = tree_points[i].z;
         float y = t->SampleHeight(x, z);
         float s = rng.randfloat(2, 5);
         float r = rng.randfloat(0, 2*PI);
@@ -378,6 +380,27 @@ void Game::SetupFPScene(void) {
         }
     }
     scenes[FPTEST]->AddNode(tree);
+
+    SceneNode* mooneyes = new SceneNode("Obj_MoonEyes", "M_MoonObject", "S_InstancedShadow", "T_MoonEyes");
+    mooneyes->material.specular_power = 0.0;
+    for(int i = 0; i < 150; i++) {
+        bool instanced = true;
+        float x = rng.randfloat(-400, 400);
+        float z = rng.randfloat(-400, 400);
+        float y = t->SampleHeight(x, z);
+        float s = rng.randfloat(2, 6);
+        float r1 = rng.randfloat(0, 2*PI);
+        float r2 = rng.randfloat(-0.1f, 0.1f);
+        if(instanced) {
+            Transform tra;
+            tra.SetPosition({x, y, z});
+            tra.SetScale({s,s,s});
+            tra.Yaw(r1);
+            tra.Pitch(r2);
+            mooneyes->AddInstance(tra);
+        }
+    }
+    scenes[FPTEST]->AddNode(mooneyes);
 
     SceneNode* tower = new SceneNode("Obj_SpaceTower", "M_SELTower", "S_InstancedShadow", "T_SpaceMetal");
     tower->SetNormalMap("T_MetalNormalMap", 1.0f);

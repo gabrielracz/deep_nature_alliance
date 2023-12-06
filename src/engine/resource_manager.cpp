@@ -283,13 +283,13 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
         float radius = radius_step * i;
 
         for(int j = 0; j < num_circle_samples; j++) {
-            float phi = (glm::pi<float>()*2.0f) * j / num_circle_samples; // quantize the sampling of our cirlce
+            float phi = (glm::pi<float>()*2.0f) * (j / (float)num_circle_samples); // quantize the sampling of our cirlce
             glm::vec3 pos {cos(phi)*radius, y, sin(phi)*radius}; // parametric equation of a circle
 
             // get the tangent of our circle.
             glm::vec3 tangent = glm::rotate(glm::normalize(pos), -glm::pi<float>()/2.0f, glm::vec3(0.0f, 0.0f, 1.0f));
             // get a line perpendicular to the plane created by the cone's tip and the tangent of the circle we are sampling
-            glm::vec3 norm = glm::cross(tip_pos, tangent);
+            glm::vec3 norm = glm::vec3(cos(phi), 0.0f, sin(phi));
 
             if(color.a == 0.0f) {
                 color =  {
