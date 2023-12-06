@@ -281,12 +281,14 @@ void Game::SetupSpaceScene() {
     SceneNode* thrust1 = new SceneNode("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
     thrust1->transform.SetPosition(glm::vec3(-0.85, -0.25, 5.0));
     thrust1->SetAlphaEnabled(true);
+    thrust1->SetAlphaFunc(GL_ONE);
     // thrust1->transform.SetScale({thrust_scale, thrust_scale, thrust_scale});
     player->AddChild(thrust1);
 
     SceneNode* thrust2 = new SceneNode("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
     thrust2->transform.SetPosition(glm::vec3(0.85, -0.25, 5.0));
     thrust2->SetAlphaEnabled(true);
+    thrust2->SetAlphaFunc(GL_ONE);
     // thrust2->transform.SetScale({thrust_scale, thrust_scale, thrust_scale});
     player->AddChild(thrust2);
     Beacon* beacon1 = new Beacon("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
