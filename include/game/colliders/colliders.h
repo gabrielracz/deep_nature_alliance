@@ -12,6 +12,8 @@ class BoxCollider;
 class SphereCollider;
 class TerrainCollider;
 class FPPlayerCollider;
+class CylinderCollider;
+class ScalingCylinderCollider;
 
 class Collider
 {
@@ -20,10 +22,12 @@ public:
     using CallbackCollider = std::function<void(SceneNode*)>;
     virtual ~Collider() = default;
     virtual bool CollidesWith(Collider *other) = 0;
-    virtual bool CollidesWithBox(BoxCollider *other) = 0;
-    virtual bool CollidesWithSphere(SphereCollider *other) = 0;
-    virtual bool CollidesWithTerrain(TerrainCollider *other) = 0;
-    virtual bool CollidesWithPlayer(FPPlayerCollider *other) = 0;
+    virtual bool CollidesWithBox(BoxCollider *other) { return false; }
+    virtual bool CollidesWithSphere(SphereCollider *other) { return false; }
+    virtual bool CollidesWithTerrain(TerrainCollider *other) { return false; }
+    virtual bool CollidesWithPlayer(FPPlayerCollider *other) { return false; }
+    virtual bool CollidesWithCylinder(CylinderCollider *other) { return false; }
+    virtual bool CollidesWithScalingCylinder(ScalingCylinderCollider *other) { return false; }
     void SetCallback(CallbackCollider f) { callback_col = std::move(f); };
     void SetCallback(CallbackNoCollider f) { callback_no = std::move(f); };
     void invokeCallback(SceneNode* collider) { 
@@ -65,12 +69,13 @@ class SphereCollider : public Collider
 private:
     SceneNode& owner_;
     float radius_;
+    bool scaled_;
 
 public:
-    SphereCollider(SceneNode& node, float radius)
-        : owner_(node), radius_(radius) {}
-    
-    float GetRadius() const { return radius_; }
+    SphereCollider(SceneNode& node, float radius, bool scaled = false)
+        : owner_(node), radius_(radius), scaled_(scaled) {}
+    float GetRadius() const { return scaled_ ?  owner_.transform.GetPosition().x : radius_; }
+    bool GetScaled() const { return scaled_; }
     SceneNode& GetOwner() const { return owner_; }
     bool CollidesWith(Collider *other) override { return other->CollidesWithSphere(this); }
     bool CollidesWithBox(BoxCollider *other) override;
@@ -89,10 +94,6 @@ public:
         
     Terrain& GetTerrain() const { return t_; }
     bool CollidesWith(Collider *other) override { return other->CollidesWithTerrain(this); }
-    bool CollidesWithBox(BoxCollider *other) override;
-    bool CollidesWithSphere(SphereCollider *other) override;
-    bool CollidesWithTerrain(TerrainCollider *other) override;
-    bool CollidesWithPlayer(FPPlayerCollider *other) override;
 };
 
 class FPPlayerCollider : public Collider
@@ -112,6 +113,38 @@ public:
     bool CollidesWithSphere(SphereCollider *other) override;
     bool CollidesWithTerrain(TerrainCollider *other) override;
     bool CollidesWithPlayer(FPPlayerCollider *other) override;
+    bool CollidesWithCylinder(CylinderCollider *other) override;
+    bool CollidesWithScalingCylinder(ScalingCylinderCollider *other) override;
+};
+
+class CylinderCollider : public Collider
+{
+private:
+    SceneNode& owner_;
+    float height_;
+    float radius_;
+
+public:
+    CylinderCollider(SceneNode& node, float radius, float height) : owner_(node), radius_(radius), height_(height) {}
+    float GetHeight() const { return height_; }
+    float GetRadius() const { return radius_; }
+    SceneNode& GetOwner() const { return owner_; }
+    bool CollidesWith(Collider *other) override { return other->CollidesWithCylinder(this); }
+    bool CollidesWithPlayer(FPPlayerCollider *other) override;
+    bool CollidesWithSphere(SphereCollider *other) override;
+};
+
+class ScalingCylinderCollider : public Collider
+{
+private:
+    SceneNode& owner_;
+
+public:
+    ScalingCylinderCollider(SceneNode& node) : owner_(node) {}
+    SceneNode& GetOwner() const { return owner_; }
+    bool CollidesWith(Collider *other) override { return other->CollidesWithScalingCylinder(this); }
+    bool CollidesWithPlayer(FPPlayerCollider *other) override;
+    bool CollidesWithSphere(SphereCollider *other) override;
 };
 
 #endif // COLLIDERS_H

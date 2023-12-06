@@ -85,6 +85,7 @@ void Game::LoadMeshes() {
     resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
     resman.CreateSaplingQuad("M_Sapling");
     resman.CreateCone       ("M_MoonObject", 10, 3, 4, 4);
+    resman.CreateSphere   ("M_Beacon", 10.0, 20, 10);
 
     resman.CreateSimpleCube("M_Skybox");
 
@@ -151,6 +152,7 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Pill", TEXTURE_DIRECTORY"/scaledpill.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MoonTree", TEXTURE_DIRECTORY"/moontreetex.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_SpaceMetal", TEXTURE_DIRECTORY"/spacemetal.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Beacon", TEXTURE_DIRECTORY"/beacon.png", GL_REPEAT, GL_LINEAR);
     
 
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
@@ -259,6 +261,14 @@ void Game::SetupSpaceScene() {
         }
         scenes[SPACE]->AddNode(astr);
     }
+
+    Beacon* beacon1 = new Beacon("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
+    beacon1->transform.SetPosition(planet->transform.GetPosition());
+    beacon1->SetAlphaEnabled(true);
+    beacon1->SetCollectCallback([this]() { this->BeaconOneHit(); });
+    beacon1->transform.Translate({0,planet->transform.GetScale().y + beacon1->transform.GetScale().y,0});
+    AddColliderToScene(SPACE, beacon1);
+
     // Light* flashlight = new Light(Colors::Red);
     // l2->transform.SetPosition({-300.0, -300.0, 0.0});
     // l2->Attach(&player->transform);
@@ -388,6 +398,7 @@ void Game::SetupFPScene(void) {
     pill->transform.SetScale({5,5,5});
     pill->SetAlphaEnabled(true);
     pill->SetCollectCallback([p]() { p->UnlockDash(); });
+    pill->DeleteOnCollect(true);
     AddColliderToScene(FPTEST, pill);
 }
 

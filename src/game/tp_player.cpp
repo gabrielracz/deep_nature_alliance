@@ -4,8 +4,20 @@
 #include "scene_node.h"
 #include "transform.h"
 #include "glm/gtx/string_cast.hpp"
+#include "colliders/colliders.h"
 
 #define DRAG_CONSTANT 2.0f
+
+
+Tp_Player::Tp_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id)
+    : Player(name, mesh_id, shader_id, texture_id)
+{
+    //c->Attach(&transform); 
+    SphereCollider* col = new SphereCollider(*this, collider_radius_);
+    col->SetCallback([this](SceneNode* other) { this->HandleCollisionWith(other); });
+    SetCollider(col);
+    SetNodeType(TSHIP);
+}
 
 void Tp_Player::Update(double dt) {
 

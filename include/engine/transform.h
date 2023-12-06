@@ -68,6 +68,7 @@ public:
     glm::quat GetWorldOrientation() const {return glm::normalize(glm::toQuat(transf_world));}
     const glm::quat& GetOrbit() const { return orbit;}
     const glm::vec3& GetJoint() const { return joint;}
+    const glm::vec3& GetScale() const { return scale;}
     const glm::vec3& GetAxis(Axis a) const { return axes[a];}
 
     static glm::mat4 RemoveScaling(const glm::mat4 m);

@@ -23,6 +23,8 @@ void Item::Update(double dt){
 void Item::HandleCollisionWith(SceneNode* collider) {
     if (callback) {
         callback();
-        deleted = true;
+        if (del_on_collect_) {
+            deleted = true;
+        }
     }
 }

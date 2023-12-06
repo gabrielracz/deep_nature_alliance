@@ -22,6 +22,7 @@
 #include "defines.h"
 #include "fp_player.h"
 #include "story_data.h"
+#include "beacon.h"
 
 class Application;
 
@@ -84,6 +85,9 @@ class Game {
         int rng_seed = 1804289383;
         RandGenerator rng {rng_seed};
 
+        // Callback Shit
+        void BeaconOneHit(void) { ChangeScene(FOREST); }
+
     private:
         SceneGraph* active_scene;
         std::vector<SceneGraph*> scenes;
@@ -124,6 +128,7 @@ class Game {
         void ResizeCameras(int width, int height);
 
         void ChangeScene(int sceneIndex);
+        
 
 }; // class Game
 
