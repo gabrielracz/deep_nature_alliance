@@ -28,7 +28,7 @@
 #include "text.h"
 #include "terrain.h"
 #include "menu_controller.h"
-
+#include "colliders/colliders.h"
 // Some configuration constants
 // They are written here as global variables, but ideally they should be loaded from a configuration file
 
@@ -85,7 +85,7 @@ void Game::LoadMeshes() {
     resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
     resman.CreateSaplingQuad("M_Sapling");
     resman.CreateCone       ("M_MoonObject", 10, 3, 4, 4);
-    resman.CreateSphere   ("M_Beacon", 10.0, 20, 10);
+    resman.CreateSphere   ("M_Beacon", 1.0, 20, 10);
 
     resman.CreateSimpleCube("M_Skybox");
 
@@ -181,7 +181,7 @@ void Game::SetupScenes(void){
     SetupDesertScene();
     SetupMainMenuScene();
 
-    ChangeScene(FPTEST);
+    ChangeScene(SPACE);
 
 
     // // CreateTerrain();
@@ -195,6 +195,9 @@ void Game::SetupScenes(void){
 
 void Game::SetupSpaceScene() {
     SceneGraph* scn = scenes[SPACE];
+
+    scn->SetResetCallback([this]() { this->SetupSpaceScene(); });
+
     Camera& camera = scn->GetCamera();
     camera.SetView(config::camera_position, config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
@@ -215,7 +218,10 @@ void Game::SetupSpaceScene() {
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
     planet->SetNormalMap("T_RockNormalMap", 4.0f);
-    scn->AddNode(planet);
+    SphereCollider* col = new SphereCollider(*planet, 800);
+    col->SetCallback([this]() { this->PlayerHitPlanet({0.0f,0.0f,-1000.0f}); });
+    planet->SetCollider(col);
+    AddColliderToScene(SPACE, planet);
 
     Light* light = new Light(Colors::WarmWhite);
     light->transform.SetPosition({300.0, 300.0, 0.0});
@@ -266,7 +272,7 @@ void Game::SetupSpaceScene() {
     beacon1->transform.SetPosition(planet->transform.GetPosition());
     beacon1->SetAlphaEnabled(true);
     beacon1->SetCollectCallback([this]() { this->BeaconOneHit(); });
-    beacon1->transform.Translate({0,planet->transform.GetScale().y + beacon1->transform.GetScale().y,0});
+    beacon1->transform.Translate({0,planet->transform.GetScale().y,0});
     AddColliderToScene(SPACE, beacon1);
 
     // Light* flashlight = new Light(Colors::Red);
@@ -276,6 +282,7 @@ void Game::SetupSpaceScene() {
 }
 
 void Game::SetupFPScene(void) {
+    scenes[FPTEST]->SetResetCallback([this]() { this->SetupFPScene(); });
     Camera& camera = scenes[FPTEST]->GetCamera();
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
@@ -403,7 +410,7 @@ void Game::SetupFPScene(void) {
 }
 
 void Game::SetupForestScene() {
-
+    scenes[FOREST]->SetResetCallback([this]() { this->SetupForestScene(); });
     Camera& camera = scenes[FOREST]->GetCamera();
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
@@ -501,6 +508,7 @@ void Game::SetupForestScene() {
 }
 
 void Game::SetupDesertScene() {
+    scenes[DESERT]->SetResetCallback([this]() { this->SetupDesertScene(); });
     Camera& camera = scenes[DESERT]->GetCamera();
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
@@ -676,6 +684,12 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if(keys[GLFW_KEY_5]) {
         ChangeScene(MAIN_MENU);
         keys[GLFW_KEY_5] = false;
+    }
+    if(keys[GLFW_KEY_9]) {
+        active_scene->Reset();
+        active_scene->SetCollision(true);
+        scenes[active_scene_num]->GetPlayer()->transform.SetPosition(current_respawn_position);
+        keys[GLFW_KEY_9] = false;
     }
 
 
@@ -1054,8 +1068,10 @@ void Game::CreateLights() {
 
 
 void Game::ChangeScene(int sceneIndex) {
+    current_respawn_position = glm::vec3(0.0f);
     std::cout << "changing scenes" << std::endl;
     active_scene = scenes[sceneIndex];
+    active_scene_num = sceneIndex;
     app.SetMouseHandler(std::bind(&Player::MouseControls, active_scene->GetPlayer(), std::placeholders::_1));
     active_scene->SetBackgroundColor(viewport_background_color_g);
 }
@@ -1110,4 +1126,17 @@ void Game::ResizeCameras(int width, int height) {
     for(auto s : scenes) {
         s->GetCamera().SetScreenSize(width, height);
     }
+}
+
+void Game::PlayerHitPlanet(glm::vec3 respawn_pos) {
+    active_scene->SetCollision(false);
+    active_scene->ClearStoryText();
+    active_scene->ClearText();
+    active_scene->GetPlayer()->deleted = true;
+    Text* dead = new Text("You were forgotten to history...", {0.8f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.8f}, Text::Anchor::CENTER, {0.0, 0.0, 0.0});
+    active_scene->AddText(dead);
+    // Add delay????
+    Text* dead_info = new Text("Press [9] to restart", {0.8f, 0.0f, 0.0f, 1.0f}, {0.0f, -2.0f, 0.0f, 0.8f}, Text::Anchor::CENTER, {0.0, -0.5, 0.0}, 0.2f);
+    active_scene->AddText(dead_info);
+    current_respawn_position = respawn_pos;
 }

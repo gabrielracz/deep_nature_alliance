@@ -74,7 +74,7 @@ private:
 public:
     SphereCollider(SceneNode& node, float radius, bool scaled = false)
         : owner_(node), radius_(radius), scaled_(scaled) {}
-    float GetRadius() const { return scaled_ ?  owner_.transform.GetPosition().x : radius_; }
+    float GetRadius() const { return scaled_ ?  owner_.transform.GetScale().x : radius_; }
     bool GetScaled() const { return scaled_; }
     SceneNode& GetOwner() const { return owner_; }
     bool CollidesWith(Collider *other) override { return other->CollidesWithSphere(this); }

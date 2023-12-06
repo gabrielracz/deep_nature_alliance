@@ -37,9 +37,20 @@ class SceneGraph {
     void SetPlayer(Player* p);
     void SetSkybox(SceneNode* s) {skybox = s;};
     void ToggleHUD(){ show_hud = !show_hud;}
+    void SetCollision(bool toggle) { collision_enabled = toggle; }
 
     void PushStoryText(Text* text);
     void DismissStoryText();
+
+    void ClearStoryText();
+    void ClearAllNodes();
+    void ClearText();
+    void ClearLights();
+    void ClearEverything();
+
+    void SetResetCallback(std::function<void()> f) { reset_callback = f; }
+    std::function<void()> GetResetCallback() { return reset_callback; }
+    void Reset();
 
     // Find a scene node with a specific name
     SceneNode* GetNode(std::string node_name) const;
@@ -71,6 +82,9 @@ class SceneGraph {
     Player* player;
     SceneNode* skybox = nullptr;
     Terrain* terrain;
+    bool collision_enabled = true;
+
+    std::function<void()> reset_callback;
 
 };  // class SceneGraph
 

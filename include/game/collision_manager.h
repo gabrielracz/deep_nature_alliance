@@ -20,6 +20,8 @@ class CollisionManager{
 
         void AddNode(SceneNode* node);
 
+        void Reset();
+
         // void AddTrigger(Trigger *newTrigger) { triggers.push_back(newTrigger); }
 
         // void AddAsteroid(SceneNode *newAsteroid) { asteroids.push_back(newAsteroid); }
