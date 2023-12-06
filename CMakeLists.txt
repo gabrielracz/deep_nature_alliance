@@ -118,6 +118,10 @@ target_link_libraries(${PROJ_NAME} ${GLFW_LIBRARY})
 if(WIN32)
     # Avoid ZERO_CHECK target in Visual Studio
     set(CMAKE_SUPPRESS_REGENERATION TRUE)
+
+    set_target_properties(${PROJ_NAME} PROPERTIES
+        VS_GLOBAL_CXX_FLAGS "${VS_GLOBAL_CXX_FLAGS} /STACK:4194304"
+    )
  
     # This will use the proper libraries in debug mode in Visual Studio
     set_target_properties(${PROJ_NAME} PROPERTIES DEBUG_POSTFIX _d)
