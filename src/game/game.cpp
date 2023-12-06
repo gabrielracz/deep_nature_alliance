@@ -350,7 +350,7 @@ void Game::SetupFPScene(void) {
         float x = rng.randfloat(-400, 400);
         float z = rng.randfloat(-400, 400);
         float y = t->SampleHeight(x, z);
-        float s = rng.randfloat(0.5, 3);
+        float s = rng.randfloat(2, 5);
         float r = rng.randfloat(0, 2*PI);
         if(instanced) {
             Transform tra;
@@ -363,8 +363,8 @@ void Game::SetupFPScene(void) {
     scenes[FPTEST]->AddNode(tree);
 
     SceneNode* tower = new SceneNode("Obj_SpaceTower", "M_SELTower", "S_InstancedShadow", "T_SpaceMetal");
-    tower->SetNormalMap("T_WallNormalMap", 0.005f);
-    tower->material.specular_power = 150.0;
+    tower->SetNormalMap("T_MetalNormalMap", 1.0f);
+    tower->material.specular_power = 15000.0;
     std::vector<glm::vec3> points = rng.generateUniqueRandomPoints(10, 100.0f, 400.0f);
     for (int i = 0; i < points.size(); ++i) {
         bool instanced = true;
