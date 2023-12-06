@@ -42,6 +42,7 @@ class ResourceManager {
         void CreateSphere(std::string object_name, float radius = 0.6, int num_samples_theta = 90, int num_samples_phi = 45);
         void CreateCylinder(std::string object_name, float height = 1.0, float radius = 0.6, int num_samples_theta = 90, int num_samples_phi = 45);
         void CreateCone(std::string object_name, float height = 1.0, float radius = 0.6, int num_samples_theta = 90, int num_samples_phi = 45, glm::vec4 color = glm::vec4(0.0f));
+        void CreateCone2(std::string object_name, float height = 1.0, float circle_radius = 0.6, int num_height_samples = 90, int num_circle_samples = 45);
         void CreateTree(std::string object_name);
         void CreatePointCloud(std::string object_name, int num_points, float size, glm::vec4 color = {0.0f, 0.0f, 0.0f, 0.0f});
         void CreateFire(std::string object_name, int num_points, float size, glm::vec4 color = {0.0f, 0.0f, 0.0f, 0.0f});
