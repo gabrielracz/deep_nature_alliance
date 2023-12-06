@@ -186,10 +186,14 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
 
     // MODEL
     if(node->IsAlphaEnabled()) {
-        glDepthMask(GL_FALSE);
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        if(node->GetAlphaFunc() == GL_ONE) {
+            glDepthMask(GL_FALSE);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        } else {
+            glDepthMask(GL_TRUE);
+            glBlendFunc(GL_SRC_ALPHA, node->GetAlphaFunc());
+        }
     };
     
     // check if there is anything to render
