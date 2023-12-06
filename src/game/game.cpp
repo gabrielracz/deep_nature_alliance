@@ -335,7 +335,7 @@ void Game::SetupFPScene(void) {
     AddColliderToScene(FPTEST, lt);
 
     SceneNode* moonobj = new SceneNode("Obj_MoonObject", "M_MoonObject", "S_InstancedShadow", "T_MoonObj1");
-    moonobj->SetNormalMap("T_WallNormalMap", 1.0f);
+    moonobj->SetNormalMap("T_WallNormalMap", 0.005f);
     moonobj->material.specular_power = 0.0f;
     for(int i = 0; i < 400; i++) {
         bool instanced = true;
@@ -358,7 +358,7 @@ void Game::SetupFPScene(void) {
     scenes[FPTEST]->AddNode(moonobj);
 
     SceneNode* moonobj2 = new SceneNode("Obj_MoonObject", "M_MoonObject", "S_InstancedShadow", "T_MoonObj2");
-    moonobj2->SetNormalMap("T_WallNormalMap", 1.0f);
+    moonobj2->SetNormalMap("T_WallNormalMap", 0.005f);
     moonobj2->material.specular_power = 0.0f;
     for(int i = 0; i < 400; i++) {
         bool instanced = true;
@@ -403,7 +403,8 @@ void Game::SetupFPScene(void) {
 
     SceneNode* mooneyes = new SceneNode("Obj_MoonEyes", "M_MoonObject", "S_InstancedShadow", "T_MoonEyes");
     mooneyes->material.specular_power = 0.0;
-    mooneyes->material.texture_repetition = 2.0f;
+    mooneyes->material.texture_repetition = 3.0f;
+    mooneyes->SetNormalMap("T_WallNormalMap", 0.005f);
     //mooneyes->material.diffuse_strength = 10.0f;
     for(int i = 0; i < 150; i++) {
         bool instanced = true;
@@ -412,11 +413,11 @@ void Game::SetupFPScene(void) {
         float y = t->SampleHeight(x, z);
         float s = rng.randfloat(2, 6);
         float r1 = rng.randfloat(0, 2*PI);
-        float r2 = rng.randfloat(-0.1f, 0.1f);
+        float r2 = rng.randfloat(-0.2f, 0.2f);
         if(instanced) {
             Transform tra;
-            tra.SetPosition({x, y, z});
-            tra.SetScale({s,s,s});
+            tra.SetPosition({x, y + s, z});
+            tra.SetScale({s/2,s,s/2});
             tra.Yaw(r1);
             tra.Pitch(r2);
             mooneyes->AddInstance(tra);
