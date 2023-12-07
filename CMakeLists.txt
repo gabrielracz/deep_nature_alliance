@@ -5,7 +5,7 @@ set(PROJ_NAME "dna")
 project(${PROJ_NAME})
 
 set (CMAKE_CXX_STANDARD 17)
-set(COMPILER_FLAGS "-O3")
+set(COMPILER_FLAGS "-g")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Specify project files: header files and source files
