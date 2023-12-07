@@ -29,6 +29,7 @@ class SceneNode {
         float normal_map_repetition = 1.0f;
         float specular_power = 69.0f;
         float diffuse_strength  = 0.8;
+        float ambient_strength = 0.4;
     };
 
     public:
@@ -40,16 +41,18 @@ class SceneNode {
         
         virtual void Update(double dt);
 
-        virtual void SetUniforms(Shader* shader, const glm::mat4& view_matrix);
+        virtual void SetUniforms(Shader* shader, const glm::mat4& view_matrix, const glm::mat4& parent_matrix = glm::mat4(1.0f));
 
         void SetTexture(std::string& new_tex_id, float texture_repetition = 1.0f);
         void SetNormalMap(const std::string& new_tex_id, float normal_map_repetition = 1.0f); 
-        void AddChild(SceneNode* n)                         {children.push_back(n);}
+        void AddChild(SceneNode* n);                        
         void SetCollision(const CollisionData& t)           {collision = t;}
         void SetCollider(Collider * col)                    {collider = col;}
         void SetNodeType(NodeType type)                     {node_type = type;}
-        void AddInstance(Transform t)                      {instances.push_back(t);};
-        void SetAlphaEnabled(bool a)                         {alpha_enabled = a;}
+        void AddInstance(Transform t)                       {instances.push_back(t);};
+        void SetAlphaEnabled(bool a)                        {alpha_enabled = a;}
+        void SetAlphaFunc(int f)                            {alpha_func = f;}
+        void SetParent(SceneNode* n)                        {parent = n;}
         // void SetInstances(std::vector<Transform>& t)        {instances = t;};
 
         const std::string GetName(void) const               {return name;}
@@ -59,6 +62,7 @@ class SceneNode {
         const std::string GetNormalMap() const              {return normalmap_id;}
         Camera::Projection GetDesiredProjection() const     {return camera_projection;}
         bool IsAlphaEnabled() const                         {return alpha_enabled;}
+        int GetAlphaFunc() const                            {return alpha_func;}
         const glm::mat4& GetCachedTransformMatrix() const   {return transf_matrix;}
         const std::vector<SceneNode*>& GetChildren() const  {return children;}
         const CollisionData& GetCollision() const           {return collision;}
@@ -80,9 +84,10 @@ class SceneNode {
         glm::mat4 transf_matrix;
         std::string name; // Name of the scene node
         std::vector<SceneNode*> children;
+        SceneNode* parent = nullptr;
         std::vector<Transform> instances;
         int in_camera_instances = 0;
-        double elapsed = 0;
+        float elapsed = 0;
         CollisionData collision;
 
         std::string mesh_id;
@@ -92,6 +97,7 @@ class SceneNode {
 
         Camera::Projection camera_projection = Camera::Projection::PERSPECTIVE;
         bool alpha_enabled = false;
+        int alpha_func = GL_ONE_MINUS_SRC_ALPHA;
 
         NodeType node_type = TNODE;
         Collider* collider = nullptr;

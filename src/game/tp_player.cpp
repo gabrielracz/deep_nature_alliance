@@ -4,8 +4,20 @@
 #include "scene_node.h"
 #include "transform.h"
 #include "glm/gtx/string_cast.hpp"
+#include "colliders/colliders.h"
 
 #define DRAG_CONSTANT 2.0f
+
+
+Tp_Player::Tp_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id)
+    : Player(name, mesh_id, shader_id, texture_id)
+{
+    //c->Attach(&transform); 
+    SphereCollider* col = new SphereCollider(*this, collider_radius_);
+    col->SetCallback([this](SceneNode* other) { this->HandleCollisionWith(other); });
+    SetCollider(col);
+    SetNodeType(TSHIP);
+}
 
 void Tp_Player::Update(double dt) {
 
@@ -72,6 +84,10 @@ void Tp_Player::Update(double dt) {
     transform.Roll(angular_velocity.z);
 
     torque = glm::vec3(0.0f);
+
+    if(thrusting) {
+
+    }
     SceneNode::Update(dt);
 }
 
@@ -90,6 +106,7 @@ void Tp_Player::Control(Controls c, float dt, float damping){
         case Player::Controls::SHIFT:
             // f;worce += -transform.LocalAxis(FORWARD) * thrust_force;
             force += transform.GetAxis(FORWARD) * thrust_force;
+            thrusting = true;
             break;
         case Player::Controls::CTRL:
             braking = true;

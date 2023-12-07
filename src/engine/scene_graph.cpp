@@ -7,6 +7,7 @@ SceneGraph::SceneGraph()
 }
 
 SceneGraph::~SceneGraph() {
+    Reset();
     for (auto n : node_) {
         delete n;
     }
@@ -51,7 +52,9 @@ void SceneGraph::Update(double dt) {
         t->Update(dt, w, h);
     }
 
-    colman.CheckCollisions();
+    if(collision_enabled) {
+        colman.CheckCollisions();
+    }
 
     // UPDATE CAMERA AFTER NODES ALWAYS !!!!!
     camera.Update(dt);
@@ -64,6 +67,36 @@ void SceneGraph::PushStoryText(Text* text) {
 void SceneGraph::DismissStoryText() {
     if(!story_text.empty()) {
         story_text.pop_front();
+    }
+}
+
+void SceneGraph::ClearStoryText() {
+    story_text.clear();
+}
+
+void SceneGraph::ClearAllNodes() {
+    node_.clear();
+}
+
+void SceneGraph::ClearText() {
+    texts.clear();
+}
+
+void SceneGraph::ClearLights() {
+    lights.clear();
+}
+
+void SceneGraph::ClearEverything() {
+    ClearStoryText();
+    ClearAllNodes();
+    ClearText();
+}
+
+void SceneGraph::Reset() {
+    colman.Reset();
+    ClearEverything();
+    if(reset_callback) {
+        reset_callback();
     }
 }
 
