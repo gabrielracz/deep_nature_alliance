@@ -19,7 +19,7 @@ class MoonCloud : public SceneNode {
     private:
         float current_time_ = 0.0f;
         float hover_amplitude_ = 0.005f;
-        float hover_speed_ = 2.0f;
+        float hover_speed_ = 1.4f;
         float hover_offset_ = 0.0f;
 };
 

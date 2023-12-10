@@ -25,6 +25,10 @@ class MoonEye : public SceneNode {
         float radius_;
         float rot_speed_;
         float orbit_speed_;
+        float d1_;
+        float d2_;
+        float d3_;
+        float direction_;
 };
 
  
