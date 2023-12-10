@@ -269,7 +269,7 @@ void Game::SetupSpaceScene() {
         scenes[SPACE]->AddNode(astr);
     }
 
-    Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
+    Tp_Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
     player->transform.SetPosition(player_position_g);
     player->SetNormalMap("T_MetalNormalMap", 1.0);
     camera.Attach(&player->transform, false);
@@ -278,19 +278,23 @@ void Game::SetupSpaceScene() {
 
 
     float thrust_scale = 0.05f;
-    SceneNode* thrust1 = new SceneNode("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
+    Thrust* thrust1 = new Thrust("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
     thrust1->transform.SetPosition(glm::vec3(-0.85, -0.25, 5.0));
     thrust1->SetAlphaEnabled(true);
     thrust1->SetAlphaFunc(GL_ONE);
     // thrust1->transform.SetScale({thrust_scale, thrust_scale, thrust_scale});
     player->AddChild(thrust1);
+    player->thrust1 = thrust1;
 
-    SceneNode* thrust2 = new SceneNode("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
+    Thrust* thrust2 = new Thrust("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
     thrust2->transform.SetPosition(glm::vec3(0.85, -0.25, 5.0));
     thrust2->SetAlphaEnabled(true);
     thrust2->SetAlphaFunc(GL_ONE);
     // thrust2->transform.SetScale({thrust_scale, thrust_scale, thrust_scale});
     player->AddChild(thrust2);
+    player->thrust2 = thrust2;
+
+
     Beacon* beacon1 = new Beacon("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
     beacon1->transform.SetPosition(planet->transform.GetPosition());
     beacon1->SetAlphaEnabled(true);
