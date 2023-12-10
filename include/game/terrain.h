@@ -39,7 +39,7 @@ class Terrain : public SceneNode {
         void GenerateMesh();
         void GenerateImPassable();
 
-        void SampleTerrainForHeight(const std::vector<std::vector<float>>& terrainArray, float heightMultiplier, int tileX = 1, int tileZ = 1);
+        void SampleTerrainForHeight(const std::vector<std::vector<float>>* terrainArray, float heightMultiplier, int tileX = 1, int tileZ = 1);
 
         glm::vec2 IndexGrid(float x, float z);
         glm::vec3 InterpNormals(int x0, int z0, float sx, float sz);
