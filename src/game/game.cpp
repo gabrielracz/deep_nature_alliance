@@ -1070,7 +1070,6 @@ void Game::CreateHUD() {
                         + vel_bar + "\n"
                         + std::to_string(ang_vel) + "\n"
                         + rot_bar;
-
         return out;
     });
     // scene->AddNode(speedo);
@@ -1099,13 +1098,8 @@ void Game::CreateHUD() {
         // int 0 --> MAP_WIDTH_CHARS
         glm::vec3 prel = pt  - terr->transform.GetPosition(); // top left
 
-        // std::cout << prel.y / terr_height << std::endl;
-
-
         int playerx = std::max(std::min((int)((prel.x / terr_width) * map_width), map_width), 1);
         int playery = std::max(std::min((int)((prel.z / terr_height) * map_height), map_height), 1);
-
-        // return "FUK"    ;
 
         char bg_char = '.';
         char player_char = '@';

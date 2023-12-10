@@ -210,7 +210,6 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
 
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
 }
 
 void View::InitFramebuffers() {
