@@ -84,7 +84,7 @@ void Game::LoadMeshes() {
     resman.CreatePointCloud("M_StarCloud", 70000, 2000, {0.8, 0.8, 0.8, 0.8});
     resman.CreateSphere    ("M_Planet", 1, 100, 100);
     resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
-    resman.CreatePointCloud("M_Thrust", 1200, 0.35f);
+    resman.CreatePointCloud("M_Thrust", 1200, 0.25f);
 
     resman.CreateSaplingQuad("M_Sapling");
     //resman.CreateCone2       ("M_MoonObject", 10, 3, 4, 4);
@@ -207,7 +207,7 @@ void Game::SetupSpaceScene() {
 
     Camera& camera = scn->GetCamera();
     camera.SetView({0.0, 1.75, 15.0}, config::camera_look_at, config::camera_up);
-    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance,  2100.0f, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
 
@@ -234,7 +234,7 @@ void Game::SetupSpaceScene() {
 
     SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
     skybox->transform.SetScale({2000, 2000, 2000});
-    // scenes[SPACE]->SetSkybox(skybox);
+    scenes[SPACE]->SetSkybox(skybox);
 
     for(int i = 0; i < 1; i++) {
         float radius = 1200.0f;
@@ -496,7 +496,7 @@ void Game::SetupForestScene() {
     Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.2, this);
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     terr->material.specular_power = 0.0f;
-    terr->material.texture_repetition = 100.0f;
+    terr->material.texture_repetition = 10.0f;
     // terr->SetNormalMap("T_GrassNormalMap", 5.0f);
     terr->SetNormalMap("T_WallNormalMap", 50.0f);
     p->SetTerrain(terr);
@@ -868,8 +868,8 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if(keys[GLFW_KEY_Z]) {
         if(active_scene->GetCamera().IsAttached()) {
             if(camera_mode++ % 2 == 0) {
-                active_scene->GetCamera().transform.SetPosition({0.000000, 0.142563, -1.721907});
-                active_scene->GetCamera().transform.SetOrientation({0.000000, 0.00, 0.0, 0.0});
+                active_scene->GetCamera().transform.SetPosition(config::cockpit_cam_pos);
+                active_scene->GetCamera().transform.SetOrientation(config::cockpit_cam_ori);
             } else {
                 active_scene->GetCamera().Reset();
             }
