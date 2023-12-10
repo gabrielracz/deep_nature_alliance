@@ -25,6 +25,7 @@
 #include "resource.h"
 #include "scene_node.h"
 // #include "tree.h"
+#include "thrust.h"
 #include "text.h"
 #include "terrain.h"
 #include "menu_controller.h"

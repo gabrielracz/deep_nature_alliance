@@ -85,9 +85,15 @@ void Tp_Player::Update(double dt) {
 
     torque = glm::vec3(0.0f);
 
+    float thrst = 1.0 * dt;
     if(thrusting) {
-
+        thrust1->ChangeAmount(thrst);
+        thrust2->ChangeAmount(thrst);
+    } else {
+        thrust1->ChangeAmount(-thrst);
+        thrust2->ChangeAmount(-thrst);
     }
+    thrusting = false;
     SceneNode::Update(dt);
 }
 
@@ -176,3 +182,14 @@ void Tp_Player::Control(Controls c, float dt, float damping){
 //             break;
 //     }
 // }
+
+
+void Tp_Player::SetUniforms(Shader *shader, const glm::mat4 &view_matrix, const glm::mat4& parent_matrix) {
+    if(thrust1) {
+        thrust1->SetUniforms(shader, view_matrix);
+    }
+    if(thrust2) {
+        thrust2->SetUniforms(shader, view_matrix);
+    }
+    SceneNode::SetUniforms(shader, view_matrix, parent_matrix);
+}
