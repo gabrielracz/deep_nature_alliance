@@ -25,6 +25,7 @@
 #include "resource.h"
 #include "scene_node.h"
 // #include "tree.h"
+#include "thrust.h"
 #include "text.h"
 #include "terrain.h"
 #include "menu_controller.h"
@@ -85,7 +86,7 @@ void Game::LoadMeshes() {
     resman.CreatePointCloud("M_StarCloud", 70000, 2000, {0.8, 0.8, 0.8, 0.8});
     resman.CreateSphere    ("M_Planet", 1, 100, 100);
     resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
-    resman.CreatePointCloud("M_Thrust", 1200, 0.35f);
+    resman.CreatePointCloud("M_Thrust", 1200, 0.25f);
 
     resman.CreateSaplingQuad("M_Sapling");
     //resman.CreateCone2       ("M_MoonObject", 10, 3, 4, 4);
@@ -210,7 +211,7 @@ void Game::SetupSpaceScene() {
 
     Camera& camera = scn->GetCamera();
     camera.SetView({0.0, 1.75, 15.0}, config::camera_look_at, config::camera_up);
-    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance,  2100.0f, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
 
@@ -237,7 +238,7 @@ void Game::SetupSpaceScene() {
 
     SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
     skybox->transform.SetScale({2000, 2000, 2000});
-    // scenes[SPACE]->SetSkybox(skybox);
+    scenes[SPACE]->SetSkybox(skybox);
 
     for(int i = 0; i < 1; i++) {
         float radius = 1200.0f;
@@ -272,7 +273,7 @@ void Game::SetupSpaceScene() {
         scenes[SPACE]->AddNode(astr);
     }
 
-    Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
+    Tp_Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
     player->transform.SetPosition(player_position_g);
     player->SetNormalMap("T_MetalNormalMap", 1.0);
     camera.Attach(&player->transform, false);
@@ -281,19 +282,23 @@ void Game::SetupSpaceScene() {
 
 
     float thrust_scale = 0.05f;
-    SceneNode* thrust1 = new SceneNode("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
+    Thrust* thrust1 = new Thrust("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
     thrust1->transform.SetPosition(glm::vec3(-0.85, -0.25, 5.0));
     thrust1->SetAlphaEnabled(true);
     thrust1->SetAlphaFunc(GL_ONE);
     // thrust1->transform.SetScale({thrust_scale, thrust_scale, thrust_scale});
     player->AddChild(thrust1);
+    player->thrust1 = thrust1;
 
-    SceneNode* thrust2 = new SceneNode("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
+    Thrust* thrust2 = new Thrust("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
     thrust2->transform.SetPosition(glm::vec3(0.85, -0.25, 5.0));
     thrust2->SetAlphaEnabled(true);
     thrust2->SetAlphaFunc(GL_ONE);
     // thrust2->transform.SetScale({thrust_scale, thrust_scale, thrust_scale});
     player->AddChild(thrust2);
+    player->thrust2 = thrust2;
+
+
     Beacon* beacon1 = new Beacon("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
     beacon1->transform.SetPosition(planet->transform.GetPosition());
     beacon1->SetAlphaEnabled(true);
@@ -541,7 +546,7 @@ void Game::SetupForestScene() {
     Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.2, this);
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     terr->material.specular_power = 0.0f;
-    terr->material.texture_repetition = 100.0f;
+    terr->material.texture_repetition = 10.0f;
     // terr->SetNormalMap("T_GrassNormalMap", 5.0f);
     terr->SetNormalMap("T_WallNormalMap", 50.0f);
     p->SetTerrain(terr);
@@ -913,8 +918,8 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if(keys[GLFW_KEY_Z]) {
         if(active_scene->GetCamera().IsAttached()) {
             if(camera_mode++ % 2 == 0) {
-                active_scene->GetCamera().transform.SetPosition({0.000000, 0.142563, -1.721907});
-                active_scene->GetCamera().transform.SetOrientation({0.000000, 0.00, 0.0, 0.0});
+                active_scene->GetCamera().transform.SetPosition(config::cockpit_cam_pos);
+                active_scene->GetCamera().transform.SetOrientation(config::cockpit_cam_ori);
             } else {
                 active_scene->GetCamera().Reset();
             }
@@ -1081,7 +1086,6 @@ void Game::CreateHUD() {
                         + vel_bar + "\n"
                         + std::to_string(ang_vel) + "\n"
                         + rot_bar;
-
         return out;
     });
     // scene->AddNode(speedo);
@@ -1110,13 +1114,8 @@ void Game::CreateHUD() {
         // int 0 --> MAP_WIDTH_CHARS
         glm::vec3 prel = pt  - terr->transform.GetPosition(); // top left
 
-        // std::cout << prel.y / terr_height << std::endl;
-
-
         int playerx = std::max(std::min((int)((prel.x / terr_width) * map_width), map_width), 1);
         int playery = std::max(std::min((int)((prel.z / terr_height) * map_height), map_height), 1);
-
-        // return "FUK"    ;
 
         char bg_char = '.';
         char player_char = '@';

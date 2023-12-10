@@ -63,12 +63,12 @@ void FP_Player::HeadMovement(float dt)
     // printf("%f\n", glm::length(movement_direction));
     if (glm::length(movement_direction) > 0.1f)
     {
-        glm::vec3 tilt_axis = -glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), movement_direction);
+        glm::vec3 tilt_axis = -glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), glm::inverse(transform.GetOrientation()) * glm::normalize(movement_direction));
         glm::quat tilt_quaternion = glm::angleAxis(tilt_angle_, tilt_axis);
         float slerp_factor = (1.0f - glm::pow(1.0f - tilt_smoothing_, dt)) * tilt_speed_;
         glm::quat target_rotation = glm::slerp(camera_->transform.GetOrientation(), tilt_quaternion, slerp_factor);
 
-        camera_->transform.SetOrientation(glm::normalize(bobbing_rotation * target_rotation));
+        camera_->transform.SetOrientation(glm::normalize(target_rotation * bobbing_rotation));
     }
     else
     {

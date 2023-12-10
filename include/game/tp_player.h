@@ -3,6 +3,8 @@
 
 #include <glm/matrix.hpp>
 #include "player.h"
+#include "thrust.h"
+
 class Tp_Player : public Player {
    public:
     Tp_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id = "");
@@ -12,6 +14,7 @@ class Tp_Player : public Player {
     virtual void Control(Controls c, float dt, float damping = 1.0) override;
     virtual void MouseControls(Mouse& mouse) override;
 
+    virtual void SetUniforms(Shader* shader, const glm::mat4& view_matrix, const glm::mat4& parent_matrix = glm::mat4(1.0f)) override;
 
     // void Thrust(int d);
     // void ShipControl(Controls c, float damping = 1.0);
@@ -45,6 +48,9 @@ class Tp_Player : public Player {
         0.0,
         1000.0f);
     glm::mat3 inv_inertia = glm::inverse(inertia);
+
+    Thrust* thrust1;
+    Thrust* thrust2;
 
    private:
     //naming would be super fucked this is still ugly but better than forward being up and stuff

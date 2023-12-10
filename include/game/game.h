@@ -67,6 +67,8 @@ namespace config
     const glm::vec3 camera_look_at(0.0, 0.0, -1.0);
     const glm::vec3 camera_up(0.0, 1.0, 0.0);
     const glm::vec3 fp_camera_position(0.0, 10.0, 0.0);
+    const glm::vec3 cockpit_cam_pos(0.000000, 0.322739, -1.604628);
+    const glm::quat cockpit_cam_ori(0.997623, {0.068913, 0.000000, 0.000000});
 };
 
 // Game application
