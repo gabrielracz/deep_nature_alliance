@@ -75,6 +75,7 @@ void Game::LoadMeshes() {
     resman.LoadMesh        ("M_MoonTree", MESH_DIRECTORY"/moontree.obj");
     resman.LoadMesh        ("M_SELTower", MESH_DIRECTORY"/moontower.obj");
     resman.LoadMesh        ("M_MoonObject", MESH_DIRECTORY"/moonobj.obj");
+    resman.LoadMesh        ("M_MoonCloud", MESH_DIRECTORY"/mooncloud.obj");
 
     // generate geometry
     resman.CreateSimpleQuad("M_Quad");
@@ -160,7 +161,9 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_SpaceMetal", TEXTURE_DIRECTORY"/spacemetal.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Beacon", TEXTURE_DIRECTORY"/beacon.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Fire", RESOURCES_DIRECTORY"/flame4x4orig.png", GL_REPEAT, GL_LINEAR);
-    
+    resman.LoadTexture("T_MoonFlesh", TEXTURE_DIRECTORY"/moonflesh.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Unforgivable", TEXTURE_DIRECTORY"/unforgivable.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_MoonEye", TEXTURE_DIRECTORY"/mooneye.png", GL_REPEAT, GL_LINEAR);
 
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", TEXTURE_DIRECTORY"/skyboxes/messedup");
@@ -385,7 +388,7 @@ void Game::SetupFPScene(void) {
     SceneNode* tree = new SceneNode("Obj_MoonTree", "M_MoonTree", "S_InstancedShadow", "T_MoonTree");
     tree->SetNormalMap("T_WallNormalMap", 1.0f);
     tree->material.specular_power = 150.0;
-    std::vector<glm::vec3> tree_points = rng.generateUniqueRandomPoints(50, 10.0f, 400.0f);
+    std::vector<glm::vec3> tree_points = rng.generateUniqueRandomPoints(50, 10.0f, 500.0f);
     for(int i = 0; i < tree_points.size(); i++) {
         bool instanced = true;
         float x = tree_points[i].x;
@@ -406,12 +409,13 @@ void Game::SetupFPScene(void) {
     SceneNode* mooneyes = new SceneNode("Obj_MoonEyes", "M_MoonObject", "S_InstancedShadow", "T_MoonEyes");
     mooneyes->material.specular_power = 0.0;
     mooneyes->material.texture_repetition = 3.0f;
+    mooneyes->material.ambient_additive = 0.2f;
     mooneyes->SetNormalMap("T_WallNormalMap", 0.005f);
     //mooneyes->material.diffuse_strength = 10.0f;
     for(int i = 0; i < 150; i++) {
         bool instanced = true;
-        float x = rng.randfloat(-400, 400);
-        float z = rng.randfloat(-400, 400);
+        float x = rng.randfloat(-500, 500);
+        float z = rng.randfloat(-500, 500);
         float y = t->SampleHeight(x, z);
         float s = rng.randfloat(2, 6);
         float r1 = rng.randfloat(0, 2*PI);
@@ -447,6 +451,35 @@ void Game::SetupFPScene(void) {
         }
     }
     scenes[FPTEST]->AddNode(tower);
+    
+    std::vector<glm::vec3> cloud_points = rng.generateUniqueRandomPoints(30, 40.0f, 500.0f);
+    for (int i = 0; i < cloud_points.size(); ++i) {
+        bool instanced = true;
+        float x = cloud_points[i].x;
+        float z = cloud_points[i].z;
+        float y = rng.randfloat(0, 30);
+        float s = rng.randfloat(3, 5);
+        float r = rng.randfloat(0, 2*PI);
+        int eyes = rng.randint(3, 20);
+        MoonCloud* cloud = new MoonCloud("Obj_MoonCloud", "M_MoonCloud", "S_NormalMap", "T_Unforgivable");
+        cloud->material.diffuse_strength = 2.0f;
+        cloud->SetNormalMap("T_MetalNormalMap", 1.0f);
+        cloud->transform.SetPosition({x, y, z});
+        cloud->transform.SetScale({s,s,s});
+        cloud->transform.Yaw(r);
+        cloud->material.specular_power = 0.0f;
+        cloud->SetAlphaEnabled(true);
+        for (int j = 0; j < eyes; ++j) {
+            MoonEye* eye = new MoonEye("Obj_MoonEye", "M_Asteroid", "S_Lit", "T_MoonEye");
+            cloud->AddChild(eye);
+            eye->transform.Yaw(rng.randfloat(-2*PI, 2*PI));
+            eye->transform.Pitch(rng.randfloat(-2*PI, 2*PI));
+            eye->transform.Roll(rng.randfloat(-2*PI, 2*PI));
+            glm::vec3 forward = glm::normalize(eye->transform.GetOrientation() * glm::vec3(rng.randfloat(-1, 1), rng.randfloat(-1, 1), rng.randfloat(-1, 1)));
+            eye->transform.Translate(forward * 10.0f);
+        }
+        scenes[FPTEST]->AddNode(cloud);
+    }
 
     Item* pill = new Item("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill");
     pill->transform.SetPosition({10,-25,10});

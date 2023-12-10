@@ -25,6 +25,8 @@
 #include "fp_player.h"
 #include "story_data.h"
 #include "beacon.h"
+#include "mooneye.h"
+#include "mooncloud.h"
 
 class Application;
 

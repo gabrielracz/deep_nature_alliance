@@ -29,6 +29,7 @@ uniform float normal_map_repetition;
 uniform float specular_power;
 uniform float diffuse_strength;
 uniform float amb;
+uniform float amb_add;
 uniform vec4 ambcol;
 uniform float timer;
 
@@ -69,7 +70,7 @@ vec4 lighting(vec4 pixel, int i, vec3 lv, vec3 n, float shadow) {
     // float spec = phong_specular(lv, n);
     if(diffuse == 0.0 || specular_power == 0.0) {spec = 0.0;}
 
-    vec4 lit = lights[i].ambient_strength*lights[i].ambient_color*pixel + (1.1 - shadow)*(
+    vec4 lit = (lights[i].ambient_strength+amb_add)*lights[i].ambient_color*pixel + (1.1 - shadow)*(
                diffuse_strength*diffuse*lights[i].color*pixel + 
                spec*lights[i].color);
 
