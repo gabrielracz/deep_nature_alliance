@@ -47,6 +47,8 @@ set(HDRS
     include/game/item.h
     include/game/beacon.h
     include/game/thrust.h
+    include/game/mooneye.h
+    include/game/mooncloud.h
 )
  
 set(SRCS
@@ -81,6 +83,8 @@ set(SRCS
     src/game/item.cpp
     src/game/beacon.cpp
     src/game/thrust.cpp
+    src/game/mooneye.cpp
+    src/game/mooncloud.cpp
 )
 
 # Add path name to configuration file

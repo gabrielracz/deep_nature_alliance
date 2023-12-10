@@ -54,6 +54,7 @@ void SceneNode::SetUniforms(Shader* shader, const glm::mat4& view_matrix, const 
     shader->SetUniform1f(material.normal_map_repetition, "normal_map_repetition");
     shader->SetUniform1f(material.specular_power,        "specular_power");
     shader->SetUniform1f(material.diffuse_strength,      "diffuse_strength");
+    shader->SetUniform1f(material.ambient_additive,      "amb_add");
 
     // extras
     shader->SetUniform1f(elapsed, "timer");
