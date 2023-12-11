@@ -1,9 +1,8 @@
 #version 400
 // Vertex buffer
-in vec3 vertex;
-in vec3 normal;
-in vec3 color;
-in vec2 uv;
+layout (location = 0) in vec3 vertex;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec3 color;
 
 // Uniform (global) buffer
 uniform mat4 world_mat;
@@ -13,7 +12,6 @@ uniform float timer;
 
 out vec3 vertex_color;
 out float timestep;
-out vec2 uv_interp;
 
 // Constants
 const float xspeed = 0.05;
@@ -50,5 +48,4 @@ void main() {
     gl_Position = view_mat * position;
     vertex_color = vec3(1.0,1.0,1.0);
     timestep = time;
-    uv_interp = uv;
 }

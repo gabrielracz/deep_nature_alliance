@@ -92,7 +92,8 @@ class Game {
         RandGenerator rng {rng_seed};
 
         // Callback Shit
-        void PlayerHitRespawnMessage(glm::vec3 respawn_pos, std::string message="Your ship is obliterated. You die instantly...");
+        void ShipHitPlanet(glm::vec3 respawn_pos, std::string message = "Your ship is obliterated. You die instantly...");
+        void PlayerHitRespawnMessage(glm::vec3 respawn_pos, std::string message);
         void PlayerHitShip(glm::vec3 spawn_pos);
         void BeaconOneHit(void) { ChangeSceneAndSpawn(FOREST, {-191.718155, 20.999252, -395.274536}); }
 

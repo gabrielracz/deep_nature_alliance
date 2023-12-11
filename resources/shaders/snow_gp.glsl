@@ -7,7 +7,6 @@ layout (triangle_strip, max_vertices = 4) out;
 // Attributes passed from the vertex shader
 in vec3 vertex_color[];
 in float timestep[];
-in vec2 uv_interp[];
 
 // Uniform (global) buffer
 uniform mat4 projection_mat;

@@ -87,7 +87,7 @@ void Game::LoadMeshes() {
     resman.CreateSphere    ("M_Planet", 1, 100, 100);
     resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
     resman.CreatePointCloud("M_Thrust", 1200, 0.25f);
-    resman.CreatePointCloud("M_SnowTest", 10000, 100.0f);
+    resman.CreatePointCloud("M_Explosion", 5000, 0.25f);
     resman.CreateSnowParticles("M_MoonSnow", 10000, 2000, 100, 0);
     resman.CreateSnowParticles("M_MoonSpirals", 10000, 2000, 20, 0);
 
@@ -123,6 +123,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_MoonSnow", SHADER_DIRECTORY"/snow_vp.glsl", SHADER_DIRECTORY"/snow_fp.glsl", SHADER_DIRECTORY"/snow_gp.glsl");
     resman.LoadShader("S_MoonSpiral", SHADER_DIRECTORY"/spiral_vp.glsl", SHADER_DIRECTORY"/spiral_fp.glsl", SHADER_DIRECTORY"/spiral_gp.glsl");
     resman.LoadShader("S_SpaceBugs", SHADER_DIRECTORY"/spacebug_vp.glsl", SHADER_DIRECTORY"/spacebug_fp.glsl", SHADER_DIRECTORY"/spacebug_gp.glsl");
+    resman.LoadShader("S_Explosion", SHADER_DIRECTORY"/explosion_vp.glsl", SHADER_DIRECTORY"/explosion_fp.glsl", SHADER_DIRECTORY"/explosion_gp.glsl");
 
 
     std::cout << "shaders loaded" << std::endl;
@@ -239,7 +240,7 @@ void Game::SetupSpaceScene() {
     planet->SetNormalMap("T_RockNormalMap", 4.0f);
     planet->material.specular_coefficient = 0.0f;
     SphereCollider* col = new SphereCollider(*planet, 800);
-    col->SetCallback([this]() { this->PlayerHitRespawnMessage({0.0f,0.0f,0.0f}); });
+    col->SetCallback([this]() { this->ShipHitPlanet({0.0f,0.0f,0.0f}); });
     planet->SetCollider(col);
     AddColliderToScene(SPACE, planet);
 
@@ -250,7 +251,7 @@ void Game::SetupSpaceScene() {
     planet2->SetNormalMap("T_RockNormalMap", 4.0f);
     planet2->material.specular_coefficient = 0.0f;
     SphereCollider* p2col = new SphereCollider(*planet2, 1100);
-    p2col->SetCallback([this]() { this->PlayerHitRespawnMessage({-3000, 3000, -3500.0}); });
+    p2col->SetCallback([this]() { this->ShipHitPlanet({-3000, 3000, -3500.0}); });
     planet2->SetCollider(p2col);
     AddColliderToScene(SPACE, planet2);
 
@@ -261,7 +262,7 @@ void Game::SetupSpaceScene() {
     planet3->SetNormalMap("T_RockNormalMap", 4.0f);
     planet3->material.specular_coefficient = 0.0f;
     SphereCollider* p3col = new SphereCollider(*planet3, 500);
-    p3col->SetCallback([this]() { this->PlayerHitRespawnMessage({-5500, 4000, -14000.0}); });
+    p3col->SetCallback([this]() { this->ShipHitPlanet({-5500, 4000, -14000.0}); });
     planet3->SetCollider(p3col);
     AddColliderToScene(SPACE, planet3);
 
@@ -1301,6 +1302,16 @@ void Game::ResizeCameras(int width, int height) {
     for(auto s : scenes) {
         s->GetCamera().SetScreenSize(width, height);
     }
+}
+
+void Game::ShipHitPlanet(glm::vec3 respawn_pos, std::string message) {
+    glm::vec3 pos = active_scene->GetPlayer()->transform.GetPosition();
+    SceneNode* explosion = new SceneNode("Obj_Explosion", "M_Explosion", "S_Explosion", "T_Fire");
+    explosion->transform.SetPosition(pos);
+    explosion->SetAlphaEnabled(true);
+    explosion->SetAlphaFunc(GL_ONE);
+    active_scene->AddNode(explosion);
+    PlayerHitRespawnMessage(respawn_pos, message);
 }
 
 void Game::PlayerHitRespawnMessage(glm::vec3 respawn_pos, std::string message) {
