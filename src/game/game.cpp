@@ -108,6 +108,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_NormalMapNoShadow", SHADER_DIRECTORY"/normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_noshadows_fp.glsl");
     resman.LoadShader("S_Instanced", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_noshadows_fp.glsl", "", true);
     resman.LoadShader("S_Lava", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/lit_lava_fp.glsl");
+    resman.LoadShader("S_Sun", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/sun_fp.glsl");
     resman.LoadShader("S_Skybox", SHADER_DIRECTORY"/skybox_vp.glsl", SHADER_DIRECTORY"/skybox_fp.glsl");
     resman.LoadShader("S_Texture", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/passthrough_fp.glsl");
     resman.LoadShader("S_TextureWithTransform", SHADER_DIRECTORY"/passthrough_with_transform_vp.glsl", SHADER_DIRECTORY"/passthrough_fp.glsl");
@@ -129,9 +130,13 @@ void Game::LoadTextures() {
     // resman.LoadTexture("T_LavaPlanet", TEXTURE_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST, 4.0f);
     // resman.LoadTexture("T_SnowPlanet", TEXTURE_DIRECTORY"/snow_planet.png", GL_LINEAR);
     resman.LoadTexture("T_MarsPlanet", TEXTURE_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
+    resman.LoadTexture("T_ForestPlanet", TEXTURE_DIRECTORY"/alpine_planet.png", GL_REPEAT);
+    resman.LoadTexture("T_DesertPlanet", TEXTURE_DIRECTORY"/8k_venus_surface.jpg", GL_REPEAT);
+    resman.LoadTexture("T_MoonPlanet", TEXTURE_DIRECTORY"/kalia.png", GL_REPEAT);
+    resman.LoadTexture("T_Sun", TEXTURE_DIRECTORY"/8k_sun.jpg", GL_REPEAT);
     // resman.LoadTexture("T_RockPlanet", TEXTURE_DIRECTORY"/mine_rocks.png", GL_REPEAT);
-    // resman.LoadTexture("T_RedPlanet", TEXTURE_DIRECTORY"/red_rubble.png", GL_REPEAT);
-    resman.LoadTexture("T_MoonPlanet", TEXTURE_DIRECTORY"/4k_ceres.jpg", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_RedPlanet", TEXTURE_DIRECTORY"/redstone.png", GL_REPEAT);
+    //resman.LoadTexture("T_MoonPlanet", TEXTURE_DIRECTORY"/4k_ceres.jpg", GL_REPEAT, GL_LINEAR);
     // resman.LoadTexture("T_KaliaPlanet", TEXTURE_DIRECTORY"/kalia.png", GL_REPEAT);
     // resman.LoadTexture("T_KaliaPlanet", TEXTURE_DIRECTORY"/kalia.png", GL_REPEAT);
     resman.LoadTexture("T_WallNormalMap", TEXTURE_DIRECTORY"/normal_map2.png", GL_REPEAT, GL_LINEAR);
@@ -165,6 +170,7 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_MoonFlesh", TEXTURE_DIRECTORY"/moonflesh.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Unforgivable", TEXTURE_DIRECTORY"/unforgivable.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MoonEye", TEXTURE_DIRECTORY"/mooneye.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Stone", TEXTURE_DIRECTORY"/stone.png", GL_REPEAT, GL_LINEAR);
 
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", TEXTURE_DIRECTORY"/skyboxes/messedup");
@@ -211,41 +217,80 @@ void Game::SetupSpaceScene() {
 
     Camera& camera = scn->GetCamera();
     camera.SetView({0.0, 1.75, 15.0}, config::camera_look_at, config::camera_up);
-    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance,  2100.0f, app.GetWinWidth(), app.GetWinHeight());
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, 16000.0f, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
 
     SceneNode* stars = new SceneNode("Obj_Starcloud", "M_StarCloud", "S_Default", "");
     // scn->AddNode(stars);
 
-    SceneNode* planet = new SceneNode("Obj_Planet", "M_Planet", "S_NormalMap", "T_MarsPlanet");
+    SceneNode* planet = new SceneNode("Obj_Planet", "M_Planet", "S_NormalMap", "T_ForestPlanet");
     planet->transform.SetPosition({0.0, 0.0, -2000.0});
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
     planet->SetNormalMap("T_RockNormalMap", 4.0f);
+    planet->material.specular_coefficient = 0.0f;
     SphereCollider* col = new SphereCollider(*planet, 800);
-    col->SetCallback([this]() { this->PlayerHitPlanet({0.0f,0.0f,-1000.0f}); });
+    col->SetCallback([this]() { this->PlayerHitRespawnMessage({0.0f,0.0f,0.0f}); });
     planet->SetCollider(col);
     AddColliderToScene(SPACE, planet);
 
+    SceneNode* planet2 = new SceneNode("Obj_Planet", "M_Planet", "S_NormalMap", "T_DesertPlanet");
+    planet2->transform.SetPosition({-3500, 3000, -6000.0});
+    planet2->transform.SetScale({1100, 1100, 1100});
+    planet2->transform.SetOrientation(glm::angleAxis(PI/-1.5f, glm::vec3(1.0, 0.0, 0.0)));
+    planet2->SetNormalMap("T_RockNormalMap", 4.0f);
+    planet2->material.specular_coefficient = 0.0f;
+    SphereCollider* p2col = new SphereCollider(*planet2, 1100);
+    p2col->SetCallback([this]() { this->PlayerHitRespawnMessage({-3000, 3000, -3500.0}); });
+    planet2->SetCollider(p2col);
+    AddColliderToScene(SPACE, planet2);
+
+    SceneNode* planet3 = new SceneNode("Obj_Planet", "M_Planet", "S_NormalMap", "T_MoonPlanet");
+    planet3->transform.SetPosition({-5500, 5000, -15000.0});
+    planet3->transform.SetScale({500, 500, 500});
+    planet3->transform.SetOrientation(glm::angleAxis(PI/1.8f, glm::normalize(glm::vec3(0.9, 0.2, 0.0))));
+    planet3->SetNormalMap("T_RockNormalMap", 4.0f);
+    planet3->material.specular_coefficient = 0.0f;
+    SphereCollider* p3col = new SphereCollider(*planet3, 500);
+    p3col->SetCallback([this]() { this->PlayerHitRespawnMessage({-5500, 4000, -14000.0}); });
+    planet3->SetCollider(p3col);
+    AddColliderToScene(SPACE, planet3);
+
     Light* light = new Light(Colors::WarmWhite);
-    light->transform.SetPosition({300.0, 300.0, 0.0});
+    light->transform.SetPosition({300.0, 300.0, 15000.0});
     scn->AddLight(light);
 
     Light* l2 = new Light(Colors::Yellow);
-    l2->transform.SetPosition({-300.0, -300.0, -300.0});
+    l2->transform.SetPosition({-300.0, -300.0, 15000.0});
     scn->AddLight(l2);
+
+    SceneNode* sun = new SceneNode("Obj_Planet", "M_Planet", "S_Sun", "T_Sun");
+    sun->transform.SetPosition({300, 300, 15000.0});
+    sun->transform.SetScale({2000, 2000, 2000});
+    sun->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
+    //sun->SetNormalMap("T_WallNormalMap", 4.0f);
+    sun->material.specular_coefficient = 2.0f;
+    sun->material.diffuse_strength = 10.0f;
+    SphereCollider* suncol = new SphereCollider(*sun, 2000);
+    suncol->SetCallback([this]() { this->PlayerHitRespawnMessage({0.0, 0.0, 0.0}, "Closer than Icarus ever got you think.\n The star swallows every atom... "); });
+    sun->SetCollider(suncol);
+    AddColliderToScene(SPACE, sun);
 
     SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[SPACE]->SetSkybox(skybox);
 
-    for(int i = 0; i < 1; i++) {
-        float radius = 1200.0f;
-        glm::vec3 base_pos = {radius*i, 0.0, 0.0};
-        SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_Instanced", "T_LavaPlanet");
-        astr->SetNormalMap("T_WallNormalMap", 4.0f);
-        for(int i = 0; i < 512; i++) {
+    SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_Instanced", "T_Stone");
+    astr->material.specular_power = 3000.0f;
+    astr->material.specular_coefficient = 0.0f;
+    astr->SetNormalMap("T_RockNormalMap", 4.0f);
+
+    for(int i = 0; i < 3; i++) {
+        float radius = 8000.0f;
+        glm::vec3 base_pos = {0.0, 0.0, -radius*i};
+
+        for(int i = 0; i < 3000; i++) {
             bool instanced = true;
             glm::vec3 pos = base_pos + glm::ballRand(radius);
             float s = rng.randfloat(10, 30);
@@ -253,25 +298,16 @@ void Game::SetupSpaceScene() {
             float r = rng.randfloat(0, 2*PI);
             float p = rng.randfloat(0, 2*PI);
             // float s = 1;
-            if(instanced) {
-                Transform t;
-                t.SetPosition(pos);
-                t.SetScale({s,s,s});
-                t.Yaw(y);
-                t.Roll(r);
-                t.Pitch(p);
-                astr->AddInstance(t);
-            } else {
-                SceneNode* tree = new SceneNode("Obj_Forest", "M_Asteroid", "S_Lit", "T_LavaPlanet");
-                // tree->SetNormalMap("T_TreeNormalMap");
-                tree->transform.SetPosition(pos);
-                tree->transform.SetScale({s,s,s});
-                tree->transform.Yaw(r);
-                scenes[SPACE]->AddNode(tree);
-            }
+            Transform t;
+            t.SetPosition(pos);
+            t.SetScale({s,s,s});
+            t.Yaw(y);
+            t.Roll(r);
+            t.Pitch(p);
+            astr->AddInstance(t);
         }
-        scenes[SPACE]->AddNode(astr);
     }
+    scenes[SPACE]->AddNode(astr);
 
     Tp_Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
     player->transform.SetPosition(player_position_g);
@@ -300,16 +336,31 @@ void Game::SetupSpaceScene() {
 
 
     Beacon* beacon1 = new Beacon("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
+    beacon1->material.specular_coefficient = 0.0f;
+    beacon1->material.diffuse_strength = 2.0f;
     beacon1->transform.SetPosition(planet->transform.GetPosition());
     beacon1->SetAlphaEnabled(true);
     beacon1->SetCollectCallback([this]() { this->BeaconOneHit(); });
-    beacon1->transform.Translate({0,planet->transform.GetScale().y,0});
+    beacon1->transform.Translate({0,planet->transform.GetScale().y * 0.5f,planet->transform.GetScale().z * 0.85f});
     AddColliderToScene(SPACE, beacon1);
 
-    // Light* flashlight = new Light(Colors::Red);
-    // l2->transform.SetPosition({-300.0, -300.0, 0.0});
-    // l2->Attach(&player->transform);
-    // scn->AddLight(l2);
+    Beacon* beacon2 = new Beacon("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
+    beacon2->material.specular_coefficient = 0.0f;
+    beacon2->material.diffuse_strength = 2.0f;
+    beacon2->transform.SetPosition(planet2->transform.GetPosition());
+    beacon2->SetAlphaEnabled(true);
+    beacon2->SetCollectCallback([this]() { this->ChangeSceneAndSpawn(DESERT, {0,100,0}); });
+    beacon2->transform.Translate({0,planet2->transform.GetScale().y,0});
+    AddColliderToScene(SPACE, beacon2);
+
+    Beacon* beacon3 = new Beacon("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
+    beacon3->material.specular_coefficient = 0.0f;
+    beacon3->material.diffuse_strength = 2.0f;
+    beacon3->transform.SetPosition(planet3->transform.GetPosition());
+    beacon3->SetAlphaEnabled(true);
+    beacon3->SetCollectCallback([this]() { this->ChangeSceneAndSpawn(FPTEST, {0,0,0}); });
+    beacon3->transform.Translate({0,0,planet3->transform.GetScale().z});
+    AddColliderToScene(SPACE, beacon3);
 }
 
 void Game::SetupFPScene(void) {
@@ -493,7 +544,7 @@ void Game::SetupFPScene(void) {
     ship->transform.SetScale({11.0, 11.0, 9.5});
     ship->material.specular_power = 169.0f;
     SphereCollider* col = new SphereCollider(*ship, 9.0f);
-    col->SetCallback([this]() { PlayerHitShip({0,0,0}); });
+    col->SetCallback([this]() { PlayerHitShip({-5500, 5550, -15000.0}); });
     ship->SetCollider(col);
     AddColliderToScene(FPTEST, ship);
 
@@ -671,6 +722,17 @@ void Game::SetupDesertScene() {
     }
     scenes[DESERT]->AddNode(cacti);
     scenes[DESERT]->AddNode(cacti2);
+
+    SceneNode* ship = new SceneNode("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
+    ship->SetNormalMap("T_MetalNormalMap", 10.0f);
+    ship->transform.SetPosition({-40.0f, 123.0f, 60.0f});
+    ship->transform.SetOrientation({0.334468, 0.0, 0.0, 0.0});
+    ship->transform.SetScale({11.0, 11.0, 9.5});
+    ship->material.specular_power = 169.0f;
+    SphereCollider* col = new SphereCollider(*ship, 9.0f);
+    col->SetCallback([this]() { PlayerHitShip({-3500.0f, 4200.0f, -6000.0f}); });
+    ship->SetCollider(col);
+    AddColliderToScene(DESERT, ship);
 }
 
 void Game::SetupMainMenuScene() {
@@ -1228,12 +1290,12 @@ void Game::ResizeCameras(int width, int height) {
     }
 }
 
-void Game::PlayerHitPlanet(glm::vec3 respawn_pos) {
+void Game::PlayerHitRespawnMessage(glm::vec3 respawn_pos, std::string message) {
     active_scene->SetCollision(false);
     active_scene->ClearStoryText();
     active_scene->ClearText();
     active_scene->GetPlayer()->deleted = true;
-    Text* dead = new Text("Your ship is obliterated. You die instantly...", {0.8f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.8f}, Text::Anchor::CENTER, {0.0, 0.0, 0.0});
+    Text* dead = new Text(message, {0.8f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.8f}, Text::Anchor::CENTER, {0.0, 0.0, 0.0});
     active_scene->AddText(dead);
     // Add delay????
     Text* dead_info = new Text("Press [9] to restart", {0.8f, 0.0f, 0.0f, 1.0f}, {0.0f, -2.0f, 0.0f, 0.8f}, Text::Anchor::CENTER, {0.0, -0.5, 0.0}, 0.2f);

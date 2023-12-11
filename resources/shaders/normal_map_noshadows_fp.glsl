@@ -27,6 +27,7 @@ uniform float normal_map_repetition;
 
 // uniform vec4 light_col;
 uniform float specular_power;
+uniform float specular_coefficient;
 uniform float diffuse_strength;
 uniform float amb;
 uniform vec4 ambcol;
@@ -69,7 +70,7 @@ vec4 lighting(vec4 pixel, int i, vec3 lv, vec3 n) {
     // float spec = phong_specular(lv, n);
     if(diffuse == 0.0 || specular_power == 0.0) {spec = 0.0;}
 
-    return diffuse_strength*diffuse*lights[i].color*pixel + lights[i].ambient_strength*lights[i].ambient_color*pixel + spec*lights[i].color;
+    return diffuse_strength*diffuse*lights[i].color*pixel + lights[i].ambient_strength*lights[i].ambient_color*pixel + specular_coefficient*spec*lights[i].color;
 }
 
 void main() 

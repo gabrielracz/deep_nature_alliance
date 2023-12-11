@@ -21,6 +21,8 @@ Tp_Player::Tp_Player(const std::string name, const std::string& mesh_id, const s
 
 void Tp_Player::Update(double dt) {
 
+    //printf("X: %f Y: %f Z: %f\n", transform.GetPosition().x, transform.GetPosition().y, transform.GetPosition().z);
+
     acceleration = glm::vec3(0.0f);
     ang_acceleration = glm::vec3(0.0f);
 

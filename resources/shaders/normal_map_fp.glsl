@@ -27,6 +27,7 @@ uniform float normal_map_repetition;
 
 // uniform vec4 light_col;
 uniform float specular_power;
+uniform float specular_coefficient;
 uniform float diffuse_strength;
 uniform float amb;
 uniform float amb_add;
@@ -72,7 +73,7 @@ vec4 lighting(vec4 pixel, int i, vec3 lv, vec3 n, float shadow) {
 
     vec4 lit = (lights[i].ambient_strength+amb_add)*lights[i].ambient_color*pixel + (1.1 - shadow)*(
                diffuse_strength*diffuse*lights[i].color*pixel + 
-               spec*lights[i].color);
+               specular_coefficient*spec*lights[i].color);
 
     return lit;
 }
