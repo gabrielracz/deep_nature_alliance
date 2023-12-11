@@ -93,7 +93,8 @@ class Game {
 
         // Callback Shit
         void PlayerHitPlanet(glm::vec3 respawn_pos);
-        void BeaconOneHit(void) { ChangeScene(FOREST); }
+        void PlayerHitShip(glm::vec3 spawn_pos);
+        void BeaconOneHit(void) { ChangeSceneAndSpawn(FOREST, {-191.718155, 20.999252, -395.274536}); }
 
     private:
         SceneGraph* active_scene;
@@ -138,6 +139,7 @@ class Game {
         void ResizeCameras(int width, int height);
 
         void ChangeScene(int sceneIndex);
+        void ChangeSceneAndSpawn(int sceneIndex, glm::vec3 position);
         
 
 }; // class Game

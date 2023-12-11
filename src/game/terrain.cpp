@@ -188,7 +188,7 @@ void Terrain::GenerateQMoon() {
     float item_crater_depth = 45.0f;
     float item_crater_spire_height = 18.0f;
     float min_spawn_canyon_depth = 80.0f;
-    float player_platform_radius = 10.0f;
+    float player_platform_radius = 15.0f;
     float player_platform_depth = 8.0f;
 
     glm::vec2 spawn_position = glm::vec2(num_xsteps/2, num_zsteps/2);

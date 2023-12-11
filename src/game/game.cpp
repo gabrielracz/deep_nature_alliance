@@ -488,19 +488,14 @@ void Game::SetupFPScene(void) {
 
     SceneNode* ship = new SceneNode("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
     ship->SetNormalMap("T_MetalNormalMap", 10.0f);
-    ship->transform.SetPosition({-15.0f,-30.0f,-15.0f});
-    ship->transform.SetOrientation({0.334468, 0.000000, 0.942407, 0.000000});
+    ship->transform.SetPosition({-30.0f,-30.0f,30.0f});
+    ship->transform.SetOrientation({0.4, 0.0, 0.0, 0.0});
     ship->transform.SetScale({11.0, 11.0, 9.5});
     ship->material.specular_power = 169.0f;
-    scenes[FPTEST]->AddNode(ship);
-
-    Item* testpill = new Item("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill");
-    testpill->transform.SetPosition({10,-25,10});
-    testpill->transform.SetScale({5,5,5});
-    testpill->SetAlphaEnabled(true);
-    testpill->SetCollectCallback([p]() { p->UnlockDash(); });
-    testpill->DeleteOnCollect(true);
-    AddColliderToScene(FPTEST, testpill);
+    SphereCollider* col = new SphereCollider(*ship, 9.0f);
+    col->SetCallback([this]() { PlayerHitShip({0,0,0}); });
+    ship->SetCollider(col);
+    AddColliderToScene(FPTEST, ship);
 
     Item* pill = new Item("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill");
     pill->transform.SetPosition({-600.0f,-18.0f,-600.0f});
@@ -538,9 +533,11 @@ void Game::SetupForestScene() {
     ship->transform.SetOrientation({0.334468, 0.000000, 0.942407, 0.000000});
     ship->transform.SetScale({11.0, 11.0, 9.5});
     ship->material.specular_power = 169.0f;
-    scenes[FOREST]->AddNode(ship);
-
-
+    SphereCollider* col = new SphereCollider(*ship, 9.0f);
+    col->SetCallback([this]() { PlayerHitShip({0.0f, 850.0f, -2100.0f}); });
+    ship->SetCollider(col);
+    AddColliderToScene(FOREST, ship);
+    
     // ENV
     int terrain_size = 1000;
     Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.2, this);
@@ -1173,6 +1170,12 @@ void Game::ChangeScene(int sceneIndex) {
     active_scene->SetBackgroundColor(viewport_background_color_g);
 }
 
+void Game::ChangeSceneAndSpawn(int sceneIndex, glm::vec3 position) {
+    ChangeScene(sceneIndex);
+    current_respawn_position = position;
+    active_scene->GetPlayer()->transform.SetPosition(position);
+}
+
 /*
 Using std::bind to defer the call to Game::ChangeScene as far as I can tell
 requires an actual defined member function which kinda defeats the main idea
@@ -1236,4 +1239,8 @@ void Game::PlayerHitPlanet(glm::vec3 respawn_pos) {
     Text* dead_info = new Text("Press [9] to restart", {0.8f, 0.0f, 0.0f, 1.0f}, {0.0f, -2.0f, 0.0f, 0.8f}, Text::Anchor::CENTER, {0.0, -0.5, 0.0}, 0.2f);
     active_scene->AddText(dead_info);
     current_respawn_position = respawn_pos;
+}
+
+void Game::PlayerHitShip(glm::vec3 spawn_pos) {
+    ChangeSceneAndSpawn(SPACE,spawn_pos);
 }
