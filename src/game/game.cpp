@@ -87,6 +87,9 @@ void Game::LoadMeshes() {
     resman.CreateSphere    ("M_Planet", 1, 100, 100);
     resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
     resman.CreatePointCloud("M_Thrust", 1200, 0.25f);
+    resman.CreatePointCloud("M_SnowTest", 10000, 100.0f);
+    resman.CreateSnowParticles("M_MoonSnow", 10000, 2000, 100, 0);
+    resman.CreateSnowParticles("M_MoonSpirals", 10000, 2000, 20, 0);
 
     resman.CreateSaplingQuad("M_Sapling");
     //resman.CreateCone2       ("M_MoonObject", 10, 3, 4, 4);
@@ -117,6 +120,9 @@ void Game::LoadShaders() {
     resman.LoadShader("S_InstancedDepth", SHADER_DIRECTORY"/depth_instanced_vp.glsl", SHADER_DIRECTORY"/depth_fp.glsl", "", true);
     resman.LoadShader("S_InstancedShadow", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl", "", true);
     resman.LoadShader("S_Thrust", SHADER_DIRECTORY"/thrust_vp.glsl", SHADER_DIRECTORY"/thrust_fp.glsl", SHADER_DIRECTORY"/thrust_gp.glsl");
+    resman.LoadShader("S_MoonSnow", SHADER_DIRECTORY"/snow_vp.glsl", SHADER_DIRECTORY"/snow_fp.glsl", SHADER_DIRECTORY"/snow_gp.glsl");
+    resman.LoadShader("S_MoonSpiral", SHADER_DIRECTORY"/spiral_vp.glsl", SHADER_DIRECTORY"/spiral_fp.glsl", SHADER_DIRECTORY"/spiral_gp.glsl");
+    resman.LoadShader("S_SpaceBugs", SHADER_DIRECTORY"/spacebug_vp.glsl", SHADER_DIRECTORY"/spacebug_fp.glsl", SHADER_DIRECTORY"/spacebug_gp.glsl");
 
 
     std::cout << "shaders loaded" << std::endl;
@@ -171,6 +177,8 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Unforgivable", TEXTURE_DIRECTORY"/unforgivable.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_MoonEye", TEXTURE_DIRECTORY"/mooneye.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Stone", TEXTURE_DIRECTORY"/stone.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_SpiralParticle", TEXTURE_DIRECTORY"/flake.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_EyeParticle", TEXTURE_DIRECTORY"/eyepart.png", GL_REPEAT, GL_LINEAR);
 
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", TEXTURE_DIRECTORY"/skyboxes/messedup");
@@ -333,7 +341,6 @@ void Game::SetupSpaceScene() {
     // thrust2->transform.SetScale({thrust_scale, thrust_scale, thrust_scale});
     player->AddChild(thrust2);
     player->thrust2 = thrust2;
-
 
     Beacon* beacon1 = new Beacon("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
     beacon1->material.specular_coefficient = 0.0f;
@@ -555,6 +562,12 @@ void Game::SetupFPScene(void) {
     pill->SetCollectCallback([p]() { p->UnlockDash(); });
     pill->DeleteOnCollect(true);
     AddColliderToScene(FPTEST, pill);
+
+    SceneNode* snow = new SceneNode("Obj_MoonSnow", "M_MoonSnow", "S_MoonSnow", "T_SpiralParticle");
+    snow->transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    snow->SetAlphaEnabled(true);
+    snow->SetAlphaFunc(GL_ONE);
+    scenes[FPTEST]->AddNode(snow);
 }
 
 void Game::SetupForestScene() {
