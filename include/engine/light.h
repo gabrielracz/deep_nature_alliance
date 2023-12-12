@@ -13,6 +13,12 @@ public:
 
     void SetUniforms(ShaderLight& shader_light);
     void Attach(Transform* transform);
+
+    glm::mat4 CalculateLightViewMatrix();
+
+    Transform* GetParentTransform() { return parent_transform; }
+    glm::vec3 GetSuperHackyPlayerPlusMeTransformLol() { return parent_transform->GetPosition() + transform.GetPosition(); }
+
     Transform transform;
     glm::vec4 color;
     float spec_power = 41;
@@ -20,6 +26,7 @@ public:
 private:
     Transform* parent_transform {nullptr};
     glm::vec3 GetColour() const;
+    
 
 };
 

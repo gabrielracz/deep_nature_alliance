@@ -195,7 +195,7 @@ void Game::SetupScenes(void){
     // CreatePlanets();
     // CreateTriggers();
     // // CreateTree();
-    CreateLights();
+    // CreateLights();
     CreateHUD();
     CreateStory();
 }
@@ -310,6 +310,11 @@ void Game::SetupFPScene(void) {
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+
+    Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
+    // light->ambient_power = 0.1f;
+    light->transform.SetPosition({50.5, 1000.5, 50.5});
+    AddLightToScene(SceneEnum::FPTEST, light);
 
     FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
     p->SetNormalMap("T_MetalNormalMap");
@@ -578,7 +583,8 @@ void Game::SetupDesertScene() {
     scenes[DESERT]->AddNode(terr);
 
     Light* light = new Light(Colors::SunLight);
-    light->transform.SetPosition({1000.0, 1000.0, 0.0});
+    light->transform.SetPosition({300.0, 600.0, 0.0});
+    light->Attach(&p->transform);
     // light->ambient_power = 0.05;
     scenes[DESERT]->AddLight(light);
 
@@ -1104,16 +1110,16 @@ void Game::CreateStory() {
     AddStoryToScene(SceneEnum::FOREST, StoryBeat::TOLKIEN);
 }
 
-void Game::CreateLights() {
-    Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
-    light->ambient_power = 0.1f;
-    light->transform.SetPosition({50.5, 100.5, 50.5});
-    AddLightToScene(SceneEnum::SPACE, light);
-    AddLightToScene(SceneEnum::FPTEST, light);
+// void Game::CreateLights() {
+//     Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
+//     light->ambient_power = 0.1f;
+//     light->transform.SetPosition({50.5, 100.5, 50.5});
+//     AddLightToScene(SceneEnum::SPACE, light);
+//     AddLightToScene(SceneEnum::FPTEST, light);
 
-    // scenes[BEFORETRIGGER]->GetLights().push_back(light);
-    // scenes[AFTERTRIGGER]->GetLights().push_back(light);
-}
+//     // scenes[BEFORETRIGGER]->GetLights().push_back(light);
+//     // scenes[AFTERTRIGGER]->GetLights().push_back(light);
+// }
 
 
 void Game::ChangeScene(int sceneIndex) {

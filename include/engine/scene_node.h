@@ -29,7 +29,6 @@ class SceneNode {
         float normal_map_repetition = 1.0f;
         float specular_power = 69.0f;
         float diffuse_strength  = 0.8;
-        float ambient_strength = 0.4;
     };
 
     public:

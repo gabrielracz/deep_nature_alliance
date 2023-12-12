@@ -56,6 +56,12 @@ void SceneGraph::Update(double dt) {
         colman.CheckCollisions();
     }
 
+    // for (Light* l : lights){
+    //     if (l->GetParentTransform() != nullptr){
+    //         l->transform.Update(l->GetParentTransform()->CalculateMatrix());
+    //     }
+    // }
+
     // UPDATE CAMERA AFTER NODES ALWAYS !!!!!
     camera.Update(dt);
 }

@@ -10,14 +10,17 @@ void Light::Update(float dt) {
 void Light::SetUniforms(ShaderLight& l) {
     glm::vec3 pos = transform.GetPosition();
     if(parent_transform){ 
-        // pos += parent_transform->GetWorldPosition();
-        pos = parent_transform->GetWorldPosition();
+        l.light_position   = pos + parent_transform->GetWorldPosition();
+    } else{
+        l.light_position = pos;
     }
-    
-    l.light_position   = pos;
     l.color            = color;
     l.ambient_strength = ambient_power;
     l.ambient_color    = color;
+}
+
+glm::mat4 Light::CalculateLightViewMatrix(){
+    return glm::mat4(1.0f);
 }
 
 void Light::Attach(Transform *transform) {
