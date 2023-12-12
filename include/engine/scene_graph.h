@@ -38,6 +38,7 @@ class SceneGraph {
     void SetSkybox(SceneNode* s) {skybox = s;};
     void ToggleHUD(){ show_hud = !show_hud;}
     void SetCollision(bool toggle) { collision_enabled = toggle; }
+    int StoryTextAmount() { return story_text.size(); }
 
     void PushStoryText(Text* text);
     void DismissStoryText();

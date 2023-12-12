@@ -58,6 +58,11 @@ void CollisionManager::CheckCollisions(){
 }
 
 void CollisionManager::GetCollision(SceneNode* obj1, SceneNode* obj2) {
+    if(obj1->deleted || obj2->deleted) {
+        //probably should delete here weird glitch
+        return;
+    }
+
     Collider* col = obj1->GetCollider();
     Collider* other = obj2->GetCollider();
     if (col && other) {

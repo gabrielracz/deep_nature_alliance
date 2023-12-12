@@ -4,6 +4,7 @@
 #include "scene_graph.h"
 #include "application.h"
 #include "shader.h"
+#include "story_data.h"
 #include "tp_player.h"
 #include <GLFW/glfw3.h>
 #include <algorithm>
@@ -217,8 +218,10 @@ void Game::SetupScenes(void){
     SetupForestScene();
     SetupDesertScene();
     SetupMainMenuScene();
+    SetupStartScene();
+    SetupCreditsScene();
 
-    ChangeScene(SPACE);
+    ChangeScene(START);
 
 
     // // CreateTerrain();
@@ -594,7 +597,7 @@ void Game::SetupFPScene(void) {
     pill->transform.SetPosition({-600.0f,-18.0f,-600.0f});
     pill->transform.SetScale({5,5,5});
     pill->SetAlphaEnabled(true);
-    pill->SetCollectCallback([p]() { p->UnlockDash(); });
+    pill->SetCollectCallback([this]() { this->CollectEndingItem(PILL); });
     pill->DeleteOnCollect(true);
     AddColliderToScene(FPTEST, pill);
 
@@ -610,6 +613,7 @@ void Game::SetupForestScene() {
     Camera& camera = scenes[FOREST]->GetCamera();
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
+    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
     // PLAYER
     FP_Player* p = new FP_Player("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
@@ -717,6 +721,7 @@ void Game::SetupDesertScene() {
     Camera& camera = scenes[DESERT]->GetCamera();
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
+    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
     FP_Player* p = new FP_Player("Obj_Desert_player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
     p->SetNormalMap("T_MetalNormalMap");
@@ -797,6 +802,7 @@ void Game::SetupMainMenuScene() {
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.transform.SetPosition({0,0,0});
+    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
     RenderBundle mouseCursor = { "M_Quad", "S_TextureWithTransform", "T_Cursor" };
     Menu_Player* p = new Menu_Player("Obj_Menu_Player", "M_Quad", "S_Texture", "T_Splash", mouseCursor, app.GetWindow());
@@ -857,6 +863,71 @@ void Game::SetupMainMenuScene() {
     }
 }
 
+void Game::SetupStartScene() {
+    Camera& camera = scenes[START]->GetCamera();
+    camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
+    camera.transform.SetPosition({0,0,0});
+    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+
+    SceneNode* sun = new SceneNode("Obj_Planet", "M_Planet", "S_Sun", "T_Sun");
+    sun->transform.SetPosition({0.0, 0.0, -5000.0});
+    sun->transform.SetScale({2000, 2000, 2000});
+    sun->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
+    //sun->SetNormalMap("T_WallNormalMap", 4.0f);
+    sun->material.specular_coefficient = 2.0f;
+    sun->material.diffuse_strength = 1.0f;
+    scenes[START]->AddNode(sun);
+
+    Light* light = new Light(Colors::WarmWhite);
+    light->transform.SetPosition({0.0, 0.0, 300.0});
+    AddLightToScene(START, light);
+    
+    Light* light2 = new Light(Colors::BrightYellow);
+    light2->transform.SetPosition({0.0, 0.0, -5000.0});
+    AddLightToScene(START, light2);
+
+    SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
+    skybox->transform.SetScale({2000, 2000, 2000});
+    scenes[START]->SetSkybox(skybox);
+
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
+    p->SetNormalMap("T_MetalNormalMap");
+    p->transform.SetPosition({0.0, 0.0, 0.0});
+    p->visible = false;
+    AddPlayerToScene(START, p);
+    p->SetStatic(true);
+    camera.Detach();
+    camera.transform.SetPosition({0,0,0});
+    p->transform.SetPosition({0.0, -1000.0, 0.0});
+}
+
+void Game::SetupCreditsScene() {
+    Camera& camera = scenes[ENDING]->GetCamera();
+    camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
+    camera.transform.SetPosition({0,0,0});
+    camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+
+    Light* light = new Light(Colors::WarmWhite);
+    light->transform.SetPosition({0.0, 0.0, 300.0});
+    AddLightToScene(ENDING, light);
+
+    SceneNode* skybox = new SceneNode("Obj_MoonSkybox", "M_Skybox", "S_Skybox", "T_MessedUpSkybox");
+    skybox->transform.SetScale({2000, 2000, 2000});
+    scenes[ENDING]->SetSkybox(skybox);
+
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
+    p->SetNormalMap("T_MetalNormalMap");
+    p->transform.SetPosition({0.0, 0.0, 0.0});
+    p->visible = false;
+    AddPlayerToScene(ENDING, p);
+    p->SetStatic(true);
+    camera.Detach();
+    camera.transform.SetPosition({0,0,0});
+    p->transform.SetPosition({0.0, -1000.0, 0.0});
+}
+
 void Game::Update(double dt, KeyMap &keys) {
     CheckControls(keys, dt);
     active_scene->Update(dt);
@@ -903,6 +974,14 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if(keys[GLFW_KEY_5]) {
         ChangeScene(MAIN_MENU);
         keys[GLFW_KEY_5] = false;
+    }
+    if(keys[GLFW_KEY_6]) {
+        ChangeScene(START);
+        keys[GLFW_KEY_6] = false;
+    }
+    if(keys[GLFW_KEY_7]) {
+        ChangeScene(CREDITS);
+        keys[GLFW_KEY_7] = false;
     }
     if(keys[GLFW_KEY_9]) {
         active_scene->Reset();
@@ -1012,13 +1091,54 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     }
 
     if(keys[GLFW_KEY_R]) {
+        if ((active_scene_num == START && active_scene->StoryTextAmount() == 1)
+            || (ending_sequence_ && active_scene->StoryTextAmount() == 1)) {
+            keys[GLFW_KEY_R] = false;
+            return;
+        }
         active_scene->DismissStoryText();
+        if(reading_item_ && active_scene->StoryTextAmount() == 0) {
+            active_scene->GetPlayer()->SetStatic(false);
+            reading_item_ = false;
+            active_scene->SetCollision(true);
+        }
         keys[GLFW_KEY_R] = false;
     }
 
     if(keys[GLFW_KEY_C]) {
         active_scene->ToggleHUD();
         keys[GLFW_KEY_C] = false;
+    }
+
+    if(keys[GLFW_KEY_J]) {
+        if(active_scene_num == START) {
+            active_scene->ClearStoryText();
+            ChangeScene(SPACE);
+        }
+        keys[GLFW_KEY_J] = false;
+    }
+
+    if(keys[GLFW_KEY_N]) {
+        if(ending_sequence_ && active_scene->StoryTextAmount() == 1) {
+            ChangeScene(ENDING);
+            keys[GLFW_KEY_N] = false;
+            return;
+        }
+        keys[GLFW_KEY_N] = false;
+    }
+
+    if(keys[GLFW_KEY_Y]) {
+        if(ending_sequence_ && active_scene->StoryTextAmount() == 1) {
+            active_scene->GetPlayer()->SetStatic(false);
+            reading_item_ = false;
+            active_scene->ClearStoryText();
+            ending_sequence_ = false;
+            AddStoryToScene(active_scene_num, BAD_END);
+            active_scene->SetCollision(true);
+            keys[GLFW_KEY_Y] = false;
+            return;
+        }
+        keys[GLFW_KEY_Y] = false;
     }
 
 
@@ -1214,7 +1334,7 @@ void Game::CreateHUD() {
     fp_map->SetAnchor(Text::Anchor::BOTTOMRIGHT);
     fp_map->transform.SetPosition({1.0, -1.0, 0.0});
     fp_map->SetColor(Colors::White);
-    fp_map->SetSize(15.0f);
+    fp_map->SetSize(10.0f);
     fp_map->SetCallback([this]() -> std::string {
         Terrain* terr = active_scene->GetTerrain();
         if(terr == nullptr) {
@@ -1263,9 +1383,12 @@ void Game::CreateHUD() {
 }
 
 void Game::CreateStory() {
+    AddStoryToScene(SceneEnum::START, StoryBeat::BEGINNING);
     AddStoryToScene(SceneEnum::SPACE,  StoryBeat::INTRO);
-    AddStoryToScene(SceneEnum::FOREST, StoryBeat::EXPOSITION);
-    AddStoryToScene(SceneEnum::FOREST, StoryBeat::TOLKIEN);
+    AddStoryToScene(SceneEnum::FOREST, StoryBeat::FOREST_THOUGHTS);
+
+    AddStoryToScene(SceneEnum::ENDING, StoryBeat::GOOD_END);
+    AddStoryToScene(SceneEnum::ENDING, StoryBeat::CREDITS);
 }
 
 void Game::CreateLights() {
@@ -1284,7 +1407,7 @@ void Game::ChangeScene(int sceneIndex) {
     current_respawn_position = glm::vec3(0.0f);
     std::cout << "changing scenes" << std::endl;
     active_scene = scenes[sceneIndex];
-    active_scene_num = sceneIndex;
+    active_scene_num = SceneEnum(sceneIndex);
     app.SetMouseHandler(std::bind(&Player::MouseControls, active_scene->GetPlayer(), std::placeholders::_1));
     active_scene->SetBackgroundColor(viewport_background_color_g);
 }
@@ -1399,4 +1522,16 @@ void Game::SpawnRocket(glm::vec3 position, glm::quat orientation, glm::vec3 init
 
     active_scene->AddNode(rocket);
     active_scene->AddCollider(rocket);
+}
+
+void Game::CollectStoryItem(StoryBeat l) {
+    active_scene->SetCollision(false);
+    active_scene->GetPlayer()->SetStatic(true);
+    AddStoryToScene(active_scene_num, l);
+    reading_item_ = true;
+}
+
+void Game::CollectEndingItem(StoryBeat l) {
+    ending_sequence_ = true;
+    CollectStoryItem(l);
 }

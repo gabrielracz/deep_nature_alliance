@@ -107,6 +107,9 @@ void FP_Player::TestMove()
 
 void FP_Player::Update(double dt)
 {
+    if(player_static_) {
+        return;
+    }
     //printf("X: %f Y: %f Z: %f\n", transform.GetPosition().x, transform.GetPosition().y, transform.GetPosition().z);
     Agent::Update(dt);
     HeadMovement(dt);

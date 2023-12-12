@@ -29,6 +29,12 @@ public:
     glm::vec3 velocity         = {0.0f, 0.0f, 0.0f};
     glm::vec3 ang_velocity = {0.0f, 0.0f, 0.0f};
 
+    void SetStatic(bool stasis) { player_static_ = stasis; }
+
+protected:
+
+    bool player_static_ = false;
+
 };
 
 #endif // __DEEP_NATURE_ALLIANCE_INCLUDE_GAME_PLAYER_H_
