@@ -53,16 +53,17 @@ void View::Render(SceneGraph& scene) {
 void View::RenderScene(SceneGraph& scene) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for(auto node : scene) {
-        RenderNode(node, scene.GetCamera(), scene.GetLights());
-    }
-
-    // always render skybox last
+    // This really should be last but do it first for particle effects (they dont write to depth)
     if(scene.GetSkybox()) {
         glDepthFunc(GL_LEQUAL);
         RenderNode(scene.GetSkybox(), scene.GetCamera(), scene.GetLights());
         glDepthFunc(GL_LESS);
     }
+
+    for(auto node : scene) {
+        RenderNode(node, scene.GetCamera(), scene.GetLights());
+    }
+
 }
 
 void View::RenderScreenspace(SceneGraph& scene) {
@@ -206,6 +207,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     for(auto child : node->GetChildren()) {
         RenderNode(child, cam, lights, tm);
     }
+
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);
 }
@@ -311,7 +313,7 @@ void View::InitView(){
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DITHER);
     glDepthFunc(GL_LESS);
-    // glEnable(GL_CULL_FACE);  
+    glEnable(GL_CULL_FACE);  
     glPointSize(2.0f);
 
 	//Use this to disable vsync

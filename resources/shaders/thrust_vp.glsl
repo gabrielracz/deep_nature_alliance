@@ -46,8 +46,10 @@ void main()
     // Set up parameters of the particle motion
     float t = abs(circtime/2.8)*(0.3 + abs(normal.z)); 
 
+    float spd = speed * thrust_amount;
+
     vec3 position = vertex;
-    position += speed*out_vec*accel*t*t; // Particle moves up
+    position += spd*out_vec*accel*t*t; // Particle moves up
     
     gl_Position = view_mat * world_mat * vec4(position, 1.0);
     
@@ -55,6 +57,6 @@ void main()
     vec4 blue_heat = 1/(position.z + 2) * vec4(0.0, 0.7, 3.0, 1.0);
     vec4 fire_col = vec4(0.6, 0.225, 0.01, 1.0)*1.5;
     particle_color = fire_col;// + blue_heat;
-    float alpha = 1.0 - (circtime*circtime)/2;
+    float alpha = pow(thrust_amount, 3) * (1.0 - (circtime*circtime)/2);
     particle_color.a = alpha;
 }

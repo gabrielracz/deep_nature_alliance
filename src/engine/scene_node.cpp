@@ -36,6 +36,13 @@ void SceneNode::Update(double dt){
         transform.Update();
     }
 
+    if(!deleted_instances.empty()) {
+        for(auto index : deleted_instances) {
+            instances.erase(instances.begin() + index);
+        }
+        deleted_instances.clear();
+    }
+
     for(auto child : children) {
         child->Update(dt);
     }
@@ -54,6 +61,8 @@ void SceneNode::SetUniforms(Shader* shader, const glm::mat4& view_matrix, const 
     shader->SetUniform1f(material.normal_map_repetition, "normal_map_repetition");
     shader->SetUniform1f(material.specular_power,        "specular_power");
     shader->SetUniform1f(material.diffuse_strength,      "diffuse_strength");
+    shader->SetUniform1f(material.ambient_additive,      "amb_add");
+    shader->SetUniform1f(material.specular_coefficient,  "specular_coefficient");
 
     // extras
     shader->SetUniform1f(elapsed, "timer");

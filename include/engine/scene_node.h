@@ -28,8 +28,9 @@ class SceneNode {
         float texture_repetition = 1.0f;
         float normal_map_repetition = 1.0f;
         float specular_power = 69.0f;
-        float diffuse_strength  = 0.8;
-        float ambient_strength = 0.4;
+        float diffuse_strength  = 0.8f;
+        float ambient_additive = 0.0f;
+        float specular_coefficient = 1.0f;
     };
 
     public:
@@ -53,6 +54,7 @@ class SceneNode {
         void SetAlphaEnabled(bool a)                        {alpha_enabled = a;}
         void SetAlphaFunc(int f)                            {alpha_func = f;}
         void SetParent(SceneNode* n)                        {parent = n;}
+        void DeleteInstance(unsigned int i)                 {deleted_instances.push_back(i);}
         // void SetInstances(std::vector<Transform>& t)        {instances = t;};
 
         const std::string GetName(void) const               {return name;}
@@ -86,6 +88,7 @@ class SceneNode {
         std::vector<SceneNode*> children;
         SceneNode* parent = nullptr;
         std::vector<Transform> instances;
+        std::vector<unsigned int> deleted_instances;
         int in_camera_instances = 0;
         float elapsed = 0;
         CollisionData collision;

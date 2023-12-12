@@ -15,7 +15,7 @@ enum class TerrainType {
 class Terrain : public SceneNode {
     public:
 
-        Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, TerrainType type, float xwidth, float zwidth, float density, Game* game);
+        Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, TerrainType type, const std::vector<std::vector<float>> image, float xwidth, float zwidth, float density, Game* game);
 
         float SampleHeight(float x, float z);
         float SampleSlope(float x, float z, glm::vec3 dir = {0.0f, 0.0f, 0.0f});
@@ -28,7 +28,7 @@ class Terrain : public SceneNode {
         float GetDepth() {return zwidth;}
 
     protected:
-        void GenerateHeightmap(TerrainType type);
+        void GenerateHeightmap(TerrainType type, const std::vector<std::vector<float>>& image);
         void GenerateQMoon();
         void GenerateForest();
         void GenerateLava();

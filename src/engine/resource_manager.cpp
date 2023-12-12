@@ -14,7 +14,7 @@
 #include "resource.h"
 #include "resource_manager.h"
 
-#define STB_IMAGE_IMPLEMENTATION
+// #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 // template <typename T>
@@ -846,7 +846,7 @@ void ResourceManager::CreatePointCloud(std::string object_name, int num_points, 
 	std::vector<unsigned int> inds;
 	for(int i = 0 ; i < num_points; i++ ) {
 		glm::vec3 pos = glm::ballRand(size);
-        glm::vec3 color;
+		glm::vec3 color = {};
 		if(col == glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)) {
             float b = rand() % 6 == 0 ? 1.0 : 0.0;
 			color = glm::vec4(i, b, 0.0, 0.0); // encode id in red channel
@@ -858,6 +858,53 @@ void ResourceManager::CreatePointCloud(std::string object_name, int num_points, 
 		APPEND_VEC3(vertices, color);
 		APPEND_VEC2(vertices, glm::vec2(1.0, 1.0));
 	}
+
+	overwrite_emplace(meshes, object_name, Mesh(vertices, inds, generator_layout));
+}
+
+// Winter wonderland
+// y value sets the height where to spawn the particles needless to say u want this above the player
+void ResourceManager::CreateSnowParticles(std::string object_name, int num_particles, float spread_range, int density, float yposition){
+
+    // Create a set of points which will be the particles
+    // This is similar to drawing a sphere: we will sample points on a sphere, but will allow them to also deviate a bit from the sphere along the normal (change of radius)
+	std::vector<float> vertices;
+	std::vector<unsigned int> inds;
+
+    int num_clusters = num_particles / density;
+
+    // We want to cluster the snow flakes so they can be together like they have been deposited by some cloud
+    for (int i = 0; i < num_clusters; i++) {
+        // Pick random spot to put cluster of snow particles (think of this like a cloud)
+        float x_center = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * spread_range - (spread_range / 2.0f);
+        float z_center = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * spread_range - (spread_range / 2.0f);
+
+        // Spawn particles in specified radius and spawn how many dense particles
+        for (int j = 0; j < density; j++) {
+            int index = i * density + j;
+            
+            float radius = 10; // just a good area to spawn the particles
+            float angle = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * glm::two_pi<float>();
+            float x_offset = radius * cos(angle);
+            float z_offset = radius * sin(angle);
+
+            float x = x_center + x_offset;
+            float z = z_center + z_offset;
+            float y = yposition;
+
+            glm::vec3 position(x, y, z);
+
+            // Add position and color to the data buffer
+            // Note: we randomize everything that is unused so the shader can use it
+            // as a seed for its random function!
+			glm::vec3 normals = glm::vec3(static_cast<float>(rand()) / static_cast<float>(RAND_MAX), static_cast<float>(rand()) / static_cast<float>(RAND_MAX), static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
+			glm::vec3 colours = glm::vec3(static_cast<float>(rand()) / static_cast<float>(RAND_MAX), static_cast<float>(rand()) / static_cast<float>(RAND_MAX), static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
+			APPEND_VEC3(vertices, position);
+			APPEND_VEC3(vertices, normals);
+			APPEND_VEC3(vertices, colours);
+			APPEND_VEC2(vertices, glm::vec2(1.0, 1.0));
+        }
+    }
 
 	overwrite_emplace(meshes, object_name, Mesh(vertices, inds, generator_layout));
 }

@@ -50,6 +50,7 @@ class ResourceManager {
         void CreateSimpleQuad(std::string object_name);
         void CreateSimpleCube(std::string object_name);
         void CreateSaplingQuad(std::string name);
+        void CreateSnowParticles(std::string object_name, int num_particles = 500, float spread_range = 100, int density = 20, float yposition = 8);
 
         
     private:

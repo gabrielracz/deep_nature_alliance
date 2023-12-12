@@ -19,5 +19,8 @@ void main (void)
     outval = vec4(outval.r*frag_color.r, outval.g*frag_color.g, outval.b*frag_color.b, sqrt(sqrt(outval.r))*frag_color.a);
     // vec4 outval = vec4(1.0, 0.0, 0.0, 1.0);
     // Set output fragment olor
+    if(outval.a < 0.005) {
+        discard;
+    }
     gl_FragColor = outval;
 }

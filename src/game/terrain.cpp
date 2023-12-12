@@ -11,7 +11,7 @@
 
 float MAX_PASSABLE_SLOPE = 0.5f;
 
-Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, TerrainType t, float xwidth, float zwidth, float density, Game* game)
+Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, TerrainType t, const std::vector<std::vector<float>> image, float xwidth, float zwidth, float density, Game* game)
     : SceneNode(name, mesh_id, shader_id, texture_id), xwidth(xwidth), zwidth(zwidth), density(density), type(t), game(game) {
 
     // generate uniform grid
@@ -28,7 +28,7 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     tangents.resize(num_xsteps, std::vector<glm::vec3>(num_zsteps, {1.0, 0.0, 0.0}));
     uvs.resize(num_xsteps, std::vector<glm::vec2>(num_zsteps, {0.0, 0.0}));
 
-    GenerateHeightmap(type);
+    GenerateHeightmap(type, image);
     GenerateNormals();
     GenerateTangents();
     GenerateObstacles();
@@ -39,16 +39,17 @@ Terrain::Terrain(const std::string name, const std::string& mesh_id, const std::
     SetCollider(new TerrainCollider(*this));
 }
 
-void Terrain::GenerateHeightmap(TerrainType type) {
+void Terrain::GenerateHeightmap(TerrainType type, const std::vector<std::vector<float>>& image) {
     switch(type) {
         case TerrainType::MOON:
+            SampleTerrainForHeight(image, 10);
             GenerateQMoon();
             break;
         case TerrainType::FOREST:
-            SampleTerrainForHeight(rocky_terrain, 50);
+            SampleTerrainForHeight(image, 50);
             break;
         case TerrainType::DUNES:
-            SampleTerrainForHeight(dunes_terrain, 500.0f);
+            SampleTerrainForHeight(image, 500.0f);
             break;
         case TerrainType::LAVA:
             GenerateLava();
@@ -93,53 +94,6 @@ void Terrain::SampleTerrainForHeight(const std::vector<std::vector<float>>& terr
 }
 
 void Terrain::GenerateQMoon() {
-//     float image_xstep = sizeof(terrain[0]) / sizeof(*terrain[0]) / num_xsteps;
-//     float image_zstep = sizeof(terrain) / sizeof(*terrain) / num_zsteps;
-//     for (int z = 0; z < num_zsteps; z++) {
-//         for (int x = 0; x < num_xsteps; x++) {
-//             float height;
-//             bool imageTerrain = true;
-//             if (imageTerrain) {
-//                 float sampleX = x * image_xstep;
-//                 float sampleZ = z * image_zstep;
-
-//                 int x0 = static_cast<int>(std::floor(sampleX));
-//                 int z0 = static_cast<int>(std::floor(sampleZ));
-
-//                 // Clamp the coordinates to be within valid range
-//                 x0 = glm::clamp(x0, 0, static_cast<int>(sizeof(terrain[0]) / sizeof(*terrain[0])) - 2);
-//                 z0 = glm::clamp(z0, 0, static_cast<int>(sizeof(terrain) / sizeof(*terrain) - 2));
-
-//                 // Get the fractional part of the coordinates
-//                 float sx = sampleX - static_cast<float>(x0);
-//                 float sz = sampleZ - static_cast<float>(z0);
-
-//                 // Perform bilinear interpolation on the terrain heights
-//                 float h00 = terrain[x0][z0] * 10;
-//                 float h10 = terrain[x0 + 1][z0] * 10;
-//                 float h01 = terrain[x0][z0 + 1] * 10;
-//                 float h11 = terrain[x0 + 1][z0 + 1] * 10;
-
-//                 float h0 = (1 - sx) * h00 + sx * h10;
-//                 float h1 = (1 - sx) * h01 + sx * h11;
-
-//                 glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 50.0f;
-//                 float perlin = glm::perlin(sample);
-
-//                 height = (1 - sz) * h0 + sz * h1 + perlin;
-//             } else {
-//                 glm::vec2 sample = glm::vec2(x * xstep, z * zstep) / 100.0f;
-//                 height = glm::perlin(sample) * 50.0;
-//                 // shelf generation:
-//                 // float height = 0.0;
-//                 // if (x > 150){
-//                 //     height = 100.0;
-//                 // }
-//             }
-//             heights[x][z] = height;
-//         }
-//     }
-    SampleTerrainForHeight(terrain, 10);
 
     int min_craters = 40;
     int max_craters = 60;
@@ -185,14 +139,14 @@ void Terrain::GenerateQMoon() {
     float item_crater_radius = 20.0f;
     float item_crater_inner_radius = 6.0f;
     float spawn_canyon_radius = 40.0f;
-    float item_crater_depth = 50.0f;
-    float item_crater_spire_height = 20.0f;
+    float item_crater_depth = 45.0f;
+    float item_crater_spire_height = 18.0f;
     float min_spawn_canyon_depth = 80.0f;
-    float player_platform_radius = 10.0f;
+    float player_platform_radius = 15.0f;
     float player_platform_depth = 8.0f;
 
     glm::vec2 spawn_position = glm::vec2(num_xsteps/2, num_zsteps/2);
-    glm::vec2 item_position = glm::vec2((spawn_canyon_radius/2) + 1, (spawn_canyon_radius/2) + 1);
+    glm::vec2 item_position = glm::vec2((spawn_canyon_radius/2) + 10, (spawn_canyon_radius/2) + 10);
 
     for (int z = 0; z < num_zsteps; ++z) {
         for (int x = 0; x < num_xsteps; ++x) {
