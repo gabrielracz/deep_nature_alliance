@@ -333,7 +333,7 @@ void Game::SetupSpaceScene() {
     scenes[SPACE]->AddNode(astr);
     scenes[SPACE]->AddCollider(astr);
 
-    Tp_Player* player = new Tp_Player("Obj_Player", "M_H2", "S_NormalMap", "T_H2", this);
+    Tp_Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship", this);
     player->transform.SetPosition(glm::vec3(1679.251343, 727.375793, -537.549316));
 
     player->SetNormalMap("T_MetalNormalMap", 1.0);
