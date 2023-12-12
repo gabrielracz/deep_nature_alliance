@@ -97,6 +97,8 @@ class Game {
         void PlayerHitShip(glm::vec3 spawn_pos);
         void BeaconOneHit(void) { ChangeSceneAndSpawn(FOREST, {-191.718155, 20.999252, -395.274536}); }
 
+        const std::vector<std::vector<float>> readTerrain(const std::string& filePath);
+
     private:
         SceneGraph* active_scene;
         int active_scene_num = 0;
