@@ -96,6 +96,8 @@ class Game {
         void PlayerHitRespawnMessage(glm::vec3 respawn_pos, std::string message);
         void PlayerHitShip(glm::vec3 spawn_pos);
         void BeaconOneHit(void) { ChangeSceneAndSpawn(FOREST, {-191.718155, 20.999252, -395.274536}); }
+        void SpawnRocket(glm::vec3 position, glm::quat orientation, glm::vec3 initial_velocity);
+        void SpawnExplosion(glm::vec3 position, glm::vec3 scale);
 
         const std::vector<std::vector<float>> readTerrain(const std::string& filePath);
 

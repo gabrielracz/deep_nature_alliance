@@ -16,6 +16,7 @@ void CollisionManager::CheckCollisions(){
 
     for (auto asteroid : asteroids){
         // GetCollision(asteroid, player);
+        int i = 0;
         for(Transform& a : asteroid->GetInstances()) {
             float rad = glm::length(a.GetScale());
             float player_rad = glm::length(player->transform.GetScale());
@@ -23,9 +24,24 @@ void CollisionManager::CheckCollisions(){
             if(glm::length(player->transform.GetPosition() - apos) < rad + player_rad) {
                 // collision
                game->ShipHitPlanet({0.0f,0.0f,0.0f});
+               return;
             }
-        }
 
+            for(auto it = rockets.begin(); it != rockets.end();) {
+                SceneNode* rocket = *it;
+                float rocket_rad = glm::length(rocket->transform.GetScale());
+                if(glm::length(rocket->transform.GetPosition() - apos) < rad + rocket_rad) {
+                    game->SpawnExplosion(rocket->transform.GetPosition(), glm::vec3(1.0f));
+                    game->SpawnExplosion(apos, glm::vec3(4.0f));
+                    rocket->deleted = true;
+                    asteroid->DeleteInstance(i);
+                    it = rockets.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+            i++;
+        }
     }
 
     for (auto item : items) {
@@ -77,6 +93,8 @@ void CollisionManager::AddNode(SceneNode* node){
         case TSHIP:
             player = node;
             break;
+        case TROCKET:
+            rockets.push_back(node);
         default:
             othercollideables.push_back(node);
             break;

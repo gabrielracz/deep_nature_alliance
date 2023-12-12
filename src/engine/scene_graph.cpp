@@ -1,11 +1,5 @@
 #include "scene_graph.h"
 
-//TODO: Add SceneGraph INIT
-SceneGraph::SceneGraph()
-    : colman(){
-    background_color_ = glm::vec3(0.0, 0.0, 0.0);
-}
-
 SceneGraph::~SceneGraph() {
     Reset();
     for (auto n : node_) {

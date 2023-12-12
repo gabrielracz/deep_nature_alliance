@@ -21,7 +21,7 @@ class SceneGraph {
     // Scene nodes to render
 
     // Constructor and destructor
-    SceneGraph();
+    SceneGraph(Game* game): colman(game) {}
     ~SceneGraph();
 
     // Background color

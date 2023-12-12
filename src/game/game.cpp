@@ -30,6 +30,8 @@
 #include "terrain.h"
 #include "menu_controller.h"
 #include "colliders/colliders.h"
+#include "rocket.h"
+#include "explosion.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -69,8 +71,8 @@ void Game::SetupResources(void){
 
 void Game::LoadMeshes() {
     // load .obj meshes
-    // resman.LoadMesh        ("M_Ship", MESH_DIRECTORY"/dnafighter.obj");
-    resman.LoadMesh        ("M_Ship", MESH_DIRECTORY"/h2.obj");
+    resman.LoadMesh        ("M_Ship", MESH_DIRECTORY"/dnafighter.obj");
+    resman.LoadMesh        ("M_H2", MESH_DIRECTORY"/h2.obj");
     resman.LoadMesh        ("M_Tree4", MESH_DIRECTORY"/tree4.obj");
     // resman.LoadMesh        ("M_Tree", MESH_DIRECTORY"/oak.obj");
     resman.LoadMesh        ("M_BirchTree", MESH_DIRECTORY"/birch_tree.obj");
@@ -95,6 +97,7 @@ void Game::LoadMeshes() {
     resman.CreatePointCloud("M_Explosion", 5000, 0.25f);
     resman.CreateSnowParticles("M_MoonSnow", 10000, 2000, 100, 0);
     resman.CreateSnowParticles("M_MoonSpirals", 10000, 2000, 20, 0);
+    resman.CreateCone("M_Rocket", 1.0, 0.5, 4, 4);
 
     resman.CreateSaplingQuad("M_Sapling");
     //resman.CreateCone2       ("M_MoonObject", 10, 3, 4, 4);
@@ -138,8 +141,8 @@ void Game::LoadTextures() {
     // load textures
     resman.LoadTexture("T_Charmap", TEXTURE_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
     resman.LoadTexture("T_LavaPlanet", TEXTURE_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST);
-    // resman.LoadTexture("T_Ship", TEXTURE_DIRECTORY"/dnafighter.png", GL_REPEAT);
-    resman.LoadTexture("T_Ship", TEXTURE_DIRECTORY"/shiptex.png", GL_REPEAT);
+    resman.LoadTexture("T_Ship", TEXTURE_DIRECTORY"/dnafighter.png", GL_REPEAT);
+    resman.LoadTexture("T_H2", TEXTURE_DIRECTORY"/shiptex.png", GL_REPEAT);
     // resman.LoadTexture("T_LavaPlanet", TEXTURE_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST, 4.0f);
     // resman.LoadTexture("T_SnowPlanet", TEXTURE_DIRECTORY"/snow_planet.png", GL_LINEAR);
     resman.LoadTexture("T_MarsPlanet", TEXTURE_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
@@ -186,6 +189,8 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Stone", TEXTURE_DIRECTORY"/stone.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_SpiralParticle", TEXTURE_DIRECTORY"/flake.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_EyeParticle", TEXTURE_DIRECTORY"/eyepart.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Rocket", TEXTURE_DIRECTORY"/stone_old.png", GL_REPEAT, GL_LINEAR);
+
 
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", TEXTURE_DIRECTORY"/skyboxes/messedup");
@@ -231,7 +236,7 @@ void Game::SetupSpaceScene() {
     scn->SetResetCallback([this]() { this->SetupSpaceScene(); });
 
     Camera& camera = scn->GetCamera();
-    camera.SetView({0.0, 1.75, 15.0}, config::camera_look_at, config::camera_up);
+    camera.SetView({0.000000, 8.087938, 20.895229}, config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, 16000.0f, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
@@ -327,7 +332,7 @@ void Game::SetupSpaceScene() {
     scenes[SPACE]->AddNode(astr);
     scenes[SPACE]->AddCollider(astr);
 
-    Tp_Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
+    Tp_Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship", this);
     player->transform.SetPosition(glm::vec3(1679.251343, 727.375793, -537.549316));
 
     player->SetNormalMap("T_MetalNormalMap", 1.0);
@@ -618,7 +623,7 @@ void Game::SetupForestScene() {
     p->gravity_ = 9.8* 6;
     AddPlayerToScene(FOREST, p);
 
-    // Tp_Player* p = new Tp_Player("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship");
+    // Tp_Player* p = new Tp_Player("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship", this);
     // p->SetNormalMap("T_MetalNormalMap", 1.0f);
     // AddPlayerToScene(FOREST, p);
 
@@ -1053,7 +1058,7 @@ void Game::CheckControls(KeyMap& keys, float dt) {
 // }
 
 void Game::CreatePlayer() {
-    Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_Lit", "T_Charmap");
+    Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_Lit", "T_Charmap", this);
     player->transform.SetPosition(player_position_g);
     // player->visible = false;
 
@@ -1249,13 +1254,13 @@ void Game::CreateHUD() {
 
 
 
-    // Text* crosshair = new Text("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", this, "[ ]");
-    // crosshair->transform.SetPosition({0.0, 0.1, 0.0});
-    // crosshair->SetSize(10.0f);
-    // crosshair->SetColor(HEXCOLORALPH(0xFF00FF, 0.75));
-    // crosshair->SetBackgroundColor(Colors::Transparent);
-    // crosshair->SetAnchor(Text::Anchor::CENTER);
-    // AddToScene(SceneEnum::AFTERTRIGGER, crosshair);
+    Text* crosshair = new Text("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", "[ ]");
+    crosshair->transform.SetPosition({0.0, 0.0, 0.0});
+    crosshair->SetSize(10.0f);
+    crosshair->SetColor(Colors::Amber);
+    crosshair->SetBackgroundColor(Colors::Transparent);
+    crosshair->SetAnchor(Text::Anchor::CENTER);
+    AddTextToScene(SPACE, crosshair);
 }
 
 void Game::CreateStory() {
@@ -1368,4 +1373,31 @@ void Game::PlayerHitRespawnMessage(glm::vec3 respawn_pos, std::string message) {
 
 void Game::PlayerHitShip(glm::vec3 spawn_pos) {
     ChangeSceneAndSpawn(SPACE,spawn_pos);
+}
+
+void Game::SpawnExplosion(glm::vec3 position, glm::vec3 scale) {
+    Explosion* explosion = new Explosion("Obj_Explosion", "M_Explosion", "S_Explosion", "T_Fire");
+    explosion->transform.SetPosition(position);
+    explosion->transform.SetScale(scale);
+    explosion->SetAlphaEnabled(true);
+    explosion->SetAlphaFunc(GL_ONE);
+    active_scene->AddNode(explosion);
+}
+
+void Game::SpawnRocket(glm::vec3 position, glm::quat orientation, glm::vec3 initial_velocity) {
+    Rocket* rocket = new Rocket("", "M_Rocket", "S_NormalMap", "T_Rocket", this);
+    rocket->SetNormalMap("T_MetalNormalMap");
+
+    Thrust* thrust = new Thrust("Obj_rocketthrust", "M_Thrust", "S_Thrust", "T_Fire");
+    thrust->SetAlphaEnabled(true);
+    thrust->SetAlphaFunc(GL_ONE);
+    rocket->AddThrust(thrust);
+
+    rocket->transform.SetPosition(position);
+    rocket->transform.SetOrientation(orientation);
+    rocket->SetNodeType(TROCKET);
+    // rocket->velocity = initial_velocity;
+
+    active_scene->AddNode(rocket);
+    active_scene->AddCollider(rocket);
 }

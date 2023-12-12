@@ -36,6 +36,13 @@ void SceneNode::Update(double dt){
         transform.Update();
     }
 
+    if(!deleted_instances.empty()) {
+        for(auto index : deleted_instances) {
+            instances.erase(instances.begin() + index);
+        }
+        deleted_instances.clear();
+    }
+
     for(auto child : children) {
         child->Update(dt);
     }

@@ -5,12 +5,13 @@
 #include "transform.h"
 #include "glm/gtx/string_cast.hpp"
 #include "colliders/colliders.h"
+#include "game.h"
 
 #define DRAG_CONSTANT 2.0f
 
 
-Tp_Player::Tp_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id)
-    : Player(name, mesh_id, shader_id, texture_id)
+Tp_Player::Tp_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id, Game* game)
+    : Player(name, mesh_id, shader_id, texture_id), game(game)
 {
     //c->Attach(&transform); 
     SphereCollider* col = new SphereCollider(*this, collider_radius_);
@@ -137,6 +138,11 @@ void Tp_Player::Control(Controls c, float dt, float damping){
         case Player::Controls::D:
             torque += transform.GetAxis(FORWARD) * rot_force * 2.0f;
             break;
+        case Player::Controls::SPACE:{
+            glm::vec3 forwrd = transform.GetOrientation() * glm::vec3(0.0, 0.0, -1.0);
+            float forward_vel = glm::dot(forwrd, velocity);
+            game->SpawnRocket(transform.GetPosition(), transform.GetOrientation(), forwrd * forward_vel);
+            break;}
         default:
             break;
     }

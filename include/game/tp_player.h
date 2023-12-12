@@ -2,12 +2,15 @@
 #define TP_PLAYER_H
 
 #include <glm/matrix.hpp>
+#include "collision_manager.h"
 #include "player.h"
 #include "thrust.h"
 
+class Game;
+
 class Tp_Player : public Player {
    public:
-    Tp_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id = "");
+    Tp_Player(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id = "", Game* game = nullptr);
 
     virtual void Update(double dt) override;
 
@@ -53,6 +56,7 @@ class Tp_Player : public Player {
     Thrust* thrust2;
 
    private:
+   Game* game;
     //naming would be super fucked this is still ugly but better than forward being up and stuff
     // enum TPControls {
     //     PITCHD = (int)(Player::Controls::W),

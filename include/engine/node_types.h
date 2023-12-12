@@ -12,5 +12,6 @@ enum NodeType {
     TTOWER,
     TTREE,
     TITEM,
-    TTRIGGER
+    TTRIGGER,
+    TROCKET
 };
