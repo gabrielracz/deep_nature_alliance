@@ -30,6 +30,10 @@
 #include "terrain.h"
 #include "menu_controller.h"
 #include "colliders/colliders.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 // Some configuration constants
 // They are written here as global variables, but ideally they should be loaded from a configuration file
 
@@ -377,6 +381,25 @@ void Game::SetupSpaceScene() {
     AddColliderToScene(SPACE, beacon3);
 }
 
+const std::vector<std::vector<float>> Game::readTerrain(const std::string& filePath) {
+    int width, height, channels;
+    unsigned char* image = stbi_load(filePath.c_str(), &width, &height, &channels, STBI_grey);
+
+    if (!image) {
+        std::cout << "Error: Unable to read terrain" << filePath << std::endl;
+        return {};
+    }
+
+    std::vector<std::vector<float>> floatImage(height, std::vector<float>(width));
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            floatImage[i][j] = (image[i * width + j]) / 255.0f;
+        }
+    }
+    stbi_image_free(image);
+    return floatImage;
+}
+
 void Game::SetupFPScene(void) {
     scenes[FPTEST]->SetResetCallback([this]() { this->SetupFPScene(); });
     Camera& camera = scenes[FPTEST]->GetCamera();
@@ -394,15 +417,16 @@ void Game::SetupFPScene(void) {
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[FPTEST]->SetSkybox(skybox);
 
+    const std::vector<std::vector <float>>& gangAintNunOfThatSquad = readTerrain(RESOURCES_DIRECTORY"/terrain/dunes.jpg");
     int terrain_size = 1500;
-    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, terrain_size, terrain_size, 0.2, this);
+    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, gangAintNunOfThatSquad, terrain_size, terrain_size, 0.2, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     t->material.texture_repetition = 5.0f;
     t->SetNormalMap("T_RockNormalMap", 40.0f);
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
 
-    Terrain* lt = new Terrain("Obj_MoonLava", "M_MoonLava", "S_Lava", "T_MoonPlanet", TerrainType::LAVA, 400, 400, 0.1, this);
+    Terrain* lt = new Terrain("Obj_MoonLava", "M_MoonLava", "S_Lava", "T_MoonPlanet", TerrainType::LAVA, {}, 400, 400, 0.1, this);
     lt->transform.Translate({-200.0f, -65.0f, -200.0f});
     lt->material.texture_repetition = 6.0f;
     lt->material.diffuse_strength = 1.5f;
@@ -609,9 +633,10 @@ void Game::SetupForestScene() {
     ship->SetCollider(col);
     AddColliderToScene(FOREST, ship);
     
+    const std::vector<std::vector <float>> gangAintNunOfThatSquad = readTerrain(RESOURCES_DIRECTORY"/terrain/mountain_hm_n.png");
     // ENV
     int terrain_size = 1000;
-    Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, terrain_size, terrain_size, 0.2, this);
+    Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, gangAintNunOfThatSquad, terrain_size, terrain_size, 0.2, this);
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     terr->material.specular_power = 0.0f;
     terr->material.texture_repetition = 10.0f;
@@ -695,8 +720,11 @@ void Game::SetupDesertScene() {
     AddPlayerToScene(DESERT, p);
     // camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
+
+    const std::vector<std::vector <float>>& gangAintNunOfThatSquad = readTerrain(RESOURCES_DIRECTORY"/terrain/dunes.jpg");
+
     int terrain_size = 10000;
-    Terrain* terr = new Terrain("Obj_DesertTerrain", "M_DesertTerain", "S_NormalMap", "T_Sand", TerrainType::DUNES, terrain_size, terrain_size, 0.2, this);
+    Terrain* terr = new Terrain("Obj_DesertTerrain", "M_DesertTerain", "S_NormalMap", "T_Sand", TerrainType::DUNES, gangAintNunOfThatSquad, terrain_size, terrain_size, 0.2, this);
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     terr->material.specular_power = 0.0f;
     terr->material.texture_repetition = 50.0f;

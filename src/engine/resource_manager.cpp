@@ -14,7 +14,7 @@
 #include "resource.h"
 #include "resource_manager.h"
 
-#define STB_IMAGE_IMPLEMENTATION
+// #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 // template <typename T>
@@ -846,7 +846,7 @@ void ResourceManager::CreatePointCloud(std::string object_name, int num_points, 
 	std::vector<unsigned int> inds;
 	for(int i = 0 ; i < num_points; i++ ) {
 		glm::vec3 pos = glm::ballRand(size);
-        glm::vec3 color;
+		glm::vec3 color = {};
 		if(col == glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)) {
             float b = rand() % 6 == 0 ? 1.0 : 0.0;
 			color = glm::vec4(i, b, 0.0, 0.0); // encode id in red channel
