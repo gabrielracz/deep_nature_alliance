@@ -54,6 +54,8 @@ enum SceneEnum {
     MOON,
     FPTEST,
     MAIN_MENU,
+    START,
+    ENDING,
     NUM_SCENES,
     ALL
 };
@@ -98,12 +100,14 @@ class Game {
         void BeaconOneHit(void) { ChangeSceneAndSpawn(FOREST, {-191.718155, 20.999252, -395.274536}); }
         void SpawnRocket(glm::vec3 position, glm::quat orientation, glm::vec3 initial_velocity);
         void SpawnExplosion(glm::vec3 position, glm::vec3 scale);
+        void CollectStoryItem(StoryBeat l);
+        void CollectEndingItem(StoryBeat l);
 
         const std::vector<std::vector<float>> readTerrain(const std::string& filePath);
 
     private:
         SceneGraph* active_scene;
-        int active_scene_num = 0;
+        SceneEnum active_scene_num = MAIN_MENU;
         std::vector<SceneGraph*> scenes;
 
         float wind_speed = 1.5f;
@@ -111,11 +115,16 @@ class Game {
 
         glm::vec3 current_respawn_position = glm::vec3(0.0);
 
+        bool ending_sequence_ = false;
+        bool reading_item_ = false;
+
         void SetupFPScene(void);
         void SetupSpaceScene(void);
         void SetupForestScene(void);
         void SetupDesertScene();
         void SetupMainMenuScene();
+        void SetupStartScene();
+        void SetupCreditsScene();
 
         void LoadMeshes();
         void LoadShaders();

@@ -1,0 +1,142 @@
+--- DEEP NATURE ALLIANCE ---
+
+-- INTRO --
+
+Printing entry01.sz [Sub Zero Cold Storage Format] ...
+# Last access [12 seconds ago] #
+--- EXCRYPT PLAIN BLOCK START ---
+YEAR 3620 Potentia Era [1] Kinva Domin S-65:
+
+Does a dream justify its costs?
+
+I am a Colonel of the DNA J8-027th Division Fifth Reich.
+After a regular reconnaissance and suppression mission I have been promoted to Colonel.
+This comes off of the back of many of my subordinates committing to a full augment after they
+gave their organic conscious to suppress many FOD stricken citizens across the J Dominion. 
+After our reconnaissance this resulted in the obliteration of CIV SECTORS: J-98, J-67, J-04 and the crippling of much of the rest of the sector.
+I earn my rank to little personal sacrifice.
+
+Today, marks what has been declared as the great "Potentia" Era.
+After the successful testing of the MK in the unpopulated S9-6T sector, which has been described to the rest of the middle supercluster as essential resource generating technology.
+Us in the Inner DNA ranks know its better use as a PMDW (Powerful Mass Destruction Weapon).
+This test was done to a sector adjacent to a close friend.
+
+One I made a promise to.
+
+I break rank to investigate;
+the specter of bloodshed looms over me.
+
+I make the jump to sector S9-7T...
+--- EXCRYPT PLAIN BLOCK END ---
+
+-- GAME START --
+
+SHIP: Connection to DNANet [DISCONNECTED]. JMP Drive and combat systems have been disabled. Re-establish connection effective immediately.
+
+-- FOREST PLANET --
+
+[ENTRY]
+
+[ITEM COLLECT]
+
+[OTHER]
+
+[EXIT]
+
+-- DESERT PLANET --
+
+[ENTRY]
+
+[ITEM COLLECT]
+
+[OTHER]
+
+[EXIT]
+
+-- XEON --
+
+[ENTRY]
+
+Nothing.
+
+[OTHER]
+
+[ITEM COLLECT]
+
+You pick up the pill
+There is a message attached...
+
+[ITEM COLLECT ATTACHED MESSAGE]
+
+Enclosed is a HO4QX2 Compound Pill the only one ever produced from our testing.
+
+The resistance will likely fail to create a protective barrier to save this sector from the MK blast.
+
+We have 1 day.
+Some are banking on trying to avoid the blast in the hostile edge of this sector...
+Many have already chosen to incinerate themselves trying to jump out.
+
+Our testing has produced that dusting an object with a HO4QX2-Like compound will protect it from
+MK assimilation but human testing has resulted in horrifying results.
+
+The HO4QX2 will assimilate all atoms in its close vicinity including human DNA
+creating something (from our testing) completely random, turning rock matter into living for example,
+or worse a melding of the victim and its surroundings.
+
+Page [1 of 2]
+
+Ever since joining the resistance I have developed what has been called Fear Of Death. 
+Which is a capital punishment once diagnosed. 
+
+I was told by comrade that historically it used to not be like this.
+Many many years ago much of what was expected of us to achieve day to day was completely unfeasible and "unnatural"; including Fear Of Death. 
+It was seen as a natural thing, a common part of the human experience.
+I have watched as great successful leaps into beneficial and powerful technology have happened frequently and rapidly.
+Many things which have improved the lives of billions ultimately to put more unnatural expectations on each and every one of them.
+It is funny how I reach this revelation when tomorrow a bomb will strike and take everything natural about me 
+and scramble it with every man made building and circutboard around me.
+
+Many years ago a childhood friend made a promise to me.
+One day we would reach the outer stars and form a life together...
+Only high ranking DNA officials can ever hope to reach those stars.
+Its to a DNA weapon I meet my demise...
+
+Does a dream justify its costs?
+
+-- ENDING --
+
+[ANSWERS NO]
+
+You take the pill.
+
+I hope to become a mountain.
+Covered in trees, rocks and soil.
+May only the wind reach my peak.
+May animals feed and play in my hands.
+May I be unmovable to any force of will.
+
+Roll credits.
+
+[ANSWERS YES]
+
+You pocket the pill.
+
+Received transmission... 
+[R] To read.
+
+Sent: [General Ferr] 
+
+--- BEGIN EXCRYPT TRANSMISSION ---
+Congratulations!
+
+Great! Great success Colonel!
+
+You will make an outstanding DNA General some day!
+You are the bright shining star the people of the new generation desperately need.
+
+Unfortunately, your ships JMP Drive is indeed broken and it will be a few hours until the rescue crew arrives.
+
+How about you enjoy the scenery Colonel. Heh.
+
+You earned it soldier.
+--- END EXCRYPT TRANSMISSION ---
