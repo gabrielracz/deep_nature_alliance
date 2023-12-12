@@ -2,6 +2,7 @@
 #define SCENE_GRAPH_H_
 
 #include <vector>
+#include <list>
 #include <deque>
 
 // #include "application.h"
@@ -63,8 +64,8 @@ class SceneGraph {
     Terrain* GetTerrain() {return terrain;}
 
     // Get node const iterator
-    std::vector<SceneNode*>::const_iterator begin() const { return node_.begin(); }
-    std::vector<SceneNode*>::const_iterator end() const { return node_.end(); }
+    std::list<SceneNode*>::const_iterator begin() const { return node_.begin(); }
+    std::list<SceneNode*>::const_iterator end() const { return node_.end(); }
 
     // Update entire scene
     void Update(double dt);
@@ -72,7 +73,7 @@ class SceneGraph {
    private:
     // Background color
     glm::vec3 background_color_;
-    std::vector<SceneNode*> node_;
+    std::list<SceneNode*> node_;
     CollisionManager colman;
     std::vector<Light*> lights;
     std::deque<Text*> story_text;

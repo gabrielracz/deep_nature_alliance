@@ -30,7 +30,9 @@ void CollisionManager::CheckCollisions(){
             for(auto it = rockets.begin(); it != rockets.end();) {
                 SceneNode* rocket = *it;
                 float rocket_rad = glm::length(rocket->transform.GetScale());
-                if(glm::length(rocket->transform.GetPosition() - apos) < rad + rocket_rad) {
+                if(rocket->deleted) {
+                    it = rockets.erase(it);
+                } else if(glm::length(rocket->transform.GetPosition() - apos) < rad + rocket_rad) {
                     game->SpawnExplosion(rocket->transform.GetPosition(), glm::vec3(1.0f));
                     game->SpawnExplosion(apos, glm::vec3(4.0f));
                     rocket->deleted = true;
@@ -95,6 +97,7 @@ void CollisionManager::AddNode(SceneNode* node){
             break;
         case TROCKET:
             rockets.push_back(node);
+            break;
         default:
             othercollideables.push_back(node);
             break;
@@ -162,5 +165,5 @@ void CollisionManager::Reset()
     asteroids.clear();
     beacons.clear();
     othercollideables.clear();
-    delete player;
+    // delete player;
 }

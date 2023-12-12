@@ -70,6 +70,7 @@ void Game::SetupResources(void){
 }
 
 void Game::LoadMeshes() {
+    std::cout << "loading meshes..." << std::endl;
     // load .obj meshes
     resman.LoadMesh        ("M_Ship", MESH_DIRECTORY"/dnafighter.obj");
     resman.LoadMesh        ("M_H2", MESH_DIRECTORY"/h2.obj");
@@ -105,10 +106,10 @@ void Game::LoadMeshes() {
 
     resman.CreateSimpleCube("M_Skybox");
 
-    std::cout << "meshes loaded" << std::endl;
 }
 
 void Game::LoadShaders() {
+    std::cout << "loading shaders..." << std::endl;
     // load shader programs
     resman.LoadShader("S_Default", SHADER_DIRECTORY"/material_vp.glsl", SHADER_DIRECTORY"/material_fp.glsl");
     resman.LoadShader("S_Lit", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/lit_fp.glsl");
@@ -133,11 +134,10 @@ void Game::LoadShaders() {
     resman.LoadShader("S_SpaceBugs", SHADER_DIRECTORY"/spacebug_vp.glsl", SHADER_DIRECTORY"/spacebug_fp.glsl", SHADER_DIRECTORY"/spacebug_gp.glsl");
     resman.LoadShader("S_Explosion", SHADER_DIRECTORY"/explosion_vp.glsl", SHADER_DIRECTORY"/explosion_fp.glsl", SHADER_DIRECTORY"/explosion_gp.glsl");
 
-
-    std::cout << "shaders loaded" << std::endl;
 }
 
 void Game::LoadTextures() {
+    std::cout << "loading textures..." << std::endl;
     // load textures
     resman.LoadTexture("T_Charmap", TEXTURE_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
     resman.LoadTexture("T_LavaPlanet", TEXTURE_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST);
@@ -195,12 +195,11 @@ void Game::LoadTextures() {
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", TEXTURE_DIRECTORY"/skyboxes/messedup");
     resman.LoadCubemap("T_BlueSkybox", TEXTURE_DIRECTORY"/skyboxes/bluesky", false);
-
-    std::cout << "textures loaded" << std::endl;
 }
 
 
 void Game::SetupScenes(void){
+    std::cout << "loading scenes..." << std::endl;
     // allocate all scenes
     for(int i = 0; i < SceneEnum::NUM_SCENES; i++) {
         scenes.push_back(new SceneGraph(this));
@@ -331,7 +330,7 @@ void Game::SetupSpaceScene() {
     scenes[SPACE]->AddNode(astr);
     scenes[SPACE]->AddCollider(astr);
 
-    Tp_Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship", this);
+    Tp_Player* player = new Tp_Player("Obj_Player", "M_H2", "S_NormalMap", "T_H2", this);
     player->transform.SetPosition(glm::vec3(1679.251343, 727.375793, -537.549316));
 
     player->SetNormalMap("T_MetalNormalMap", 1.0);
@@ -1384,7 +1383,7 @@ void Game::SpawnExplosion(glm::vec3 position, glm::vec3 scale) {
 }
 
 void Game::SpawnRocket(glm::vec3 position, glm::quat orientation, glm::vec3 initial_velocity) {
-    Rocket* rocket = new Rocket("", "M_Rocket", "S_NormalMap", "T_Rocket", this);
+    Rocket* rocket = new Rocket("Obj_Rocket", "M_Rocket", "S_NormalMap", "T_Rocket", this);
     rocket->SetNormalMap("T_MetalNormalMap");
 
     Thrust* thrust = new Thrust("Obj_rocketthrust", "M_Thrust", "S_Thrust", "T_Fire");
