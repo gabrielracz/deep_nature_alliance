@@ -8,8 +8,8 @@ void Rocket::Update(double dt) {
         return;
     }
 
-    velocity += direction * acceleration * (float)dt;
-    transform.TranslateRelative(velocity * (float)dt);
+    velocity += transform.GetOrientation() * direction * acceleration * (float)dt;
+    transform.Translate(velocity * (float)dt);
     SceneNode::Update(dt);
 }
 

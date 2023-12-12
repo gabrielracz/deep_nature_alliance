@@ -898,6 +898,7 @@ void Game::SetupStartScene() {
     p->SetStatic(true);
     camera.Detach();
     camera.transform.SetPosition({0,0,0});
+    camera.transform.SetOrientation(glm::quat());
     p->transform.SetPosition({0.0, -1000.0, 0.0});
 }
 
@@ -1517,7 +1518,7 @@ void Game::SpawnRocket(glm::vec3 position, glm::quat orientation, glm::vec3 init
     rocket->transform.SetPosition(position);
     rocket->transform.SetOrientation(orientation);
     rocket->SetNodeType(TROCKET);
-    // rocket->velocity = initial_velocity;
+    rocket->velocity = initial_velocity;
 
     active_scene->AddNode(rocket);
     active_scene->AddCollider(rocket);

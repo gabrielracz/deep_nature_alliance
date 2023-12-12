@@ -36,7 +36,9 @@ void SceneGraph::Update(double dt) {
     for (auto it = node_.begin(); it != node_.end();) {
         SceneNode *sn = *it;
         if (sn->deleted) {
-            delete sn;
+            if(sn != player) {
+                delete sn;
+            }
             it = node_.erase(it);
         } else{
             sn->Update(dt);

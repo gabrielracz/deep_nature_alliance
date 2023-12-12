@@ -23,8 +23,9 @@ void CollisionManager::CheckCollisions(){
             glm::vec3 apos = asteroid->transform.GetPosition() + a.GetPosition();
             if(glm::length(player->transform.GetPosition() - apos) < rad + player_rad) {
                 // collision
+                game->SpawnExplosion(apos, glm::vec3(4.0f));
                game->ShipHitPlanet({0.0f,0.0f,0.0f});
-               return;
+                asteroid->DeleteInstance(i);
             }
 
             for(auto it = rockets.begin(); it != rockets.end();) {
