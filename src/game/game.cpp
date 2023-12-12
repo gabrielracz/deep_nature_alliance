@@ -308,7 +308,6 @@ void Game::SetupSpaceScene() {
     astr->SetNormalMap("T_RockNormalMap", 4.0f);
 
     for(int i = 0; i < 3; i++) {
-        std::cout << "gen asteroids" << std::endl;
         float radius = 8000.0f;
         glm::vec3 base_pos = {0.0, 0.0, -radius*i};
 
