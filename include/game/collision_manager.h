@@ -12,7 +12,7 @@ class Game;
 class CollisionManager{
 
     public:
-        CollisionManager() : triggers(), items(), asteroids(), beacons(), othercollideables() {}
+        CollisionManager(Game* game) : triggers(), items(), asteroids(), beacons(), othercollideables(), game(game) {}
         // CollisionManager(const std::vector<Trigger *>& t, const std::vector<SceneNode*>& a, Player* p)
         //     : triggers(t), asteroids(a), player(p) {}
 
@@ -42,6 +42,7 @@ class CollisionManager{
         std::vector<SceneNode*> beacons;
         std::vector<SceneNode*> othercollideables;
         SceneNode *player;
+        Game* game = nullptr;
         
 };
 

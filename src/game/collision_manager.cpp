@@ -2,6 +2,7 @@
 #include "transform.h"
 #include "fp_player.h"
 #include "colliders/colliders.h"
+#include "game.h"
 
 #include <glm/glm.hpp>
 
@@ -14,7 +15,17 @@ void CollisionManager::CheckCollisions(){
     }
 
     for (auto asteroid : asteroids){
-            GetCollision(asteroid, player);
+        // GetCollision(asteroid, player);
+        for(Transform& a : asteroid->GetInstances()) {
+            float rad = glm::length(a.GetScale());
+            float player_rad = glm::length(player->transform.GetScale());
+            glm::vec3 apos = asteroid->transform.GetPosition() + a.GetPosition();
+            if(glm::length(player->transform.GetPosition() - apos) < rad + player_rad) {
+                // collision
+               game->ShipHitPlanet({0.0f,0.0f,0.0f});
+            }
+        }
+
     }
 
     for (auto item : items) {

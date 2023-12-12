@@ -65,7 +65,8 @@ void Game::SetupResources(void){
 
 void Game::LoadMeshes() {
     // load .obj meshes
-    resman.LoadMesh        ("M_Ship", MESH_DIRECTORY"/dnafighter.obj");
+    // resman.LoadMesh        ("M_Ship", MESH_DIRECTORY"/dnafighter.obj");
+    resman.LoadMesh        ("M_Ship", MESH_DIRECTORY"/h2.obj");
     resman.LoadMesh        ("M_Tree4", MESH_DIRECTORY"/tree4.obj");
     // resman.LoadMesh        ("M_Tree", MESH_DIRECTORY"/oak.obj");
     resman.LoadMesh        ("M_BirchTree", MESH_DIRECTORY"/birch_tree.obj");
@@ -133,7 +134,8 @@ void Game::LoadTextures() {
     // load textures
     resman.LoadTexture("T_Charmap", TEXTURE_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
     resman.LoadTexture("T_LavaPlanet", TEXTURE_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST);
-    resman.LoadTexture("T_Ship", TEXTURE_DIRECTORY"/dnafighter.png", GL_REPEAT);
+    // resman.LoadTexture("T_Ship", TEXTURE_DIRECTORY"/dnafighter.png", GL_REPEAT);
+    resman.LoadTexture("T_Ship", TEXTURE_DIRECTORY"/shiptex.png", GL_REPEAT);
     // resman.LoadTexture("T_LavaPlanet", TEXTURE_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST, 4.0f);
     // resman.LoadTexture("T_SnowPlanet", TEXTURE_DIRECTORY"/snow_planet.png", GL_LINEAR);
     resman.LoadTexture("T_MarsPlanet", TEXTURE_DIRECTORY"/8k_mars.jpg", GL_REPEAT);
@@ -192,7 +194,7 @@ void Game::LoadTextures() {
 void Game::SetupScenes(void){
     // allocate all scenes
     for(int i = 0; i < SceneEnum::NUM_SCENES; i++) {
-        scenes.push_back(new SceneGraph());
+        scenes.push_back(new SceneGraph(this));
     }
 
 
@@ -291,11 +293,13 @@ void Game::SetupSpaceScene() {
     scenes[SPACE]->SetSkybox(skybox);
 
     SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_Instanced", "T_Stone");
+    astr->SetNodeType(NodeType::TASTEROID);
     astr->material.specular_power = 3000.0f;
     astr->material.specular_coefficient = 0.0f;
     astr->SetNormalMap("T_RockNormalMap", 4.0f);
 
     for(int i = 0; i < 3; i++) {
+        std::cout << "gen asteroids" << std::endl;
         float radius = 8000.0f;
         glm::vec3 base_pos = {0.0, 0.0, -radius*i};
 
@@ -317,9 +321,11 @@ void Game::SetupSpaceScene() {
         }
     }
     scenes[SPACE]->AddNode(astr);
+    scenes[SPACE]->AddCollider(astr);
 
     Tp_Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship");
-    player->transform.SetPosition(player_position_g);
+    player->transform.SetPosition(glm::vec3(1679.251343, 727.375793, -537.549316));
+
     player->SetNormalMap("T_MetalNormalMap", 1.0);
     camera.Attach(&player->transform, false);
     scn->SetPlayer(player);
@@ -638,14 +644,19 @@ void Game::SetupForestScene() {
     // forest->transform.SetScale({5, 5, 5});
     forest->SetNormalMap("T_WallNormalMap", 0.005f);
     forest->material.specular_power = 150.0;
-    for(int i = 0; i < 50; i++) {
+    for(int i = 0; i < sizeof(forest_trees)/sizeof(forest_trees[0]); i++) {
         bool instanced = true;
-        float x = rng.randfloat(-400, 400);
-        float z = rng.randfloat(-400, 400);
+        // float x = rng.randfloat(-400, 400);
+        // float z = rng.randfloat(-400, 400);
+        // float y = terr->SampleHeight(x, z);
+        // float s = rng.randfloat(0.5, 3);
+        // float r = rng.randfloat(0, 2*PI);
+
+        float x = forest_trees[i][0];
+        float z = forest_trees[i][2];
         float y = terr->SampleHeight(x, z);
-        // float s = rng.randfloat(3, 10);
-        float s = rng.randfloat(0.5, 3);
-        float r = rng.randfloat(0, 2*PI);
+        float s = forest_trees[i][3];
+        float r = forest_trees[i][4];
         // float s = 1;
         if(instanced) {
             Transform t;

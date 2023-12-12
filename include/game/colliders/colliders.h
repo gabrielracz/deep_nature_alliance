@@ -147,4 +147,9 @@ public:
     bool CollidesWithSphere(SphereCollider *other) override;
 };
 
+class InstancedColliders : public Collider {
+public:
+    
+};
+
 #endif // COLLIDERS_H
