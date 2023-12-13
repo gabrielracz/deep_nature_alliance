@@ -5,6 +5,7 @@ SceneGraph::~SceneGraph() {
     for (auto n : node_) {
         delete n;
     }
+    node_.clear();
 }
 
 void SceneGraph::SetPlayer(Player* p) {
@@ -14,11 +15,11 @@ void SceneGraph::SetPlayer(Player* p) {
 
 SceneNode* SceneGraph::GetNode(std::string node_name) const {
     // Find node with the specified name
-    for (int i = 0; i < node_.size(); i++) {
-        if (node_[i]->GetName() == node_name) {
-            return node_[i];
-        }
-    }
+    // for (int i = 0; i < node_.size(); i++) {
+    //     if (node_[i]->GetName() == node_name) {
+    //         return node_[i];
+    //     }
+    // }
     return NULL;
 }
 
@@ -27,13 +28,21 @@ void SceneGraph::Update(double dt) {
         node_[i]->Update(dt);
     }*/
 
+    // this has to go first!! since colman owns its own lists, it needs to know when to remove deleted objects
+    if(collision_enabled) {
+        colman.CheckCollisions();
+    }
+
     for (auto it = node_.begin(); it != node_.end();) {
         SceneNode *sn = *it;
         if (sn->deleted) {
+            if(sn != player) {
+                delete sn;
+            }
             it = node_.erase(it);
         } else{
             sn->Update(dt);
-            ++it;
+            it++;
         } 
     }
 
@@ -46,9 +55,6 @@ void SceneGraph::Update(double dt) {
         t->Update(dt, w, h);
     }
 
-    if(collision_enabled) {
-        colman.CheckCollisions();
-    }
 
     // UPDATE CAMERA AFTER NODES ALWAYS !!!!!
     camera.Update(dt);

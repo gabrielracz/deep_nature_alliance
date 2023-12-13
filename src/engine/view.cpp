@@ -301,10 +301,6 @@ void View::InitWindow(const std::string& title, int width, int height) {
     GLint maxUBOSize;
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUBOSize);
     std:: cout << "Max UBO size: " << maxUBOSize << std::endl;
-
-    GLint mvoc;
-    glGetIntegerv(GL_MAX_FRAGMENT_INPUT_COMPONENTS, &mvoc);
-    std::cout << mvoc << std::endl;
 }
 
 void View::InitView(){

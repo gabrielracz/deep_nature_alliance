@@ -139,9 +139,8 @@ void Tp_Player::Control(Controls c, float dt, float damping){
             torque += transform.GetAxis(FORWARD) * rot_force * 2.0f;
             break;
         case Player::Controls::SPACE:{
-            glm::vec3 forwrd = transform.GetOrientation() * glm::vec3(0.0, 0.0, -1.0);
-            float forward_vel = glm::dot(forwrd, velocity);
-            game->SpawnRocket(transform.GetPosition() + transform.GetOrientation() * glm::vec3(0.0, -0.25, 0.0), transform.GetOrientation(), forwrd * forward_vel);
+            glm::vec3 forward_vel = transform.GetOrientation() * glm::vec3(0.0, 0.0, (glm::inverse(transform.GetOrientation()) * velocity).z);
+            game->SpawnRocket(transform.GetPosition() + transform.GetOrientation() * glm::vec3(0.0, -0.25, 0.0), transform.GetOrientation(), forward_vel);
             break;}
         default:
             break;
