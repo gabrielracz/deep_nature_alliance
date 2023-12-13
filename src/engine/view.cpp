@@ -81,7 +81,7 @@ void View::RenderPostProcessing(SceneGraph& scene) {
     bool postprocess = true;
     if(postprocess) {
         Mesh* scrquad  = resman.GetMesh("M_Quad");
-        Shader* scrshd = resman.GetShader("S_Texture");
+        Shader* scrshd = resman.GetScreenSpaceShader();
         scrshd->Use();
 
         glActiveTexture(GL_TEXTURE0);

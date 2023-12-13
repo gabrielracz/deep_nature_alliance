@@ -5,6 +5,7 @@ in vec2 uv_interp;
 out vec3 FragColor;
 
 uniform sampler2D texture_map;
+uniform float timer;
 
 void main() {
     float distanceToCenter = distance(uv_interp, vec2(0.5, 0.5));
