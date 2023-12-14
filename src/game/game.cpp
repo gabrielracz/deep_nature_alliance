@@ -685,7 +685,7 @@ void Game::SetupForestScene() {
     ship->transform.SetScale({11.0, 11.0, 9.5});
     ship->material.specular_power = 169.0f;
     SphereCollider* col = new SphereCollider(*ship, 9.0f);
-    col->SetCallback([&p, &player_pos, this]() { PlayerHitShip({0.0f, 850.0f, -2100.0f}); });
+    col->SetCallback([this]() { PlayerHitShip({0.0f, 850.0f, -2100.0f}); });
     ship->SetCollider(col);
     AddColliderToScene(FOREST, ship);
     
@@ -787,6 +787,7 @@ void Game::SetupForestScene() {
     crashed->transform.SetScale({11.0, 11.0, 9.5});
     crashed->material.specular_power = 169.0f;
     SphereCollider* crashedcol = new SphereCollider(*crashed, 9.0f);
+    crashedcol->oneoff = true;
     crashedcol->SetCallback([this]() {AddStoryToScene(FOREST, StoryBeat::CRASHED_SHIP);});
     crashed->SetCollider(crashedcol);
     AddToScene(FOREST, crashed);

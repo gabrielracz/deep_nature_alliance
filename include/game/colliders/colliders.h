@@ -38,6 +38,8 @@ public:
         }
      };
     void invokeCallback() { if(callback_no) callback_no(); };
+
+    bool oneoff = false;
 private:
     CallbackNoCollider callback_no;
     CallbackCollider callback_col;
