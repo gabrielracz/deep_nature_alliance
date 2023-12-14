@@ -124,6 +124,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Sun", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/sun_fp.glsl");
     resman.LoadShader("S_Skybox", SHADER_DIRECTORY"/skybox_vp.glsl", SHADER_DIRECTORY"/skybox_fp.glsl");
     resman.LoadShader("S_Texture", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/passthrough_fp.glsl");
+    resman.LoadShader("S_Heatstroke", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/desert_heat_vision_fp.glsl");
     resman.LoadShader("S_TextureWithTransform", SHADER_DIRECTORY"/passthrough_with_transform_vp.glsl", SHADER_DIRECTORY"/passthrough_fp.glsl");
     resman.LoadShader("S_ShowDepth", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/show_depth_fp.glsl");
     resman.LoadShader("S_Depth", SHADER_DIRECTORY"/depth_vp.glsl", SHADER_DIRECTORY"/depth_fp.glsl");
@@ -135,6 +136,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_SpaceBugs", SHADER_DIRECTORY"/spacebug_vp.glsl", SHADER_DIRECTORY"/spacebug_fp.glsl", SHADER_DIRECTORY"/spacebug_gp.glsl");
     resman.LoadShader("S_Explosion", SHADER_DIRECTORY"/explosion_vp.glsl", SHADER_DIRECTORY"/explosion_fp.glsl", SHADER_DIRECTORY"/explosion_gp.glsl");
 
+    resman.SetScreenSpaceShader("S_Texture");
 }
 
 void Game::LoadTextures() {
@@ -191,7 +193,6 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_SpiralParticle", TEXTURE_DIRECTORY"/flake.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_EyeParticle", TEXTURE_DIRECTORY"/eyepart.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Rocket", TEXTURE_DIRECTORY"/stone_old.png", GL_REPEAT, GL_LINEAR);
-
 
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", TEXTURE_DIRECTORY"/skyboxes/messedup");
