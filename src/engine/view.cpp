@@ -149,6 +149,11 @@ void View::RenderDepthMap(SceneGraph& scene) {
 }
 
 void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix) {
+
+    if (!node->visible) {
+        return;
+    }
+
     std::string shd_id  = node->GetShaderID();
     std::string tex_id  = node->GetTextureID();
     std::string norm_id = node->GetNormalMap();

@@ -6,6 +6,7 @@
 #include "player.h"
 #include "item.h"
 #include "asteroid.h"
+#include "toggle.h"
 
 class Game;
 
@@ -35,8 +36,10 @@ class CollisionManager{
         bool rayToSphere(SceneNode *rayNode, SceneNode *sphereNode);
 
         void GetCollision(SceneNode* obj1, SceneNode* obj2);
+        bool GetCollisionRaw(SceneNode* obj1, SceneNode* obj2);
 
         std::vector<Trigger *> triggers;
+        std::vector<Toggle *> toggles;
         std::vector<SceneNode*> items;
         std::vector<SceneNode*> asteroids;
         std::vector<SceneNode*> beacons;

@@ -27,6 +27,7 @@
 #include "beacon.h"
 #include "mooneye.h"
 #include "mooncloud.h"
+#include "toggle.h"
 
 class Application;
 
@@ -102,6 +103,7 @@ class Game {
         void SpawnExplosion(glm::vec3 position, glm::vec3 scale);
         void CollectStoryItem(StoryBeat l);
         void CollectEndingItem(StoryBeat l);
+        bool GetBadEnd() { return bad_end_; }
 
         const std::vector<std::vector<float>> readTerrain(const std::string& filePath);
 
@@ -117,6 +119,9 @@ class Game {
 
         bool ending_sequence_ = false;
         bool reading_item_ = false;
+        bool bad_end_ = false;
+        bool good_end_= false;
+        bool violence_mode_ = false;
 
         void SetupFPScene(void);
         void SetupSpaceScene(void);
