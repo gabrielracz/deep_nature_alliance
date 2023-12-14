@@ -59,8 +59,10 @@ public:
     void SetOrientation(const glm::quat& newori) { orientation = newori; dirty = true;} 
     void SetAxis(Axis a, const glm::vec3& v ) {axes[a] = v;}
     void SetOrbit(glm::quat q) {orbit = q;}
+    void SetJoint(glm::vec3 j) {joint = j;}
 
     const glm::mat4 GetLocalMatrix() {return CalculateMatrix();}
+    glm::mat4 GetLocalMatrixNoScale();
     const glm::mat4& GetWorldMatrix() const {return transf_world;}
     const glm::mat4& GetWorldMatrixNoScale() const {return transf_world_no_scale;}
     const glm::vec3& GetPosition() const { return position;}

@@ -25,7 +25,7 @@
 #include "path_config.h"
 #include "resource.h"
 #include "scene_node.h"
-// #include "tree.h"
+#include "tree.h"
 #include "thrust.h"
 #include "text.h"
 #include "terrain.h"
@@ -86,11 +86,13 @@ void Game::LoadMeshes() {
     resman.LoadMesh        ("M_SELTower", MESH_DIRECTORY"/moontower.obj");
     resman.LoadMesh        ("M_MoonObject", MESH_DIRECTORY"/moonobj.obj");
     resman.LoadMesh        ("M_MoonCloud", MESH_DIRECTORY"/mooncloud.obj");
+    resman.LoadMesh        ("M_Leaf", MESH_DIRECTORY"/yellowleaf.obj");
+    resman.LoadMesh        ("M_Branch", MESH_DIRECTORY"/cone.obj");
 
     // generate geometry
     resman.CreateSimpleQuad("M_Quad");
-    resman.CreateCone      ("M_Branch", 1.0, 1.0, 2, 10);
-    resman.CreateSphere    ("M_Leaf", 1.0, 4, 10);
+    // resman.CreateCone2      ("M_Branch", 1.0, 1.0, 5, 23);
+    // resman.CreateSphere    ("M_Leaf", 1.0, 4, 10);
     resman.CreateSphere    ("M_Sphere", 1.0, 110, 10);
     resman.CreatePointCloud("M_StarCloud", 70000, 2000, {0.8, 0.8, 0.8, 0.8});
     resman.CreateSphere    ("M_Planet", 1, 100, 100);
@@ -191,6 +193,8 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_SpiralParticle", TEXTURE_DIRECTORY"/flake.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_EyeParticle", TEXTURE_DIRECTORY"/eyepart.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Rocket", TEXTURE_DIRECTORY"/stone_old.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Bark", TEXTURE_DIRECTORY"/hairybark.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_YellowLeaf", TEXTURE_DIRECTORY"/yellow_leaf.png", GL_REPEAT, GL_LINEAR);
 
 
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
@@ -303,7 +307,7 @@ void Game::SetupSpaceScene() {
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[SPACE]->SetSkybox(skybox);
 
-    SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_Instanced", "T_Stone");
+    SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_Instanced", "T_LavaPlanet");
     astr->SetNodeType(NodeType::TASTEROID);
     astr->material.specular_power = 3000.0f;
     astr->material.specular_coefficient = 0.0f;
@@ -427,7 +431,6 @@ void Game::SetupFPScene(void) {
     int terrain_size = 1500;
     Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, gangAintNunOfThatSquad, terrain_size, terrain_size, 0.2, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
-    t->material.texture_repetition = 5.0f;
     t->SetNormalMap("T_RockNormalMap", 40.0f);
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
@@ -713,6 +716,27 @@ void Game::SetupForestScene() {
     birch->transform.SetPosition({410.245483, 18.229790, -122.216019});
     birch->transform.SetScale({3, 3, 3});
     scenes[FOREST]->AddNode(birch);
+
+    Tree::branch_mesh       = "M_Branch";
+    Tree::branch_texture    = "T_Bark";
+    Tree::branch_normal_map = "T_RockNormalMap";
+    Tree::leaf_mesh         = "M_Leaf";
+    Tree::leaf_texture      = "T_YellowLeaf";
+    Tree::leaf_normal_map   = "T_MetalNormalMap";
+
+    for(const float* ht : htrees) {
+        glm::vec3 pos = {ht[0], ht[1], ht[2]};
+        glm::quat ori = {ht[3], ht[4], ht[5], ht[6]};
+        Tree* htree = new Tree("Tree", "M_Branch", "S_NormalMap", "T_Bark", 0, 0, 0, this);
+        htree->transform.SetPosition(pos);
+        htree->transform.SetOrientation(ori);
+        htree->GrowTree();
+        scenes[FOREST]->AddNode(htree);
+    }
+        // Tree* htree = new Tree("Tree", "M_Branch", "S_NormalMap", "T_Bark", 0, 0, 0, this);
+        // htree->transform.SetPosition({-96.877594, 21.000000, -334.592468});
+        // htree->GrowTree();
+        // scenes[FOREST]->AddNode(htree);
 }
 
 void Game::SetupDesertScene() {
@@ -831,8 +855,9 @@ void Game::SetupMainMenuScene() {
     for(int i = 0; i < 3; i++) {
         float radius = 600.0f;
         glm::vec3 base_pos = {radius*i, 0.0, 0.0};
-        SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_Instanced", "T_LavaPlanet");
+        SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_InstancedNormalMap", "T_LavaPlanet");
         astr->SetNormalMap("T_WallNormalMap", 4.0f);
+        astr->material.texture_repetition = 5.0f;
         for(int i = 0; i < 512; i++) {
             bool instanced = true;
             glm::vec3 pos = base_pos + glm::ballRand(radius);

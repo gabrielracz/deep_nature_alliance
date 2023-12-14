@@ -9,7 +9,7 @@ void Transform::Update(const glm::mat4& parent) {
         dirty = false;
     // }
     transf_world          = parent * transf_local;
-    transf_world_no_scale = parent * transf_local_no_scale;
+    transf_world_no_scale = RemoveScaling(parent) * transf_local;
     // world_pos = parent * transf_world * glm::vec4(position, 1.0f);
 
 }
@@ -45,8 +45,8 @@ void Transform::Rotate(const glm::quat& rot) {
 }
 
 void Transform::RotateOrbit(const glm::quat& rot) {
-    orbit = orbit * rot;
-    orbit = glm::normalize(orientation);
+    orbit *= rot;
+    orbit = glm::normalize(orbit);
     dirty = true;
 }
 
@@ -96,6 +96,16 @@ glm::mat4 Transform::CalculateMatrix() {
 
     glm::mat4 transf = translation * orb * rotation * scaling;
 
+    return transf;
+}
+
+glm::mat4 Transform::GetLocalMatrixNoScale() {
+    glm::mat4 rotation = glm::mat4_cast(orientation);
+    glm::mat4 translation = glm::translate(glm::mat4(1.0), position);
+    glm::mat4 joint_translate = glm::translate(glm::mat4(1.0), -joint);
+    glm::mat4 orb= glm::inverse(joint_translate) * glm::mat4_cast(orbit) * joint_translate;
+
+    glm::mat4 transf = translation * orb * rotation;
     return transf;
 }
 

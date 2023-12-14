@@ -113,18 +113,11 @@ void View::RenderDepthMap(SceneGraph& scene) {
     Shader* shdinst = resman.GetShader("S_InstancedDepth");
     shd->Use();
 
-    // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
-    // Light* l = scene.GetLights().back();
     glm::mat4 view_mat = glm::lookAt({300.0, 600.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
     glm::mat4 proj_mat = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 20.0f, 1300.0f);
 
-    // glm::mat4 view_mat = scene.GetCamera().GetViewMatrix();
-    // glm::mat4 proj_mat = scene.GetCamera().GetPerspectiveMatrix();
 
-    // glm::mat4 proj_mat = glm::perspective(45.0f, 16.0f/9.0f, 0.1f, 400.0f);
-    // glm::mat4 proj_mat = glm::perspective(90.0f, 16.0f/9.0f, 0.1f, 100.0f);
-
-    for(auto node : scene) {
+    std::function<void(SceneNode*)> render_depth = [&render_depth, &shdinst, &scene, &proj_mat, &view_mat, &shd, this](SceneNode* node) {
         Mesh* mesh = resman.GetMesh(node->GetMeshID());
         std::vector<Transform>& instances = node->GetInstances();
         if(instances.size() > 0) {
@@ -137,14 +130,18 @@ void View::RenderDepthMap(SceneGraph& scene) {
             shd->Use();
         } else {
             // set world_mat
-            shd->SetUniform4m(node->transform.GetLocalMatrix(), "world_mat");
+            shd->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
             // set light_mat
             shd->SetUniform4m(proj_mat * view_mat, "light_mat");
             mesh->Draw();
         }
+        for(auto child : node->GetChildren()) {
+            render_depth(child);
+        }
+    };
 
-        // if(!node->GetTextureID().empty()) 
-        //     resman.GetTexture(node->GetTextureID())->Bind(shd, 0, "texture_map"); //alpha test
+    for(auto node : scene) {
+        render_depth(node);
     }
 }
 
@@ -203,7 +200,8 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     }
 
     // HIERARCHY
-    glm::mat4 tm = parent_matrix * Transform::RemoveScaling(node->transform.GetWorldMatrix());  // don't pass scaling to children
+    // glm::mat4 tm = parent_matrix * Transform::RemoveScaling(node->transform.GetLocalMatrix());  // don't pass scaling to children
+    glm::mat4 tm = parent_matrix * node->transform.GetLocalMatrixNoScale();  // don't pass scaling to children
     for(auto child : node->GetChildren()) {
         RenderNode(child, cam, lights, tm);
     }

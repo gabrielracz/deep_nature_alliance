@@ -421,6 +421,7 @@ void ResourceManager::CreateCone(std::string object_name, float height, float ba
                 vertex_position = glm::vec3(cos(theta) * local_radius, h, sin(theta) * local_radius);
                 vertex_color = glm::vec3(1.0 - s,t,s);
                 vertex_coord = glm::vec2(s, t);
+    			vertex_coord = glm::vec2(s,fabs(1-2*t)); // made seamless through mirroring
 
                 APPEND_VEC3(vertices, vertex_position);
                 APPEND_VEC3(vertices, vertex_normal);

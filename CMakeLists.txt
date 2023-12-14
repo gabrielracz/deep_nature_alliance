@@ -33,7 +33,7 @@ set(HDRS
     include/game/player.h
     include/game/tp_player.h
     include/game/enemy.h
-    # include/game/tree.h
+    include/game/tree.h
     include/game/text.h
     include/game/trigger.h
     include/game/collision_manager.h
@@ -74,7 +74,7 @@ set(SRCS
     src/game/asteroid.cpp
     src/game/tp_player.cpp
     src/game/enemy.cpp
-    # src/game/tree.cpp
+    src/game/tree.cpp
     src/game/trigger.cpp
     src/game/collision_manager.cpp
     src/game/terrain.cpp

@@ -79,5 +79,14 @@ enum RenderMode
     NUM_RENDERMODES
 };
 
+template <typename T>
+std::vector<T> concatenate(std::vector<T>& A, std::vector<T>& B) {
+    std::vector<T> AB;
+    AB.reserve( A.size() + B.size() ); // preallocate memory
+    AB.insert( AB.end(), A.begin(), A.end() );
+    AB.insert( AB.end(), B.begin(), B.end() );
+    return AB;
+}
+
 
 #endif

@@ -31,7 +31,7 @@ void SceneNode::Update(double dt){
     // transf_matrix = transform.ScaledMatrix();
     // transf_matrix = transform.ScaledMatrix();
     if(parent) {
-        transform.Update(parent->transform.GetWorldMatrix());
+        transform.Update(Transform::RemoveScaling(parent->transform.GetWorldMatrix()));
     } else {
         transform.Update();
     }
@@ -51,7 +51,8 @@ void SceneNode::Update(double dt){
 
 void SceneNode::SetUniforms(Shader* shader, const glm::mat4& view_matrix, const glm::mat4& parent_matrix){
     // object transform
-    glm::mat4 world = parent_matrix * transform.GetLocalMatrix();
+    // glm::mat4 world = parent_matrix * transform.GetLocalMatrix();
+    glm::mat4 world = transform.GetWorldMatrixNoScale();
     glm::mat4 normal_matrix = glm::transpose(glm::inverse(view_matrix * world));
     shader->SetUniform4m(world, "world_mat");
     shader->SetUniform4m(normal_matrix,              "normal_mat");
