@@ -35,7 +35,7 @@ void Menu_Player::Update(double dt){
 
 void Menu_Player::Control(Controls c, float dt, float damping){
     glm::vec2 mpos = getMousePos();
-    bool debugPlacement = true;
+    bool debugPlacement = false;
     for (auto button : buttons){
         button->click(mpos, win, debugPlacement);
     }

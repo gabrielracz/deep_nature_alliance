@@ -123,7 +123,6 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Text", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
     resman.LoadShader("S_Planet", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/textured_fp.glsl");
     resman.LoadShader("S_NormalMap", SHADER_DIRECTORY"/normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl");
-    resman.LoadShader("S_Instanced", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl", "", true);
     resman.LoadShader("S_NormalMapNoShadow", SHADER_DIRECTORY"/normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_noshadows_fp.glsl");
     resman.LoadShader("S_Instanced", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_noshadows_fp.glsl", "", true);
     resman.LoadShader("S_Lava", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/lit_lava_fp.glsl");
@@ -870,20 +869,32 @@ void Game::SetupMainMenuScene() {
 
     RenderBundle mouseCursor = { "M_Quad", "S_TextureWithTransform", "T_Cursor" };
     Menu_Player* p = new Menu_Player("Obj_Menu_Player", "M_Quad", "S_Texture", "T_Splash", mouseCursor, app.GetWindow());
-    // p->SetAlphaEnabled(true);
-    Button *left = new Button();
-    left->action = std::bind(&Game::ChangeScene, this, DESERT);
-    left->topLeftCoordPercentage = {0,0};
-    left->spanPercentage = {0.5, 1.0};
-    p->addButton(left);
-
-    Button *right = new Button();
-    right->action = std::bind(&Game::ChangeScene, this, FOREST);
-    right->topLeftCoordPercentage = {0.5,0};
-    right->spanPercentage = {0.5, 1.0};
-    p->addButton(right);
     AddPlayerToScene(MAIN_MENU, p);
-    // camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+    Button *button = new Button();
+    button->action = std::bind(&Game::ChangeScene, this, START);
+    button->topLeftCoordPercentage = {0.74,0.81};
+    button->spanPercentage = {0.215, 0.052};
+    p->addButton(button);
+
+    button = new Button();
+    button->action = std::bind(&Game::ChangeScene, this, FOREST);
+    button->topLeftCoordPercentage = {0.785,0.74};
+    button->spanPercentage = {0.173, 0.035};
+    p->addButton(button);
+
+    button = new Button();
+    button->action = std::bind(&Game::ChangeScene, this, DESERT);
+    button->topLeftCoordPercentage = {0.785,0.687};
+    button->spanPercentage = {0.173, 0.035};
+    p->addButton(button);
+
+    button = new Button();
+    button->action = std::bind(&Game::ChangeScene, this, FPTEST);
+    button->topLeftCoordPercentage = {0.785,0.634};
+    button->spanPercentage = {0.173, 0.035};
+    p->addButton(button);
+
+    
     // camera.Attach(&p->transform, false);
 
     Light* light = new Light(Colors::WarmWhite);
@@ -896,7 +907,7 @@ void Game::SetupMainMenuScene() {
     for(int i = 0; i < 3; i++) {
         float radius = 600.0f;
         glm::vec3 base_pos = {radius*i, 0.0, 0.0};
-        SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_InstancedNormalMap", "T_LavaPlanet");
+        SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_InstancedShadow", "T_LavaPlanet");
         astr->SetNormalMap("T_WallNormalMap", 4.0f);
         astr->material.texture_repetition = 5.0f;
         for(int i = 0; i < 512; i++) {
