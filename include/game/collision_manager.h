@@ -35,7 +35,7 @@ class CollisionManager{
         bool sphereToBox(SceneNode *sphereNode, SceneNode *boxNode);
         bool rayToSphere(SceneNode *rayNode, SceneNode *sphereNode);
 
-        void GetCollision(SceneNode* obj1, SceneNode* obj2);
+        bool GetCollision(SceneNode* obj1, SceneNode* obj2);
         bool GetCollisionRaw(SceneNode* obj1, SceneNode* obj2);
 
         std::vector<Trigger *> triggers;

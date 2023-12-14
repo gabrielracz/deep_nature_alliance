@@ -66,15 +66,21 @@ void CollisionManager::CheckCollisions(){
         GetCollision(beacon, player);
     }
 
-    for (auto other : othercollideables) {
-        GetCollision(other, player);
+    for (auto it = othercollideables.begin(); it != othercollideables.end();) {
+        SceneNode* other = *it;
+        if(GetCollision(other, player) && other->GetCollider()->oneoff) {
+            it = othercollideables.erase(it);
+            std::cout << "deleted" << std::endl;
+        } else {
+            it++;
+        }
     }
 }
 
-void CollisionManager::GetCollision(SceneNode* obj1, SceneNode* obj2) {
+bool CollisionManager::GetCollision(SceneNode* obj1, SceneNode* obj2) {
     if(obj1->deleted || obj2->deleted) {
         //probably should delete here weird glitch
-        return;
+        return false;
     }
 
     Collider* col = obj1->GetCollider();
@@ -83,12 +89,15 @@ void CollisionManager::GetCollision(SceneNode* obj1, SceneNode* obj2) {
         if (other->CollidesWith(col)) {
             // Backwards because visitor pattern
             col->invokeCallback(obj2);
+            return true;
         } 
         if (col->CollidesWith(other)) {
             // Backwards because visitor pattern
             other->invokeCallback(obj1);
+            return true;
         }
     }
+    return false;
 }
 
 
