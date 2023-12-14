@@ -127,7 +127,8 @@ void FP_Player::MouseControls(Mouse &mouse)
     const float max_pitch = 89.0f;
 
     transform.Yaw(look.x);
-    float yaw = glm::degrees(2.0f * acos(transform.GetOrientation().w));
+    float yaw = glm::degrees(glm::yaw(camera_->transform.GetOrientation()));
+    //float yaw = glm::degrees(2.0f * acos(transform.GetOrientation().w));
 
     if (yaw > max_yaw)
     {
@@ -141,14 +142,15 @@ void FP_Player::MouseControls(Mouse &mouse)
     }
 
     camera_->transform.Pitch(look.y);
-    float pitch = glm::degrees(2.0f * acos(camera_->transform.GetOrientation().w));
+    //float pitch = glm::degrees(2.0f * acos(camera_->transform.GetOrientation().w));
+    float pitch = glm::degrees(glm::pitch(camera_->transform.GetOrientation()));
 
     if (pitch > max_pitch) {
         float adjust = max_pitch - pitch;
         camera_->transform.Pitch(glm::radians(adjust));
     }
-    else if (pitch < -max_pitch) {
-        float adjust = -max_pitch - pitch;
+    else if (pitch < -max_pitch + 10.0f) {
+        float adjust = -max_pitch + 10.0f - pitch;
         camera_->transform.Pitch(glm::radians(adjust));
     }
 }
