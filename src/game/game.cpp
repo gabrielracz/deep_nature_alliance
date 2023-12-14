@@ -142,6 +142,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_SpaceBugs", SHADER_DIRECTORY"/spacebug_vp.glsl", SHADER_DIRECTORY"/spacebug_fp.glsl", SHADER_DIRECTORY"/spacebug_gp.glsl");
     resman.LoadShader("S_Explosion", SHADER_DIRECTORY"/explosion_vp.glsl", SHADER_DIRECTORY"/explosion_fp.glsl", SHADER_DIRECTORY"/explosion_gp.glsl");
     resman.LoadShader("S_Violence", SHADER_DIRECTORY"/red_vision_vp.glsl", SHADER_DIRECTORY"/red_vision_fp.glsl");
+    resman.LoadShader("S_SSDither", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/dither_fp.glsl");
 
     resman.SetScreenSpaceShader("S_Texture");
 }
@@ -652,17 +653,21 @@ void Game::SetupFPScene(void) {
 }
 
 void Game::SetupForestScene() {
+    // resman.SetScreenSpaceShader("S_SSDither");
+
     scenes[FOREST]->SetResetCallback([this]() { this->SetupForestScene(); });
     Camera& camera = scenes[FOREST]->GetCamera();
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
+    const glm::vec3 player_pos = {-191.718155, 20.999252, -395.274536};
+
     // PLAYER
     FP_Player* p = new FP_Player("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
     p->SetNormalMap("T_MetalNormalMap", 1.0f);
     p->material.specular_power = 200.0f;
-    p->transform.SetPosition({-191.718155, 20.999252, -395.274536});
+    p->transform.SetPosition(player_pos);
     p->transform.SetOrientation({0.315484, 0.000000, 0.948931, 0.000000});
     p->visible = false;
     p->jump_speed_ = 20;
@@ -680,7 +685,7 @@ void Game::SetupForestScene() {
     ship->transform.SetScale({11.0, 11.0, 9.5});
     ship->material.specular_power = 169.0f;
     SphereCollider* col = new SphereCollider(*ship, 9.0f);
-    col->SetCallback([this]() { PlayerHitShip({0.0f, 850.0f, -2100.0f}); });
+    col->SetCallback([&p, &player_pos, this]() { PlayerHitShip({0.0f, 850.0f, -2100.0f}); });
     ship->SetCollider(col);
     AddColliderToScene(FOREST, ship);
     
@@ -774,10 +779,19 @@ void Game::SetupForestScene() {
         htree->GrowTree();
         scenes[FOREST]->AddNode(htree);
     }
-        // Tree* htree = new Tree("Tree", "M_Branch", "S_NormalMap", "T_Bark", 0, 0, 0, this);
-        // htree->transform.SetPosition({-96.877594, 21.000000, -334.592468});
-        // htree->GrowTree();
-        // scenes[FOREST]->AddNode(htree);
+
+    SceneNode* crashed = new SceneNode("Obj_CrashedShip", "M_H2", "S_NormalMap", "T_H2");
+    crashed->SetNormalMap("T_MetalNormalMap", 10.0f);
+    crashed->transform.SetPosition({442.438568, -1.132055, 353.692505});
+    crashed->transform.SetOrientation({0.975208, {0.076261, -0.193031, -0.076759}});
+    crashed->transform.SetScale({11.0, 11.0, 9.5});
+    crashed->material.specular_power = 169.0f;
+    SphereCollider* crashedcol = new SphereCollider(*crashed, 9.0f);
+    crashedcol->SetCallback([this]() {AddStoryToScene(FOREST, StoryBeat::CRASHED_SHIP);});
+    crashed->SetCollider(crashedcol);
+    AddToScene(FOREST, crashed);
+    AddColliderToScene(FOREST, crashed);
+
 }
 
 void Game::SetupDesertScene() {
@@ -896,7 +910,7 @@ void Game::SetupMainMenuScene() {
     for(int i = 0; i < 3; i++) {
         float radius = 600.0f;
         glm::vec3 base_pos = {radius*i, 0.0, 0.0};
-        SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_InstancedNormalMap", "T_LavaPlanet");
+        SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_InstancedShadow", "T_LavaPlanet");
         astr->SetNormalMap("T_WallNormalMap", 4.0f);
         astr->material.texture_repetition = 5.0f;
         for(int i = 0; i < 512; i++) {
@@ -1059,6 +1073,8 @@ void Game::CheckControls(KeyMap& keys, float dt) {
 
 
     Player* player = active_scene->GetPlayer();
+    if(player){
+
 
     if (glfwGetMouseButton(app.GetWindow()->ptr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
         player->Control(Player::Controls::LEFTCLICK, dt);
@@ -1108,6 +1124,15 @@ void Game::CheckControls(KeyMap& keys, float dt) {
         player->Control(Player::Controls::SPACE, dt);
         keys[GLFW_KEY_SPACE] = false;
     };
+    if(keys[GLFW_KEY_X]) {
+        if(active_scene->GetCamera().IsAttached()) {
+            active_scene->GetCamera().Drop();
+        } else {
+            active_scene->GetCamera().Attach(&player->transform);
+        }
+        keys[GLFW_KEY_X] = false;
+    }
+    }
 
     float tilt_speed = 1.5f;
     if(keys[GLFW_KEY_UP]) {
@@ -1128,14 +1153,6 @@ void Game::CheckControls(KeyMap& keys, float dt) {
         active_scene->GetCamera().transform.SetOrientation({0.0, 0.0, 0.0, 0.0});
     }
 
-    if(keys[GLFW_KEY_X]) {
-        if(active_scene->GetCamera().IsAttached()) {
-            active_scene->GetCamera().Drop();
-        } else {
-            active_scene->GetCamera().Attach(&player->transform);
-        }
-        keys[GLFW_KEY_X] = false;
-    }
 
     if(keys[GLFW_KEY_0]) {
         LoadShaders(); 
@@ -1505,9 +1522,16 @@ void Game::ChangeScene(int sceneIndex) {
 }
 
 void Game::ChangeSceneAndSpawn(int sceneIndex, glm::vec3 position) {
+    Player* old_player = active_scene->GetPlayer();
+    if(old_player != nullptr) {
+        old_player->transform.SetPosition({0.0, 0.0, 0.0});
+    }
     ChangeScene(sceneIndex);
     current_respawn_position = position;
-    active_scene->GetPlayer()->transform.SetPosition(position);
+    Player* p = active_scene->GetPlayer();
+    if(p) {
+        p->transform.SetPosition(position);
+    }
 }
 
 /*

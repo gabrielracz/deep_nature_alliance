@@ -54,10 +54,10 @@ public:
     glm::mat4 CalculateMatrix();
     // glm::mat4 ScaledMatrix();
 
-    void SetPosition(const glm::vec3& newpos) { position = newpos; dirty = true;} 
-    void SetScale(const glm::vec3& newscale) { scale = newscale; dirty = true;} 
-    void SetOrientation(const glm::quat& newori) { orientation = newori; dirty = true;} 
-    void SetAxis(Axis a, const glm::vec3& v ) {axes[a] = v;}
+    void SetPosition(const glm::vec3 newpos) { position = newpos; dirty = true;} 
+    void SetScale(const glm::vec3 newscale) { scale = newscale; dirty = true;} 
+    void SetOrientation(const glm::quat newori) { orientation = newori; dirty = true;} 
+    void SetAxis(Axis a, const glm::vec3 v ) {axes[a] = v;}
     void SetOrbit(glm::quat q) {orbit = q;}
     void SetJoint(glm::vec3 j) {joint = j;}
 

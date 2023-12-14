@@ -88,7 +88,7 @@ void Tree::GrowBranches(SceneNode* root, int branches, float parent_height, floa
         branch->SetNormalMap(Tree::branch_normal_map);
 
         float p = rand.randfloat(0.0f, parent_height/2.0f);
-        float l = rand.randfloat(parent_height/4.0f, parent_height/1.2);
+        float l = rand.randfloat(parent_height/4.0f, parent_height/1.4);
         float w = rand.randfloat(0.5f, parent_width/2);
 
         float r = rand.randfloat(PI/6, PI/3);
@@ -119,8 +119,8 @@ void Tree::GrowBranches(SceneNode* root, int branches, float parent_height, floa
 void Tree::GrowTree() {
     int branches = 3;
     int iterations = 3;
-    float height = rand.randfloat(45.0, 60.0);
-    float width = 2.0f;
+    float height = rand.randfloat(30.0, 40.0);
+    float width = 3.0f;
     transform.SetScale({width, height, width});
     transform.Translate({0, height/2, 0});
     SetNormalMap(Tree::branch_normal_map);
