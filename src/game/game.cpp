@@ -97,7 +97,7 @@ void Game::LoadMeshes() {
     resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
     resman.CreatePointCloud("M_Thrust", 1200, 0.25f);
     resman.CreatePointCloud("M_Explosion", 5000, 0.25f);
-    resman.CreateSnowParticles("M_MoonSnow", 10000, 2000, 100, 0);
+    resman.CreateSnowParticles("M_MoonSnow", 20000, 100, 100, 0.0);
     resman.CreateSnowParticles("M_MoonSpirals", 10000, 2000, 20, 0);
     resman.CreateCone("M_Rocket", 1.0, 0.5, 4, 4);
 
@@ -194,6 +194,7 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_SpiralParticle", TEXTURE_DIRECTORY"/flake.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_EyeParticle", TEXTURE_DIRECTORY"/eyepart.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Rocket", TEXTURE_DIRECTORY"/stone_old.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Picture", TEXTURE_DIRECTORY"/picture.png", GL_REPEAT, GL_LINEAR);
 
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", TEXTURE_DIRECTORY"/skyboxes/messedup");
@@ -602,6 +603,16 @@ void Game::SetupFPScene(void) {
     pill->DeleteOnCollect(true);
     AddColliderToScene(FPTEST, pill);
 
+    Item* picture = new Item("Obj_Picture", "M_Sapling", "S_Lit", "T_Picture");
+    float px = 295;
+    float pz = 575;
+    picture->transform.SetPosition({px, t->SampleHeight(px, pz) + 2, pz});
+    picture->transform.SetScale({2,2,2});
+    picture->SetAlphaEnabled(true);
+    picture->SetCollectCallback([this]() { this->CollectStoryItem(PICTURE); });
+    picture->DeleteOnCollect(true);
+    AddColliderToScene(FPTEST, picture);
+
     // Area of effect when in range of pill
     /*Toggle* pill_vision = new Toggle("Obj_Toggle", "M_Sapling", "S_Default", "T_SpiralParticle");
     pill_vision->transform.SetPosition({-600.0f,-18.0f,-600.0f});
@@ -621,10 +632,9 @@ void Game::SetupFPScene(void) {
     AddColliderToScene(FPTEST, pill_vision);*/
 
     SceneNode* snow = new SceneNode("Obj_MoonSnow", "M_MoonSnow", "S_MoonSnow", "T_SpiralParticle");
-    snow->transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
     snow->SetAlphaEnabled(true);
     snow->SetAlphaFunc(GL_ONE);
-    scenes[FPTEST]->AddNode(snow);
+    p->AddChild(snow);
 }
 
 void Game::SetupForestScene() {
@@ -1577,4 +1587,10 @@ void Game::CollectStoryItem(StoryBeat l) {
 void Game::CollectEndingItem(StoryBeat l) {
     ending_sequence_ = true;
     CollectStoryItem(l);
+}
+
+void Game::UnlockDash() {
+     for (auto s : scenes) {
+        s->GetPlayer()->UnlockDash();
+     }
 }

@@ -104,6 +104,7 @@ class Game {
         void CollectStoryItem(StoryBeat l);
         void CollectEndingItem(StoryBeat l);
         bool GetBadEnd() { return bad_end_; }
+        void UnlockDash();
 
         const std::vector<std::vector<float>> readTerrain(const std::string& filePath);
 

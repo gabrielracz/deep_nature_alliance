@@ -12,6 +12,7 @@ enum StoryBeat {
     INTRO,
     FOREST_THOUGHTS,
     PILL,
+    PICTURE,
     GOOD_END,
     CREDITS,
     BAD_END,
@@ -130,6 +131,17 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "artificial atmosphere.\n",
                 THOUGHTS
             }
+    }},
+    {PICTURE,{
+        {
+            "You pick up the picture frame.\n",
+            ITEM
+        },
+        {
+            "Its a picture of me and my close friend dated 15 years ago.\n"
+            ". . .\n",
+            MAJOR_THOUGHTS
+        }
     }},
     {PILL,{
             {

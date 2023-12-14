@@ -30,10 +30,12 @@ public:
     glm::vec3 ang_velocity = {0.0f, 0.0f, 0.0f};
 
     void SetStatic(bool stasis) { player_static_ = stasis; }
+    void UnlockDash() {dash_unlocked_ = true;}
 
 protected:
 
     bool player_static_ = false;
+    bool dash_unlocked_ = true;
 
 };
 
