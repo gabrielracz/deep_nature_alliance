@@ -97,7 +97,7 @@ void Game::LoadMeshes() {
     resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
     resman.CreatePointCloud("M_Thrust", 1200, 0.25f);
     resman.CreatePointCloud("M_Explosion", 5000, 0.25f);
-    resman.CreateSnowParticles("M_MoonSnow", 10000, 2000, 100, 0);
+    resman.CreateSnowParticles("M_MoonSnow", 20000, 100, 100, 0.0);
     resman.CreateSnowParticles("M_MoonSpirals", 10000, 2000, 20, 0);
     resman.CreateCone("M_Rocket", 1.0, 0.5, 4, 4);
 
@@ -135,6 +135,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_MoonSpiral", SHADER_DIRECTORY"/spiral_vp.glsl", SHADER_DIRECTORY"/spiral_fp.glsl", SHADER_DIRECTORY"/spiral_gp.glsl");
     resman.LoadShader("S_SpaceBugs", SHADER_DIRECTORY"/spacebug_vp.glsl", SHADER_DIRECTORY"/spacebug_fp.glsl", SHADER_DIRECTORY"/spacebug_gp.glsl");
     resman.LoadShader("S_Explosion", SHADER_DIRECTORY"/explosion_vp.glsl", SHADER_DIRECTORY"/explosion_fp.glsl", SHADER_DIRECTORY"/explosion_gp.glsl");
+    resman.LoadShader("S_Violence", SHADER_DIRECTORY"/red_vision_vp.glsl", SHADER_DIRECTORY"/red_vision_fp.glsl");
 
     resman.SetScreenSpaceShader("S_Texture");
 }
@@ -193,6 +194,7 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_SpiralParticle", TEXTURE_DIRECTORY"/flake.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_EyeParticle", TEXTURE_DIRECTORY"/eyepart.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Rocket", TEXTURE_DIRECTORY"/stone_old.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Picture", TEXTURE_DIRECTORY"/picture.png", GL_REPEAT, GL_LINEAR);
 
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", TEXTURE_DIRECTORY"/skyboxes/messedup");
@@ -424,7 +426,7 @@ void Game::SetupFPScene(void) {
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[FPTEST]->SetSkybox(skybox);
 
-    const std::vector<std::vector <float>>& gangAintNunOfThatSquad = readTerrain(RESOURCES_DIRECTORY"/terrain/dunes.jpg");
+    const std::vector<std::vector <float>>& gangAintNunOfThatSquad = readTerrain(RESOURCES_DIRECTORY"/terrain/moon.png");
     int terrain_size = 1500;
     Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, gangAintNunOfThatSquad, terrain_size, terrain_size, 0.2, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
@@ -601,11 +603,38 @@ void Game::SetupFPScene(void) {
     pill->DeleteOnCollect(true);
     AddColliderToScene(FPTEST, pill);
 
+    Item* picture = new Item("Obj_Picture", "M_Sapling", "S_Lit", "T_Picture");
+    float px = 295;
+    float pz = 575;
+    picture->transform.SetPosition({px, t->SampleHeight(px, pz) + 2, pz});
+    picture->transform.SetScale({2,2,2});
+    picture->SetAlphaEnabled(true);
+    picture->SetCollectCallback([this]() { this->CollectStoryItem(PICTURE); });
+    picture->DeleteOnCollect(true);
+    AddColliderToScene(FPTEST, picture);
+
+    // Area of effect when in range of pill
+    /*Toggle* pill_vision = new Toggle("Obj_Toggle", "M_Sapling", "S_Default", "T_SpiralParticle");
+    pill_vision->transform.SetPosition({-600.0f,-18.0f,-600.0f});
+    pill_vision->transform.SetScale({1,1,1});
+    SphereCollider* col_vision = new SphereCollider(*pill_vision, 150.0f);
+    pill_vision->SetCollider(col_vision);
+    pill_vision->SetOnCallback([this]() { 
+        if (!this->GetBadEnd()) {
+            this->resman.SetScreenSpaceShader("S_Violence"); 
+        }
+    });
+    pill_vision->SetOffCallback([this]() { 
+        if (!this->GetBadEnd()) {
+            this->resman.SetScreenSpaceShader("S_Texture");
+        }
+    });
+    AddColliderToScene(FPTEST, pill_vision);*/
+
     SceneNode* snow = new SceneNode("Obj_MoonSnow", "M_MoonSnow", "S_MoonSnow", "T_SpiralParticle");
-    snow->transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
     snow->SetAlphaEnabled(true);
     snow->SetAlphaFunc(GL_ONE);
-    scenes[FPTEST]->AddNode(snow);
+    p->AddChild(snow);
 }
 
 void Game::SetupForestScene() {
@@ -914,10 +943,6 @@ void Game::SetupCreditsScene() {
     light->transform.SetPosition({0.0, 0.0, 300.0});
     AddLightToScene(ENDING, light);
 
-    SceneNode* skybox = new SceneNode("Obj_MoonSkybox", "M_Skybox", "S_Skybox", "T_MessedUpSkybox");
-    skybox->transform.SetScale({2000, 2000, 2000});
-    scenes[ENDING]->SetSkybox(skybox);
-
     FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
     p->SetNormalMap("T_MetalNormalMap");
     p->transform.SetPosition({0.0, 0.0, 0.0});
@@ -926,7 +951,11 @@ void Game::SetupCreditsScene() {
     p->SetStatic(true);
     camera.Detach();
     camera.transform.SetPosition({0,0,0});
-    p->transform.SetPosition({0.0, -1000.0, 0.0});
+    camera.transform.SetOrientation(glm::quat());
+
+    SceneNode* skybox = new SceneNode("Obj_MoonSkybox", "M_Skybox", "S_Skybox", "T_MessedUpSkybox");
+    skybox->transform.SetScale({2000, 2000, 2000});
+    scenes[ENDING]->SetSkybox(skybox);
 }
 
 void Game::Update(double dt, KeyMap &keys) {
@@ -985,6 +1014,7 @@ void Game::CheckControls(KeyMap& keys, float dt) {
         keys[GLFW_KEY_7] = false;
     }
     if(keys[GLFW_KEY_9]) {
+        resman.SetScreenSpaceShader("S_Texture");
         active_scene->Reset();
         active_scene->SetCollision(true);
         scenes[active_scene_num]->GetPlayer()->transform.SetPosition(current_respawn_position);
@@ -1092,17 +1122,26 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     }
 
     if(keys[GLFW_KEY_R]) {
+        // Pause at last textbox at start of game, end of game and credits
         if ((active_scene_num == START && active_scene->StoryTextAmount() == 1)
-            || (ending_sequence_ && active_scene->StoryTextAmount() == 1)) {
+            || (ending_sequence_ && active_scene->StoryTextAmount() == 1)
+            || (good_end_ && active_scene->StoryTextAmount() == 1)) {
             keys[GLFW_KEY_R] = false;
             return;
         }
         active_scene->DismissStoryText();
+
+        // Dramatic violence vision
+        if (ending_sequence_ && active_scene->StoryTextAmount() == 2) {
+            resman.SetScreenSpaceShader("S_Violence"); 
+        }
+
         if(reading_item_ && active_scene->StoryTextAmount() == 0) {
             active_scene->GetPlayer()->SetStatic(false);
             reading_item_ = false;
             active_scene->SetCollision(true);
         }
+
         keys[GLFW_KEY_R] = false;
     }
 
@@ -1121,6 +1160,9 @@ void Game::CheckControls(KeyMap& keys, float dt) {
 
     if(keys[GLFW_KEY_N]) {
         if(ending_sequence_ && active_scene->StoryTextAmount() == 1) {
+            resman.SetScreenSpaceShader("S_Texture");
+            ending_sequence_ = false;
+            good_end_ = true;
             ChangeScene(ENDING);
             keys[GLFW_KEY_N] = false;
             return;
@@ -1136,10 +1178,23 @@ void Game::CheckControls(KeyMap& keys, float dt) {
             ending_sequence_ = false;
             AddStoryToScene(active_scene_num, BAD_END);
             active_scene->SetCollision(true);
+            bad_end_ = true;
+            resman.SetScreenSpaceShader("S_Texture");
             keys[GLFW_KEY_Y] = false;
             return;
         }
         keys[GLFW_KEY_Y] = false;
+    }
+
+    if(keys[GLFW_KEY_V] && bad_end_) {
+        if(violence_mode_) {
+            resman.SetScreenSpaceShader("S_Texture");
+            violence_mode_ = false;
+        } else {
+            resman.SetScreenSpaceShader("S_Violence");
+            violence_mode_ = true;
+        }
+        keys[GLFW_KEY_V] = false;
     }
 
 
@@ -1473,15 +1528,12 @@ void Game::ResizeCameras(int width, int height) {
 
 void Game::ShipHitPlanet(glm::vec3 respawn_pos, std::string message) {
     glm::vec3 pos = active_scene->GetPlayer()->transform.GetPosition();
-    SceneNode* explosion = new SceneNode("Obj_Explosion", "M_Explosion", "S_Explosion", "T_Fire");
-    explosion->transform.SetPosition(pos);
-    explosion->SetAlphaEnabled(true);
-    explosion->SetAlphaFunc(GL_ONE);
-    active_scene->AddNode(explosion);
+    SpawnExplosion(pos, active_scene->GetPlayer()->transform.GetScale());
     PlayerHitRespawnMessage(respawn_pos, message);
 }
 
 void Game::PlayerHitRespawnMessage(glm::vec3 respawn_pos, std::string message) {
+    resman.SetScreenSpaceShader("S_Violence"); 
     active_scene->SetCollision(false);
     active_scene->ClearStoryText();
     active_scene->ClearText();
@@ -1535,4 +1587,10 @@ void Game::CollectStoryItem(StoryBeat l) {
 void Game::CollectEndingItem(StoryBeat l) {
     ending_sequence_ = true;
     CollectStoryItem(l);
+}
+
+void Game::UnlockDash() {
+     for (auto s : scenes) {
+        s->GetPlayer()->UnlockDash();
+     }
 }

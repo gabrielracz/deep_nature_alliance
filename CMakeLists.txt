@@ -51,6 +51,7 @@ set(HDRS
     include/game/mooncloud.h
     include/game/rocket.h
     include/game/explosion.h
+    include/game/toggle.h
 )
  
 set(SRCS
@@ -89,6 +90,7 @@ set(SRCS
     src/game/mooncloud.cpp
     src/game/rocket.cpp
     src/game/explosion.cpp
+    src/game/toggle.cpp
 )
 
 # Add path name to configuration file

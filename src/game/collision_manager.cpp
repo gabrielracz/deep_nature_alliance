@@ -14,6 +14,17 @@ void CollisionManager::CheckCollisions(){
         }
     }
 
+    for (auto toggle : toggles) {
+        //NOTE: we are getting collision hit on spawn in (weird???)
+        if(GetCollisionRaw(toggle, player)) {
+            if(!toggle->GetToggle()) {
+                toggle->ToggleOn(player);
+            }
+        } else if (toggle->GetToggle() && toggle->Triggered()) {
+            toggle->ToggleOff(player);
+        }
+    }
+
     for (auto asteroid : asteroids){
         // GetCollision(asteroid, player);
         int i = 0;
@@ -80,6 +91,26 @@ void CollisionManager::GetCollision(SceneNode* obj1, SceneNode* obj2) {
     }
 }
 
+
+bool CollisionManager::GetCollisionRaw(SceneNode* obj1, SceneNode* obj2)
+{
+    if(obj1->deleted || obj2->deleted) {
+        return false;
+    }
+
+    Collider* col = obj1->GetCollider();
+    Collider* other = obj2->GetCollider();
+    if (col && other) {
+        if (other->CollidesWith(col)) {
+            return true;
+        } 
+        if (col->CollidesWith(other)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void CollisionManager::AddNode(SceneNode* node){
 
     switch(node->GetNodeType()) {
@@ -104,6 +135,8 @@ void CollisionManager::AddNode(SceneNode* node){
         case TROCKET:
             rockets.push_back(node);
             break;
+        case TTOGGLE:
+            toggles.push_back(dynamic_cast<Toggle*>(node));
         default:
             othercollideables.push_back(node);
             break;
