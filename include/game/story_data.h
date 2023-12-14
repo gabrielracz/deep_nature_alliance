@@ -153,7 +153,7 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
             },
             {
                 "Our testing has produced that dusting an object with a HO4QX2-Like compound will\n"
-                "protect it from MK assimilation but human testing has resulted in horrifying results.\n"
+                "protect it from MK assimilation but human testing has lead to horrifying results.\n"
                 " \n"
                 "This HO4QX2 compound will assimilate all atoms in its close vicinity including human DNA\n"
                 "creating something (from our testing) completely random, turning rock matter\n"
@@ -187,7 +187,7 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
             {
                 "It is funny how I reach this revelation when tomorrow a bomb will strike\n"
                 "and take everything natural about me scrambling it with\n"
-                "every man made building and circutboard around me.\n"
+                "every man made building and circuit board around me.\n"
                  "...\n",
                  NOTE
             },
