@@ -103,7 +103,7 @@ void Game::LoadMeshes() {
     resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
     resman.CreatePointCloud("M_Thrust", 1200, 0.25f);
     resman.CreatePointCloud("M_Explosion", 5000, 0.25f);
-    resman.CreateSnowParticles("M_MoonSnow", 20000, 100, 100, 0.0);
+    resman.CreateSnowParticles("M_MoonSnow", 10000, 200, 20, 10.0);
     resman.CreateSnowParticles("M_MoonSpirals", 10000, 2000, 20, 0);
     resman.CreateCone("M_Rocket", 1.0, 0.5, 4, 4);
 
@@ -123,7 +123,6 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Text", SHADER_DIRECTORY"/text_vp.glsl", SHADER_DIRECTORY"/text_fp.glsl");
     resman.LoadShader("S_Planet", SHADER_DIRECTORY"/ship_vp.glsl", SHADER_DIRECTORY"/textured_fp.glsl");
     resman.LoadShader("S_NormalMap", SHADER_DIRECTORY"/normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl");
-    resman.LoadShader("S_Instanced", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_fp.glsl", "", true);
     resman.LoadShader("S_NormalMapNoShadow", SHADER_DIRECTORY"/normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_noshadows_fp.glsl");
     resman.LoadShader("S_Instanced", SHADER_DIRECTORY"/instanced_normal_map_vp.glsl", SHADER_DIRECTORY"/normal_map_noshadows_fp.glsl", "", true);
     resman.LoadShader("S_Lava", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/lit_lava_fp.glsl");
@@ -428,14 +427,14 @@ const std::vector<std::vector<float>> Game::readTerrain(const std::string& fileP
 void Game::SetupFPScene(void) {
     scenes[FPTEST]->SetResetCallback([this]() { this->SetupFPScene(); });
     Camera& camera = scenes[FPTEST]->GetCamera();
-    camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
+    camera.SetView(glm::vec3(0.0, 3.0, -0.4), glm::vec3(0.0, 3.0, -0.4) + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
+    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
     p->SetNormalMap("T_MetalNormalMap");
     p->transform.SetPosition(player_position_g);
-    p->visible = false;
+    p->transform.SetScale({3.5, 5.0, 3.5});
     AddPlayerToScene(FPTEST, p);
 
     SceneNode* skybox = new SceneNode("Obj_MoonSkybox", "M_Skybox", "S_Skybox", "T_MessedUpSkybox");
@@ -646,10 +645,11 @@ void Game::SetupFPScene(void) {
     });
     AddColliderToScene(FPTEST, pill_vision);*/
 
-    SceneNode* snow = new SceneNode("Obj_MoonSnow", "M_MoonSnow", "S_MoonSnow", "T_SpiralParticle");
+    /*SceneNode* snow = new SceneNode("Obj_MoonSnow", "M_MoonSnow", "S_MoonSnow", "T_SpiralParticle");
     snow->SetAlphaEnabled(true);
     snow->SetAlphaFunc(GL_ONE);
-    p->AddChild(snow);
+    snow->transform.SetPosition({0.0, -20.0, 0.0});
+    scenes[FPTEST]->AddNode(snow);*/
 }
 
 void Game::SetupForestScene() {
@@ -884,20 +884,32 @@ void Game::SetupMainMenuScene() {
 
     RenderBundle mouseCursor = { "M_Quad", "S_TextureWithTransform", "T_Cursor" };
     Menu_Player* p = new Menu_Player("Obj_Menu_Player", "M_Quad", "S_Texture", "T_Splash", mouseCursor, app.GetWindow());
-    // p->SetAlphaEnabled(true);
-    Button *left = new Button();
-    left->action = std::bind(&Game::ChangeScene, this, DESERT);
-    left->topLeftCoordPercentage = {0,0};
-    left->spanPercentage = {0.5, 1.0};
-    p->addButton(left);
-
-    Button *right = new Button();
-    right->action = std::bind(&Game::ChangeScene, this, FOREST);
-    right->topLeftCoordPercentage = {0.5,0};
-    right->spanPercentage = {0.5, 1.0};
-    p->addButton(right);
     AddPlayerToScene(MAIN_MENU, p);
-    // camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+    Button *button = new Button();
+    button->action = std::bind(&Game::ChangeScene, this, START);
+    button->topLeftCoordPercentage = {0.74,0.81};
+    button->spanPercentage = {0.215, 0.052};
+    p->addButton(button);
+
+    button = new Button();
+    button->action = std::bind(&Game::ChangeScene, this, FOREST);
+    button->topLeftCoordPercentage = {0.785,0.74};
+    button->spanPercentage = {0.173, 0.035};
+    p->addButton(button);
+
+    button = new Button();
+    button->action = std::bind(&Game::ChangeScene, this, DESERT);
+    button->topLeftCoordPercentage = {0.785,0.687};
+    button->spanPercentage = {0.173, 0.035};
+    p->addButton(button);
+
+    button = new Button();
+    button->action = std::bind(&Game::ChangeScene, this, FPTEST);
+    button->topLeftCoordPercentage = {0.785,0.634};
+    button->spanPercentage = {0.173, 0.035};
+    p->addButton(button);
+
+    
     // camera.Attach(&p->transform, false);
 
     Light* light = new Light(Colors::WarmWhite);
