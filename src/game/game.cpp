@@ -425,7 +425,7 @@ void Game::SetupFPScene(void) {
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[FPTEST]->SetSkybox(skybox);
 
-    const std::vector<std::vector <float>>& gangAintNunOfThatSquad = readTerrain(RESOURCES_DIRECTORY"/terrain/dunes.jpg");
+    const std::vector<std::vector <float>>& gangAintNunOfThatSquad = readTerrain(RESOURCES_DIRECTORY"/terrain/moon.png");
     int terrain_size = 1500;
     Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, gangAintNunOfThatSquad, terrain_size, terrain_size, 0.2, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});

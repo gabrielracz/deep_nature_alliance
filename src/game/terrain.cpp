@@ -139,7 +139,7 @@ void Terrain::GenerateQMoon() {
     float item_crater_radius = 20.0f;
     float item_crater_inner_radius = 6.0f;
     float spawn_canyon_radius = 40.0f;
-    float item_crater_depth = 45.0f;
+    float item_crater_depth = 30.0f;
     float item_crater_spire_height = 18.0f;
     float min_spawn_canyon_depth = 80.0f;
     float player_platform_radius = 15.0f;
