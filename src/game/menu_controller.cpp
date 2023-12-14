@@ -17,20 +17,19 @@ void Menu_Player::Update(double dt){
     
     const float imageOffsetForMoreAccurateClickingIDontThinkThisVariableIsDescriptiveEnough = 0.068;
 
-    // cursor->transform.SetPosition(glm::vec3(screenX, screenY, 0.0));
     cursor->transform.SetPosition(glm::vec3(screenX * 2.0f - 1.0f + imageOffsetForMoreAccurateClickingIDontThinkThisVariableIsDescriptiveEnough, 1.0f - screenY * 2.0f - imageOffsetForMoreAccurateClickingIDontThinkThisVariableIsDescriptiveEnough, 0.0));
 
     float radius = 1.0f;
-    float angularSpeed = 0.2f;  // in radians per second
+    float angularSpeed = 0.2f;
 
     // Calculate the new position in a circular motion
     float newX = radius * cos(angularSpeed * dt);
     float newZ = radius * sin(angularSpeed * dt);
 
     // Set the new position
-    // transform.SetPosition(glm::vec3(newX, transform.GetPosition().y, newZ));
+    transform.SetPosition(glm::vec3(newX, transform.GetPosition().y, newZ));
 
-    Player::Update(dt);
+    SceneNode::Update(dt);
 }
 
 void Menu_Player::Control(Controls c, float dt, float damping){
