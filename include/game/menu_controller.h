@@ -12,7 +12,7 @@ class Button {
         glm::vec2 topLeftCoordPercentage;
         glm::vec2 spanPercentage;
         std::function<void()> action;
-        bool click(const glm::vec2& mousePos, Window* win) {
+        bool click(const glm::vec2& mousePos, Window* win, bool debug = false) {
             // Calculate the actual coordinates and size of the button in pixels
             int buttonX = static_cast<int>(topLeftCoordPercentage.x * win->width);
             int buttonY = static_cast<int>(topLeftCoordPercentage.y * win->height);
@@ -21,7 +21,9 @@ class Button {
 
             if (mousePos.x >= buttonX && mousePos.x <= buttonX + buttonWidth &&
                 mousePos.y >= buttonY && mousePos.y <= buttonY + buttonHeight) {
-                if (action) {
+                if (debug){
+                    std::cout << "in me button feller" << std::endl;
+                } else if (action) {
                     action();
                 }
                 return true;
