@@ -86,6 +86,10 @@ void Game::LoadMeshes() {
     resman.LoadMesh        ("M_SELTower", MESH_DIRECTORY"/moontower.obj");
     resman.LoadMesh        ("M_MoonObject", MESH_DIRECTORY"/moonobj.obj");
     resman.LoadMesh        ("M_MoonCloud", MESH_DIRECTORY"/mooncloud.obj");
+    resman.LoadMesh        ("M_Monestary", MESH_DIRECTORY"/monestary.obj");
+    resman.LoadMesh        ("M_Tower_m", MESH_DIRECTORY"/medium_tower.obj");
+    resman.LoadMesh        ("M_Tower_s", MESH_DIRECTORY"/small_tower.obj");
+    resman.LoadMesh        ("M_Tower_t", MESH_DIRECTORY"/tall_tower.obj");
 
     // generate geometry
     resman.CreateSimpleQuad("M_Quad");
@@ -195,6 +199,12 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_EyeParticle", TEXTURE_DIRECTORY"/eyepart.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Rocket", TEXTURE_DIRECTORY"/stone_old.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Picture", TEXTURE_DIRECTORY"/picture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Tower_t", TEXTURE_DIRECTORY"/tall_tower.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
+    resman.LoadTexture("T_Tower_t_n", TEXTURE_DIRECTORY"/tall_tower_n.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
+    resman.LoadTexture("T_Tower_s", TEXTURE_DIRECTORY"/small_tower.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
+    resman.LoadTexture("T_Tower_s_n", TEXTURE_DIRECTORY"/small_tower_n.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
+    resman.LoadTexture("T_Tower_m", TEXTURE_DIRECTORY"/medium_tower.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
+    resman.LoadTexture("T_Tower_m_n", TEXTURE_DIRECTORY"/medium_tower_n.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
 
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", TEXTURE_DIRECTORY"/skyboxes/messedup");
@@ -814,11 +824,11 @@ void Game::SetupDesertScene() {
     scenes[DESERT]->AddNode(cacti);
     scenes[DESERT]->AddNode(cacti2);
 
-    SceneNode* ship = new SceneNode("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
-    ship->SetNormalMap("T_MetalNormalMap", 10.0f);
+    SceneNode* ship = new SceneNode("Obj_LandedShip", "M_Tower_t", "S_NormalMap", "T_Tower_t");
+    ship->SetNormalMap("T_Tower_t_n", 10.0f);
     ship->transform.SetPosition({-40.0f, 123.0f, 60.0f});
-    ship->transform.SetOrientation({0.334468, 0.0, 0.0, 0.0});
-    ship->transform.SetScale({11.0, 11.0, 9.5});
+    ship->transform.SetOrientation({});
+    ship->transform.SetScale({5.0, 5.0, 5.0});
     ship->material.specular_power = 169.0f;
     SphereCollider* col = new SphereCollider(*ship, 9.0f);
     col->SetCallback([this]() { PlayerHitShip({-3500.0f, 4200.0f, -6000.0f}); });
