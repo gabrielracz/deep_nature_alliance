@@ -12,6 +12,7 @@ enum StoryBeat {
     INTRO,
     FOREST_THOUGHTS,
     PILL,
+    PICTURE,
     GOOD_END,
     CREDITS,
     BAD_END,
@@ -29,8 +30,8 @@ enum StoryBeat {
 #define ITEM                    Colors::SlimeGreen, Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.04f
 #define NOTE                    Colors::White,   Colors::TBrown, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.04f
 #define BLOOD_NOTE              Colors::Red,   Colors::TBrown, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.04f
-#define SAD                     Colors::Red,   Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.8f
-#define CHOICE                  Colors::Red,   Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.3f
+#define SAD                     Colors::Red,   Colors::DarkTranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.6f
+#define CHOICE                  Colors::Red,   Colors::DarkTranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.3f
 #define PLAYER_ACTION           Colors::Yellow, Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.04f
 #define MAJOR_TRANSMISSION      Colors::Amber, Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.05f
 #define MAJOR_THOUGHTS          Colors::SeaBlue, Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.07f
@@ -109,21 +110,38 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
              {
                 "SHIP: Connection to DNANet [DISCONNECTED].\n"
                 " \n"
-                "JMP Drive and combat systems have been disabled.\n"
+                "Systems have been disabled:\n"
+                "> JMP Drive [Disabled]\n"
+                "> Combat System [Disabled]\n"
+                "> Boosters [Disabled]\n"
+                " \n"
                 "Re-establish connection effective immediately.\n",
                 SHIP_ERROR
              }
     }},
     {FOREST_THOUGHTS,{
             {
-                "This planet is way too close to the sun to have life...\n",
+                "This planet is way too close\n"
+                "to the sun to have life...\n",
                 THOUGHTS
             },
             {
                 "I must be mistaken.\n"
-                "They must have built an artificial atmosphere.\n",
+                "They must have built an\n"
+                "artificial atmosphere.\n",
                 THOUGHTS
             }
+    }},
+    {PICTURE,{
+        {
+            "You pick up the picture frame.\n",
+            ITEM
+        },
+        {
+            "Its a picture of me and my close friend dated 15 years ago.\n"
+            ". . .\n",
+            MAJOR_THOUGHTS
+        }
     }},
     {PILL,{
             {
@@ -153,7 +171,7 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
             },
             {
                 "Our testing has produced that dusting an object with a HO4QX2-Like compound will\n"
-                "protect it from MK assimilation but human testing has resulted in horrifying results.\n"
+                "protect it from MK assimilation but human testing has lead to horrifying results.\n"
                 " \n"
                 "This HO4QX2 compound will assimilate all atoms in its close vicinity including human DNA\n"
                 "creating something (from our testing) completely random, turning rock matter\n"
@@ -187,7 +205,7 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
             {
                 "It is funny how I reach this revelation when tomorrow a bomb will strike\n"
                 "and take everything natural about me scrambling it with\n"
-                "every man made building and circutboard around me.\n"
+                "every man made building and circuit board within this city.\n"
                  "...\n",
                  NOTE
             },
@@ -203,7 +221,7 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 NOTE
             },
             {
-                ". . .\n",
+                "[. . .]\n",
                 SAD
             },
             {
@@ -263,6 +281,12 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "You earned it soldier.\n"
                 "--- END EXCRYPT TRANSMISSION ---\n",
                 MAJOR_TRANSMISSION
+            },
+            {
+                "<UPGRADE NOTICE>\n"
+                "Violence Mode [Enabled]\n"
+                "Press [V] to toggle.\n",
+                SHIP_ERROR
             }
     }},
     {TOLKIEN, {

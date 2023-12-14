@@ -32,6 +32,10 @@ class ResourceManager {
         Shader* GetShader(const std::string& name);
         Texture* GetTexture(const std::string& name);
 
+        Shader* GetScreenSpaceShader();
+
+        void SetScreenSpaceShader(const std::string& name);
+
         void LoadShader(const std::string& name, const std::string& vert_path, const std::string& frag_path, const std::string& geom_path = "", bool instaced = false);
         void LoadMesh(const std::string& name, const std::string& path);
         void AddMesh(const std::string& name, std::vector<float> verts, std::vector<unsigned int> inds, Layout layout);
@@ -57,7 +61,9 @@ class ResourceManager {
         RandGenerator rng;
         std::unordered_map<std::string, Mesh>         meshes;
         std::unordered_map<std::string, Shader>       shaders;
-        std::unordered_map<std::string, Texture>      textures;   
+        std::unordered_map<std::string, Texture>      textures;
+
+        std::string screenSpaceShader = ""; 
         // std::unordered_map<std::string, Sound>     sounds;
 
         std::string LoadTextFile(const char *filename);

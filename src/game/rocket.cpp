@@ -16,5 +16,5 @@ void Rocket::Update(double dt) {
 void Rocket::AddThrust(Thrust *t) {
     thrust = t;
     thrust->amount = 1.0f;
-    children.push_back(t);
+    AddChild(t);
 }

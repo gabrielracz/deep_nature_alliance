@@ -81,7 +81,7 @@ void View::RenderPostProcessing(SceneGraph& scene) {
     bool postprocess = true;
     if(postprocess) {
         Mesh* scrquad  = resman.GetMesh("M_Quad");
-        Shader* scrshd = resman.GetShader("S_Texture");
+        Shader* scrshd = resman.GetScreenSpaceShader();
         scrshd->Use();
 
         glActiveTexture(GL_TEXTURE0);
@@ -146,6 +146,11 @@ void View::RenderDepthMap(SceneGraph& scene) {
 }
 
 void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix) {
+
+    if (!node->visible) {
+        return;
+    }
+
     std::string shd_id  = node->GetShaderID();
     std::string tex_id  = node->GetTextureID();
     std::string norm_id = node->GetNormalMap();

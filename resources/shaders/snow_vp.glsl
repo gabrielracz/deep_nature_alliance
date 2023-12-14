@@ -17,7 +17,7 @@ out float timestep;
 const float xspeed = 0.05;
 const float zspeed = 0.1;
 const float yspeed = 0.5;
-const float cyclelength = 1.0; // want this pretty long so they can travel to the bottom if high up
+const float cyclelength = 20.0; // want this pretty long so they can travel to the bottom if high up
 
 // hash functions for randomness from here https://tips.orels.sh/optimized-hash-for-shaders
 // One in one out

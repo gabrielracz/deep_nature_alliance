@@ -19,8 +19,8 @@
 #define APPEND_VEC2(vector, glm_vec2) vector.insert(vector.end(), {glm_vec2.x, glm_vec2.y})
 #define APPEND_VEC3(vector, glm_vec3) vector.insert(vector.end(), {glm_vec3.x, glm_vec3.y, glm_vec3.z})
 
-const unsigned int window_width_g = 1280;
-const unsigned int window_height_g = 960;
+const unsigned int window_width_g = 1600;
+const unsigned int window_height_g = 900;
 const bool window_full_screen_g = false;
 
 typedef std::unordered_map<int, bool> KeyMap;
@@ -56,6 +56,7 @@ namespace Colors {
     const glm::vec4 Red         = HEXCOLOR(0xFF0010);
     const glm::vec4 Amber       = HEXCOLOR(0xFFAF00);
     const glm::vec4 TranspBlack = HEXCOLORALPH(0x000000, 0.5f);
+    const glm::vec4 DarkTranspBlack = HEXCOLORALPH(0x000000, 0.9f);
     const glm::vec4 TBrown      = HEXCOLORALPH(0xA2734C, 0.9f);
 }
 
