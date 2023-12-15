@@ -824,38 +824,51 @@ void Game::SetupDesertScene() {
     ship->SetCollider(col);
     AddColliderToScene(DESERT, ship);
 
-    SceneNode* tower = new SceneNode("Obj_Tower1", "M_Tower_m", "S_NormalMap", "T_Tower_m");
-    tower->SetNormalMap("T_Tower_m_n");
-    tower->transform.SetScale(glm::vec3(4));
-    tower->transform.SetPosition({-2950, 225, -2550});
-    // tower->material.specular_power = 400;
-    tower->material.specular_coefficient = 0;
-    AddToScene(DESERT, tower);
+    // SceneNode* tower = new SceneNode("Obj_Tower1", "M_Tower_m", "S_NormalMap", "T_Tower_m");
+    // tower->SetNormalMap("T_Tower_m_n");
+    // tower->transform.SetScale(glm::vec3(4));
+    // tower->transform.SetPosition({-2950, 225, -2550});
+    // tower->material.specular_coefficient = 0;
+    // AddToScene(DESERT, tower);
 
-    tower = new SceneNode("Obj_Tower2", "M_Tower_s", "S_NormalMap", "T_Tower_s");
-    tower->SetNormalMap("T_Tower_s_n");
-    tower->transform.SetScale(glm::vec3(4));
-    tower->transform.SetPosition({-2528.142090, 195, -1170.641357});
-    // tower->material.specular_power = 400;
-    tower->material.specular_coefficient = 0;
-    AddToScene(DESERT, tower);
+    // tower = new SceneNode("Obj_Tower2", "M_Tower_s", "S_NormalMap", "T_Tower_s");
+    // tower->SetNormalMap("T_Tower_s_n");
+    // tower->transform.SetScale(glm::vec3(4));
+    // tower->transform.SetPosition({-2528.142090, 195, -1170.641357});
+    // tower->material.specular_coefficient = 0;
+    // AddToScene(DESERT, tower);
 
-    tower = new SceneNode("Obj_Tower3", "M_Tower_t", "S_NormalMap", "T_Tower_t");
-    tower->SetNormalMap("T_Tower_t_n");
-    tower->transform.SetScale(glm::vec3(4));
-    tower->transform.SetPosition({-2926.778320, 220, 1686.182495});
-    // tower->material.specular_power = 400;
-    tower->material.specular_coefficient = 0;
-    AddToScene(DESERT, tower);
+    // tower = new SceneNode("Obj_Tower3", "M_Tower_t", "S_NormalMap", "T_Tower_t");
+    // tower->SetNormalMap("T_Tower_t_n");
+    // tower->transform.SetScale(glm::vec3(4));
+    // tower->transform.SetPosition({-2926.778320, 220, 1686.182495});
+    // tower->material.specular_coefficient = 0;
+    // AddToScene(DESERT, tower);
 
-    tower = new SceneNode("Obj_Tower4", "M_Tower_s", "S_NormalMap", "T_Tower_s");
-    tower->SetNormalMap("T_Tower_s_n");
-    tower->transform.SetScale(glm::vec3(4));
-    tower->transform.SetPosition({-849.199463, 165, 2641.724121});
-    // tower->material.specular_power = 400;
-    tower->material.specular_coefficient = 0;
-    AddToScene(DESERT, tower);
+    // tower = new SceneNode("Obj_Tower4", "M_Tower_s", "S_NormalMap", "T_Tower_s");
+    // tower->SetNormalMap("T_Tower_s_n");
+    // tower->transform.SetScale(glm::vec3(4));
+    // tower->transform.SetPosition({-849.199463, 165, 2641.724121});
+    // tower->material.specular_coefficient = 0;
+    // AddToScene(DESERT, tower);
 
+    std::vector<std::tuple<glm::vec3, std::string>> towerInfo = {
+        {{-2950, 225, -2550}, "m"},
+        {{-2528.142090, 195, -1170.641357}, "s"},
+        {{-2926.778320, 220, 1686.182495}, "t"},
+        {{-849.199463, 165, 2641.724121}, "s"}
+    };
+
+    for (size_t i = 0; i < towerInfo.size(); ++i) {
+        std::string materialType = std::get<1>(towerInfo[i]);
+        // Create and configure the tower
+        SceneNode* tower = new SceneNode("Obj_Tower" + std::to_string(i), "M_Tower_" + materialType, "S_NormalMap", "T_Tower_" + materialType);
+        tower->SetNormalMap("T_Tower_" + materialType + "_n");
+        tower->transform.SetScale(glm::vec3(4));
+        tower->transform.SetPosition(std::get<0>(towerInfo[i]));
+        tower->material.specular_coefficient = 0;
+        AddToScene(DESERT, tower);
+    }
 
     const std::vector<std::vector <float>>& gangAintNunOfThatSquad = readTerrain(RESOURCES_DIRECTORY"/terrain/dunes.jpg");
 
