@@ -802,10 +802,11 @@ void Game::SetupDesertScene() {
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    FP_Player* p = new FP_Player("Obj_Desert_player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
-    p->SetNormalMap("T_MetalNormalMap");
-    p->transform.SetPosition({-4000,0,-4000});
+    FP_Player* p = new FP_Player("Obj_Desert_player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
+    p->SetNormalMap("T_MetalNormalMap", 1.0f);
+    p->transform.SetPosition({-4250,0,-4000});
     p->transform.SetOrientation(glm::quat(0.346089, {0.000000, -0.938202, 0.000000}));
+    // p->transform.SetScale({3,3,3});
     p->SetTargetStartPos(glm::vec3(-4000,0,-4000));
     AddPlayerToScene(DESERT, p);
 
@@ -820,11 +821,12 @@ void Game::SetupDesertScene() {
     ship->SetCollider(col);
     AddColliderToScene(DESERT, ship);
 
-    SceneNode* tower = new SceneNode("Obj_Broken_tower", "M_Tower_t", "S_NormalMap", "T_Tower_t");
-    tower->SetNormalMap("T_Tower_t_n");
+    SceneNode* tower = new SceneNode("Obj_Broken_tower", "M_Tower_s", "S_NormalMap", "T_Tower_s");
+    tower->SetNormalMap("T_Tower_s_n");
     tower->transform.SetScale(glm::vec3(4));
-    tower->transform.SetPosition({-3880, 130, -3380});
-    tower->material.specular_power = 400;
+    tower->transform.SetPosition({-2950, 225, -2550});
+    // tower->material.specular_power = 400;
+    tower->material.specular_coefficient = 0;
     AddToScene(DESERT, tower);
 
 
@@ -846,6 +848,7 @@ void Game::SetupDesertScene() {
 
     SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_BlueSkybox");
     skybox->transform.SetScale({1000, 1000, 1000});
+    skybox->transform.SetOrientation(glm::angleAxis(PI_2, glm::vec3(1.0, 0.0, 0.0)));
     scenes[DESERT]->SetSkybox(skybox);
 
     SceneNode* cacti = new SceneNode("Obj_Catci9", "M_Cactus9", "S_InstancedShadow", "T_Cactus9");
