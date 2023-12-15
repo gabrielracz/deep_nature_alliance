@@ -16,7 +16,7 @@ void CollisionManager::CheckCollisions(){
 
     for (SceneNode * n : blockingCollision){
         if (sphereToSphere(player, n)){
-            // std::cout << "hit" << std::endl;
+            std::cout << "hit" << std::endl;
             player->transform.ResetPosition();
         }
     }
@@ -163,12 +163,27 @@ void CollisionManager::AddNode(SceneNode* node){
     }
 }
 
+//only does instanced collision on second node becuase fuck you its already ugly enough
 bool CollisionManager::sphereToSphere(SceneNode *first, SceneNode *second) {
     glm::vec3 pos1 = first->transform.GetPosition();
     float radius1 = first->GetCollision().GetSphereRadius();
-    glm::vec3 pos2 = second->transform.GetPosition();
-    float radius2 = second->GetCollision().GetSphereRadius();
-    return glm::distance(pos1, pos2) < radius1 + radius2;
+
+    if (second->GetNumInstances() > 0){
+        for (Transform& t : second->GetInstances()){
+            glm::vec3 pos2 = t.GetPosition();
+            float radius2 = second->GetCollision().GetSphereRadius();
+
+            if (glm::distance(pos1, pos2) < radius1 + radius2){
+                return true;
+            }
+        }
+    } else{
+        glm::vec3 pos2 = second->transform.GetPosition();
+        float radius2 = second->GetCollision().GetSphereRadius();
+
+        return glm::distance(pos1, pos2) < radius1 + radius2;
+    }
+    return false;
 }
 
 bool CollisionManager::sphereToBox(SceneNode *sphereNode, SceneNode *boxNode) {

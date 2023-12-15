@@ -824,34 +824,6 @@ void Game::SetupDesertScene() {
     ship->SetCollider(col);
     AddColliderToScene(DESERT, ship);
 
-    // SceneNode* tower = new SceneNode("Obj_Tower1", "M_Tower_m", "S_NormalMap", "T_Tower_m");
-    // tower->SetNormalMap("T_Tower_m_n");
-    // tower->transform.SetScale(glm::vec3(4));
-    // tower->transform.SetPosition({-2950, 225, -2550});
-    // tower->material.specular_coefficient = 0;
-    // AddToScene(DESERT, tower);
-
-    // tower = new SceneNode("Obj_Tower2", "M_Tower_s", "S_NormalMap", "T_Tower_s");
-    // tower->SetNormalMap("T_Tower_s_n");
-    // tower->transform.SetScale(glm::vec3(4));
-    // tower->transform.SetPosition({-2528.142090, 195, -1170.641357});
-    // tower->material.specular_coefficient = 0;
-    // AddToScene(DESERT, tower);
-
-    // tower = new SceneNode("Obj_Tower3", "M_Tower_t", "S_NormalMap", "T_Tower_t");
-    // tower->SetNormalMap("T_Tower_t_n");
-    // tower->transform.SetScale(glm::vec3(4));
-    // tower->transform.SetPosition({-2926.778320, 220, 1686.182495});
-    // tower->material.specular_coefficient = 0;
-    // AddToScene(DESERT, tower);
-
-    // tower = new SceneNode("Obj_Tower4", "M_Tower_s", "S_NormalMap", "T_Tower_s");
-    // tower->SetNormalMap("T_Tower_s_n");
-    // tower->transform.SetScale(glm::vec3(4));
-    // tower->transform.SetPosition({-849.199463, 165, 2641.724121});
-    // tower->material.specular_coefficient = 0;
-    // AddToScene(DESERT, tower);
-
     std::vector<std::tuple<glm::vec3, std::string>> towerInfo = {
         {{-2950, 225, -2550}, "m"},
         {{-2528.142090, 195, -1170.641357}, "s"},
@@ -896,6 +868,13 @@ void Game::SetupDesertScene() {
     SceneNode* cactus1 = new SceneNode("Obj_Cactus9", "M_Cactus9", "S_InstancedShadow", "T_Cactus9");
     SceneNode* cactus2 = new SceneNode("Obj_Cactus2", "M_Cactus2", "S_InstancedShadow", "T_Cactus2");
     SceneNode* cactus3 = new SceneNode("Obj_Cactus8", "M_Cactus8", "S_InstancedShadow", "T_Cactus8");
+
+    cactus1->SetNodeType(NodeType::TDONTUSECOLLIDER);
+    cactus1->SetCollision(CollisionData(3));
+    cactus2->SetNodeType(NodeType::TDONTUSECOLLIDER);
+    cactus2->SetCollision(CollisionData(3));
+    cactus3->SetNodeType(NodeType::TDONTUSECOLLIDER);
+    cactus3->SetCollision(CollisionData(3));
 
     cactus1->SetNormalMap("T_Cactus9_n", 1.0f);
     cactus2->SetNormalMap("T_Cactus2_n", 1.0f);
@@ -953,10 +932,9 @@ void Game::SetupDesertScene() {
 
         cactus3->AddInstance(cactusTransform);
     }
-
-    scenes[DESERT]->AddNode(cactus1);
-    scenes[DESERT]->AddNode(cactus2);
-    scenes[DESERT]->AddNode(cactus3);
+    AddColliderToScene(DESERT, cactus1);
+    AddColliderToScene(DESERT, cactus2);
+    AddColliderToScene(DESERT, cactus3);
 }
 
 void Game::SetupMainMenuScene() {
