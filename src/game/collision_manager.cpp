@@ -16,7 +16,7 @@ void CollisionManager::CheckCollisions(){
 
     for (SceneNode * n : blockingCollision){
         if (sphereToSphere(player, n)){
-            std::cout << "hit" << std::endl;
+            // std::cout << "hit" << std::endl;
             player->transform.ResetPosition();
         }
     }

@@ -870,11 +870,11 @@ void Game::SetupDesertScene() {
     SceneNode* cactus3 = new SceneNode("Obj_Cactus8", "M_Cactus8", "S_InstancedShadow", "T_Cactus8");
 
     cactus1->SetNodeType(NodeType::TDONTUSECOLLIDER);
-    cactus1->SetCollision(CollisionData(3));
+    cactus1->SetCollision(CollisionData(2.5));
     cactus2->SetNodeType(NodeType::TDONTUSECOLLIDER);
-    cactus2->SetCollision(CollisionData(3));
+    cactus2->SetCollision(CollisionData(2.5));
     cactus3->SetNodeType(NodeType::TDONTUSECOLLIDER);
-    cactus3->SetCollision(CollisionData(3));
+    cactus3->SetCollision(CollisionData(2.5));
 
     cactus1->SetNormalMap("T_Cactus9_n", 1.0f);
     cactus2->SetNormalMap("T_Cactus2_n", 1.0f);
