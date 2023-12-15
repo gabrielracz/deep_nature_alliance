@@ -807,10 +807,10 @@ void Game::SetupDesertScene() {
 
     FP_Player* p = new FP_Player("Obj_Desert_player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
     p->SetNormalMap("T_MetalNormalMap", 1.0f);
-    p->transform.SetPosition({-4250,0,-4000});
+    p->transform.SetPosition({-2950, 225, -2430});
     p->transform.SetOrientation(glm::quat(0.346089, {0.000000, -0.938202, 0.000000}));
     // p->transform.SetScale({3,3,3});
-    p->SetTargetStartPos(glm::vec3(-4000,0,-4000));
+    p->SetTargetStartPos(glm::vec3(-2950, 225, -2430));
     AddPlayerToScene(DESERT, p);
 
     SceneNode* ship = new SceneNode("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
@@ -867,7 +867,9 @@ void Game::SetupDesertScene() {
         tower->transform.SetScale(glm::vec3(4));
         tower->transform.SetPosition(std::get<0>(towerInfo[i]));
         tower->material.specular_coefficient = 0;
-        AddToScene(DESERT, tower);
+        tower->SetNodeType(NodeType::TDONTUSECOLLIDER);
+        tower->SetCollision(CollisionData(100));
+        AddColliderToScene(DESERT, tower);
     }
 
     const std::vector<std::vector <float>>& gangAintNunOfThatSquad = readTerrain(RESOURCES_DIRECTORY"/terrain/dunes.jpg");

@@ -45,6 +45,9 @@ class CollisionManager{
         std::vector<SceneNode*> beacons;
         std::vector<SceneNode*> othercollideables;
         std::vector<SceneNode*> rockets;
+
+        std::vector<SceneNode*> blockingCollision;
+
         SceneNode *player;
         Game* game = nullptr;
         

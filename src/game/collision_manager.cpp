@@ -14,6 +14,14 @@ void CollisionManager::CheckCollisions(){
         }
     }
 
+    for (SceneNode * n : blockingCollision){
+        if (sphereToSphere(player, n)){
+            // std::cout << "hit" << std::endl;
+            player->transform.ResetPosition();
+        }
+    }
+
+
     for (auto toggle : toggles) {
         //NOTE: we are getting collision hit on spawn in (weird???)
         if(GetCollisionRaw(toggle, player)) {
@@ -125,6 +133,9 @@ void CollisionManager::AddNode(SceneNode* node){
     switch(node->GetNodeType()) {
         case TTRIGGER:
             triggers.push_back(dynamic_cast<Trigger*>(node));
+            break;
+        case TDONTUSECOLLIDER:
+            blockingCollision.push_back(node);
             break;
         case TITEM:
             items.push_back(node);
