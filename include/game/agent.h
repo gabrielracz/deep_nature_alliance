@@ -77,6 +77,7 @@ protected:
     void WalkingMove(const glm::vec3 move, float dt);
 
 private:
+    glm::vec3 tempPos;
     const float EPSILON = 1e-6; // For ground checking!
     Terrain *terrain;
 };
