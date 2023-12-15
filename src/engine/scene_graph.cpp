@@ -55,6 +55,8 @@ void SceneGraph::Update(double dt) {
         t->Update(dt, w, h);
     }
 
+    colman.WhyCouldntTheyJustBeInvisible();
+
 
     // UPDATE CAMERA AFTER NODES ALWAYS !!!!!
     camera.Update(dt);

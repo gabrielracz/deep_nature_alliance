@@ -26,6 +26,8 @@ public:
     virtual void Control(Controls c, float dt, float damping = 1.0) = 0;
     virtual void MouseControls(Mouse& mouse) = 0;
 
+    void ResetPosition(){ transform.SetPosition(prev_position_); }
+
 
     glm::vec3 velocity         = {0.0f, 0.0f, 0.0f};
     glm::vec3 ang_velocity = {0.0f, 0.0f, 0.0f};
@@ -37,6 +39,8 @@ protected:
 
     bool player_static_ = false;
     bool dash_unlocked_ = true;
+
+    glm::vec3 prev_position_ = glm::vec3(0.0f);
 
 };
 

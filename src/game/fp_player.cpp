@@ -98,7 +98,7 @@ void FP_Player::PlayerJump()
         glm::vec3 dash_vector = glm::normalize(glm::vec3(0.0f, 0.0f, -10.0f) + glm::vec3(0.0f, glm::abs(sin(dash_angle_)), 0.0f));
         dash_vector = glm::normalize(glm::vec3(transform.GetOrientation() * glm::vec4(glm::normalize(dash_vector), 0.0)));
         Jump(dash_vector * dash_speed_);
-        has_dashed_ = true;
+        // has_dashed_ = true;
     }
 }
 

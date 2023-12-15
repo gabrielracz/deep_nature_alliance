@@ -63,7 +63,6 @@ protected:
     glm::vec3 up_ = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::vec3 jump_axis_ = glm::vec3(0.0, 1.0, 0.0f);
     glm::vec3 target_position_ = glm::vec3(0.0f);
-    glm::vec3 prev_position_ = glm::vec3(0.0f);
     glm::vec3 walk_direction_ = glm::vec3(0.0f, 0.0f, 0.0f);
 
     glm::vec3 forward_ = glm::vec3(0.0f);

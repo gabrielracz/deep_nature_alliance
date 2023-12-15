@@ -7,20 +7,25 @@
 #include <glm/glm.hpp>
 
 
+//to stop moving camera when colliding must check collisions after scenenode update which we cant do fully beacause of deletion
+//also checks collision without draw calls in between update and check
+//sorry for the jank
+void CollisionManager::WhyCouldntTheyJustBeInvisible(){
+    for (SceneNode * n : blockingCollision){
+        if (sphereToSphere(player, n)){
+            // std::cout << "hit" << std::endl;
+            player->ResetPosition();
+        }
+    }
+}
+
+
 void CollisionManager::CheckCollisions(){
     for (auto trig : triggers){
         if(sphereToSphere(player, trig)){
             trig->ActivateTrigger();
         }
     }
-
-    for (SceneNode * n : blockingCollision){
-        if (sphereToSphere(player, n)){
-            // std::cout << "hit" << std::endl;
-            player->transform.ResetPosition();
-        }
-    }
-
 
     for (auto toggle : toggles) {
         //NOTE: we are getting collision hit on spawn in (weird???)
@@ -147,10 +152,10 @@ void CollisionManager::AddNode(SceneNode* node){
             asteroids.push_back(node);
             break;
         case TPLAYER:
-            player = node;
+            player = static_cast<Player*>(node);
             break;
         case TSHIP:
-            player = node;
+            player = static_cast<Player*>(node);
             break;
         case TROCKET:
             rockets.push_back(node);

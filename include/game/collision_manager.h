@@ -18,6 +18,7 @@ class CollisionManager{
         //     : triggers(t), asteroids(a), player(p) {}
 
         void CheckCollisions();
+        void WhyCouldntTheyJustBeInvisible();
 
         void AddNode(SceneNode* node);
 
@@ -48,7 +49,7 @@ class CollisionManager{
 
         std::vector<SceneNode*> blockingCollision;
 
-        SceneNode *player;
+        Player *player;
         Game* game = nullptr;
         
 };

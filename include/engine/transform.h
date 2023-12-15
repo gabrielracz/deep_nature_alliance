@@ -19,7 +19,6 @@ typedef enum {
 class Transform { 
 private:
     glm::vec3 position    {glm::vec3(0.0f)};
-    glm::vec3 prevPos     {glm::vec3(0.0f)};
     glm::quat orientation {glm::quat(0.0, 0.0, 0.0, 0.0)};
     glm::vec3 scale       {glm::vec3(1.0f)};
     glm::quat orbit {};
@@ -55,8 +54,7 @@ public:
     glm::mat4 CalculateMatrix();
     // glm::mat4 ScaledMatrix();
 
-    void ResetPosition() { position = prevPos; }
-    void SetPosition(const glm::vec3 newpos) { prevPos = position; position = newpos; dirty = true;} 
+    void SetPosition(const glm::vec3 newpos) { position = newpos; dirty = true;} 
     void SetScale(const glm::vec3 newscale) { scale = newscale; dirty = true;} 
     void SetOrientation(const glm::quat newori) { orientation = newori; dirty = true;} 
     void SetAxis(Axis a, const glm::vec3 v ) {axes[a] = v;}
