@@ -82,6 +82,7 @@ void Game::LoadMeshes() {
     resman.LoadMesh        ("M_Soldier", MESH_DIRECTORY"/soldier.obj");
     resman.LoadMesh        ("M_Cactus2", MESH_DIRECTORY"/cactus2.obj");
     resman.LoadMesh        ("M_Cactus9", MESH_DIRECTORY"/cactus9.obj");
+    resman.LoadMesh        ("M_Cactus8", MESH_DIRECTORY"/cactus8.obj");
     resman.LoadMesh        ("M_MoonTree", MESH_DIRECTORY"/moontree.obj");
     resman.LoadMesh        ("M_SELTower", MESH_DIRECTORY"/moontower.obj");
     resman.LoadMesh        ("M_MoonObject", MESH_DIRECTORY"/moonobj.obj");
@@ -184,6 +185,8 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Cactus2_n", TEXTURE_DIRECTORY"/cactus2_n.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Cactus9", TEXTURE_DIRECTORY"/cactus9.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Cactus9_n", TEXTURE_DIRECTORY"/cactus9_n.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus8", TEXTURE_DIRECTORY"/cactus8.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus8_n", TEXTURE_DIRECTORY"/cactus8_n.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Sand", TEXTURE_DIRECTORY"/sand.jpg", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Sand_n", TEXTURE_DIRECTORY"/sand_n.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Cursor", TEXTURE_DIRECTORY"/cursor.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
@@ -821,10 +824,34 @@ void Game::SetupDesertScene() {
     ship->SetCollider(col);
     AddColliderToScene(DESERT, ship);
 
-    SceneNode* tower = new SceneNode("Obj_Broken_tower", "M_Tower_s", "S_NormalMap", "T_Tower_s");
-    tower->SetNormalMap("T_Tower_s_n");
+    SceneNode* tower = new SceneNode("Obj_Tower1", "M_Tower_m", "S_NormalMap", "T_Tower_m");
+    tower->SetNormalMap("T_Tower_m_n");
     tower->transform.SetScale(glm::vec3(4));
     tower->transform.SetPosition({-2950, 225, -2550});
+    // tower->material.specular_power = 400;
+    tower->material.specular_coefficient = 0;
+    AddToScene(DESERT, tower);
+
+    tower = new SceneNode("Obj_Tower2", "M_Tower_s", "S_NormalMap", "T_Tower_s");
+    tower->SetNormalMap("T_Tower_s_n");
+    tower->transform.SetScale(glm::vec3(4));
+    tower->transform.SetPosition({-2528.142090, 195, -1170.641357});
+    // tower->material.specular_power = 400;
+    tower->material.specular_coefficient = 0;
+    AddToScene(DESERT, tower);
+
+    tower = new SceneNode("Obj_Tower3", "M_Tower_t", "S_NormalMap", "T_Tower_t");
+    tower->SetNormalMap("T_Tower_t_n");
+    tower->transform.SetScale(glm::vec3(4));
+    tower->transform.SetPosition({-2926.778320, 220, 1686.182495});
+    // tower->material.specular_power = 400;
+    tower->material.specular_coefficient = 0;
+    AddToScene(DESERT, tower);
+
+    tower = new SceneNode("Obj_Tower4", "M_Tower_s", "S_NormalMap", "T_Tower_s");
+    tower->SetNormalMap("T_Tower_s_n");
+    tower->transform.SetScale(glm::vec3(4));
+    tower->transform.SetPosition({-849.199463, 165, 2641.724121});
     // tower->material.specular_power = 400;
     tower->material.specular_coefficient = 0;
     AddToScene(DESERT, tower);
@@ -851,40 +878,70 @@ void Game::SetupDesertScene() {
     skybox->transform.SetOrientation(glm::angleAxis(PI_2, glm::vec3(1.0, 0.0, 0.0)));
     scenes[DESERT]->SetSkybox(skybox);
 
-    SceneNode* cacti = new SceneNode("Obj_Catci9", "M_Cactus9", "S_InstancedShadow", "T_Cactus9");
-    SceneNode* cacti2 = new SceneNode("Obj_Catci2", "M_Cactus2", "S_InstancedShadow", "T_Cactus2");
-    cacti->SetNormalMap("T_Cactus9_n", 1.0f);
-    cacti2->SetNormalMap("T_Cactus2_n", 1.0f);
-    cacti->material.specular_power = 1250.0f;
-    cacti2->material.specular_power = 1250.0f;
-    float CACTI_SPAWN_X = 5000.0;
-    float CACTI_SPAWN_Z = 5000.0;
-    float x,y,z,s,r;
+    SceneNode* cactus1 = new SceneNode("Obj_Cactus9", "M_Cactus9", "S_InstancedShadow", "T_Cactus9");
+    SceneNode* cactus2 = new SceneNode("Obj_Cactus2", "M_Cactus2", "S_InstancedShadow", "T_Cactus2");
+    SceneNode* cactus3 = new SceneNode("Obj_Cactus8", "M_Cactus8", "S_InstancedShadow", "T_Cactus8");
+
+    cactus1->SetNormalMap("T_Cactus9_n", 1.0f);
+    cactus2->SetNormalMap("T_Cactus2_n", 1.0f);
+    cactus3->SetNormalMap("T_Cactus8_n", 1.0f);
+
+    cactus1->material.specular_power = 1250.0f;
+    cactus1->material.specular_coefficient = 0.1;
+    cactus2->material.specular_power = 1250.0f;
+    cactus2->material.specular_coefficient = 0.1;
+    cactus3->material.specular_power = 1250.0f;
+    cactus3->material.specular_coefficient = 0.1;
+
+    float CACTUS_SPAWN_X = 5000.0;
+    float CACTUS_SPAWN_Z = 5000.0;
+
+    float x, y, z, s, r;
+
+    Transform cactusTransform;
+
     for (int i = 0; i < 1000; i++) {
-        x = rng.randfloat(-CACTI_SPAWN_X, CACTI_SPAWN_X);
-        z = rng.randfloat(-CACTI_SPAWN_Z, CACTI_SPAWN_Z);
-        y = terr->SampleHeight(x, z);
+        x = rng.randfloat(-CACTUS_SPAWN_X, CACTUS_SPAWN_X);
+        z = rng.randfloat(-CACTUS_SPAWN_Z, CACTUS_SPAWN_Z);
+        y = terr->SampleHeight(x, z) - 0.02;
         s = rng.randfloat(8, 14);
         r = rng.randfloat(0, 2 * PI);
-        Transform t;
-        t.SetPosition({x, y, z});
-        t.SetScale({s, s, s});
-        t.Yaw(r);
-        cacti->AddInstance(t);
- 
-        x = rng.randfloat(-CACTI_SPAWN_X, CACTI_SPAWN_X);
-        z = rng.randfloat(-CACTI_SPAWN_Z, CACTI_SPAWN_Z);
-        y = terr->SampleHeight(x, z);
+
+        cactusTransform.SetPosition({x, y, z});
+        cactusTransform.SetScale({s, s, s});
+        cactusTransform.SetOrientation(glm::angleAxis(r, glm::vec3(0, 1, 0)));
+
+        cactus2->AddInstance(cactusTransform);
+
+        x = rng.randfloat(-CACTUS_SPAWN_X, CACTUS_SPAWN_X);
+        z = rng.randfloat(-CACTUS_SPAWN_Z, CACTUS_SPAWN_Z);
+        y = terr->SampleHeight(x, z) - 0.02;
         s = rng.randfloat(8, 14);
         r = rng.randfloat(0, 2 * PI);
-        Transform t2;
-        t2.SetPosition({x, y, z});
-        t2.SetScale({s, s, s});
-        t2.Yaw(r);
-        cacti2->AddInstance(t2);
+
+        cactusTransform.SetPosition({x, y, z});
+        cactusTransform.SetScale({s, s, s});
+        cactusTransform.SetOrientation(glm::angleAxis(r, glm::vec3(0, 1, 0)));
+
+        //should probably use another transform but is copied on pass so this works
+        cactus1->AddInstance(cactusTransform);
+
+        x = rng.randfloat(-CACTUS_SPAWN_X, CACTUS_SPAWN_X);
+        z = rng.randfloat(-CACTUS_SPAWN_Z, CACTUS_SPAWN_Z);
+        y = terr->SampleHeight(x, z) - 0.02;
+        s = rng.randfloat(8, 14);
+        r = rng.randfloat(0, 2 * PI);
+
+        cactusTransform.SetPosition({x, y, z});
+        cactusTransform.SetScale({s, s, s});
+        cactusTransform.SetOrientation(glm::angleAxis(r, glm::vec3(0, 1, 0)));
+
+        cactus3->AddInstance(cactusTransform);
     }
-    scenes[DESERT]->AddNode(cacti);
-    scenes[DESERT]->AddNode(cacti2);
+
+    scenes[DESERT]->AddNode(cactus1);
+    scenes[DESERT]->AddNode(cactus2);
+    scenes[DESERT]->AddNode(cactus3);
 }
 
 void Game::SetupMainMenuScene() {
