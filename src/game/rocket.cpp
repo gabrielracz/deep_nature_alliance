@@ -2,6 +2,7 @@
 #include "game.h"
 
 void Rocket::Update(double dt) {
+    SceneNode::Update(dt);
     if(elapsed > fuse_timer) {
         deleted = true;
         game->SpawnExplosion(transform.GetPosition(), glm::vec3(1.0f));
@@ -10,7 +11,7 @@ void Rocket::Update(double dt) {
 
     velocity += transform.GetOrientation() * direction * acceleration * (float)dt;
     transform.Translate(velocity * (float)dt);
-    SceneNode::Update(dt);
+    // SceneNode::Update(dt);
 }
 
 void Rocket::AddThrust(Thrust *t) {

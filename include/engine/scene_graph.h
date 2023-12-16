@@ -65,8 +65,8 @@ public:
     std::shared_ptr<Terrain> GetTerrain() { return terrain; }
 
     // Get node const iterator
-    std::vector<std::shared_ptr<SceneNode>>::const_iterator begin() const { return node_.begin(); }
-    std::vector<std::shared_ptr<SceneNode>>::const_iterator end() const { return node_.end(); }
+    std::list<std::shared_ptr<SceneNode>>::const_iterator begin() const { return node_.begin(); }
+    std::list<std::shared_ptr<SceneNode>>::const_iterator end() const { return node_.end(); }
 
     // Update entire scene
     void Update(double dt);
@@ -74,7 +74,7 @@ public:
 private:
     // Background color
     glm::vec3 background_color_;
-    std::vector<std::shared_ptr<SceneNode>> node_;
+    std::list<std::shared_ptr<SceneNode>> node_;
     CollisionManager colman;
     std::vector<std::shared_ptr<Light>> lights;
     std::deque<std::shared_ptr<Text>> story_text;
