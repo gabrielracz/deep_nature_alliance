@@ -56,12 +56,12 @@ void View::RenderScene(SceneGraph& scene) {
     // This really should be last but do it first for particle effects (they dont write to depth)
     if(scene.GetSkybox()) {
         glDepthFunc(GL_LEQUAL);
-        RenderNode(scene.GetSkybox(), scene.GetCamera(), scene.GetLights());
+        RenderNode(scene.GetSkybox().get(), scene.GetCamera(), scene.GetLights());
         glDepthFunc(GL_LESS);
     }
 
     for(auto node : scene) {
-        RenderNode(node, scene.GetCamera(), scene.GetLights());
+        RenderNode(node.get(), scene.GetCamera(), scene.GetLights());
     }
 
 }
@@ -70,7 +70,7 @@ void View::RenderScreenspace(SceneGraph& scene) {
     glDisable(GL_DEPTH_TEST);
     glViewport(0,0,win.width,win.height);
     for(auto node : scene.GetScreenSpaceNodes()) {
-        RenderNode(node, scene.GetCamera(), scene.GetLights());
+        RenderNode(node.get(), scene.GetCamera(), scene.GetLights());
     }
 }
 
@@ -143,11 +143,11 @@ void View::RenderDepthMap(SceneGraph& scene) {
     };
 
     for(auto node : scene) {
-        render_depth(node);
+        render_depth(node.get());
     }
 }
 
-void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix) {
+void View::RenderNode(SceneNode* node, Camera& cam, std::vector<std::shared_ptr<Light>>& lights, const glm::mat4& parent_matrix) {
 
     if (!node->visible) {
         return;

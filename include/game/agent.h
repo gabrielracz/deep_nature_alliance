@@ -30,7 +30,7 @@ public:
     void UpCollision();
     void HorizontalCollision();
 
-    void SetTerrain(Terrain* t) { terrain = t; }
+    void SetTerrain(std::shared_ptr<Terrain> t) { terrain = t; }
 
     void Jump(glm::vec3 v = glm::vec3(0.0f, 0.0f, 0.0f));
 
@@ -78,6 +78,6 @@ protected:
 private:
     glm::vec3 tempPos;
     const float EPSILON = 1e-6; // For ground checking!
-    Terrain *terrain;
+    std::shared_ptr<Terrain> terrain;
 };
 #endif

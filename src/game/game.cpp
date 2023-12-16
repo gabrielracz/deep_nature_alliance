@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <glm/gtx/string_cast.hpp>
+#include <memory>
 #include <string>
 #define GLM_FORCE_RADIANS
 #include <glm/ext/quaternion_trigonometric.hpp>
@@ -265,11 +266,10 @@ void Game::SetupSpaceScene() {
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, 16000.0f, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-
-    SceneNode* stars = new SceneNode("Obj_Starcloud", "M_StarCloud", "S_Default", "");
+    auto stars = std::make_shared<SceneNode>("Obj_Starcloud", "M_StarCloud", "S_Default", "");
     // scn->AddNode(stars);
 
-    SceneNode* planet = new SceneNode("Obj_Planet", "M_Planet", "S_NormalMap", "T_ForestPlanet");
+    auto planet = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMap", "T_ForestPlanet");
     planet->transform.SetPosition({0.0, 0.0, -2000.0});
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
@@ -280,7 +280,7 @@ void Game::SetupSpaceScene() {
     planet->SetCollider(col);
     AddColliderToScene(SPACE, planet);
 
-    SceneNode* planet2 = new SceneNode("Obj_Planet", "M_Planet", "S_NormalMap", "T_DesertPlanet");
+    auto planet2 = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMap", "T_DesertPlanet");
     planet2->transform.SetPosition({-3500, 3000, -6000.0});
     planet2->transform.SetScale({1100, 1100, 1100});
     planet2->transform.SetOrientation(glm::angleAxis(PI/-1.5f, glm::vec3(1.0, 0.0, 0.0)));
@@ -291,7 +291,7 @@ void Game::SetupSpaceScene() {
     planet2->SetCollider(p2col);
     AddColliderToScene(SPACE, planet2);
 
-    SceneNode* planet3 = new SceneNode("Obj_Planet", "M_Planet", "S_NormalMap", "T_MoonPlanet");
+    auto planet3 = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMap", "T_MoonPlanet");
     planet3->transform.SetPosition({-5500, 5000, -15000.0});
     planet3->transform.SetScale({500, 500, 500});
     planet3->transform.SetOrientation(glm::angleAxis(PI/1.8f, glm::normalize(glm::vec3(0.9, 0.2, 0.0))));
@@ -302,19 +302,18 @@ void Game::SetupSpaceScene() {
     planet3->SetCollider(p3col);
     AddColliderToScene(SPACE, planet3);
 
-    Light* light = new Light(Colors::WarmWhite);
+    auto light = std::make_shared<Light>(Colors::WarmWhite);
     light->transform.SetPosition({300.0, 300.0, 15000.0});
     scn->AddLight(light);
 
-    Light* l2 = new Light(Colors::Yellow);
+    auto l2 = std::make_shared<Light>(Colors::Yellow);
     l2->transform.SetPosition({-300.0, -300.0, 15000.0});
     scn->AddLight(l2);
 
-    SceneNode* sun = new SceneNode("Obj_Planet", "M_Planet", "S_Sun", "T_Sun");
+    auto sun = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_Sun", "T_Sun");
     sun->transform.SetPosition({300, 300, 15000.0});
     sun->transform.SetScale({2000, 2000, 2000});
     sun->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
-    //sun->SetNormalMap("T_WallNormalMap", 4.0f);
     sun->material.specular_coefficient = 2.0f;
     sun->material.diffuse_strength = 10.0f;
     SphereCollider* suncol = new SphereCollider(*sun, 2000);
@@ -322,11 +321,11 @@ void Game::SetupSpaceScene() {
     sun->SetCollider(suncol);
     AddColliderToScene(SPACE, sun);
 
-    SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
+    auto skybox = std::make_shared<SceneNode>("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[SPACE]->SetSkybox(skybox);
 
-    SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_Instanced", "T_LavaPlanet");
+    auto astr = std::make_shared<SceneNode>("Obj_Forest", "M_Asteroid", "S_Instanced", "T_LavaPlanet");
     astr->SetNodeType(NodeType::TASTEROID);
     astr->material.specular_power = 3000.0f;
     astr->material.specular_coefficient = 0.0f;
@@ -343,7 +342,6 @@ void Game::SetupSpaceScene() {
             float y = rng.randfloat(0, 2*PI);
             float r = rng.randfloat(0, 2*PI);
             float p = rng.randfloat(0, 2*PI);
-            // float s = 1;
             Transform t;
             t.SetPosition(pos);
             t.SetScale({s,s,s});
@@ -356,14 +354,13 @@ void Game::SetupSpaceScene() {
     scenes[SPACE]->AddNode(astr);
     scenes[SPACE]->AddCollider(astr);
 
-    Tp_Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship", this);
+    auto player = std::make_shared<Tp_Player>("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship", this);
     player->transform.SetPosition(glm::vec3(1679.251343, 727.375793, -537.549316));
 
     player->SetNormalMap("T_MetalNormalMap", 1.0);
     camera.Attach(&player->transform, false);
     scn->SetPlayer(player);
     scn->AddNode(player);
-
 
     float thrust_scale = 0.05f;
     Thrust* thrust1 = new Thrust("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
@@ -382,7 +379,7 @@ void Game::SetupSpaceScene() {
     player->AddChild(thrust2);
     player->thrust2 = thrust2;
 
-    Beacon* beacon1 = new Beacon("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
+    auto beacon1 = std::make_shared<Beacon>("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
     beacon1->material.specular_coefficient = 0.0f;
     beacon1->material.diffuse_strength = 2.0f;
     beacon1->transform.SetPosition(planet->transform.GetPosition());
@@ -391,7 +388,7 @@ void Game::SetupSpaceScene() {
     beacon1->transform.Translate({0,planet->transform.GetScale().y * 0.5f,planet->transform.GetScale().z * 0.85f});
     AddColliderToScene(SPACE, beacon1);
 
-    Beacon* beacon2 = new Beacon("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
+    auto beacon2 = std::make_shared<Beacon>("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
     beacon2->material.specular_coefficient = 0.0f;
     beacon2->material.diffuse_strength = 2.0f;
     beacon2->transform.SetPosition(planet2->transform.GetPosition());
@@ -400,7 +397,7 @@ void Game::SetupSpaceScene() {
     beacon2->transform.Translate({0,planet2->transform.GetScale().y,0});
     AddColliderToScene(SPACE, beacon2);
 
-    Beacon* beacon3 = new Beacon("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
+    auto beacon3 = std::make_shared<Beacon>("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
     beacon3->material.specular_coefficient = 0.0f;
     beacon3->material.diffuse_strength = 2.0f;
     beacon3->transform.SetPosition(planet3->transform.GetPosition());
@@ -409,6 +406,7 @@ void Game::SetupSpaceScene() {
     beacon3->transform.Translate({0,0,planet3->transform.GetScale().z});
     AddColliderToScene(SPACE, beacon3);
 }
+
 
 const std::vector<std::vector<float>> Game::readTerrain(const std::string& filePath) {
     int width, height, channels;
@@ -438,32 +436,32 @@ void Game::SetupFPScene(void) {
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
+    auto p = std::make_shared<FP_Player>("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
     p->SetNormalMap("T_MetalNormalMap");
     p->transform.SetPosition(player_position_g);
     p->transform.SetScale({3.5, 5.0, 3.5});
     AddPlayerToScene(FPTEST, p);
 
-    SceneNode* skybox = new SceneNode("Obj_MoonSkybox", "M_Skybox", "S_Skybox", "T_MessedUpSkybox");
+    auto skybox = std::make_shared<SceneNode>("Obj_MoonSkybox", "M_Skybox", "S_Skybox", "T_MessedUpSkybox");
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[FPTEST]->SetSkybox(skybox);
 
     const std::vector<std::vector <float>>& gangAintNunOfThatSquad = readTerrain(RESOURCES_DIRECTORY"/terrain/moon.png");
     int terrain_size = 1500;
-    Terrain* t = new Terrain("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, gangAintNunOfThatSquad, terrain_size, terrain_size, 0.2, this);
+    auto t = std::make_shared<Terrain>("Obj_MoonTerrain", "M_MoonTerrain", "S_NormalMap", "T_MoonPlanet", TerrainType::MOON, gangAintNunOfThatSquad, terrain_size, terrain_size, 0.2, this);
     t->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     t->SetNormalMap("T_RockNormalMap", 40.0f);
     AddToScene(FPTEST, t);
     p->SetTerrain(t);
 
-    Terrain* lt = new Terrain("Obj_MoonLava", "M_MoonLava", "S_Lava", "T_MoonPlanet", TerrainType::LAVA, {}, 400, 400, 0.1, this);
+    auto lt = std::make_shared<Terrain>("Obj_MoonLava", "M_MoonLava", "S_Lava", "T_MoonPlanet", TerrainType::LAVA, std::vector<std::vector<float>>{}, 400, 400, 0.1, this);
     lt->transform.Translate({-200.0f, -65.0f, -200.0f});
     lt->material.texture_repetition = 6.0f;
     lt->material.diffuse_strength = 1.5f;
     lt->SetNodeType(TLAVA);
     AddColliderToScene(FPTEST, lt);
 
-    SceneNode* moonobj = new SceneNode("Obj_MoonObject", "M_MoonObject", "S_InstancedShadow", "T_MoonObj1");
+    auto moonobj = std::make_shared<SceneNode>("Obj_MoonObject", "M_MoonObject", "S_InstancedShadow", "T_MoonObj1");
     moonobj->SetNormalMap("T_WallNormalMap", 0.005f);
     moonobj->material.specular_power = 0.0f;
     for(int i = 0; i < 500; i++) {
@@ -486,7 +484,7 @@ void Game::SetupFPScene(void) {
     }
     scenes[FPTEST]->AddNode(moonobj);
 
-    SceneNode* moonobj2 = new SceneNode("Obj_MoonObject", "M_MoonObject", "S_InstancedShadow", "T_MoonObj2");
+    auto moonobj2 = std::make_shared<SceneNode>("Obj_MoonObject", "M_MoonObject", "S_InstancedShadow", "T_MoonObj2");
     moonobj2->SetNormalMap("T_WallNormalMap", 0.005f);
     moonobj2->material.specular_power = 0.0f;
     for(int i = 0; i < 500; i++) {
@@ -509,7 +507,7 @@ void Game::SetupFPScene(void) {
     }
     scenes[FPTEST]->AddNode(moonobj2);
 
-    SceneNode* tree = new SceneNode("Obj_MoonTree", "M_MoonTree", "S_InstancedShadow", "T_MoonTree");
+    auto tree = std::make_shared<SceneNode>("Obj_MoonTree", "M_MoonTree", "S_InstancedShadow", "T_MoonTree");
     tree->SetNormalMap("T_WallNormalMap", 1.0f);
     tree->material.specular_power = 150.0;
     std::vector<glm::vec3> tree_points = rng.generateUniqueRandomPoints(100, 10.0f, 750.0f);
@@ -530,7 +528,7 @@ void Game::SetupFPScene(void) {
     }
     scenes[FPTEST]->AddNode(tree);
 
-    SceneNode* mooneyes = new SceneNode("Obj_MoonEyes", "M_MoonObject", "S_InstancedShadow", "T_MoonEyes");
+    auto mooneyes = std::make_shared<SceneNode>("Obj_MoonEyes", "M_MoonObject", "S_InstancedShadow", "T_MoonEyes");
     mooneyes->material.specular_power = 0.0;
     mooneyes->material.texture_repetition = 3.0f;
     mooneyes->material.ambient_additive = 0.2f;
@@ -555,7 +553,7 @@ void Game::SetupFPScene(void) {
     }
     scenes[FPTEST]->AddNode(mooneyes);
 
-    SceneNode* tower = new SceneNode("Obj_SpaceTower", "M_SELTower", "S_InstancedShadow", "T_SpaceMetal");
+    auto tower = std::make_shared<SceneNode>("Obj_SpaceTower", "M_SELTower", "S_InstancedShadow", "T_SpaceMetal");
     tower->SetNormalMap("T_MetalNormalMap", 1.0f);
     tower->material.specular_power = 15000.0;
     std::vector<glm::vec3> points = rng.generateUniqueRandomPoints(12, 200.0f, 700.0f);
@@ -585,7 +583,7 @@ void Game::SetupFPScene(void) {
         float s = rng.randfloat(3, 5);
         float r = rng.randfloat(0, 2*PI);
         int eyes = rng.randint(3, 20);
-        MoonCloud* cloud = new MoonCloud("Obj_MoonCloud", "M_MoonCloud", "S_NormalMap", "T_Unforgivable");
+        auto cloud = std::make_shared<MoonCloud>("Obj_MoonCloud", "M_MoonCloud", "S_NormalMap", "T_Unforgivable");
         cloud->material.diffuse_strength = 2.0f;
         cloud->SetNormalMap("T_MetalNormalMap", 1.0f);
         cloud->transform.SetPosition({x, y, z});
@@ -605,7 +603,7 @@ void Game::SetupFPScene(void) {
         scenes[FPTEST]->AddNode(cloud);
     }
 
-    SceneNode* ship = new SceneNode("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
+    auto ship = std::make_shared<SceneNode>("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
     ship->SetNormalMap("T_MetalNormalMap", 10.0f);
     ship->transform.SetPosition({-30.0f,-30.0f,30.0f});
     ship->transform.SetOrientation({0.4, 0.0, 0.0, 0.0});
@@ -616,7 +614,7 @@ void Game::SetupFPScene(void) {
     ship->SetCollider(col);
     AddColliderToScene(FPTEST, ship);
 
-    Item* pill = new Item("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill");
+    auto pill = std::make_shared<Item>("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill");
     pill->transform.SetPosition({-600.0f,-18.0f,-600.0f});
     pill->transform.SetScale({5,5,5});
     pill->SetAlphaEnabled(true);
@@ -624,7 +622,7 @@ void Game::SetupFPScene(void) {
     pill->DeleteOnCollect(true);
     AddColliderToScene(FPTEST, pill);
 
-    Item* picture = new Item("Obj_Picture", "M_Sapling", "S_Lit", "T_Picture");
+    auto picture = std::make_shared<Item>("Obj_Picture", "M_Sapling", "S_Lit", "T_Picture");
     float px = 295;
     float pz = 575;
     picture->transform.SetPosition({px, t->SampleHeight(px, pz) + 2, pz});
@@ -673,7 +671,7 @@ void Game::SetupForestScene() {
     const glm::vec3 player_pos = {-191.718155, 20.999252, -395.274536};
 
     // PLAYER
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
+    auto p = std::make_shared<FP_Player>("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
     p->SetNormalMap("T_MetalNormalMap", 1.0f);
     p->material.specular_power = 200.0f;
     p->transform.SetPosition(player_pos);
@@ -687,7 +685,7 @@ void Game::SetupForestScene() {
     // p->SetNormalMap("T_MetalNormalMap", 1.0f);
     // AddPlayerToScene(FOREST, p);
 
-    SceneNode* ship = new SceneNode("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
+    auto ship = std::make_shared<SceneNode>("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
     ship->SetNormalMap("T_MetalNormalMap", 10.0f);
     ship->transform.SetPosition({-200.730484, 25.999245, -427.873383});
     ship->transform.SetOrientation({0.334468, 0.000000, 0.942407, 0.000000});
@@ -701,7 +699,7 @@ void Game::SetupForestScene() {
     const std::vector<std::vector <float>> gangAintNunOfThatSquad = readTerrain(RESOURCES_DIRECTORY"/terrain/mountain_hm_n.png");
     // ENV
     int terrain_size = 1000;
-    Terrain* terr = new Terrain("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, gangAintNunOfThatSquad, terrain_size, terrain_size, 0.2, this);
+    auto terr = std::make_shared<Terrain>("Obj_ForestTerrain", "M_ForestTerain", "S_NormalMap", "T_Grass", TerrainType::FOREST, gangAintNunOfThatSquad, terrain_size, terrain_size, 0.2, this);
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     terr->material.specular_power = 0.0f;
     terr->material.texture_repetition = 10.0f;
@@ -710,27 +708,27 @@ void Game::SetupForestScene() {
     p->SetTerrain(terr);
     scenes[FOREST]->AddTerrain(terr);
 
-    Light* light = new Light(Colors::BrightYellow);
+    auto light = std::make_shared<Light>(Colors::BrightYellow);
     // light->transform.SetPosition({1000.0, 1000.0, -2000.0});
     light->transform.SetPosition({1000.0, 1000.0, 0.0});
     // ship->transform.SetOrientation({0.334468, 0.000000, 0.942407, 0.000000});
     light->ambient_power = 0.15;
     scenes[FOREST]->AddLight(light);
 
-    Light* hilight = new Light(HEXCOLOR(0xdec183));
+    auto hilight = std::make_shared<Light>(Colors::Goldish);
     // light->transform.SetPosition({1000.0, 1000.0, -2000.0});
     hilight->transform.SetPosition({800.0, 1300.0, 0.0});
     hilight->ambient_power = 0.025;
     scenes[FOREST]->AddLight(hilight);
 
 
-    SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
+    auto skybox = std::make_shared<SceneNode>("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[FOREST]->SetSkybox(skybox);
 
     // TRANSPARENT
     // SceneNode* forest = new SceneNode("Obj_Forest", "M_Tree", "S_Instanced", "T_Tree");
-    SceneNode* forest = new SceneNode("Obj_Forest", "M_BirchTree", "S_InstancedShadow", "T_BirchTree");
+    auto forest = std::make_shared<SceneNode>("Obj_Forest", "M_BirchTree", "S_InstancedShadow", "T_BirchTree");
     // forest->transform.SetScale({5, 5, 5});
     forest->SetNormalMap("T_WallNormalMap", 0.005f);
     forest->material.specular_power = 150.0;
@@ -755,7 +753,7 @@ void Game::SetupForestScene() {
             t.Yaw(r);
             forest->AddInstance(t);
         } else {
-            SceneNode* tree = new SceneNode("Obj_Forest", "M_BirchTree", "S_NormalMap", "T_BirchTree");
+            auto tree = std::make_shared<SceneNode>("Obj_Forest", "M_BirchTree", "S_NormalMap", "T_BirchTree");
             tree->SetNormalMap("T_WallNormalMap", 1.0f);
             tree->transform.SetPosition({x, y, z});
             tree->transform.SetScale({s,s,s});
@@ -767,7 +765,7 @@ void Game::SetupForestScene() {
     }
     scenes[FOREST]->AddNode(forest);
 
-    SceneNode* birch = new SceneNode("Obj_Birch", "M_BirchTree", "S_NormalMap", "T_BirchTree");
+    auto birch = std::make_shared<SceneNode>("Obj_Birch", "M_BirchTree", "S_NormalMap", "T_BirchTree");
     birch->transform.SetPosition({410.245483, 18.229790, -122.216019});
     birch->transform.SetScale({3, 3, 3});
     scenes[FOREST]->AddNode(birch);
@@ -782,36 +780,29 @@ void Game::SetupForestScene() {
     for(const float* ht : htrees) {
         glm::vec3 pos = {ht[0], ht[1], ht[2]};
         glm::quat ori = {ht[3], ht[4], ht[5], ht[6]};
-        Tree* htree = new Tree("Tree", "M_Branch", "S_NormalMap", "T_Bark", 0, 0, 0, this);
+        auto htree = std::make_shared<Tree>("Tree", "M_Branch", "S_NormalMap", "T_Bark", 0, 0, 0, this);
         htree->transform.SetPosition(pos);
         htree->transform.SetOrientation(ori);
         htree->GrowTree();
         scenes[FOREST]->AddNode(htree);
     }
 
-    Item* first_tree = new Item("Obj_FirstTreeDialogue", "", "S_Lit", "T_Pill");
-    first_tree->transform.SetPosition({-388.425018, 21.000000, -272.856903});
-    first_tree->transform.SetScale({55,55,55});
-    first_tree->SetCollectCallback([this]() { AddStoryToScene(FOREST, StoryBeat::CRASHED_SHIP); });
-    first_tree->DeleteOnCollect(true);
-    AddColliderToScene(FOREST, first_tree);
-
-    SceneNode* crashed = new SceneNode("Obj_CrashedShip", "M_H2", "S_NormalMap", "T_H2");
+    auto crashed = std::make_shared<SceneNode>("Obj_CrashedShip", "M_H2", "S_NormalMap", "T_H2");
     crashed->SetNormalMap("T_MetalNormalMap", 10.0f);
     crashed->transform.SetPosition({442.438568, -1.132055, 353.692505});
     crashed->transform.SetOrientation({0.975208, {0.076261, -0.193031, -0.076759}});
     crashed->transform.SetScale({11.0, 11.0, 9.5});
     crashed->material.specular_power = 169.0f;
-    SphereCollider* crashedcol = new SphereCollider(*crashed, 9.0f);
+    SphereCollider* crashedcol = new SphereCollider(*crashed, 65.0f);
     crashedcol->oneoff = true;
     crashedcol->SetCallback([this]() {CollectStoryItem(StoryBeat::CRASHED_SHIP);});
     crashed->SetCollider(crashedcol);
     AddToScene(FOREST, crashed);
     AddColliderToScene(FOREST, crashed);
 
-    Toggle* ship_vision = new Toggle("Obj_Toggle", "", "S_Default", "T_SpiralParticle");
+    auto ship_vision = std::make_shared<Toggle>("Obj_Toggle", "", "S_Default", "T_SpiralParticle");
     ship_vision->transform.SetPosition(crashed->transform.GetPosition());
-    SphereCollider* col_vision = new SphereCollider(*ship_vision, 30.0f);
+    SphereCollider* col_vision = new SphereCollider(*ship_vision, 65.0f);
     ship_vision->SetCollider(col_vision);
     ship_vision->SetOnCallback([this]() { 
         this->resman.SetScreenSpaceShader("S_SSDither"); 
@@ -820,6 +811,14 @@ void Game::SetupForestScene() {
         this->resman.SetScreenSpaceShader("S_Texture");
     });
     AddColliderToScene(FOREST, ship_vision);
+
+    auto first_tree = std::make_shared<Item>("Obj_FirstTreeDialogue", "", "S_Lit", "T_Pill", 50.0f);
+    first_tree->transform.SetPosition({-388.425018, 21.000000, -272.856903});
+    first_tree->transform.SetScale({55,55,55});
+    first_tree->SetCollectCallback([this]() { AddStoryToScene(FOREST, StoryBeat::FIRST_TREE); });
+    first_tree->DeleteOnCollect(true);
+    AddColliderToScene(FOREST, first_tree);
+
 }
 
 void Game::SetupDesertScene() {
@@ -830,15 +829,14 @@ void Game::SetupDesertScene() {
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    FP_Player* p = new FP_Player("Obj_Desert_player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
+    auto p = std::make_shared<FP_Player>("Obj_Desert_player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
     p->SetNormalMap("T_MetalNormalMap", 1.0f);
     p->transform.SetPosition({-4250,0,-4000});
     p->transform.SetOrientation(glm::quat(0.346089, {0.000000, -0.938202, 0.000000}));
-    // p->transform.SetScale({3,3,3});
     p->SetTargetStartPos(glm::vec3(-4000,0,-4000));
     AddPlayerToScene(DESERT, p);
 
-    SceneNode* ship = new SceneNode("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
+    auto ship = std::make_shared<SceneNode>("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
     ship->SetNormalMap("T_MetalNormalMap", 10.0f);
     ship->transform.SetPosition({-4040.0f, 120.0f, -4060.0f});
     ship->transform.SetOrientation({0.334468, 0.0, 0.0, 0.0});
@@ -858,8 +856,7 @@ void Game::SetupDesertScene() {
 
     for (size_t i = 0; i < towerInfo.size(); ++i) {
         std::string materialType = std::get<1>(towerInfo[i]);
-        // Create and configure the tower
-        SceneNode* tower = new SceneNode("Obj_Tower" + std::to_string(i), "M_Tower_" + materialType, "S_NormalMap", "T_Tower_" + materialType);
+        auto tower = std::make_shared<SceneNode>("Obj_Tower" + std::to_string(i), "M_Tower_" + materialType, "S_NormalMap", "T_Tower_" + materialType);
         tower->SetNormalMap("T_Tower_" + materialType + "_n");
         tower->transform.SetScale(glm::vec3(4));
         tower->transform.SetPosition(std::get<0>(towerInfo[i]));
@@ -872,27 +869,26 @@ void Game::SetupDesertScene() {
     const std::vector<std::vector <float>>& gangAintNunOfThatSquad = readTerrain(RESOURCES_DIRECTORY"/terrain/dunes.jpg");
 
     int terrain_size = 10000;
-    Terrain* terr = new Terrain("Obj_DesertTerrain", "M_DesertTerain", "S_NormalMap", "T_Sand", TerrainType::DUNES, gangAintNunOfThatSquad, terrain_size, terrain_size, 0.2, this);
+    auto terr = std::make_shared<Terrain>("Obj_DesertTerrain", "M_DesertTerain", "S_NormalMap", "T_Sand", TerrainType::DUNES, gangAintNunOfThatSquad, terrain_size, terrain_size, 0.2, this);
     terr->transform.Translate({-terrain_size / 2.0, -30.0, -terrain_size / 2.0});
     terr->material.specular_power = 0.0f;
     terr->material.texture_repetition = 50.0f;
     terr->SetNormalMap("T_Sand_n", 50.0f);
     p->SetTerrain(terr);
-    scenes[DESERT]->AddNode(terr);
+    scenes[DESERT]->AddTerrain(terr);
 
-    Light* light = new Light(Colors::SunLight);
+    auto light = std::make_shared<Light>(Colors::SunLight);
     light->transform.SetPosition({1000.0, 1000.0, 0.0});
-    // light->ambient_power = 0.05;
     scenes[DESERT]->AddLight(light);
 
-    SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_BlueSkybox");
+    auto skybox = std::make_shared<SceneNode>("Obj_Skybox", "M_Skybox", "S_Skybox", "T_BlueSkybox");
     skybox->transform.SetScale({1000, 1000, 1000});
     skybox->transform.SetOrientation(glm::angleAxis(PI_2, glm::vec3(1.0, 0.0, 0.0)));
     scenes[DESERT]->SetSkybox(skybox);
 
-    SceneNode* cactus1 = new SceneNode("Obj_Cactus9", "M_Cactus9", "S_InstancedShadow", "T_Cactus9");
-    SceneNode* cactus2 = new SceneNode("Obj_Cactus2", "M_Cactus2", "S_InstancedShadow", "T_Cactus2");
-    SceneNode* cactus3 = new SceneNode("Obj_Cactus8", "M_Cactus8", "S_InstancedShadow", "T_Cactus8");
+    auto cactus1 = std::make_shared<SceneNode>("Obj_Cactus9", "M_Cactus9", "S_InstancedShadow", "T_Cactus9");
+    auto cactus2 = std::make_shared<SceneNode>("Obj_Cactus2", "M_Cactus2", "S_InstancedShadow", "T_Cactus2");
+    auto cactus3 = std::make_shared<SceneNode>("Obj_Cactus8", "M_Cactus8", "S_InstancedShadow", "T_Cactus8");
 
     cactus1->SetNodeType(NodeType::TDONTUSECOLLIDER);
     cactus1->SetCollision(CollisionData(2.5));
@@ -962,6 +958,7 @@ void Game::SetupDesertScene() {
     AddColliderToScene(DESERT, cactus3);
 }
 
+
 void Game::SetupMainMenuScene() {
     Camera& camera = scenes[MAIN_MENU]->GetCamera();
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
@@ -970,7 +967,7 @@ void Game::SetupMainMenuScene() {
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
     RenderBundle mouseCursor = { "M_Quad", "S_TextureWithTransform", "T_Cursor" };
-    Menu_Player* p = new Menu_Player("Obj_Menu_Player", "M_Quad", "S_Texture", "T_Splash", mouseCursor, app.GetWindow());
+    auto p = std::make_shared<Menu_Player>("Obj_Menu_Player", "M_Quad", "S_Texture", "T_Splash", mouseCursor, app.GetWindow());
     AddPlayerToScene(MAIN_MENU, p);
     Button *button = new Button();
     button->action = std::bind(&Game::ChangeScene, this, START);
@@ -999,43 +996,33 @@ void Game::SetupMainMenuScene() {
     
     camera.Attach(&p->transform, false);
 
-    Light* light = new Light(Colors::WarmWhite);
+    auto light = std::make_shared<Light>(Colors::WarmWhite);
     light->transform.SetPosition({300.0, 300.0, 0.0});
     AddLightToScene(MAIN_MENU, light);
 
-    SceneNode* skybox = new SceneNode("Obj_MoonSkybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
+    auto skybox = std::make_shared<SceneNode>("Obj_MoonSkybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[MAIN_MENU]->SetSkybox(skybox);
 
     float radius = 600.0f;
     // glm::vec3 base_pos = {radius*i, 0.0, 0.0};
-    SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_InstancedShadow", "T_LavaPlanet");
+    auto astr = std::make_shared<SceneNode>("Obj_Forest", "M_Asteroid", "S_InstancedShadow", "T_LavaPlanet");
     astr->SetNormalMap("T_WallNormalMap", 4.0f);
     astr->material.texture_repetition = 5.0f;
     for (int i = 0; i < 512; i++) {
-        bool instanced = true;
         glm::vec3 pos = glm::ballRand(radius);
         float s = rng.randfloat(3, 10);
         float y = rng.randfloat(0, 2 * PI);
         float r = rng.randfloat(0, 2 * PI);
         float p = rng.randfloat(0, 2 * PI);
         // float s = 1;
-        if (instanced) {
-            Transform t;
-            t.SetPosition(pos);
-            t.SetScale({s, s, s});
-            t.Yaw(y);
-            t.Roll(r);
-            t.Pitch(p);
-            astr->AddInstance(t);
-        } else {
-            SceneNode* tree = new SceneNode("Obj_Forest", "M_Asteroid", "S_Lit", "T_LavaPlanet");
-            // tree->SetNormalMap("T_TreeNormalMap");
-            tree->transform.SetPosition(pos);
-            tree->transform.SetScale({s, s, s});
-            tree->transform.Yaw(r);
-            scenes[MAIN_MENU]->AddNode(tree);
-        }
+        Transform t;
+        t.SetPosition(pos);
+        t.SetScale({s, s, s});
+        t.Yaw(y);
+        t.Roll(r);
+        t.Pitch(p);
+        astr->AddInstance(t);
     }
     scenes[MAIN_MENU]->AddNode(astr);
 }
@@ -1047,7 +1034,7 @@ void Game::SetupStartScene() {
     camera.transform.SetPosition({0,0,0});
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    SceneNode* sun = new SceneNode("Obj_Planet", "M_Planet", "S_Sun", "T_Sun");
+    auto sun = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_Sun", "T_Sun");
     sun->transform.SetPosition({0.0, 0.0, -5000.0});
     sun->transform.SetScale({2000, 2000, 2000});
     sun->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
@@ -1056,29 +1043,29 @@ void Game::SetupStartScene() {
     sun->material.diffuse_strength = 1.0f;
     scenes[START]->AddNode(sun);
 
-    Light* light = new Light(Colors::WarmWhite);
+    auto light = std::make_shared<Light>(Colors::WarmWhite);
     light->transform.SetPosition({0.0, 0.0, 300.0});
     AddLightToScene(START, light);
-    
-    Light* light2 = new Light(Colors::BrightYellow);
+
+    auto light2 = std::make_shared<Light>(Colors::BrightYellow);
     light2->transform.SetPosition({0.0, 0.0, -5000.0});
     AddLightToScene(START, light2);
 
-    SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
+    auto skybox = std::make_shared<SceneNode>("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[START]->SetSkybox(skybox);
 
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
+    auto p = std::make_shared<FP_Player>("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
     p->SetNormalMap("T_MetalNormalMap");
-    p->transform.SetPosition({0.0, 0.0, 0.0});
+    p->transform.SetPosition({0.0, -1000.0, 0.0});
     p->visible = false;
     AddPlayerToScene(START, p);
     p->SetStatic(true);
     camera.Detach();
     camera.transform.SetPosition({0,0,0});
     camera.transform.SetOrientation(glm::quat());
-    p->transform.SetPosition({0.0, -1000.0, 0.0});
 }
+
 
 void Game::SetupCreditsScene() {
     Camera& camera = scenes[ENDING]->GetCamera();
@@ -1087,11 +1074,11 @@ void Game::SetupCreditsScene() {
     camera.transform.SetPosition({0,0,0});
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    Light* light = new Light(Colors::WarmWhite);
+    auto light = std::make_shared<Light>(Colors::WarmWhite);
     light->transform.SetPosition({0.0, 0.0, 300.0});
     AddLightToScene(ENDING, light);
 
-    FP_Player* p = new FP_Player("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
+    auto p = std::make_shared<FP_Player>("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
     p->SetNormalMap("T_MetalNormalMap");
     p->transform.SetPosition({0.0, 0.0, 0.0});
     p->visible = false;
@@ -1101,10 +1088,11 @@ void Game::SetupCreditsScene() {
     camera.transform.SetPosition({0,0,0});
     camera.transform.SetOrientation(glm::quat());
 
-    SceneNode* skybox = new SceneNode("Obj_MoonSkybox", "M_Skybox", "S_Skybox", "T_MessedUpSkybox");
+    auto skybox = std::make_shared<SceneNode>("Obj_MoonSkybox", "M_Skybox", "S_Skybox", "T_MessedUpSkybox");
     skybox->transform.SetScale({2000, 2000, 2000});
     scenes[ENDING]->SetSkybox(skybox);
 }
+
 
 void Game::Update(double dt, KeyMap &keys) {
     CheckControls(keys, dt);
@@ -1170,8 +1158,7 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     }
 
 
-    Player* player = active_scene->GetPlayer();
-    if(player){
+    auto player = active_scene->GetPlayer();
 
 
     if (glfwGetMouseButton(app.GetWindow()->ptr, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
@@ -1229,7 +1216,6 @@ void Game::CheckControls(KeyMap& keys, float dt) {
             active_scene->GetCamera().Attach(&player->transform);
         }
         keys[GLFW_KEY_X] = false;
-    }
     }
 
     float tilt_speed = 1.5f;
@@ -1384,83 +1370,80 @@ void Game::CheckControls(KeyMap& keys, float dt) {
 // }
 
 void Game::CreatePlayer() {
-    Player* player = new Tp_Player("Obj_Player", "M_Ship", "S_Lit", "T_Charmap", this);
+std::shared_ptr<Player> player = std::make_shared<Tp_Player>("Obj_Player", "M_Ship", "S_Lit", "T_Charmap", this);
     player->transform.SetPosition(player_position_g);
     // player->visible = false;
 
     active_scene->GetCamera().Attach(&player->transform); // Attach the camera to the player
     AddPlayerToScene(SceneEnum::SPACE, player);
-    // scenes[BEFORETRIGGER]->AddNode(player);
-    // scenes[BEFORETRIGGER]->SetPlayer(player);
-
-    // scenes[AFTERTRIGGER]->AddNode(player);
-    // scenes[AFTERTRIGGER]->SetPlayer(player);
 }
 
-void Game::AddLightToScene(SceneEnum sceneNum, Light* l){
-    if (sceneNum == SceneEnum::ALL){
-        for (auto s : scenes){
+void Game::AddLightToScene(SceneEnum sceneNum, const std::shared_ptr<Light>& l) {
+    if (sceneNum == SceneEnum::ALL) {
+        for (auto& s : scenes) {
             s->AddLight(l);
         }
-    } else{
+    } else {
         scenes[sceneNum]->AddLight(l);
     }
 }
 
-void Game::AddPlayerToScene(SceneEnum sceneNum, Player* node) {
-    if (sceneNum == SceneEnum::ALL){
-        for (auto s : scenes){
+void Game::AddPlayerToScene(SceneEnum sceneNum, const std::shared_ptr<Player>& node) {
+    if (sceneNum == SceneEnum::ALL) {
+        for (auto& s : scenes) {
             s->SetPlayer(node);
         }
-    } else{
+    } else {
         scenes[sceneNum]->SetPlayer(node);
     }
     AddColliderToScene(sceneNum, node);
 }
 
-void Game::AddColliderToScene(SceneEnum sceneNum, SceneNode* node) {
-    if (sceneNum == SceneEnum::ALL){
-        for (auto s : scenes){
+void Game::AddColliderToScene(SceneEnum sceneNum, const std::shared_ptr<SceneNode>& node) {
+    if (sceneNum == SceneEnum::ALL) {
+        for (auto& s : scenes) {
             s->AddNode(node);
             s->AddCollider(node);
         }
-    } else{
+    } else {
         scenes[sceneNum]->AddNode(node);
         scenes[sceneNum]->AddCollider(node);
     }
 }
 
-void Game::AddToScene(SceneEnum sceneNum, SceneNode* node) {
-    if (sceneNum == SceneEnum::ALL){
-        for (auto s : scenes){
+void Game::AddToScene(SceneEnum sceneNum, const std::shared_ptr<SceneNode>& node) {
+    if (sceneNum == SceneEnum::ALL) {
+        for (auto& s : scenes) {
             s->AddNode(node);
         }
-    } else{
+    } else {
         scenes[sceneNum]->AddNode(node);
     }
 }
 
-void Game::AddTextToScene(SceneEnum sceneNum, Text* text) {
-    if (sceneNum == SceneEnum::ALL){
-        for (auto s : scenes){
+void Game::AddTextToScene(SceneEnum sceneNum, const std::shared_ptr<Text>& text) {
+    if (sceneNum == SceneEnum::ALL) {
+        for (auto& s : scenes) {
             s->AddText(text);
         }
-    } else{
+    } else {
         scenes[sceneNum]->AddText(text);
     }
 }
 
+
 void Game::AddStoryToScene(SceneEnum sceneNum, StoryBeat index) {
-    // cringe, need to cast away the const to allow pointer access
-    if (sceneNum == SceneEnum::ALL){
-        for (auto s : scenes){
-        for(const Text& t: STORY.at(index)) {
-            s->PushStoryText(const_cast<Text*>(&t));
+    if (sceneNum == SceneEnum::ALL) {
+        for (auto& scene : scenes) {
+            for (const auto& t : STORY.at(index)) {
+                std::shared_ptr<Text> textPtr = std::make_shared<Text>(t);  // Creating a shared_ptr from the existing Text object
+                scene->PushStoryText(textPtr);
+            }
         }
-        }
-    } else{
-        for(const Text& t: STORY.at(index)) {
-            scenes[sceneNum]->PushStoryText(const_cast<Text*>(&t));
+    } else {
+        for (const auto& t : STORY.at(index)) {
+            std::shared_ptr<Text> textPtr = std::make_shared<Text>(t);  // Creating a shared_ptr from the existing Text object
+            scenes[sceneNum]->PushStoryText(textPtr);
         }
     }
 }
@@ -1484,7 +1467,7 @@ void Game::AddStoryToScene(SceneEnum sceneNum, StoryBeat index) {
 // }
 
 void Game::CreateFPSCounter(SceneEnum scene) {
-    Text* fps = new Text("Obj_Fps", "M_Quad", "S_Text", "T_Charmap", "FPS");
+    auto fps = std::make_shared<Text>("Obj_Fps", "M_Quad", "S_Text", "T_Charmap", "FPS");
     fps->transform.SetPosition({-1.0, 1.0, 0.0f});
     fps->SetColor(Colors::White);
     fps->SetAnchor(Text::Anchor::TOPLEFT);
@@ -1496,7 +1479,7 @@ void Game::CreateFPSCounter(SceneEnum scene) {
 }
 
 void Game::CreateShipHUD(SceneEnum scene) {
-    Text* speedo = new Text("Obj_Speedo", "M_Quad", "S_Text", "T_Charmap", "");
+    auto speedo = std::make_shared<Text>("Obj_Speedo", "M_Quad", "S_Text", "T_Charmap", "");
     speedo->transform.SetPosition({-1.0, -1.0, 0.0f});
     speedo->SetColor(Colors::Amber);
     speedo->SetAnchor(Text::Anchor::BOTTOMLEFT); 
@@ -1527,7 +1510,7 @@ void Game::CreateShipHUD(SceneEnum scene) {
     // scene->AddNode(speedo);
     AddTextToScene(scene, speedo);
 
-    Text* crosshair = new Text("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", "[ ]");
+    auto crosshair = std::make_shared<Text>("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", "[ ]");
     crosshair->transform.SetPosition({0.0, 0.0, 0.0});
     crosshair->SetSize(10.0f);
     crosshair->SetColor(Colors::Amber);
@@ -1537,13 +1520,13 @@ void Game::CreateShipHUD(SceneEnum scene) {
 }
 
 void Game::CreateMapHUD(SceneEnum scene){ 
-    Text* fp_map = new Text("Obj_FPMap", "M_Quad", "S_Text", "T_Charmap", "waiting");
+    auto fp_map = std::make_shared<Text>("Obj_FPMap", "M_Quad", "S_Text", "T_Charmap", "waiting");
     fp_map->SetAnchor(Text::Anchor::BOTTOMRIGHT);
     fp_map->transform.SetPosition({1.0, -1.0, 0.0});
     fp_map->SetColor(Colors::White);
     fp_map->SetSize(10.0f);
     fp_map->SetCallback([this]() -> std::string {
-        Terrain* terr = active_scene->GetTerrain();
+        auto terr = active_scene->GetTerrain();
         if(terr == nullptr) {
             return "MAP NULL DATA";
         }
@@ -1589,7 +1572,7 @@ void Game::CreateStory() {
 }
 
 void Game::CreateLights() {
-    Light* light = new Light({1.0f, 1.0f, 1.0f, 1.0f});
+    auto light = std::make_shared<Light>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
     light->ambient_power = 0.1f;
     light->transform.SetPosition({50.5, 100.5, 50.5});
     AddLightToScene(SceneEnum::SPACE, light);
@@ -1610,13 +1593,13 @@ void Game::ChangeScene(int sceneIndex) {
 }
 
 void Game::ChangeSceneAndSpawn(int sceneIndex, glm::vec3 position) {
-    Player* old_player = active_scene->GetPlayer();
+    auto old_player = active_scene->GetPlayer();
     if(old_player != nullptr) {
         old_player->transform.SetPosition({0.0, 0.0, 0.0});
     }
     ChangeScene(sceneIndex);
     current_respawn_position = position;
-    Player* p = active_scene->GetPlayer();
+    auto p = active_scene->GetPlayer();
     if(p) {
         p->transform.SetPosition(position);
     }
@@ -1686,10 +1669,10 @@ void Game::PlayerHitRespawnMessage(glm::vec3 respawn_pos, std::string message) {
     active_scene->ClearStoryText();
     active_scene->ClearText();
     active_scene->GetPlayer()->deleted = true;
-    Text* dead = new Text(message, {0.8f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.8f}, Text::Anchor::CENTER, {0.0, 0.0, 0.0});
+    auto dead = std::make_shared<Text>(message, glm::vec4(0.8f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 0.8f), Text::Anchor::CENTER, glm::vec3(0.0, 0.0, 0.0));
     active_scene->AddText(dead);
     // Add delay????
-    Text* dead_info = new Text("Press [9] to restart", {0.8f, 0.0f, 0.0f, 1.0f}, {0.0f, -2.0f, 0.0f, 0.8f}, Text::Anchor::CENTER, {0.0, -0.5, 0.0}, 0.2f);
+    auto dead_info = std::make_shared<Text>("Press [9] to restart", glm::vec4(0.8f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, -2.0f, 0.0f, 0.8f), Text::Anchor::CENTER, glm::vec3(0.0, -0.5, 0.0), 0.2f);
     active_scene->AddText(dead_info);
     current_respawn_position = respawn_pos;
 }
@@ -1699,7 +1682,7 @@ void Game::PlayerHitShip(glm::vec3 spawn_pos) {
 }
 
 void Game::SpawnExplosion(glm::vec3 position, glm::vec3 scale) {
-    Explosion* explosion = new Explosion("Obj_Explosion", "M_Explosion", "S_Explosion", "T_Fire");
+    auto explosion = std::make_shared<Explosion>("Obj_Explosion", "M_Explosion", "S_Explosion", "T_Fire");
     explosion->transform.SetPosition(position);
     explosion->transform.SetScale(scale);
     explosion->SetAlphaEnabled(true);
@@ -1708,7 +1691,7 @@ void Game::SpawnExplosion(glm::vec3 position, glm::vec3 scale) {
 }
 
 void Game::SpawnRocket(glm::vec3 position, glm::quat orientation, glm::vec3 initial_velocity) {
-    Rocket* rocket = new Rocket("Obj_Rocket", "M_Rocket", "S_NormalMap", "T_Rocket", this);
+    auto rocket = std::make_shared<Rocket>("Obj_Rocket", "M_Rocket", "S_NormalMap", "T_Rocket", this);
     rocket->SetNormalMap("T_MetalNormalMap");
 
     Thrust* thrust = new Thrust("Obj_rocketthrust", "M_Thrust", "S_Thrust", "T_Fire");

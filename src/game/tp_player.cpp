@@ -1,5 +1,6 @@
 #include <glm/ext/quaternion_trigonometric.hpp>
 #include <iostream>
+#include <memory>
 #include "tp_player.h"
 #include "scene_node.h"
 #include "transform.h"
@@ -15,7 +16,7 @@ Tp_Player::Tp_Player(const std::string name, const std::string& mesh_id, const s
 {
     //c->Attach(&transform); 
     SphereCollider* col = new SphereCollider(*this, collider_radius_);
-    col->SetCallback([this](SceneNode* other) { this->HandleCollisionWith(other); });
+    col->SetCallback([this](SceneNode& other) { this->HandleCollisionWith(&other); });
     SetCollider(col);
     SetNodeType(TSHIP);
 }

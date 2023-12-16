@@ -136,11 +136,11 @@ class Game {
         void LoadShaders();
         void LoadTextures();
 
-        void AddToScene(SceneEnum sceneNum, SceneNode* node);
-        void AddColliderToScene(SceneEnum sceneNum, SceneNode* node);
-        void AddPlayerToScene(SceneEnum sceneNum, Player* node);
-        void AddLightToScene(SceneEnum sceneNum, Light* l);
-        void AddTextToScene(SceneEnum sceneNum, Text* l);
+        void AddToScene(SceneEnum sceneNum, const std::shared_ptr<SceneNode>& node);
+        void AddColliderToScene(SceneEnum sceneNum, const std::shared_ptr<SceneNode>& node);
+        void AddPlayerToScene(SceneEnum sceneNum, const std::shared_ptr<Player>& node);
+        void AddLightToScene(SceneEnum sceneNum, const std::shared_ptr<Light>& l);
+        void AddTextToScene(SceneEnum sceneNum, const std::shared_ptr<Text>& l);
         void AddStoryToScene(SceneEnum sceneNum, StoryBeat l);
 
         void CreatePlayer();

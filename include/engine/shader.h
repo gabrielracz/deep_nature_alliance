@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <memory>
 #include "path_config.h"
 #include "transform.h"
 
@@ -62,7 +63,7 @@ public:
     void SetupInstancing();
     void SetupLighting();
 
-    void SetLights(std::vector<Light*>& lights);
+    void SetLights(std::vector<std::shared_ptr<Light>>& lights);
     int SetInstances(std::vector<Transform>& transforms, const glm::mat4& view_matrix, bool cull = true);
     
 	void SetUniform1f(float u, const std::string& name);

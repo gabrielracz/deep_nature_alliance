@@ -1,11 +1,11 @@
 #include "item.h"
 #include "colliders/colliders.h"
 
-Item::Item(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id)
+Item::Item(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id, float col_radius)
     : SceneNode(name, mesh_id, shader_id, texture_id)
 {
-    SphereCollider* col = new SphereCollider(*this, item_col_radius_, true);
-    col->SetCallback([this](SceneNode* other) { this->HandleCollisionWith(other); });
+    SphereCollider* col = new SphereCollider(*this, col_radius);
+    col->SetCallback([this](SceneNode& other) { this->HandleCollisionWith(&other); });
     SetCollider(col);
     SetNodeType(TITEM);
 }
