@@ -25,7 +25,7 @@ void Application::Start() {
 	irrklang::ISoundEngine* engine = irrklang::createIrrKlangDevice();
 	if (!engine)
 		std::cout << "error setting up audio engine" << std::endl;
-	engine->play2D(RESOURCES_DIRECTORY"/audio/usd.mp3", true);
+	engine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
 	while(running){
 		//Get frame rate
 		frame_counter++;
