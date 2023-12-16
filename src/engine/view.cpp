@@ -121,7 +121,7 @@ void View::RenderDepthMap(SceneGraph& scene, Light* light) {
 
 
     glm::mat4 view_mat;
-    glm::mat4 proj_mat = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 20.0f, 1300.0f);
+    glm::mat4 proj_mat = glm::ortho(-250.0f, 250.0f, -250.0f, 250.0f, 20.0f, 1300.0f);
     // glm::mat4 view_mat = glm::lookAt({300.0, 600.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
     if (light->GetParentTransform() == nullptr){
@@ -133,8 +133,9 @@ void View::RenderDepthMap(SceneGraph& scene, Light* light) {
         // glm::vec3 forwardVector = playerOrientation * glm::vec3(1.0, 0.0, 0.0);
         // glm::mat4 view_mat = glm::lookAt(light->transform.GetWorldPosition(), light->GetParentTransform()->GetWorldPosition() + 50.0f * forwardVector, glm::vec3(0.0, 1.0, 0.0));
         // std::cout << "light pos: " << vec3ToString(light->GetSuperHackyPlayerPlusMeTransformLol()) << " playerpos: " << vec3ToString(light->GetParentTransform()->GetPosition()) << std::endl;
-        
-        view_mat = glm::lookAt(light->GetParentTransform()->GetPosition() + glm::vec3(300, 600, 0), light->GetParentTransform()->GetPosition(), glm::vec3(0.0, 1.0, 0.0));
+        glm::quat playerOrientation = light->GetParentTransform()->GetOrientation();
+        glm::vec3 forwardVector = playerOrientation * glm::vec3(0.0, 0.0, -1.0);
+        view_mat = glm::lookAt(light->GetParentTransform()->GetPosition() + light->transform.GetPosition(), light->GetParentTransform()->GetPosition() + 250.0f * forwardVector, glm::vec3(0.0, 1.0, 0.0));
     }
     
 
@@ -180,7 +181,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
     // Light* l = lights.back();
     Light* light = lights[0];
     glm::mat4 view_mat;
-    glm::mat4 proj_mat = glm::ortho(-200.0f, 200.0f, -200.0f, 200.0f, 20.0f, 1300.0f);
+    glm::mat4 proj_mat = glm::ortho(-250.0f, 250.0f, -250.0f, 250.0f, 20.0f, 1300.0f);
     // glm::mat4 view_mat = glm::lookAt({300.0, 600.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
     if (light->GetParentTransform() == nullptr){
@@ -192,8 +193,9 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights,
         // glm::vec3 forwardVector = playerOrientation * glm::vec3(1.0, 0.0, 0.0);
         // glm::mat4 view_mat = glm::lookAt(light->transform.GetWorldPosition(), light->GetParentTransform()->GetWorldPosition() + 50.0f * forwardVector, glm::vec3(0.0, 1.0, 0.0));
         // std::cout << "light pos: " << vec3ToString(light->GetSuperHackyPlayerPlusMeTransformLol()) << " playerpos: " << vec3ToString(light->GetParentTransform()->GetPosition()) << std::endl;
-        
-        view_mat = glm::lookAt(light->GetParentTransform()->GetPosition() + glm::vec3(300, 600, 0), light->GetParentTransform()->GetPosition(), glm::vec3(0.0, 1.0, 0.0));
+        glm::quat playerOrientation = light->GetParentTransform()->GetOrientation();
+        glm::vec3 forwardVector = playerOrientation * glm::vec3(0.0, 0.0, -1.0);
+        view_mat = glm::lookAt(light->GetParentTransform()->GetPosition() + light->transform.GetPosition(), light->GetParentTransform()->GetPosition() + 250.0f * forwardVector, glm::vec3(0.0, 1.0, 0.0));
     }
     // glm::mat4 view_mat = glm::lookAt({300.0, 600.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
     // glm::mat4 proj_mat = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 20.0f, 1300.0f);
