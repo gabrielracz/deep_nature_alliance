@@ -6,7 +6,6 @@ bool BoxCollider::CollidesWithBox(BoxCollider* other) {
 }
 
 bool BoxCollider::CollidesWithSphere(SphereCollider* other) {
-
     return SphereCollision(other->GetOwner(), other->GetRadius());
 }
 
@@ -36,7 +35,6 @@ bool BoxCollider::SphereCollision(SceneNode& collider, float radius) {
 
     return distSquared <= (radius * radius);
 }
-
 
 // SPHERE COLLIDER
 bool SphereCollider::CollidesWithBox(BoxCollider* other) {
@@ -86,7 +84,7 @@ bool FPPlayerCollider::CollidesWithPlayer(FPPlayerCollider* other) {
     return false;
 }
 
-bool FPPlayerCollider::CollidesWithCylinder(CylinderCollider *other) {
+bool FPPlayerCollider::CollidesWithCylinder(CylinderCollider* other) {
     glm::vec3 sphere_position = player_.transform.GetPosition();
     glm::vec3 cylinder_position = other->GetOwner().transform.GetPosition();
     float closestPointOnAxis = glm::clamp(sphere_position.y, cylinder_position.y, cylinder_position.y + other->GetHeight());
@@ -94,7 +92,7 @@ bool FPPlayerCollider::CollidesWithCylinder(CylinderCollider *other) {
     return distanceSquared <= (radius_ + other->GetRadius()) * (radius_ + other->GetRadius());
 }
 
-bool FPPlayerCollider::CollidesWithScalingCylinder(ScalingCylinderCollider *other) {
+bool FPPlayerCollider::CollidesWithScalingCylinder(ScalingCylinderCollider* other) {
     glm::vec3 sphere_position = player_.transform.GetPosition();
     glm::vec3 cylinder_position = other->GetOwner().transform.GetPosition();
     float height = other->GetOwner().transform.GetScale().y;
@@ -105,14 +103,15 @@ bool FPPlayerCollider::CollidesWithScalingCylinder(ScalingCylinderCollider *othe
 }
 
 //CYLINDER COLLIDER
-bool CylinderCollider::CollidesWithPlayer(FPPlayerCollider *other) {
+bool CylinderCollider::CollidesWithPlayer(FPPlayerCollider* other) {
     glm::vec3 sphere_position = other->GetPlayer().transform.GetPosition();
     glm::vec3 cylinder_position = owner_.transform.GetPosition();
     float closestPointOnAxis = glm::clamp(sphere_position.y, cylinder_position.y, cylinder_position.y + height_);
     float distanceSquared = glm::distance2(glm::vec3(sphere_position.x, closestPointOnAxis, sphere_position.z), cylinder_position);
     return distanceSquared <= (radius_ + other->GetRadius()) * (radius_ + other->GetRadius());
 }
-bool CylinderCollider::CollidesWithSphere(SphereCollider *other) {
+
+bool CylinderCollider::CollidesWithSphere(SphereCollider* other) {
     glm::vec3 sphere_position = other->GetOwner().transform.GetPosition();
     glm::vec3 cylinder_position = owner_.transform.GetPosition();
     float closestPointOnAxis = glm::clamp(sphere_position.y, cylinder_position.y, cylinder_position.y + height_);
@@ -121,7 +120,7 @@ bool CylinderCollider::CollidesWithSphere(SphereCollider *other) {
 }
 
 // SCALING CYLINDER COLLIDER
-bool ScalingCylinderCollider::CollidesWithPlayer(FPPlayerCollider *other) {
+bool ScalingCylinderCollider::CollidesWithPlayer(FPPlayerCollider* other) {
     glm::vec3 sphere_position = other->GetPlayer().transform.GetPosition();
     glm::vec3 cylinder_position = owner_.transform.GetPosition();
     float height = owner_.transform.GetScale().y;
@@ -130,7 +129,8 @@ bool ScalingCylinderCollider::CollidesWithPlayer(FPPlayerCollider *other) {
     float distanceSquared = glm::distance2(glm::vec3(sphere_position.x, closestPointOnAxis, sphere_position.z), cylinder_position);
     return distanceSquared <= (radius + other->GetRadius()) * (radius + other->GetRadius());
 }
-bool ScalingCylinderCollider::CollidesWithSphere(SphereCollider *other) {
+
+bool ScalingCylinderCollider::CollidesWithSphere(SphereCollider* other) {
     glm::vec3 sphere_position = other->GetOwner().transform.GetPosition();
     glm::vec3 cylinder_position = owner_.transform.GetPosition();
     float height = owner_.transform.GetScale().y;
@@ -139,5 +139,3 @@ bool ScalingCylinderCollider::CollidesWithSphere(SphereCollider *other) {
     float distanceSquared = glm::distance2(glm::vec3(cylinder_position.x, closestPointOnAxis, cylinder_position.z), sphere_position);
     return distanceSquared <= (radius + other->GetRadius()) * (radius + other->GetRadius());
 }
-
-

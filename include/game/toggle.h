@@ -20,8 +20,8 @@ class Toggle : public SceneNode {
         
         void SetOffCallback(std::function<void()> f) { off_callback_ = f; };
         void SetOnCallback(std::function<void()> f) { on_callback_ = f; };
-        virtual void ToggleOn(SceneNode* collider);
-        virtual void ToggleOff(SceneNode* exiter);
+        virtual void ToggleOn(const SceneNode& collider);
+        virtual void ToggleOff(const SceneNode& exiter);
     
         bool GetToggle() { return toggle_; }
         bool Triggered() { return triggered_; }

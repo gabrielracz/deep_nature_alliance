@@ -7,7 +7,7 @@ class Beacon : public Item {
     public:
         Beacon(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id);
 
-        ~Beacon();
+        // ~Beacon();
         virtual void Update(double dt) override;
 };
 

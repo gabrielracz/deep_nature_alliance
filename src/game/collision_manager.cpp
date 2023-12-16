@@ -10,54 +10,50 @@
 //to stop moving camera when colliding must check collisions after scenenode update which we cant do fully beacause of deletion
 //also checks collision without draw calls in between update and check
 //sorry for the jank
-void CollisionManager::WhyCouldntTheyJustBeInvisible(){
-    for (SceneNode * n : blockingCollision){
-        if (sphereToSphere(player, n)){
-            // std::cout << "hit" << std::endl;
+void CollisionManager::WhyCouldntTheyJustBeInvisible() {
+    for (const auto& n : blockingCollision) {
+        if (sphereToSphere(*player, *n)) {
             player->ResetPosition();
         }
     }
 }
 
 
-void CollisionManager::CheckCollisions(){
-    for (auto trig : triggers){
-        if(sphereToSphere(player, trig)){
+void CollisionManager::CheckCollisions() {
+    for (const auto& trig : triggers) {
+        if (sphereToSphere(*player, *trig)) {
             trig->ActivateTrigger();
         }
     }
 
-    for (auto toggle : toggles) {
-        //NOTE: we are getting collision hit on spawn in (weird???)
-        if(GetCollisionRaw(toggle, player)) {
-            if(!toggle->GetToggle()) {
-                toggle->ToggleOn(player);
+    for (const auto& toggle : toggles) {
+        if (GetCollisionRaw(*toggle, *player)) {
+            if (!toggle->GetToggle()) {
+                toggle->ToggleOn(*player);
             }
         } else if (toggle->GetToggle() && toggle->Triggered()) {
-            toggle->ToggleOff(player);
+            toggle->ToggleOff(*player);
         }
     }
 
-    for (auto asteroid : asteroids){
-        // GetCollision(asteroid, player);
+    for (const auto& asteroid : asteroids) {
         int i = 0;
-        for(Transform& a : asteroid->GetInstances()) {
+        for (const Transform& a : asteroid->GetInstances()) {
             float rad = glm::length(a.GetScale());
             float player_rad = glm::length(player->transform.GetScale());
             glm::vec3 apos = asteroid->transform.GetPosition() + a.GetPosition();
-            if(glm::length(player->transform.GetPosition() - apos) < rad + player_rad) {
-                // collision
+            if (glm::length(player->transform.GetPosition() - apos) < rad + player_rad) {
                 game->SpawnExplosion(apos, glm::vec3(4.0f));
-               game->ShipHitPlanet({0.0f,0.0f,0.0f});
+                game->ShipHitPlanet({ 0.0f,0.0f,0.0f });
                 asteroid->DeleteInstance(i);
             }
 
-            for(auto it = rockets.begin(); it != rockets.end();) {
-                SceneNode* rocket = *it;
+            for (auto it = rockets.begin(); it != rockets.end();) {
+                auto rocket = *it;
                 float rocket_rad = glm::length(rocket->transform.GetScale());
-                if(rocket->deleted) {
+                if (rocket->deleted) {
                     it = rockets.erase(it);
-                } else if(glm::length(rocket->transform.GetPosition() - apos) < rad + rocket_rad) {
+                } else if (glm::length(rocket->transform.GetPosition() - apos) < rad + rocket_rad) {
                     game->SpawnExplosion(rocket->transform.GetPosition(), glm::vec3(1.0f));
                     game->SpawnExplosion(apos, glm::vec3(4.0f));
                     rocket->deleted = true;
@@ -71,17 +67,17 @@ void CollisionManager::CheckCollisions(){
         }
     }
 
-    for (auto item : items) {
-        GetCollision(item, player);
+    for (const auto& item : items) {
+        GetCollision(*item, *player);
     }
 
-    for (auto beacon : beacons) {
-        GetCollision(beacon, player);
+    for (const auto& beacon : beacons) {
+        GetCollision(*beacon, *player);
     }
 
     for (auto it = othercollideables.begin(); it != othercollideables.end();) {
-        SceneNode* other = *it;
-        if(GetCollision(other, player) && other->GetCollider()->oneoff) {
+        auto other = *it;
+        if (GetCollision(*other, *player) && other->GetCollider()->oneoff) {
             it = othercollideables.erase(it);
             std::cout << "deleted" << std::endl;
         } else {
@@ -90,20 +86,20 @@ void CollisionManager::CheckCollisions(){
     }
 }
 
-bool CollisionManager::GetCollision(SceneNode* obj1, SceneNode* obj2) {
-    if(obj1->deleted || obj2->deleted) {
-        //probably should delete here weird glitch
+bool CollisionManager::GetCollision(SceneNode& obj1, SceneNode& obj2) {
+    if (obj1.deleted || obj2.deleted) {
+        // probably should delete here weird glitch
         return false;
     }
 
-    Collider* col = obj1->GetCollider();
-    Collider* other = obj2->GetCollider();
+    Collider* col = obj1.GetCollider();
+    Collider* other = obj2.GetCollider();
     if (col && other) {
         if (other->CollidesWith(col)) {
             // Backwards because visitor pattern
             col->invokeCallback(obj2);
             return true;
-        } 
+        }
         if (col->CollidesWith(other)) {
             // Backwards because visitor pattern
             other->invokeCallback(obj1);
@@ -114,18 +110,17 @@ bool CollisionManager::GetCollision(SceneNode* obj1, SceneNode* obj2) {
 }
 
 
-bool CollisionManager::GetCollisionRaw(SceneNode* obj1, SceneNode* obj2)
-{
-    if(obj1->deleted || obj2->deleted) {
+bool CollisionManager::GetCollisionRaw(SceneNode& obj1, SceneNode& obj2) {
+    if (obj1.deleted || obj2.deleted) {
         return false;
     }
 
-    Collider* col = obj1->GetCollider();
-    Collider* other = obj2->GetCollider();
+    Collider* col = obj1.GetCollider();
+    Collider* other = obj2.GetCollider();
     if (col && other) {
         if (other->CollidesWith(col)) {
             return true;
-        } 
+        }
         if (col->CollidesWith(other)) {
             return true;
         }
@@ -133,11 +128,10 @@ bool CollisionManager::GetCollisionRaw(SceneNode* obj1, SceneNode* obj2)
     return false;
 }
 
-void CollisionManager::AddNode(SceneNode* node){
-
-    switch(node->GetNodeType()) {
+void CollisionManager::AddNode(std::shared_ptr<SceneNode> node) {
+    switch (node->GetNodeType()) {
         case TTRIGGER:
-            triggers.push_back(dynamic_cast<Trigger*>(node));
+            triggers.push_back(std::dynamic_pointer_cast<Trigger>(node));
             break;
         case TDONTUSECOLLIDER:
             blockingCollision.push_back(node);
@@ -152,16 +146,16 @@ void CollisionManager::AddNode(SceneNode* node){
             asteroids.push_back(node);
             break;
         case TPLAYER:
-            player = static_cast<Player*>(node);
+            player = std::static_pointer_cast<Player>(node);
             break;
         case TSHIP:
-            player = static_cast<Player*>(node);
+            player = std::static_pointer_cast<Player>(node);
             break;
         case TROCKET:
             rockets.push_back(node);
             break;
         case TTOGGLE:
-            toggles.push_back(dynamic_cast<Toggle*>(node));
+            toggles.push_back(std::dynamic_pointer_cast<Toggle>(node));
         default:
             othercollideables.push_back(node);
             break;
@@ -169,33 +163,33 @@ void CollisionManager::AddNode(SceneNode* node){
 }
 
 //only does instanced collision on second node becuase fuck you its already ugly enough
-bool CollisionManager::sphereToSphere(SceneNode *first, SceneNode *second) {
-    glm::vec3 pos1 = first->transform.GetPosition();
-    float radius1 = first->GetCollision().GetSphereRadius();
+bool CollisionManager::sphereToSphere(SceneNode& first, SceneNode& second) {
+    glm::vec3 pos1 = first.transform.GetPosition();
+    float radius1 = first.GetCollision().GetSphereRadius();
 
-    if (second->GetNumInstances() > 0){
-        for (Transform& t : second->GetInstances()){
+    if (second.GetNumInstances() > 0) {
+        for (const Transform& t : second.GetInstances()) {
             glm::vec3 pos2 = t.GetPosition();
-            float radius2 = second->GetCollision().GetSphereRadius();
+            float radius2 = second.GetCollision().GetSphereRadius();
 
-            if (glm::distance(pos1, pos2) < radius1 + radius2){
+            if (glm::distance(pos1, pos2) < radius1 + radius2) {
                 return true;
             }
         }
-    } else{
-        glm::vec3 pos2 = second->transform.GetPosition();
-        float radius2 = second->GetCollision().GetSphereRadius();
+    } else {
+        glm::vec3 pos2 = second.transform.GetPosition();
+        float radius2 = second.GetCollision().GetSphereRadius();
 
         return glm::distance(pos1, pos2) < radius1 + radius2;
     }
     return false;
 }
 
-bool CollisionManager::sphereToBox(SceneNode *sphereNode, SceneNode *boxNode) {
-    glm::vec3 sphereCenter = sphereNode->transform.GetPosition();
-    float sphereRadius = sphereNode->GetCollision().GetSphereRadius();
-    glm::vec3 boxCenter = boxNode->transform.GetPosition();
-    glm::vec3 boxHalfSizes = boxNode->GetCollision().GetBoxHalfSizes();
+bool CollisionManager::sphereToBox(SceneNode& sphereNode, SceneNode& boxNode) {
+    glm::vec3 sphereCenter = sphereNode.transform.GetPosition();
+    float sphereRadius = sphereNode.GetCollision().GetSphereRadius();
+    glm::vec3 boxCenter = boxNode.transform.GetPosition();
+    glm::vec3 boxHalfSizes = boxNode.GetCollision().GetBoxHalfSizes();
 
     // Compute distance from the sphere center to the box
     float distSquared = 0.f;
@@ -211,11 +205,11 @@ bool CollisionManager::sphereToBox(SceneNode *sphereNode, SceneNode *boxNode) {
     return distSquared <= (sphereRadius * sphereRadius);
 }
 
-bool CollisionManager::rayToSphere(SceneNode *rayNode, SceneNode *sphereNode) {
-    glm::vec3 rayOrigin = rayNode->GetCollision().GetRayOrigin();
-    glm::vec3 rayDirection = rayNode->GetCollision().GetRayDirection();
-    glm::vec3 sphereCenter = sphereNode->transform.GetPosition();
-    float sphereRadius = sphereNode->GetCollision().GetSphereRadius();
+bool CollisionManager::rayToSphere(SceneNode& rayNode, SceneNode& sphereNode) {
+    glm::vec3 rayOrigin = rayNode.GetCollision().GetRayOrigin();
+    glm::vec3 rayDirection = rayNode.GetCollision().GetRayDirection();
+    glm::vec3 sphereCenter = sphereNode.transform.GetPosition();
+    float sphereRadius = sphereNode.GetCollision().GetSphereRadius();
 
     glm::vec3 m = rayOrigin - sphereCenter;
     float b = glm::dot(m, rayDirection);
@@ -226,13 +220,13 @@ bool CollisionManager::rayToSphere(SceneNode *rayNode, SceneNode *sphereNode) {
         return false;
     float discr = b * b - c;
     // A negative discriminant corresponds to ray missing sphere
-    if (discr < 0.f) 
+    if (discr < 0.f)
         return false;
 
     // Ray now found to intersect sphere, compute smallest t value of intersection
     float t = -b - glm::sqrt(discr);
     // If t is negative, ray started inside sphere so clamp t to zero
-    if (t < 0.f) 
+    if (t < 0.f)
         t = 0.f;
     return true;
 }
