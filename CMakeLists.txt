@@ -150,8 +150,7 @@ if(WIN32)
     set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/lib)
 
     # Specify the destination directory
-    set(DESTINATION_DIR ${CMAKE_CURRENT_BINARY_DIR}/build/release)
-    set(DESTINATION_DIR ${CMAKE_CURRENT_BINARY_DIR}/build/debug)
+    set(DESTINATION_DIR ${CMAKE_CURRENT_BINARY_DIR}/Release)
 
     # Get a list of all DLLs in the source directory
     file(GLOB DLLS ${SOURCE_DIR}/*.dll)
