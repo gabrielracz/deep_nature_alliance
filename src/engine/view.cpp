@@ -123,7 +123,7 @@ void View::RenderDepthMap(SceneGraph& scene, std::shared_ptr<Light> light) {
             std::vector<Transform>& instances = node->GetInstances();
             if(instances.size() > 0) {
                 shdinst->Use();
-                shdinst->SetInstances(instances, scene.GetCamera().GetViewMatrix(), true);
+                shdinst->SetInstances(instances, scene.GetCamera().GetViewMatrix(), node->ShouldCullInstances());
                 shdinst->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
                 // set light_mat
                 shdinst->SetUniform4m(proj_mat * view_mat, "light_mat");

@@ -55,6 +55,7 @@ class SceneNode {
         void SetAlphaFunc(int f)                            {alpha_func = f;}
         void SetParent(SceneNode* n)                        {parent = n;}
         void DeleteInstance(unsigned int i)                 {deleted_instances.push_back(i);}
+        void SetCullInstances(bool c)                       {cull_instances = c;}
         // void SetInstances(std::vector<Transform>& t)        {instances = t;};
 
         const std::string GetName(void) const               {return name;}
@@ -69,6 +70,7 @@ class SceneNode {
         const std::vector<SceneNode*>& GetChildren() const  {return children;}
         const CollisionData& GetCollision() const           {return collision;}
         std::vector<Transform>& GetInstances()              {return instances;}
+        bool ShouldCullInstances()                          {return cull_instances;}
         int GetNumInstances()                               {return in_camera_instances;}
         Collider* GetCollider() const                       {return collider;}
         NodeType GetNodeType() const                        {return node_type;}
@@ -89,6 +91,7 @@ class SceneNode {
         SceneNode* parent = nullptr;
         std::vector<Transform> instances;
         std::vector<unsigned int> deleted_instances;
+        bool cull_instances = false;
         int in_camera_instances = 0;
         float elapsed = 0;
         CollisionData collision;

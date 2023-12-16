@@ -70,7 +70,7 @@ void SceneNode::SetUniforms(Shader* shader, const glm::mat4& view_matrix, const 
 
     // instances
     if(instances.size() > 0) {
-        in_camera_instances = shader->SetInstances(instances, view_matrix);
+        in_camera_instances = shader->SetInstances(instances, view_matrix, cull_instances);
     }
 }
 
