@@ -1,6 +1,8 @@
-#define GLM_FORCE_RADIANS
+#include <glm/gtx/string_cast.hpp>
 #include "fp_player.h"
 #include "colliders/colliders.h"
+
+#define GLM_FORCE_RADIANS
 
 FP_Player::FP_Player(const std::string name, const std::string &mesh_id, const std::string& shader_id, const std::string &texture_id, Camera *c)
     : Agent(name, mesh_id, shader_id, texture_id), camera_(c) {
@@ -111,6 +113,7 @@ void FP_Player::Update(double dt)
         return;
     }
     //printf("X: %f Y: %f Z: %f\n", transform.GetPosition().x, transform.GetPosition().y, transform.GetPosition().z);
+    // std::cout << glm::to_string(transform.GetOrientation()) << std::endl;
     Agent::Update(dt);
     HeadMovement(dt);
 }

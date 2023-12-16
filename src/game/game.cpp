@@ -82,6 +82,7 @@ void Game::LoadMeshes() {
     resman.LoadMesh        ("M_Soldier", MESH_DIRECTORY"/soldier.obj");
     resman.LoadMesh        ("M_Cactus2", MESH_DIRECTORY"/cactus2.obj");
     resman.LoadMesh        ("M_Cactus9", MESH_DIRECTORY"/cactus9.obj");
+    resman.LoadMesh        ("M_Cactus8", MESH_DIRECTORY"/cactus8.obj");
     resman.LoadMesh        ("M_MoonTree", MESH_DIRECTORY"/moontree.obj");
     resman.LoadMesh        ("M_SELTower", MESH_DIRECTORY"/moontower.obj");
     resman.LoadMesh        ("M_MoonObject", MESH_DIRECTORY"/moonobj.obj");
@@ -141,7 +142,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_SpaceBugs", SHADER_DIRECTORY"/spacebug_vp.glsl", SHADER_DIRECTORY"/spacebug_fp.glsl", SHADER_DIRECTORY"/spacebug_gp.glsl");
     resman.LoadShader("S_Explosion", SHADER_DIRECTORY"/explosion_vp.glsl", SHADER_DIRECTORY"/explosion_fp.glsl", SHADER_DIRECTORY"/explosion_gp.glsl");
     resman.LoadShader("S_Violence", SHADER_DIRECTORY"/red_vision_vp.glsl", SHADER_DIRECTORY"/red_vision_fp.glsl");
-    resman.LoadShader("S_SSDither", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/dither_fp.glsl");
+    // resman.LoadShader("S_SSDither", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/dither_fp.glsl");
 
     resman.SetScreenSpaceShader("S_Texture");
 }
@@ -184,6 +185,8 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Cactus2_n", TEXTURE_DIRECTORY"/cactus2_n.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Cactus9", TEXTURE_DIRECTORY"/cactus9.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Cactus9_n", TEXTURE_DIRECTORY"/cactus9_n.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus8", TEXTURE_DIRECTORY"/cactus8.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cactus8_n", TEXTURE_DIRECTORY"/cactus8_n.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Sand", TEXTURE_DIRECTORY"/sand.jpg", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Sand_n", TEXTURE_DIRECTORY"/sand_n.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Cursor", TEXTURE_DIRECTORY"/cursor.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
@@ -809,12 +812,44 @@ void Game::SetupDesertScene() {
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
-    FP_Player* p = new FP_Player("Obj_Desert_player", "M_Ship", "S_NormalMap", "T_Ship", &camera);
-    p->SetNormalMap("T_MetalNormalMap");
-    p->SetTargetStartPos(glm::vec3(0,100,0));
+    FP_Player* p = new FP_Player("Obj_Desert_player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
+    p->SetNormalMap("T_MetalNormalMap", 1.0f);
+    p->transform.SetPosition({-4250,0,-4000});
+    p->transform.SetOrientation(glm::quat(0.346089, {0.000000, -0.938202, 0.000000}));
+    // p->transform.SetScale({3,3,3});
+    p->SetTargetStartPos(glm::vec3(-4000,0,-4000));
     AddPlayerToScene(DESERT, p);
-    // camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
+    SceneNode* ship = new SceneNode("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
+    ship->SetNormalMap("T_MetalNormalMap", 10.0f);
+    ship->transform.SetPosition({-4040.0f, 120.0f, -4060.0f});
+    ship->transform.SetOrientation({0.334468, 0.0, 0.0, 0.0});
+    ship->transform.SetScale({11.0, 11.0, 9.5});
+    ship->material.specular_power = 169.0f;
+    SphereCollider* col = new SphereCollider(*ship, 9.0f);
+    col->SetCallback([this]() { PlayerHitShip({-3500.0f, 4200.0f, -6000.0f}); });
+    ship->SetCollider(col);
+    AddColliderToScene(DESERT, ship);
+
+    std::vector<std::tuple<glm::vec3, std::string>> towerInfo = {
+        {{-2950, 225, -2550}, "m"},
+        {{-2528.142090, 195, -1170.641357}, "s"},
+        {{-2926.778320, 220, 1686.182495}, "t"},
+        {{-849.199463, 165, 2641.724121}, "s"}
+    };
+
+    for (size_t i = 0; i < towerInfo.size(); ++i) {
+        std::string materialType = std::get<1>(towerInfo[i]);
+        // Create and configure the tower
+        SceneNode* tower = new SceneNode("Obj_Tower" + std::to_string(i), "M_Tower_" + materialType, "S_NormalMap", "T_Tower_" + materialType);
+        tower->SetNormalMap("T_Tower_" + materialType + "_n");
+        tower->transform.SetScale(glm::vec3(4));
+        tower->transform.SetPosition(std::get<0>(towerInfo[i]));
+        tower->material.specular_coefficient = 0;
+        tower->SetNodeType(NodeType::TDONTUSECOLLIDER);
+        tower->SetCollision(CollisionData(100));
+        AddColliderToScene(DESERT, tower);
+    }
 
     const std::vector<std::vector <float>>& gangAintNunOfThatSquad = readTerrain(RESOURCES_DIRECTORY"/terrain/dunes.jpg");
 
@@ -834,53 +869,79 @@ void Game::SetupDesertScene() {
 
     SceneNode* skybox = new SceneNode("Obj_Skybox", "M_Skybox", "S_Skybox", "T_BlueSkybox");
     skybox->transform.SetScale({1000, 1000, 1000});
+    skybox->transform.SetOrientation(glm::angleAxis(PI_2, glm::vec3(1.0, 0.0, 0.0)));
     scenes[DESERT]->SetSkybox(skybox);
 
-    SceneNode* cacti = new SceneNode("Obj_Catci9", "M_Cactus9", "S_InstancedShadow", "T_Cactus9");
-    SceneNode* cacti2 = new SceneNode("Obj_Catci2", "M_Cactus2", "S_InstancedShadow", "T_Cactus2");
-    cacti->SetNormalMap("T_Cactus9_n", 1.0f);
-    cacti2->SetNormalMap("T_Cactus2_n", 1.0f);
-    cacti->material.specular_power = 1250.0f;
-    cacti2->material.specular_power = 1250.0f;
-    float CACTI_SPAWN_X = 5000.0;
-    float CACTI_SPAWN_Z = 5000.0;
-    float x,y,z,s,r;
-    for (int i = 0; i < 1000; i++) {
-        x = rng.randfloat(-CACTI_SPAWN_X, CACTI_SPAWN_X);
-        z = rng.randfloat(-CACTI_SPAWN_Z, CACTI_SPAWN_Z);
-        y = terr->SampleHeight(x, z);
-        s = rng.randfloat(8, 14);
-        r = rng.randfloat(0, 2 * PI);
-        Transform t;
-        t.SetPosition({x, y, z});
-        t.SetScale({s, s, s});
-        t.Yaw(r);
-        cacti->AddInstance(t);
- 
-        x = rng.randfloat(-CACTI_SPAWN_X, CACTI_SPAWN_X);
-        z = rng.randfloat(-CACTI_SPAWN_Z, CACTI_SPAWN_Z);
-        y = terr->SampleHeight(x, z);
-        s = rng.randfloat(8, 14);
-        r = rng.randfloat(0, 2 * PI);
-        Transform t2;
-        t2.SetPosition({x, y, z});
-        t2.SetScale({s, s, s});
-        t2.Yaw(r);
-        cacti2->AddInstance(t2);
-    }
-    scenes[DESERT]->AddNode(cacti);
-    scenes[DESERT]->AddNode(cacti2);
+    SceneNode* cactus1 = new SceneNode("Obj_Cactus9", "M_Cactus9", "S_InstancedShadow", "T_Cactus9");
+    SceneNode* cactus2 = new SceneNode("Obj_Cactus2", "M_Cactus2", "S_InstancedShadow", "T_Cactus2");
+    SceneNode* cactus3 = new SceneNode("Obj_Cactus8", "M_Cactus8", "S_InstancedShadow", "T_Cactus8");
 
-    SceneNode* ship = new SceneNode("Obj_LandedShip", "M_Tower_t", "S_NormalMap", "T_Tower_t");
-    ship->SetNormalMap("T_Tower_t_n", 10.0f);
-    ship->transform.SetPosition({-40.0f, 123.0f, 60.0f});
-    ship->transform.SetOrientation({});
-    ship->transform.SetScale({5.0, 5.0, 5.0});
-    ship->material.specular_power = 169.0f;
-    SphereCollider* col = new SphereCollider(*ship, 9.0f);
-    col->SetCallback([this]() { PlayerHitShip({-3500.0f, 4200.0f, -6000.0f}); });
-    ship->SetCollider(col);
-    AddColliderToScene(DESERT, ship);
+    cactus1->SetNodeType(NodeType::TDONTUSECOLLIDER);
+    cactus1->SetCollision(CollisionData(2.5));
+    cactus2->SetNodeType(NodeType::TDONTUSECOLLIDER);
+    cactus2->SetCollision(CollisionData(2.5));
+    cactus3->SetNodeType(NodeType::TDONTUSECOLLIDER);
+    cactus3->SetCollision(CollisionData(2.5));
+
+    cactus1->SetNormalMap("T_Cactus9_n", 1.0f);
+    cactus2->SetNormalMap("T_Cactus2_n", 1.0f);
+    cactus3->SetNormalMap("T_Cactus8_n", 1.0f);
+
+    cactus1->material.specular_power = 1250.0f;
+    cactus1->material.specular_coefficient = 0.1;
+    cactus2->material.specular_power = 1250.0f;
+    cactus2->material.specular_coefficient = 0.1;
+    cactus3->material.specular_power = 1250.0f;
+    cactus3->material.specular_coefficient = 0.1;
+
+    float CACTUS_SPAWN_X = 5000.0;
+    float CACTUS_SPAWN_Z = 5000.0;
+
+    float x, y, z, s, r;
+
+    Transform cactusTransform;
+
+    for (int i = 0; i < 1000; i++) {
+        x = rng.randfloat(-CACTUS_SPAWN_X, CACTUS_SPAWN_X);
+        z = rng.randfloat(-CACTUS_SPAWN_Z, CACTUS_SPAWN_Z);
+        y = terr->SampleHeight(x, z) - 0.02;
+        s = rng.randfloat(8, 14);
+        r = rng.randfloat(0, 2 * PI);
+
+        cactusTransform.SetPosition({x, y, z});
+        cactusTransform.SetScale({s, s, s});
+        cactusTransform.SetOrientation(glm::angleAxis(r, glm::vec3(0, 1, 0)));
+
+        cactus2->AddInstance(cactusTransform);
+
+        x = rng.randfloat(-CACTUS_SPAWN_X, CACTUS_SPAWN_X);
+        z = rng.randfloat(-CACTUS_SPAWN_Z, CACTUS_SPAWN_Z);
+        y = terr->SampleHeight(x, z) - 0.02;
+        s = rng.randfloat(8, 14);
+        r = rng.randfloat(0, 2 * PI);
+
+        cactusTransform.SetPosition({x, y, z});
+        cactusTransform.SetScale({s, s, s});
+        cactusTransform.SetOrientation(glm::angleAxis(r, glm::vec3(0, 1, 0)));
+
+        //should probably use another transform but is copied on pass so this works
+        cactus1->AddInstance(cactusTransform);
+
+        x = rng.randfloat(-CACTUS_SPAWN_X, CACTUS_SPAWN_X);
+        z = rng.randfloat(-CACTUS_SPAWN_Z, CACTUS_SPAWN_Z);
+        y = terr->SampleHeight(x, z) - 0.02;
+        s = rng.randfloat(8, 14);
+        r = rng.randfloat(0, 2 * PI);
+
+        cactusTransform.SetPosition({x, y, z});
+        cactusTransform.SetScale({s, s, s});
+        cactusTransform.SetOrientation(glm::angleAxis(r, glm::vec3(0, 1, 0)));
+
+        cactus3->AddInstance(cactusTransform);
+    }
+    AddColliderToScene(DESERT, cactus1);
+    AddColliderToScene(DESERT, cactus2);
+    AddColliderToScene(DESERT, cactus3);
 }
 
 void Game::SetupMainMenuScene() {
@@ -918,48 +979,47 @@ void Game::SetupMainMenuScene() {
     p->addButton(button);
 
     
-    // camera.Attach(&p->transform, false);
+    camera.Attach(&p->transform, false);
 
     Light* light = new Light(Colors::WarmWhite);
     light->transform.SetPosition({300.0, 300.0, 0.0});
     AddLightToScene(MAIN_MENU, light);
 
-    // SceneNode* stars = new SceneNode("Obj_Starcloud", "M_StarCloud", "S_Default", "");
-    // AddToScene(MAIN_MENU, stars);
+    SceneNode* skybox = new SceneNode("Obj_MoonSkybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
+    skybox->transform.SetScale({2000, 2000, 2000});
+    scenes[MAIN_MENU]->SetSkybox(skybox);
 
-    for(int i = 0; i < 3; i++) {
-        float radius = 600.0f;
-        glm::vec3 base_pos = {radius*i, 0.0, 0.0};
-        SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_InstancedShadow", "T_LavaPlanet");
-        astr->SetNormalMap("T_WallNormalMap", 4.0f);
-        astr->material.texture_repetition = 5.0f;
-        for(int i = 0; i < 512; i++) {
-            bool instanced = true;
-            glm::vec3 pos = base_pos + glm::ballRand(radius);
-            float s = rng.randfloat(3, 10);
-            float y = rng.randfloat(0, 2*PI);
-            float r = rng.randfloat(0, 2*PI);
-            float p = rng.randfloat(0, 2*PI);
-            // float s = 1;
-            if(instanced) {
-                Transform t;
-                t.SetPosition(pos);
-                t.SetScale({s,s,s});
-                t.Yaw(y);
-                t.Roll(r);
-                t.Pitch(p);
-                astr->AddInstance(t);
-            } else {
-                SceneNode* tree = new SceneNode("Obj_Forest", "M_Asteroid", "S_Lit", "T_LavaPlanet");
-                // tree->SetNormalMap("T_TreeNormalMap");
-                tree->transform.SetPosition(pos);
-                tree->transform.SetScale({s,s,s});
-                tree->transform.Yaw(r);
-                scenes[MAIN_MENU]->AddNode(tree);
-            }
+    float radius = 600.0f;
+    // glm::vec3 base_pos = {radius*i, 0.0, 0.0};
+    SceneNode* astr = new SceneNode("Obj_Forest", "M_Asteroid", "S_InstancedShadow", "T_LavaPlanet");
+    astr->SetNormalMap("T_WallNormalMap", 4.0f);
+    astr->material.texture_repetition = 5.0f;
+    for (int i = 0; i < 512; i++) {
+        bool instanced = true;
+        glm::vec3 pos = glm::ballRand(radius);
+        float s = rng.randfloat(3, 10);
+        float y = rng.randfloat(0, 2 * PI);
+        float r = rng.randfloat(0, 2 * PI);
+        float p = rng.randfloat(0, 2 * PI);
+        // float s = 1;
+        if (instanced) {
+            Transform t;
+            t.SetPosition(pos);
+            t.SetScale({s, s, s});
+            t.Yaw(y);
+            t.Roll(r);
+            t.Pitch(p);
+            astr->AddInstance(t);
+        } else {
+            SceneNode* tree = new SceneNode("Obj_Forest", "M_Asteroid", "S_Lit", "T_LavaPlanet");
+            // tree->SetNormalMap("T_TreeNormalMap");
+            tree->transform.SetPosition(pos);
+            tree->transform.SetScale({s, s, s});
+            tree->transform.Yaw(r);
+            scenes[MAIN_MENU]->AddNode(tree);
         }
-        scenes[MAIN_MENU]->AddNode(astr);
     }
+    scenes[MAIN_MENU]->AddNode(astr);
 }
 
 void Game::SetupStartScene() {

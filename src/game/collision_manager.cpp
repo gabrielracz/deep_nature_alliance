@@ -7,6 +7,19 @@
 #include <glm/glm.hpp>
 
 
+//to stop moving camera when colliding must check collisions after scenenode update which we cant do fully beacause of deletion
+//also checks collision without draw calls in between update and check
+//sorry for the jank
+void CollisionManager::WhyCouldntTheyJustBeInvisible(){
+    for (SceneNode * n : blockingCollision){
+        if (sphereToSphere(player, n)){
+            // std::cout << "hit" << std::endl;
+            player->ResetPosition();
+        }
+    }
+}
+
+
 void CollisionManager::CheckCollisions(){
     for (auto trig : triggers){
         if(sphereToSphere(player, trig)){
@@ -126,6 +139,9 @@ void CollisionManager::AddNode(SceneNode* node){
         case TTRIGGER:
             triggers.push_back(dynamic_cast<Trigger*>(node));
             break;
+        case TDONTUSECOLLIDER:
+            blockingCollision.push_back(node);
+            break;
         case TITEM:
             items.push_back(node);
             break;
@@ -136,10 +152,10 @@ void CollisionManager::AddNode(SceneNode* node){
             asteroids.push_back(node);
             break;
         case TPLAYER:
-            player = node;
+            player = static_cast<Player*>(node);
             break;
         case TSHIP:
-            player = node;
+            player = static_cast<Player*>(node);
             break;
         case TROCKET:
             rockets.push_back(node);
@@ -152,12 +168,27 @@ void CollisionManager::AddNode(SceneNode* node){
     }
 }
 
+//only does instanced collision on second node becuase fuck you its already ugly enough
 bool CollisionManager::sphereToSphere(SceneNode *first, SceneNode *second) {
     glm::vec3 pos1 = first->transform.GetPosition();
     float radius1 = first->GetCollision().GetSphereRadius();
-    glm::vec3 pos2 = second->transform.GetPosition();
-    float radius2 = second->GetCollision().GetSphereRadius();
-    return glm::distance(pos1, pos2) < radius1 + radius2;
+
+    if (second->GetNumInstances() > 0){
+        for (Transform& t : second->GetInstances()){
+            glm::vec3 pos2 = t.GetPosition();
+            float radius2 = second->GetCollision().GetSphereRadius();
+
+            if (glm::distance(pos1, pos2) < radius1 + radius2){
+                return true;
+            }
+        }
+    } else{
+        glm::vec3 pos2 = second->transform.GetPosition();
+        float radius2 = second->GetCollision().GetSphereRadius();
+
+        return glm::distance(pos1, pos2) < radius1 + radius2;
+    }
+    return false;
 }
 
 bool CollisionManager::sphereToBox(SceneNode *sphereNode, SceneNode *boxNode) {

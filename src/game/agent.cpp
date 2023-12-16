@@ -38,7 +38,7 @@ void Agent::UpMove(float dt)
 
     //we not being sus lets go!
     target_position_ = up_position_;
-    transform.SetPosition(target_position_);
+    // transform.SetPosition(target_position_);
     step_offset_ = step_height;
 }
 
@@ -58,7 +58,7 @@ void Agent::WalkingMove(const glm::vec3 move, float dt)
         //printf("Slope forward angle %f \n", slope_angle);
         if (slope_angle < max_walking_angle_ || target_position_.y > terrain_nextY + height_ * 4) { 
             target_position_ += forward * speed_ * dt * 100.0f;
-            transform.SetPosition(target_position_);
+            // transform.SetPosition(target_position_);
         }
     }
 
@@ -100,10 +100,10 @@ void Agent::DownMove(float dt)
             jumping_ = false;
         }
         target_position_.y = terrainY + height_;
-        transform.SetPosition(target_position_);
+        // transform.SetPosition(target_position_);
     } else {
         // We are falling
-        transform.SetPosition(target_position_);
+        // transform.SetPosition(target_position_);
     }
 }
 
@@ -149,6 +149,8 @@ void Agent::Update(double dt)
     backward_ = glm::vec3(0);
     strafe_left_ = glm::vec3(0);
     strafe_right_ = glm::vec3(0);
+
+    transform.SetPosition(target_position_);
 
     SceneNode::Update(dt);
     //printf("%f %f %f \n", walk_direction_.x, walk_direction_.y, walk_direction_.z);
