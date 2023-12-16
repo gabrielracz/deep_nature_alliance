@@ -54,7 +54,7 @@ const int color_palette_size = 16;
 
 
 
-const vec3 color_palette[16] = vec3[16](
+const vec3 color_palette[15] = vec3[15](
     vec3(0.0, 0.0, 0.0),           // Black
     vec3(0.663, 0.663, 0.663),     // Light Gray
     vec3(0.984, 0.0, 0.0),         // Red
@@ -69,9 +69,8 @@ const vec3 color_palette[16] = vec3[16](
     vec3(0.549, 0.722, 0.922),     // Light Blue
     vec3(0.988, 0.725, 0.894),     // Pink
     vec3(0.945, 0.945, 0.945),     // White
-    vec3(0.0, 0.988, 0.0),        // Bright Green
-    vec3(0xB6/255.0, 0xFF/255.0, 0x49/255.0)
-    // Add the remaining unique NES colors here...
+    vec3(0.0, 0.988, 0.0)        // Bright Green
+    // vec3(0xB6/255.0, 0xFF/255.0, 0x49/255.0)
 );
 
 vec4 dither(vec4 color) {

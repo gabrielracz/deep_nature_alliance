@@ -92,6 +92,7 @@ void SceneGraph::ClearEverything() {
     ClearStoryText();
     ClearAllNodes();
     ClearText();
+    ClearLights();
 }
 
 void SceneGraph::Reset() {
