@@ -83,7 +83,7 @@ class SceneGraph {
     Camera camera;
     Player* player;
     SceneNode* skybox = nullptr;
-    Terrain* terrain;
+    Terrain* terrain = nullptr;
     bool collision_enabled = true;
 
     std::function<void()> reset_callback;
