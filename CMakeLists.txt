@@ -119,13 +119,17 @@ if(NOT WIN32)
     find_library(GLEW_LIBRARY GLEW)
     find_library(GLFW_LIBRARY glfw)
     find_library(SOIL_LIBRARY SOIL)
+    find_library(IRRKLANG_LIBRARY libIrrKlang.so HINTS ${LIBRARY_PATH}/lib)
 elseif(WIN32)
     find_library(GLEW_LIBRARY glew32s HINTS ${LIBRARY_PATH}/lib)
     find_library(GLFW_LIBRARY glfw3 HINTS ${LIBRARY_PATH}/lib)
     find_library(SOIL_LIBRARY SOIL HINTS ${LIBRARY_PATH}/lib)
+    find_library(IRRKLANG_LIBRARY IrrKlang HINTS ${LIBRARY_PATH}/lib)
 endif(NOT WIN32)
 target_link_libraries(${PROJ_NAME} ${GLEW_LIBRARY})
 target_link_libraries(${PROJ_NAME} ${GLFW_LIBRARY})
+target_link_libraries(${PROJ_NAME} ${IRRKLANG_LIBRARY})
+
 # target_link_libraries(${PROJ_NAME} ${SOIL_LIBRARY})
 
 # The rules here are specific to Windows Systems
