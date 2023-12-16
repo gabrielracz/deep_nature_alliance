@@ -789,7 +789,6 @@ void Game::SetupForestScene() {
         scenes[FOREST]->AddNode(htree);
     }
 
-
     Item* first_tree = new Item("Obj_FirstTreeDialogue", "", "S_Lit", "T_Pill");
     first_tree->transform.SetPosition({-388.425018, 21.000000, -272.856903});
     first_tree->transform.SetScale({55,55,55});
