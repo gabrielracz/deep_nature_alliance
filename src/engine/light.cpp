@@ -10,8 +10,9 @@ void Light::Update(float dt) {
 void Light::SetUniforms(ShaderLight& l) {
     glm::vec3 pos = transform.GetPosition();
     if(parent_transform){ 
-        // pos += parent_transform->GetWorldPosition();
-        pos = parent_transform->GetWorldPosition();
+        l.light_position   = pos + parent_transform->GetPosition();
+    } else{
+        l.light_position = pos;
     }
     
     l.light_position   = pos;
@@ -23,6 +24,21 @@ void Light::SetUniforms(ShaderLight& l) {
 void Light::Attach(Transform *transform) {
     parent_transform = transform;
 }
+
+glm::mat4 Light::CalculateViewMatrix(){
+    if (parent_transform){
+        glm::quat playerOrientation = parent_transform->GetOrientation();
+        glm::vec3 forwardVector = playerOrientation * glm::vec3(0.0, 0.0, -1.0);
+        return glm::lookAt(parent_transform->GetPosition() + transform.GetPosition(), parent_transform->GetPosition() + lookAhead * forwardVector, glm::vec3(0.0, 1.0, 0.0));
+    } else {
+        return glm::lookAt(transform.GetPosition(), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    }
+}
+
+const glm::mat4& Light::GetProjMatrix(){
+    return projMatrix;
+}
+
 
 glm::vec3 Light::GetColour(void) const
 {
