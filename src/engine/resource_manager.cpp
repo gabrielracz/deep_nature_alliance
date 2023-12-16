@@ -58,7 +58,9 @@ Shader* ResourceManager::GetShader(const std::string &name) {
 Mesh* ResourceManager::GetMesh(const std::string &name) {
 	auto it = meshes.find(name);
 	if(it == meshes.end()) {
-		std::cout << "RESMAN ERROR: loading mesh\t" << name << std::endl;
+        if(name != "") {
+            std::cout << "RESMAN ERROR: loading mesh\t" << name << std::endl;
+        }
 		return nullptr;
 	}
 	return &it->second;

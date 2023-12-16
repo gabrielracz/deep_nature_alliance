@@ -793,6 +793,13 @@ void Game::SetupForestScene() {
     AddToScene(FOREST, crashed);
     AddColliderToScene(FOREST, crashed);
 
+    Item* first_tree = new Item("Obj_FirstTreeDialogue", "", "S_Lit", "T_Pill");
+    first_tree->transform.SetPosition({-388.425018, 21.000000, -272.856903});
+    first_tree->transform.SetScale({55,55,55});
+    first_tree->SetCollectCallback([this]() { AddStoryToScene(FOREST, StoryBeat::CRASHED_SHIP); });
+    first_tree->DeleteOnCollect(true);
+    AddColliderToScene(FOREST, first_tree);
+
 }
 
 void Game::SetupDesertScene() {

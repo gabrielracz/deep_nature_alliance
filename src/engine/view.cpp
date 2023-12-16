@@ -119,21 +119,23 @@ void View::RenderDepthMap(SceneGraph& scene) {
 
     std::function<void(SceneNode*)> render_depth = [&render_depth, &shdinst, &scene, &proj_mat, &view_mat, &shd, this](SceneNode* node) {
         Mesh* mesh = resman.GetMesh(node->GetMeshID());
-        std::vector<Transform>& instances = node->GetInstances();
-        if(instances.size() > 0) {
-            shdinst->Use();
-            shdinst->SetInstances(instances, scene.GetCamera().GetViewMatrix(), false);
-            shdinst->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
-            // set light_mat
-            shdinst->SetUniform4m(proj_mat * view_mat, "light_mat");
-            mesh->Draw(instances.size());
-            shd->Use();
-        } else {
-            // set world_mat
-            shd->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
-            // set light_mat
-            shd->SetUniform4m(proj_mat * view_mat, "light_mat");
-            mesh->Draw();
+        if(mesh){
+            std::vector<Transform>& instances = node->GetInstances();
+            if(instances.size() > 0) {
+                shdinst->Use();
+                shdinst->SetInstances(instances, scene.GetCamera().GetViewMatrix(), true);
+                shdinst->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
+                // set light_mat
+                shdinst->SetUniform4m(proj_mat * view_mat, "light_mat");
+                mesh->Draw(instances.size());
+                shd->Use();
+            } else {
+                // set world_mat
+                shd->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
+                // set light_mat
+                shd->SetUniform4m(proj_mat * view_mat, "light_mat");
+                mesh->Draw();
+            }
         }
         for(auto child : node->GetChildren()) {
             render_depth(child);
