@@ -86,7 +86,7 @@ private:
     void RenderScene(SceneGraph& scene);
     void RenderScreenspace(SceneGraph& scene);
     void RenderPostProcessing(SceneGraph& scene);
-    void RenderDepthMap(SceneGraph& scene);
+    void RenderDepthMap(SceneGraph& scene, std::shared_ptr<Light> l);
     void RenderNode(SceneNode *node, Camera &cam, std::vector<std::shared_ptr<Light>> &lights, const glm::mat4 &parent_matrix = glm::mat4(1.0f));
     void ResizeBuffers();
 

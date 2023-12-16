@@ -38,7 +38,7 @@ void View::Render(SceneGraph& scene) {
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
-    RenderDepthMap(scene);
+    RenderDepthMap(scene, scene.GetLights()[0]);
     glBindFramebuffer(GL_FRAMEBUFFER, postprocess_fbo);
     glViewport(0,0, win.width, win.height);
     RenderScene(scene);
@@ -100,7 +100,7 @@ void View::RenderPostProcessing(SceneGraph& scene) {
     }
 }
 
-void View::RenderDepthMap(SceneGraph& scene) {
+void View::RenderDepthMap(SceneGraph& scene, std::shared_ptr<Light> light) {
     glViewport(0, 0, DEPTHWIDTH, DEPTHHEIGHT);
     glClear(GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
@@ -113,8 +113,8 @@ void View::RenderDepthMap(SceneGraph& scene) {
     Shader* shdinst = resman.GetShader("S_InstancedDepth");
     shd->Use();
 
-    glm::mat4 view_mat = glm::lookAt({300.0, 600.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-    glm::mat4 proj_mat = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 20.0f, 1300.0f);
+    glm::mat4 view_mat = light->CalculateViewMatrix();
+    const glm::mat4& proj_mat = light->GetProjMatrix();
 
 
     std::function<void(SceneNode*)> render_depth = [&render_depth, &shdinst, &scene, &proj_mat, &view_mat, &shd, this](SceneNode* node) {
@@ -167,9 +167,9 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<std::shared_ptr<
     cam.SetProjectionUniforms(shd, node->GetDesiredProjection());
 
     shd->SetLights(lights);
-    // Light* l = lights.back();
-    glm::mat4 view_mat = glm::lookAt({300.0, 600.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-    glm::mat4 proj_mat = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 20.0f, 1300.0f);
+    auto l = lights[0]; //lol all scenes have lights so fine for now
+    glm::mat4 view_mat = l->CalculateViewMatrix();
+    const glm::mat4& proj_mat = l->GetProjMatrix();
 
 
     shd->SetUniform4m(proj_mat * view_mat, "shadow_light_mat");

@@ -886,7 +886,9 @@ void Game::SetupDesertScene() {
     scenes[DESERT]->AddTerrain(terr);
 
     auto light = std::make_shared<Light>(Colors::SunLight);
-    light->transform.SetPosition({1000.0, 1000.0, 0.0});
+    light->transform.SetPosition({300.0, 600.0, 0.0});
+    light->Attach(&p->transform);
+    // light->SetProjMatrix(glm::ortho(-250.0f, 250.0f, -250.0f, 250.0f, 20.0f, 1300.0f));
     scenes[DESERT]->AddLight(light);
 
     auto skybox = std::make_shared<SceneNode>("Obj_Skybox", "M_Skybox", "S_Skybox", "T_BlueSkybox");
