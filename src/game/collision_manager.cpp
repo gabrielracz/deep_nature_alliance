@@ -234,9 +234,13 @@ bool CollisionManager::rayToSphere(SceneNode& rayNode, SceneNode& sphereNode) {
 void CollisionManager::Reset()
 {
     triggers.clear();
+    toggles.clear();
     items.clear();
     asteroids.clear();
     beacons.clear();
     othercollideables.clear();
+    rockets.clear();
+    blockingCollision.clear();
+    player = nullptr;
     // delete player;
 }
