@@ -21,7 +21,7 @@ std::shared_ptr<SceneNode> SceneGraph::GetNode(std::string node_name) const {
 }
 
 void SceneGraph::Update(double dt) {
-    
+
     if (collision_enabled) {
         colman.CheckCollisions();
     }
@@ -83,6 +83,7 @@ void SceneGraph::ClearEverything() {
     ClearAllNodes();
     ClearText();
     ClearLights();
+    player = nullptr;
 }
 
 void SceneGraph::Reset() {
