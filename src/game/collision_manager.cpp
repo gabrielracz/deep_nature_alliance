@@ -163,7 +163,7 @@ void CollisionManager::AddNode(std::shared_ptr<SceneNode> node) {
 }
 
 //only does instanced collision on second node becuase fuck you its already ugly enough
-bool CollisionManager::sphereToSphere(const SceneNode& first, const SceneNode& second) {
+bool CollisionManager::sphereToSphere(SceneNode& first, SceneNode& second) {
     glm::vec3 pos1 = first.transform.GetPosition();
     float radius1 = first.GetCollision().GetSphereRadius();
 
@@ -185,7 +185,7 @@ bool CollisionManager::sphereToSphere(const SceneNode& first, const SceneNode& s
     return false;
 }
 
-bool CollisionManager::sphereToBox(const SceneNode& sphereNode, const SceneNode& boxNode) {
+bool CollisionManager::sphereToBox(SceneNode& sphereNode, SceneNode& boxNode) {
     glm::vec3 sphereCenter = sphereNode.transform.GetPosition();
     float sphereRadius = sphereNode.GetCollision().GetSphereRadius();
     glm::vec3 boxCenter = boxNode.transform.GetPosition();
@@ -205,7 +205,7 @@ bool CollisionManager::sphereToBox(const SceneNode& sphereNode, const SceneNode&
     return distSquared <= (sphereRadius * sphereRadius);
 }
 
-bool CollisionManager::rayToSphere(const SceneNode& rayNode, const SceneNode& sphereNode) {
+bool CollisionManager::rayToSphere(SceneNode& rayNode, SceneNode& sphereNode) {
     glm::vec3 rayOrigin = rayNode.GetCollision().GetRayOrigin();
     glm::vec3 rayDirection = rayNode.GetCollision().GetRayDirection();
     glm::vec3 sphereCenter = sphereNode.transform.GetPosition();

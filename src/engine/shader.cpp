@@ -133,7 +133,7 @@ void Shader::Use() const{
 	glUseProgram(id);
 }
 
-void Shader::SetLights(std::vector<Light*>& world_lights) {
+void Shader::SetLights(std::vector<std::shared_ptr<Light>>& world_lights) {
     int i = 0;
     for(; i < MIN(world_lights.size(), MAX_LIGHTS); i++) {
         world_lights[i]->SetUniforms(lightsblock.lights[i]);

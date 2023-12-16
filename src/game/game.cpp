@@ -502,7 +502,7 @@ void Game::SetupFPScene(void) {
     }
     scenes[FPTEST]->AddNode(moonobj2);
 
-    auto tree = std::make_shared<Tree>("Obj_MoonTree", "M_MoonTree", "S_InstancedShadow", "T_MoonTree");
+    auto tree = std::make_shared<SceneNode>("Obj_MoonTree", "M_MoonTree", "S_InstancedShadow", "T_MoonTree");
     tree->SetNormalMap("T_WallNormalMap", 1.0f);
     tree->material.specular_power = 150.0;
     std::vector<glm::vec3> tree_points = rng.generateUniqueRandomPoints(100, 10.0f, 750.0f);
@@ -848,7 +848,7 @@ void Game::SetupDesertScene() {
     terr->material.texture_repetition = 50.0f;
     terr->SetNormalMap("T_Sand_n", 50.0f);
     p->SetTerrain(terr);
-    scenes[DESERT]->AddNode(terr);
+    scenes[DESERT]->AddTerrain(terr);
 
     auto light = std::make_shared<Light>(Colors::SunLight);
     light->transform.SetPosition({1000.0, 1000.0, 0.0});

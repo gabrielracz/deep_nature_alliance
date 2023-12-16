@@ -30,13 +30,13 @@ class CollisionManager{
 
         // void AddAsteroid(SceneNode *newAsteroid) { asteroids.push_back(newAsteroid); }
 
-        void SetPlayer(std::shared_ptr<Player> newPlayer);
+        void SetPlayer(std::shared_ptr<Player> newPlayer) { player = std::move(newPlayer); }
 
     private:
 
-        bool sphereToSphere(const SceneNode& first, const SceneNode& second);
-        bool sphereToBox(const SceneNode& sphereNode, const SceneNode& boxNode);
-        bool rayToSphere(const SceneNode& rayNode, const SceneNode& sphereNode);
+        bool sphereToSphere(SceneNode& first, SceneNode& second);
+        bool sphereToBox(SceneNode& sphereNode, SceneNode& boxNode);
+        bool rayToSphere(SceneNode& rayNode, SceneNode& sphereNode);
 
         bool GetCollision(SceneNode& obj1, SceneNode& obj2);
         bool GetCollisionRaw(SceneNode& obj1, SceneNode&  obj2);

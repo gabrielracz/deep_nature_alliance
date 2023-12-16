@@ -46,7 +46,7 @@ class SceneNode {
 
         void SetTexture(std::string& new_tex_id, float texture_repetition = 1.0f);
         void SetNormalMap(const std::string& new_tex_id, float normal_map_repetition = 1.0f); 
-        void AddChild(std::unique_ptr<SceneNode> n);                     
+        void AddChild(SceneNode* n);                        
         void SetCollision(const CollisionData& t)           {collision = t;}
         void SetCollider(Collider * col)                    {collider = col;}
         void SetNodeType(NodeType type)                     {node_type = type;}
@@ -66,10 +66,10 @@ class SceneNode {
         bool IsAlphaEnabled() const                         {return alpha_enabled;}
         int GetAlphaFunc() const                            {return alpha_func;}
         const glm::mat4& GetCachedTransformMatrix() const   {return transf_matrix;}
-        const std::vector<std::unique_ptr<SceneNode>>& GetChildren() const { return children; }
+        const std::vector<SceneNode*>& GetChildren() const  {return children;}
         const CollisionData& GetCollision() const           {return collision;}
-        const std::vector<Transform>& GetInstances() const  {return instances;}
-        int GetNumInstances() const                         {return in_camera_instances;}
+        std::vector<Transform>& GetInstances()              {return instances;}
+        int GetNumInstances()                               {return in_camera_instances;}
         Collider* GetCollider() const                       {return collider;}
         NodeType GetNodeType() const                        {return node_type;}
 
@@ -85,7 +85,7 @@ class SceneNode {
     protected:
         glm::mat4 transf_matrix;
         std::string name; // Name of the scene node
-        std::vector<std::unique_ptr<SceneNode>> children;
+        std::vector<SceneNode*> children;
         SceneNode* parent = nullptr;
         std::vector<Transform> instances;
         std::vector<unsigned int> deleted_instances;

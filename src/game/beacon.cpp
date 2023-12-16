@@ -6,7 +6,7 @@ Beacon::Beacon(const std::string name, const std::string& mesh_id, const std::st
 {
     SphereCollider* col = new SphereCollider(*this, 50.0);
     transform.SetScale({80,80,80});
-    col->SetCallback([this](SceneNode* other) { this->HandleCollisionWith(other); });
+    col->SetCallback([this](SceneNode& other) { this->HandleCollisionWith(&other); });
     SetCollider(col);
     SetNodeType(TBEACON);
 }
