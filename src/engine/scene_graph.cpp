@@ -26,9 +26,14 @@ void SceneGraph::Update(double dt) {
         colman.CheckCollisions();
     }
 
-    // Use auto& to avoid creating shared_ptr copies
-    for (auto& sn : node_) {
-        sn->Update(dt);
+    for(auto it = node_.begin(); it != node_.end();) {
+        std::shared_ptr<SceneNode> sn = *it;
+        if(sn->deleted) {
+            it = node_.erase(it);
+        } else {
+            sn->Update(dt);
+            it++;
+        }
     }
 
     int w = camera.GetWinWidth();

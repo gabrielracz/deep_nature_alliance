@@ -11,7 +11,9 @@ enum StoryBeat {
     BEGINNING,
     INTRO,
     FOREST_THOUGHTS,
+    FIRST_TREE,
     CRASHED_SHIP,
+    INVESTIGATE_SHIP,
     PILL,
     PICTURE,
     GOOD_END,
@@ -105,7 +107,6 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
             "Press [J] to Jump\n",
             INTRO_LOADING
         }
-
     }},
     {INTRO, {
              {
@@ -123,24 +124,39 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
     {FOREST_THOUGHTS,{
             {
                 "This planet is way too close\n"
-                "to the sun to have life...\n",
-                THOUGHTS
-            },
-            {
-                "I must be mistaken.\n"
+                "to the sun to support life...\n"
+                "...\n"
                 "They must have built an\n"
-                "artificial atmosphere.\n",
+                "artificial atmosphere.\n"
+                "But my readings indicate lethal\n"
+                "levels of chlorine and ammonia.",
                 THOUGHTS
             }
     }},
-    {CRASHED_SHIP, {
+    {FIRST_TREE, {
         {
-            "Something is strange about these trees...",
+            "Something is strange about this tree...\n"
+            "The leaves dance but the air is still.\n",
             THOUGHTS
         },
         {
-            "It appears there is some strange energy radiating\n"
-            "from the ship.",
+            "The others are completely motionless.\n"
+            "How could they survive in this noxious\n"
+            "environment?",
+            THOUGHTS
+        }
+    }},
+    {CRASHED_SHIP, {
+        {
+            "There appears to be a corrupting energy\n"
+            "radiating from the ship affecting the\n"
+            "surrounding trees.",
+            THOUGHTS
+        },
+        {
+            "Seems the distress beacon is still on\n"
+            "but the surrounding forest floor has already\n"
+            "begun swallowing the hull.",
             THOUGHTS
         }
     }},
@@ -299,68 +315,6 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "Violence Mode [Enabled]\n"
                 "Press [V] to toggle.\n",
                 SHIP_ERROR
-            }
-    }},
-    {TOLKIEN, {
-            {
-                "All that is gold does not glitter,\n"
-                "Not all those who wander are lost;\n"
-                "The old that is strong does not wither,\n"
-                "Deep roots are not reached by the frost.\n"
-                "From the ashes a fire shall be woken,\n"
-                "A light from the shadows shall spring;\n"
-                "Renewed shall be blade that was broken,\n"
-                "The crownless again shall be king.\n"
-            },
-            {
-                "The Black Rider flung back his hood,\n"
-                "and behold! he had a kingly crown;\n"
-                "and yet upon no head visible was it set.\n"
-                "The red fires shone between it and the\n"
-                "mantled shoulders vast and dark.\n"
-                "From a mouth unseen\n"
-                "there came a deadly laughter.\n",
-            },
-            {
-                "The Road goes ever on and on\n"
-                "Down from the door where it began.\n"
-                "Now far ahead the Road has gone,\n"
-                "And I must follow, if I can,\n"
-                "Pursuing it with eager feet,\n"
-                "Until it joins some larger way\n"
-                "Where many paths and errands meet.\n"
-                "And whither then? I cannot say\n",
-            },
-            {
-                "I sit beside the fire and think\n"
-                "Of all that I have seen\n"
-                "Of meadow flowers and butterflies\n"
-                "In summers that have been\n"
-
-                "Of yellow leaves and gossamer\n"
-                "In autumns that there were\n"
-                "With morning mist and silver sun\n"
-                "And wind upon my hair\n"
-
-                "I sit beside the fire and think\n"
-                "Of how the world will be\n"
-                "When winter comes without a spring\n"
-                "That I shall ever see\n"
-
-                "For still there are so many things\n"
-                "That I have never seen\n"
-                "In every wood in every spring\n"
-                "There is a different green\n"
-
-                "I sit beside the fire and think\n"
-                "Of people long ago\n"
-                "And people that will see a world\n"
-                "That I shall never know\n"
-
-                "But all the while I sit and think\n"
-                "Of times there were before\n"
-                "I listen for returning feet\n"
-                "And voices at the door\n",
             }
     }}
 };

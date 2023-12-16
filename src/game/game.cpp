@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <glm/gtx/string_cast.hpp>
+#include <memory>
 #include <string>
 #define GLM_FORCE_RADIANS
 #include <glm/ext/quaternion_trigonometric.hpp>
@@ -142,7 +143,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_SpaceBugs", SHADER_DIRECTORY"/spacebug_vp.glsl", SHADER_DIRECTORY"/spacebug_fp.glsl", SHADER_DIRECTORY"/spacebug_gp.glsl");
     resman.LoadShader("S_Explosion", SHADER_DIRECTORY"/explosion_vp.glsl", SHADER_DIRECTORY"/explosion_fp.glsl", SHADER_DIRECTORY"/explosion_gp.glsl");
     resman.LoadShader("S_Violence", SHADER_DIRECTORY"/red_vision_vp.glsl", SHADER_DIRECTORY"/red_vision_fp.glsl");
-    // resman.LoadShader("S_SSDither", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/dither_fp.glsl");
+    resman.LoadShader("S_SSDither", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/dither_fp.glsl");
 
     resman.SetScreenSpaceShader("S_Texture");
 }
@@ -249,12 +250,14 @@ void Game::SetupScenes(void){
     // CreateTriggers();
     // // CreateTree();
     CreateLights();
-    CreateHUD();
+    // CreateHUD();
     CreateStory();
 }
 
 void Game::SetupSpaceScene() {
     SceneGraph* scn = scenes[SPACE];
+    CreateFPSCounter(SPACE);
+    CreateShipHUD(SPACE);
 
     scn->SetResetCallback([this]() { this->SetupSpaceScene(); });
 
@@ -425,6 +428,8 @@ const std::vector<std::vector<float>> Game::readTerrain(const std::string& fileP
 }
 
 void Game::SetupFPScene(void) {
+    CreateFPSCounter(FPTEST);
+
     scenes[FPTEST]->SetResetCallback([this]() { this->SetupFPScene(); });
     Camera& camera = scenes[FPTEST]->GetCamera();
     camera.SetView(glm::vec3(0.0, 3.0, -0.4), glm::vec3(0.0, 3.0, -0.4) + config::camera_look_at, config::camera_up);
@@ -654,6 +659,8 @@ void Game::SetupFPScene(void) {
 
 void Game::SetupForestScene() {
     // resman.SetScreenSpaceShader("S_SSDither");
+    CreateFPSCounter(FOREST);
+    CreateMapHUD(FOREST);
 
     scenes[FOREST]->SetResetCallback([this]() { this->SetupForestScene(); });
     Camera& camera = scenes[FOREST]->GetCamera();
@@ -786,23 +793,36 @@ void Game::SetupForestScene() {
     crashed->transform.SetOrientation({0.975208, {0.076261, -0.193031, -0.076759}});
     crashed->transform.SetScale({11.0, 11.0, 9.5});
     crashed->material.specular_power = 169.0f;
-    SphereCollider* crashedcol = new SphereCollider(*crashed, 9.0f);
+    SphereCollider* crashedcol = new SphereCollider(*crashed, 65.0f);
     crashedcol->oneoff = true;
-    crashedcol->SetCallback([this]() {AddStoryToScene(FOREST, StoryBeat::CRASHED_SHIP);});
+    crashedcol->SetCallback([this]() {CollectStoryItem(StoryBeat::CRASHED_SHIP);});
     crashed->SetCollider(crashedcol);
     AddToScene(FOREST, crashed);
     AddColliderToScene(FOREST, crashed);
 
-    auto first_tree = std::make_shared<Item>("Obj_FirstTreeDialogue", "", "S_Lit", "T_Pill");
+    auto ship_vision = std::make_shared<Toggle>("Obj_Toggle", "", "S_Default", "T_SpiralParticle");
+    ship_vision->transform.SetPosition(crashed->transform.GetPosition());
+    SphereCollider* col_vision = new SphereCollider(*ship_vision, 65.0f);
+    ship_vision->SetCollider(col_vision);
+    ship_vision->SetOnCallback([this]() { 
+        this->resman.SetScreenSpaceShader("S_SSDither"); 
+    });
+    ship_vision->SetOffCallback([this]() { 
+        this->resman.SetScreenSpaceShader("S_Texture");
+    });
+    AddColliderToScene(FOREST, ship_vision);
+
+    auto first_tree = std::make_shared<Item>("Obj_FirstTreeDialogue", "", "S_Lit", "T_Pill", 50.0f);
     first_tree->transform.SetPosition({-388.425018, 21.000000, -272.856903});
     first_tree->transform.SetScale({55,55,55});
-    first_tree->SetCollectCallback([this]() { AddStoryToScene(FOREST, StoryBeat::CRASHED_SHIP); });
+    first_tree->SetCollectCallback([this]() { AddStoryToScene(FOREST, StoryBeat::FIRST_TREE); });
     first_tree->DeleteOnCollect(true);
     AddColliderToScene(FOREST, first_tree);
 
 }
 
 void Game::SetupDesertScene() {
+    CreateFPSCounter(DESERT);
     scenes[DESERT]->SetResetCallback([this]() { this->SetupDesertScene(); });
     Camera& camera = scenes[DESERT]->GetCamera();
     camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
@@ -1446,17 +1466,7 @@ void Game::AddStoryToScene(SceneEnum sceneNum, StoryBeat index) {
 
 // }
 
-void Game::CreateHUD() {
-
-    float brdr = 0.0f;
-
-    auto txt = std::make_shared<Text>("Obj_Banner", "M_Quad", "S_Text", "T_Charmap","DEEP NATURE ALLIANCE\nA millenia ago, thousands of soldiers\nwere sent deep into the far reaches of space\nin search of life.\nOne of these soldiers is you...");
-    txt->transform.SetPosition({0.0f, 1.0f, 0.0f});
-    txt->SetAnchor(Text::Anchor::TOPCENTER);
-    txt->SetColor(Colors::SlimeGreen);
-    txt->SetSize(15);
-    // AddTextToScene(SceneEnum::ALL, txt);
-
+void Game::CreateFPSCounter(SceneEnum scene) {
     auto fps = std::make_shared<Text>("Obj_Fps", "M_Quad", "S_Text", "T_Charmap", "FPS");
     fps->transform.SetPosition({-1.0, 1.0, 0.0f});
     fps->SetColor(Colors::White);
@@ -1464,10 +1474,13 @@ void Game::CreateHUD() {
     fps->SetCallback([this]() -> std::string {
         return "fps: " + std::to_string(app.GetFPS());
     });
-    AddTextToScene(SceneEnum::ALL, fps);
+    AddTextToScene(scene, fps);
 
+}
+
+void Game::CreateShipHUD(SceneEnum scene) {
     auto speedo = std::make_shared<Text>("Obj_Speedo", "M_Quad", "S_Text", "T_Charmap", "");
-    speedo->transform.SetPosition({-1.0 + brdr, -1.0 + brdr, 0.0f});
+    speedo->transform.SetPosition({-1.0, -1.0, 0.0f});
     speedo->SetColor(Colors::Amber);
     speedo->SetAnchor(Text::Anchor::BOTTOMLEFT); 
     speedo->SetCallback([this]() -> std::string {
@@ -1495,11 +1508,18 @@ void Game::CreateHUD() {
         return out;
     });
     // scene->AddNode(speedo);
-    AddTextToScene(SceneEnum::SPACE, speedo);
+    AddTextToScene(scene, speedo);
 
+    auto crosshair = std::make_shared<Text>("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", "[ ]");
+    crosshair->transform.SetPosition({0.0, 0.0, 0.0});
+    crosshair->SetSize(10.0f);
+    crosshair->SetColor(Colors::Amber);
+    crosshair->SetBackgroundColor(Colors::Transparent);
+    crosshair->SetAnchor(Text::Anchor::CENTER);
+    AddTextToScene(SPACE, crosshair);
+}
 
-
-
+void Game::CreateMapHUD(SceneEnum scene){ 
     auto fp_map = std::make_shared<Text>("Obj_FPMap", "M_Quad", "S_Text", "T_Charmap", "waiting");
     fp_map->SetAnchor(Text::Anchor::BOTTOMRIGHT);
     fp_map->transform.SetPosition({1.0, -1.0, 0.0});
@@ -1540,16 +1560,6 @@ void Game::CreateHUD() {
         return map;
     });
     AddTextToScene(FOREST, fp_map);
-
-
-
-    auto crosshair = std::make_shared<Text>("Obj_Crosshair", "M_Quad", "S_Text", "T_Charmap", "[ ]");
-    crosshair->transform.SetPosition({0.0, 0.0, 0.0});
-    crosshair->SetSize(10.0f);
-    crosshair->SetColor(Colors::Amber);
-    crosshair->SetBackgroundColor(Colors::Transparent);
-    crosshair->SetAnchor(Text::Anchor::CENTER);
-    AddTextToScene(SPACE, crosshair);
 }
 
 void Game::CreateStory() {

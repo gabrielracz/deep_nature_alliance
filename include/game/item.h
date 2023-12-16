@@ -16,7 +16,7 @@
 class Item : public SceneNode {
 
     public:
-        Item(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id);
+        Item(const std::string name, const std::string& mesh_id, const std::string& shader_id, const std::string& texture_id, float col_radius = 3.0f);
         
         void SetCollectCallback(std::function<void()> f) { callback = f; };
         virtual void Update(double dt) override;

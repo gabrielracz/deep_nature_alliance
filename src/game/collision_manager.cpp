@@ -77,12 +77,32 @@ void CollisionManager::CheckCollisions() {
 
     for (auto it = othercollideables.begin(); it != othercollideables.end();) {
         auto other = *it;
+        if(!other) {continue;}
         if (GetCollision(*other, *player) && other->GetCollider()->oneoff) {
             it = othercollideables.erase(it);
+            continue;
             std::cout << "deleted" << std::endl;
         } else {
             it++;
         }
+
+
+        for (auto rit = rockets.begin(); rit != rockets.end();) {
+            auto rocket = *rit;
+
+            float other_rad = other->transform.GetScale().x;
+            float rocket_rad = glm::length(rocket->transform.GetScale());
+            glm::vec3 opos = other->transform.GetPosition();
+
+            if (glm::length(rocket->transform.GetPosition() - opos) < other_rad + rocket_rad) {
+                game->SpawnExplosion(rocket->transform.GetPosition(), glm::vec3(3.0f));
+                rocket->deleted = true;
+                rit = rockets.erase(rit);
+            } else {
+                ++rit;
+            }
+        }
+
     }
 }
 
