@@ -145,4 +145,29 @@ if(WIN32)
  
     # This will use the proper libraries in debug mode in Visual Studio
     set_target_properties(${PROJ_NAME} PROPERTIES DEBUG_POSTFIX _d)
+
+    # Specify the source directory containing DLLs
+    set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/lib)
+
+    # Specify the destination directory
+    set(DESTINATION_DIR ${CMAKE_CURRENT_BINARY_DIR}/build/release)
+    set(DESTINATION_DIR ${CMAKE_CURRENT_BINARY_DIR}/build/debug)
+
+    # Get a list of all DLLs in the source directory
+    file(GLOB DLLS ${SOURCE_DIR}/*.dll)
+
+    # Create a custom command for each DLL
+    foreach(DLL ${DLLS})
+        get_filename_component(DLL_NAME ${DLL} NAME)
+        add_custom_command(
+            TARGET ${PROJ_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${DLL}
+                ${DESTINATION_DIR}/${DLL_NAME}
+            COMMENT "Copying ${DLL_NAME} to ${DESTINATION_DIR}"
+        )
+    endforeach()
+
+    # Create a custom target to group the commands
+    add_custom_target(CopyDLLs ALL DEPENDS ${DLLS})
 endif(WIN32)
