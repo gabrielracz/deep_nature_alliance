@@ -1,7 +1,6 @@
 #include <glm/gtc/noise.hpp>
 
 #include "terrain.h"
-#include "terrain_data.h"
 #include "defines.h"
 #include "game.h"
 #include "colliders/colliders.h"
