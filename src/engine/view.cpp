@@ -116,36 +116,36 @@ void View::RenderDepthMap(SceneGraph& scene) {
     glm::mat4 view_mat = glm::lookAt({300.0, 600.0, 0.0}, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
     glm::mat4 proj_mat = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 20.0f, 1300.0f);
 
-
-    std::function<void(SceneNode*)> render_depth = [&render_depth, &shdinst, &scene, &proj_mat, &view_mat, &shd, this](SceneNode* node) {
-        Mesh* mesh = resman.GetMesh(node->GetMeshID());
-        std::vector<Transform>& instances = node->GetInstances();
-        if(instances.size() > 0) {
-            shdinst->Use();
-            shdinst->SetInstances(instances, scene.GetCamera().GetViewMatrix(), false);
-            shdinst->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
-            // set light_mat
-            shdinst->SetUniform4m(proj_mat * view_mat, "light_mat");
-            mesh->Draw(instances.size());
-            shd->Use();
-        } else {
-            // set world_mat
-            shd->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
-            // set light_mat
-            shd->SetUniform4m(proj_mat * view_mat, "light_mat");
-            mesh->Draw();
-        }
-        for(auto child : node->GetChildren()) {
-            render_depth(child);
-        }
-    };
+    std::function<void(std::shared_ptr<SceneNode>)> render_depth =
+        [&render_depth, &shdinst, &scene, &proj_mat, &view_mat, &shd, this](std::shared_ptr<SceneNode> node) {
+            Mesh* mesh = resman.GetMesh(node->GetMeshID());
+            std::vector<Transform>& instances = node->GetInstances();
+            if (instances.size() > 0) {
+                shdinst->Use();
+                shdinst->SetInstances(instances, scene.GetCamera().GetViewMatrix(), false);
+                shdinst->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
+                // set light_mat
+                shdinst->SetUniform4m(proj_mat * view_mat, "light_mat");
+                mesh->Draw(instances.size());
+                shd->Use();
+            } else {
+                // set world_mat
+                shd->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
+                // set light_mat
+                shd->SetUniform4m(proj_mat * view_mat, "light_mat");
+                mesh->Draw();
+            }
+            for (auto child : node->GetChildren()) {
+                render_depth(child);
+            }
+        };
 
     for(auto node : scene) {
         render_depth(node);
     }
 }
 
-void View::RenderNode(SceneNode* node, Camera& cam, std::vector<Light*>& lights, const glm::mat4& parent_matrix) {
+void RenderNode(const std::shared_ptr<SceneNode>& node, Camera &cam, std::vector<std::shared_ptr<Light>>& lights, const glm::mat4 &parent_matrix = glm::mat4(1.0f)) {
 
     if (!node->visible) {
         return;

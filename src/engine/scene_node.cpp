@@ -16,9 +16,9 @@ SceneNode::SceneNode(const std::string name, const std::string& mesh_id, const s
      {}
 
 SceneNode::~SceneNode(){
-    for(auto child : children) {
-        delete child;
-    }
+    // for(auto child : children) {
+    //     delete child;
+    // }
     if(collider != nullptr) {
         delete collider;
     }
@@ -84,7 +84,7 @@ void SceneNode::SetTexture(std::string& new_tex_id, float texture_repetition) {
     material.texture_repetition = texture_repetition;
 }
 
-void SceneNode::AddChild(SceneNode *n) {
-    children.push_back(n);
-    n->SetParent(this);
+void SceneNode::AddChild(std::unique_ptr<SceneNode> n) {
+    n->parent = this;
+    children.push_back(std::move(n));
 }

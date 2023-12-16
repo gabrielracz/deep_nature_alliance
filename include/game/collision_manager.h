@@ -1,6 +1,8 @@
 #ifndef __DEEP_NATURE_ALLIANCE_INCLUDE_GAME_COLLISION_MANAGER_H_
 #define __DEEP_NATURE_ALLIANCE_INCLUDE_GAME_COLLISION_MANAGER_H_
 
+#include <memory>
+
 #include "scene_node.h"
 #include "trigger.h"
 #include "player.h"
@@ -20,7 +22,7 @@ class CollisionManager{
         void CheckCollisions();
         void WhyCouldntTheyJustBeInvisible();
 
-        void AddNode(SceneNode* node);
+        void AddNode(std::shared_ptr<SceneNode> node);
 
         void Reset();
 
@@ -28,28 +30,27 @@ class CollisionManager{
 
         // void AddAsteroid(SceneNode *newAsteroid) { asteroids.push_back(newAsteroid); }
 
-        void SetPlayer(Player *newPlayer){ player = newPlayer; }
+        void SetPlayer(std::shared_ptr<Player> newPlayer);
 
     private:
 
-        bool sphereToSphere(SceneNode *first, SceneNode *second);
-        bool sphereToBox(SceneNode *sphereNode, SceneNode *boxNode);
-        bool rayToSphere(SceneNode *rayNode, SceneNode *sphereNode);
+        bool sphereToSphere(const SceneNode& first, const SceneNode& second);
+        bool sphereToBox(const SceneNode& sphereNode, const SceneNode& boxNode);
+        bool rayToSphere(const SceneNode& rayNode, const SceneNode& sphereNode);
 
-        bool GetCollision(SceneNode* obj1, SceneNode* obj2);
-        bool GetCollisionRaw(SceneNode* obj1, SceneNode* obj2);
+        bool GetCollision(SceneNode& obj1, SceneNode& obj2);
+        bool GetCollisionRaw(SceneNode& obj1, SceneNode&  obj2);
 
-        std::vector<Trigger *> triggers;
-        std::vector<Toggle *> toggles;
-        std::vector<SceneNode*> items;
-        std::vector<SceneNode*> asteroids;
-        std::vector<SceneNode*> beacons;
-        std::vector<SceneNode*> othercollideables;
-        std::vector<SceneNode*> rockets;
+        std::vector<std::shared_ptr<Trigger>> triggers;
+        std::vector<std::shared_ptr<Toggle>> toggles;
+        std::vector<std::shared_ptr<SceneNode>> items;
+        std::vector<std::shared_ptr<SceneNode>> asteroids;
+        std::vector<std::shared_ptr<SceneNode>> beacons;
+        std::vector<std::shared_ptr<SceneNode>> othercollideables;
+        std::vector<std::shared_ptr<SceneNode>> rockets;
+        std::vector<std::shared_ptr<SceneNode>> blockingCollision;
 
-        std::vector<SceneNode*> blockingCollision;
-
-        Player *player;
+        std::shared_ptr<Player> player;
         Game* game = nullptr;
         
 };

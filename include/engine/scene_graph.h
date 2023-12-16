@@ -4,8 +4,8 @@
 #include <vector>
 #include <list>
 #include <deque>
+#include <memory>
 
-// #include "application.h"
 #include "camera.h"
 #include "collision_manager.h"
 #include "light.h"
@@ -18,11 +18,11 @@
 
 // Class that manages all the objects in a scene
 class SceneGraph {
-   public:
+public:
     // Scene nodes to render
 
     // Constructor and destructor
-    SceneGraph(Game* game): colman(game) {}
+    SceneGraph(Game* game) : colman(game) {}
     ~SceneGraph();
 
     // Background color
@@ -30,18 +30,18 @@ class SceneGraph {
     glm::vec3 GetBackgroundColor(void) const { return background_color_; }
 
     // Add an already-created node
-    void AddNode(SceneNode* node) { node_.push_back(node); }
-    void AddText(Text* t) {texts.push_back(t);}
-    void AddCollider(SceneNode* node) { colman.AddNode(node); }
-    void AddLight(Light* light) { lights.push_back(light); }
-    void AddTerrain(Terrain* terr) {terrain = terr; node_.push_back(terr);}
-    void SetPlayer(Player* p);
-    void SetSkybox(SceneNode* s) {skybox = s;};
-    void ToggleHUD(){ show_hud = !show_hud;}
+    void AddNode(std::shared_ptr<SceneNode> node) { node_.push_back(node); }
+    void AddText(std::shared_ptr<Text> t) { texts.push_back(t); }
+    void AddCollider(std::shared_ptr<SceneNode> node) { colman.AddNode(node); }
+    void AddLight(std::shared_ptr<Light> light) { lights.push_back(light); }
+    void AddTerrain(std::shared_ptr<Terrain> terr) { terrain = terr; node_.push_back(terr); }
+    void SetPlayer(std::shared_ptr<Player> p);
+    void SetSkybox(std::shared_ptr<SceneNode> s) { skybox = s; };
+    void ToggleHUD() { show_hud = !show_hud; }
     void SetCollision(bool toggle) { collision_enabled = toggle; }
     int StoryTextAmount() { return story_text.size(); }
 
-    void PushStoryText(Text* text);
+    void PushStoryText(std::shared_ptr<Text> text);
     void DismissStoryText();
 
     void ClearStoryText();
@@ -55,39 +55,38 @@ class SceneGraph {
     void Reset();
 
     // Find a scene node with a specific name
-    SceneNode* GetNode(std::string node_name) const;
+    std::shared_ptr<SceneNode> GetNode(std::string node_name) const;
     CollisionManager& GetColman() { return colman; }
-    std::vector<Light*>& GetLights() { return lights; }
+    std::vector<std::shared_ptr<Light>>& GetLights() { return lights; }
     Camera& GetCamera() { return camera; }
-    Player* GetPlayer() { return player; }
-    SceneNode* GetSkybox() { return skybox;}
-    std::vector<SceneNode*> GetScreenSpaceNodes();
-    Terrain* GetTerrain() {return terrain;}
+    std::shared_ptr<Player> GetPlayer() { return player; }
+    std::shared_ptr<SceneNode> GetSkybox() { return skybox; }
+    std::vector<std::shared_ptr<SceneNode>> GetScreenSpaceNodes();
+    std::shared_ptr<Terrain> GetTerrain() { return terrain; }
 
     // Get node const iterator
-    std::vector<SceneNode*>::const_iterator begin() const { return node_.begin(); }
-    std::vector<SceneNode*>::const_iterator end() const { return node_.end(); }
+    std::vector<std::shared_ptr<SceneNode>>::const_iterator begin() const { return node_.begin(); }
+    std::vector<std::shared_ptr<SceneNode>>::const_iterator end() const { return node_.end(); }
 
     // Update entire scene
     void Update(double dt);
 
-   private:
+private:
     // Background color
     glm::vec3 background_color_;
-    std::vector<SceneNode*> node_;
+    std::vector<std::shared_ptr<SceneNode>> node_;
     CollisionManager colman;
-    std::vector<Light*> lights;
-    std::deque<Text*> story_text;
-    std::vector<Text*> texts;
+    std::vector<std::shared_ptr<Light>> lights;
+    std::deque<std::shared_ptr<Text>> story_text;
+    std::vector<std::shared_ptr<Text>> texts;
     bool show_hud = true;
     Camera camera;
-    Player* player;
-    SceneNode* skybox = nullptr;
-    Terrain* terrain;
+    std::shared_ptr<Player> player;
+    std::shared_ptr<SceneNode> skybox = nullptr;
+    std::shared_ptr<Terrain> terrain;
     bool collision_enabled = true;
 
     std::function<void()> reset_callback;
+};
 
-};  // class SceneGraph
-
-#endif  // SCENE_GRAPH_H_
+#endif // SCENE_GRAPH_H_
