@@ -710,7 +710,7 @@ void Game::SetupForestScene() {
 
     auto light = std::make_shared<Light>(Colors::BrightYellow);
     // light->transform.SetPosition({1000.0, 1000.0, -2000.0});
-    light->transform.SetPosition({1000.0, 1000.0, 0.0});
+    light->transform.SetPosition({300.0, 600.0, 0.0});
     // ship->transform.SetOrientation({0.334468, 0.000000, 0.942407, 0.000000});
     light->ambient_power = 0.15;
     scenes[FOREST]->AddLight(light);
@@ -732,6 +732,7 @@ void Game::SetupForestScene() {
     // forest->transform.SetScale({5, 5, 5});
     forest->SetNormalMap("T_WallNormalMap", 0.005f);
     forest->material.specular_power = 150.0;
+    forest->SetCullInstances(true);
     for(int i = 0; i < sizeof(forest_trees)/sizeof(forest_trees[0]); i++) {
         bool instanced = true;
         // float x = rng.randfloat(-400, 400);
@@ -787,15 +788,23 @@ void Game::SetupForestScene() {
         scenes[FOREST]->AddNode(htree);
     }
 
+    glm::vec3 crashed_pos = {442.438568, -1.132055, 353.692505};
     auto crashed = std::make_shared<SceneNode>("Obj_CrashedShip", "M_H2", "S_NormalMap", "T_H2");
     crashed->SetNormalMap("T_MetalNormalMap", 10.0f);
-    crashed->transform.SetPosition({442.438568, -1.132055, 353.692505});
+    crashed->transform.SetPosition(crashed_pos);
     crashed->transform.SetOrientation({0.975208, {0.076261, -0.193031, -0.076759}});
     crashed->transform.SetScale({11.0, 11.0, 9.5});
     crashed->material.specular_power = 169.0f;
     SphereCollider* crashedcol = new SphereCollider(*crashed, 65.0f);
     crashedcol->oneoff = true;
-    crashedcol->SetCallback([this]() {CollectStoryItem(StoryBeat::CRASHED_SHIP);});
+    crashedcol->SetCallback([this, &crashed_pos]() {
+        Camera& cam = active_scene->GetCamera();
+        cam.Detach();
+        cam.Reset();
+        cam.transform.SetPosition({442.438568, 80.132055, 353.692505});
+        cam.transform.SetOrientation(glm::angleAxis(-PI/2.0f, glm::vec3(1.0, 0.0, 0.0)));
+        CollectStoryItem(StoryBeat::CRASHED_SHIP);
+    });
     crashed->SetCollider(crashedcol);
     AddToScene(FOREST, crashed);
     AddColliderToScene(FOREST, crashed);
@@ -1274,6 +1283,9 @@ void Game::CheckControls(KeyMap& keys, float dt) {
         }
 
         if(reading_item_ && active_scene->StoryTextAmount() == 0) {
+            if(!active_scene->GetCamera().IsAttached()) {
+                active_scene->GetCamera().Attach(&active_scene->GetPlayer()->transform);
+            }
             active_scene->GetPlayer()->SetStatic(false);
             reading_item_ = false;
             active_scene->SetCollision(true);
