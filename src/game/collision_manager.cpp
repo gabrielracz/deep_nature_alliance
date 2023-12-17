@@ -7,22 +7,16 @@
 #include <glm/glm.hpp>
 
 
-//to stop moving camera when colliding must check collisions after scenenode update which we cant do fully beacause of deletion
-//also checks collision without draw calls in between update and check
-//sorry for the jank
-void CollisionManager::WhyCouldntTheyJustBeInvisible() {
-    for (const auto& n : blockingCollision) {
-        if (sphereToSphere(*player, *n)) {
-            player->ResetPosition();
-        }
-    }
-}
-
-
 void CollisionManager::CheckCollisions() {
     for (const auto& trig : triggers) {
         if (sphereToSphere(*player, *trig)) {
             trig->ActivateTrigger();
+        }
+    }
+
+    for (const auto& n : blockingCollision) {
+        if (sphereToSphere(*player, *n)) {
+            player->ResetPosition();
         }
     }
 

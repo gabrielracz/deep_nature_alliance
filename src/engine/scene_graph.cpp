@@ -22,9 +22,6 @@ std::shared_ptr<SceneNode> SceneGraph::GetNode(std::string node_name) const {
 
 void SceneGraph::Update(double dt) {
 
-    if (collision_enabled) {
-        colman.CheckCollisions();
-    }
 
     for(auto it = node_.begin(); it != node_.end();) {
         std::shared_ptr<SceneNode> sn = *it;
@@ -34,6 +31,10 @@ void SceneGraph::Update(double dt) {
             sn->Update(dt);
             it++;
         }
+    }
+
+    if (collision_enabled) {
+        colman.CheckCollisions();
     }
 
     int w = camera.GetWinWidth();
@@ -46,7 +47,6 @@ void SceneGraph::Update(double dt) {
         t->Update(dt, w, h);
     }
 
-    colman.WhyCouldntTheyJustBeInvisible();
 
     // UPDATE CAMERA AFTER NODES ALWAYS !!!!!
     camera.Update(dt);

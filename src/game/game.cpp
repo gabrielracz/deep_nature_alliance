@@ -1718,8 +1718,10 @@ void Game::SpawnRocket(glm::vec3 position, glm::quat orientation, glm::vec3 init
     rocket->SetNodeType(TROCKET);
     rocket->velocity = initial_velocity;
 
-    active_scene->AddNode(rocket);
-    active_scene->AddCollider(rocket);
+    AddColliderToScene(SPACE, rocket);
+
+    // active_scene->AddNode(rocket);
+    // active_scene->AddCollider(rocket);
 }
 
 void Game::CollectStoryItem(StoryBeat l) {

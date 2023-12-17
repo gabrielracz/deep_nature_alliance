@@ -114,7 +114,7 @@ void View::RenderDepthMap(SceneGraph& scene, std::shared_ptr<Light> light) {
     shd->Use();
 
     glm::mat4 view_mat = light->CalculateViewMatrix();
-    const glm::mat4& proj_mat = light->GetProjMatrix();
+    glm::mat4 proj_mat = light->GetProjMatrix();
 
 
     std::function<void(SceneNode*)> render_depth = [&render_depth, &shdinst, &scene, &proj_mat, &view_mat, &shd, this](SceneNode* node) {
@@ -169,7 +169,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<std::shared_ptr<
     shd->SetLights(lights);
     auto l = lights[0]; //lol all scenes have lights so fine for now
     glm::mat4 view_mat = l->CalculateViewMatrix();
-    const glm::mat4& proj_mat = l->GetProjMatrix();
+    glm::mat4 proj_mat = l->GetProjMatrix();
 
 
     shd->SetUniform4m(proj_mat * view_mat, "shadow_light_mat");
@@ -207,8 +207,8 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<std::shared_ptr<
     }
 
     // HIERARCHY
-    // glm::mat4 tm = parent_matrix * Transform::RemoveScaling(node->transform.GetLocalMatrix());  // don't pass scaling to children
-    glm::mat4 tm = parent_matrix * node->transform.GetLocalMatrixNoScale();  // don't pass scaling to children
+    glm::mat4 tm = parent_matrix * Transform::RemoveScaling(node->transform.GetLocalMatrix());  // don't pass scaling to children
+    // glm::mat4 tm = parent_matrix * node->transform.GetLocalMatrixNoScale();  // don't pass scaling to children
     for(auto child : node->GetChildren()) {
         RenderNode(child, cam, lights, tm);
     }
