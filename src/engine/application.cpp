@@ -27,10 +27,13 @@ void Application::Start() {
 	unsigned int frame_counter = 0;
     int frame_window = 60;
 
-	irrklang::ISoundEngine* engine = irrklang::createIrrKlangDevice();
-	if (!engine)
-		std::cout << "error setting up audio engine" << std::endl;
-	engine->play2D(RESOURCES_DIRECTORY"/audio/unreal.wav", true);
+    irrklang::ISoundEngine* engine = nullptr;
+    if(sound_enabled) {
+         engine = irrklang::createIrrKlangDevice();
+        if (!engine)
+            std::cout << "error setting up audio engine" << std::endl;
+        engine->play2D(RESOURCES_DIRECTORY"/audio/unreal.wav", true);
+    }
 	while(running){
 		//Get frame rate
 		frame_counter++;
@@ -47,7 +50,9 @@ void Application::Start() {
         game.Update(dt, view.GetKeys());
         view.Render(game.ActiveScene());
     }
-	engine->drop(); // delete engine
+    if(engine) {
+        engine->drop(); // delete engine
+    }
 }
 
 void Application::Quit() {

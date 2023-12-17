@@ -1,15 +1,7 @@
-/*
- *
- * A program that demonstrates camera control and a scene graph architecture
- *
- * Copyright (c) 2018-2019 Oliver van Kaick <Oliver.vanKaick@carleton.ca>, David Mould <mould@scs.carleton.ca>
- *
- */
-
-
 #include <iostream>
 #include <exception>
 #include "application.h"
+#include <string.h>
 
 
 // Macro for printing exceptions
@@ -17,8 +9,17 @@
 	std::cerr << exception_object.what() << std::endl
 
 // Main function that builds and runs the game
-int main(void){
+int main(int argc, char** argv){
     Application app; // Game application 
+
+    if(argc > 1) {
+        std::string arg = std::string(argv[1]);
+        if( arg == "--nosound") {
+            app.SetSoundEnabled(false);
+        } else {
+            std::cout << "unknown argument: " << arg << std::endl;
+        }
+    }
 
     try {
         app.Init();
