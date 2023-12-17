@@ -58,11 +58,20 @@ const float speed_upgrade_g = 0.5f;
 // Materials 
 const std::string material_directory_g = SHADER_DIRECTORY;
 
+Game::~Game(){
+    // if (!audioEngine)
+    //     audioEngine->drop();
+}
+
 void Game::Init(void){
     SetupResources();
     SetupScenes();
     app.SetResizeHandler(std::bind(&Game::ResizeCameras, this, std::placeholders::_1, std::placeholders::_2));
     app.ToggleMouseCapture(); // disable mouse by default
+    audioEngine = irrklang::createIrrKlangDevice();
+	if (!audioEngine)
+		std::cout << "error setting up audio engine" << std::endl;
+	// audioEngine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
 }
    
 void Game::SetupResources(void){
@@ -1245,6 +1254,9 @@ void Game::CheckControls(KeyMap& keys, float dt) {
 
     if(keys[GLFW_KEY_LEFT_SHIFT]) {
         player->Control(Player::Controls::SHIFT, dt);
+        if (active_scene_num == SPACE){
+            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/explosion.wav");
+        }
     };
     if(keys[GLFW_KEY_LEFT_CONTROL]) {
         player->Control(Player::Controls::CTRL, dt);

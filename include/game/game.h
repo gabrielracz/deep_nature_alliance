@@ -9,6 +9,11 @@
 // #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <irrKlang.h>
+
+#ifdef WIN32
+#pragma comment(lib, "irrKlang.lib")
+#endif // WIN32
 
 #include "scene_graph.h"
 #include "resource_manager.h"
@@ -80,6 +85,8 @@ class Game {
 
         Game(Application& app, ResourceManager& resman) : app(app), resman(resman) {};
 
+        ~Game();
+
         void Init(void); 
         void SetupResources(void);
         void SetupScenes(void);
@@ -112,6 +119,7 @@ class Game {
         SceneGraph* active_scene;
         SceneEnum active_scene_num = MAIN_MENU;
         std::vector<SceneGraph*> scenes;
+        irrklang::ISoundEngine* audioEngine;
 
         float wind_speed = 1.5f;
         int camera_mode;
