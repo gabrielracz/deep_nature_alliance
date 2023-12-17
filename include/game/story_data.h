@@ -354,7 +354,19 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "GAME MADE BY:\n"
                 "Sean, Gabe and Q\n",
                 CREDITS_TEXT
+            },
+            {
+                "CUSTOM MODELS:\n"
+                "Desmond Longman\n",
+                CREDITS_TEXT
+            },
+            {
+                "SPECIAL THANKS:\n"
+                "Pablo\n"
+                "(Thanks for playing our game and taking time to mark this!)\n",
+                CREDITS_TEXT
             }
+
     }},
     {BAD_END,{
             {
