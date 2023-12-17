@@ -1410,6 +1410,8 @@ void Game::CheckControls(KeyMap& keys, float dt) {
             ending_sequence_ = false;
             good_end_ = true;
             ChangeScene(ENDING);
+            audioEngine->stopAllSounds();
+            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/theend.wav", true);
             keys[GLFW_KEY_N] = false;
             return;
         }
@@ -1426,6 +1428,8 @@ void Game::CheckControls(KeyMap& keys, float dt) {
             active_scene->SetCollision(true);
             bad_end_ = true;
             resman.SetScreenSpaceShader("S_Texture");
+            audioEngine->stopAllSounds();
+            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/nebulous.wav", true);
             keys[GLFW_KEY_Y] = false;
             return;
         }
