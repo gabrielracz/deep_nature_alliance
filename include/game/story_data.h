@@ -406,7 +406,7 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "Ahh thats better.\n"
                 "I didn't think I was gonna make it.\n"
                 "Wait a second. What planet is this. It is __planet name__!\n"
-                "Was my data wrong? __something here about this planet is supposed to be entirely water\n"
+                "Was my data wrong? From my memory this was an ocean planet, entirely covered in water.\n"
                 "The landscape unfolds with more towers stretching into the distance\n"
                 "Who constructed these structures, and what purpose do they serve in an entirely aqueous world?\n"
                 "Only one way to find out...\n",

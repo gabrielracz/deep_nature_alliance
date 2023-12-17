@@ -1212,19 +1212,19 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     }
 
     if(keys[GLFW_KEY_1]) {
-        ChangeScene(FPTEST);
+        ChangeScene(SPACE);
         keys[GLFW_KEY_1] = false;
     }
     if(keys[GLFW_KEY_2]) {
-        ChangeScene(SPACE);
+        ChangeScene(FOREST);
         keys[GLFW_KEY_2] = false;
     }
     if(keys[GLFW_KEY_3]) {
-        ChangeScene(FOREST);
+        ChangeScene(DESERT);
         keys[GLFW_KEY_3] = false;
     }
     if(keys[GLFW_KEY_4]) {
-        ChangeScene(DESERT);
+        ChangeScene(FPTEST);
         keys[GLFW_KEY_4] = false;
     }
     if(keys[GLFW_KEY_5]) {
