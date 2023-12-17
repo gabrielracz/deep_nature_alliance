@@ -1,7 +1,5 @@
 #include <iostream>
 #include <iomanip>
-
-
 #include "application.h"
 #include "defines.h"
 

@@ -1698,12 +1698,14 @@ void Game::ChangeScene(int sceneIndex) {
     std::cout << "changing scenes" << std::endl;
     active_scene = scenes[sceneIndex];
     active_scene_num = SceneEnum(sceneIndex);
-    app.SetMouseHandler(std::bind(&Player::MouseControls, active_scene->GetPlayer(), std::placeholders::_1));
-    active_scene->SetBackgroundColor(viewport_background_color_g);
-
-    if (active_scene_num == DESERT){
+    if (active_scene_num == DESERT) {
         resman.SetScreenSpaceShader("S_Heatstroke");
     }
+    else {
+        resman.SetScreenSpaceShader("S_Texture");
+    }
+    app.SetMouseHandler(std::bind(&Player::MouseControls, active_scene->GetPlayer(), std::placeholders::_1));
+    active_scene->SetBackgroundColor(viewport_background_color_g);
 }
 
 void Game::ChangeSceneAndSpawn(int sceneIndex, glm::vec3 position) {
