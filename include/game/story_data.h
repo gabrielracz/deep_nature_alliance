@@ -14,6 +14,8 @@ enum StoryBeat {
     FIRST_TREE,
     CRASH_AREA,
     INVESTIGATE_SHIP,
+    SHIP_COMMS,
+    SHIP_SYSTEMS_ACTIVATED,
     DESERT_LANDING,
     DESERT_FIRST_RECORDING,
     DESERT_SECOND_RECORDING,
@@ -34,8 +36,10 @@ enum StoryBeat {
 #define INTRO_STORY             Colors::White,   Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.04f
 #define INTRO_LOADING           Colors::SlimeGreen, Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.02f
 #define SHIP_ERROR              Colors::Red, Colors::TranspBlack, Text::Anchor::LEFTCENTER, {-1.0, 0.0, 0.0}, 0.05f
-#define THOUGHTS                Colors::SeaBlue, Colors::TranspBlack, Text::Anchor::RIGHTCENTER, {1.0, 0.0, 0.0}, 0.05f
-#define FOREST_INVESTIGATE      Colors::SeaGreen, Colors::DarkTranspBlack, Text::Anchor::TOPCENTER, {0.0, 0.7, 0.0}, 0.05f
+#define SHIP_ACTIVATED          Colors::SeaGreen, Colors::TranspBlack, Text::Anchor::LEFTCENTER, {-1.0, 0.0, 0.0}, 0.05f
+#define THOUGHTS                Colors::SeaBlue, Colors::TranspBlack, Text::Anchor::RIGHTCENTER, {1.0, 0.0, 0.0}, 0.1f
+#define FOREST_INVESTIGATE      Colors::SeaGreen, Colors::DarkTranspBlack, Text::Anchor::TOPCENTER, {0.0, 0.7, 0.0}, 0.03f
+#define COMMS_RECORD            Colors::Amber, Colors::TranspBlack, Text::Anchor::TOPCENTER, {0.0, 0.4, 0.0}, 0.06f
 #define ITEM                    Colors::SlimeGreen, Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.04f
 #define NOTE                    Colors::White,   Colors::TBrown, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.04f
 #define BLOOD_NOTE              Colors::Red,   Colors::TBrown, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.04f
@@ -154,14 +158,14 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
     }},
     {CRASH_AREA, {
         {
-            "There appears to be nuclear decay\n"
-            "radiating from the ship. It's affecting the\n"
-            "surrounding trees.",
+            "I know this jet,\n" 
+            "They used to fly these in the early days of the alliance.",
             FOREST_INVESTIGATE
         },
         {
-            "I know this jet, they used to fly these\n"
-            "in the early days of the alliance.",
+            "There appears to be strong nuclear decay\n"
+            "radiating from the ship affecting the\n"
+            "surrounding trees.",
             FOREST_INVESTIGATE
         },
         {
@@ -169,18 +173,16 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
             "but the forest floor has already\n"
             "begun swallowing the hull.\n",
             FOREST_INVESTIGATE
-        },
-        {
-            "The canopy seems to be cracked open.",
-            FOREST_INVESTIGATE
         }
     }},
     {INVESTIGATE_SHIP, {
         {
-            "You open the canopy and find the cockpit of the crashed fighter in ruins,\n"
-            "a nest of shattered controls and twisted metal.\n"
-            "The space is lined with irradiated organic matter, emitting enough gamma rays to kill\n"
-            "an unprotected soldier in minutes.",
+            "You open the canopy and find the cockpit in ruins.\n"
+            "A nest of shattered controls and twisted metal.\n"
+            " \n"
+            "The space is lined with irradiated organic matter\n"
+            "emitting enough gamma rays to rip apart an\n"
+            "unprotected soldier in minutes...\n",
             FOREST_INVESTIGATE
         },
         {
@@ -189,9 +191,50 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
             FOREST_INVESTIGATE
         },
         {
-            "Knowing that to be where these old birds keep their avionics unit\n"
-            "you offload the data and find a communications record.",
+            "The ship's avionics unit...\n"
+            "You offload the data and find a flight record.",
             FOREST_INVESTIGATE
+        },
+        {
+            "[14156] ALERT           - spacecraft not authorized for takeoff\n"
+            "[14779] SYSTEM OVERRIDE - spacecraft systems engaged\n"
+            "[15139] LAUNCH SEQUENCE - decoupling from station XEON\n"
+            "[16149] JUMP SEQUENCE   - begin jump sequence to sector UNKNOWN\n"
+            "[16993] WARNING         - gamma ray surge detected\n"
+            "[16994] WARNING         - neutron overload detected\n"
+            "[16995] WARNING         - alpha particle overload detected\n"
+            "[17081] ERROR           - control systems SHUTDOWN\n"
+            "[17062] ERROR           - communications SHUTDOWN\n"
+            "[17555] ERROR           - MAYDAY transmission fail\n"
+            "[18901] ALERT           - begin emergency landing procedure\n"
+            "[19991] WARNING         - cabin pressure CRITICAL\n"
+            "[19992] WARNING         - temperature CRITICAL\n"
+            "[20031] ERROR           - pilot ejection fail\n"
+            "[24666] WARNING         - crash detected. enabling distress beacon\n",
+            COMMS_RECORD
+        },
+        {
+            "The record is dated just 4 days ago.\n"
+            "The system must have been corrupted in the crash...\n",
+            FOREST_INVESTIGATE
+        },
+        {
+            "You notice a makeshift device inserted into the computer\n"
+            "You remove it and the ship goes dark...\n"
+            " \n"
+            "This might be useful.",
+            FOREST_INVESTIGATE
+        },
+    }},
+    {SHIP_SYSTEMS_ACTIVATED, {
+        {
+            "You insert the device into the flight computer\n",
+            FOREST_INVESTIGATE
+        },
+        {
+            "> Combat System [ENABLED]\n"
+            "> Boosters      [ENABLED]\n",
+            SHIP_ACTIVATED
         }
     }},
     {PICTURE,{

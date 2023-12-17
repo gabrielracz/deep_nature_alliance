@@ -708,7 +708,8 @@ void Game::SetupForestScene() {
 
     scenes[FOREST]->SetResetCallback([this]() { this->SetupForestScene(); });
     Camera& camera = scenes[FOREST]->GetCamera();
-    camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
+    // camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
+    camera.SetView(glm::vec3(0.0, 3.0, -0.4), glm::vec3(0.0, 3.0, -0.4) + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
@@ -721,6 +722,7 @@ void Game::SetupForestScene() {
     // p->transform.SetPosition(player_pos); // real pos
     p->transform.SetPosition({293.913483, 17.500790, 152.102478}); // tmp test
     p->transform.SetOrientation({0.315484, 0.000000, 0.948931, 0.000000});
+    p->transform.SetScale({3.5, 5.0, 3.5});
     p->visible = false;
     p->jump_speed_ = 20;
     p->gravity_ = 9.8* 6;
@@ -874,6 +876,7 @@ void Game::SetupForestScene() {
         cam.transform.SetPosition(glm::vec3(448.251495, -4.456905, 341.754303) + glm::vec3(0.000000, 7.083450, 0.000000));
         cam.transform.SetOrientation(glm::quat(0.992476, {0.000000, -0.122440, 0.000000}) * glm::quat(0.993588, {0.111878, 0.016183, -0.002168}));
         CollectStoryItem(StoryBeat::INVESTIGATE_SHIP);
+        AddStoryToScene(SPACE, StoryBeat::SHIP_SYSTEMS_ACTIVATED);
     });
     investigate_ship->DeleteOnCollect(true);
     AddColliderToScene(FOREST, investigate_ship);
