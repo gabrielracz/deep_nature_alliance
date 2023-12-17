@@ -74,7 +74,7 @@ void Game::SetupResources(void){
 void Game::LoadMeshes() {
     std::cout << "loading meshes..." << std::endl;
     // load .obj meshes
-    resman.LoadMesh        ("M_Ship", MESH_DIRECTORY"/dnafighter.obj");
+    resman.LoadMesh        ("M_Ship", MESH_DIRECTORY"/dnafighter-combo.obj");
     resman.LoadMesh        ("M_H2", MESH_DIRECTORY"/h2.obj");
     resman.LoadMesh        ("M_Tree4", MESH_DIRECTORY"/tree4.obj");
     // resman.LoadMesh        ("M_Tree", MESH_DIRECTORY"/oak.obj");
@@ -94,6 +94,7 @@ void Game::LoadMeshes() {
     resman.LoadMesh        ("M_Tower_m", MESH_DIRECTORY"/medium_tower.obj");
     resman.LoadMesh        ("M_Tower_s", MESH_DIRECTORY"/small_tower.obj");
     resman.LoadMesh        ("M_Tower_t", MESH_DIRECTORY"/tall_tower.obj");
+    resman.LoadMesh        ("M_Comp", MESH_DIRECTORY"/computer.obj");
 
     // generate geometry
     resman.CreateSimpleQuad("M_Quad");
@@ -153,7 +154,7 @@ void Game::LoadTextures() {
     // load textures
     resman.LoadTexture("T_Charmap", TEXTURE_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
     resman.LoadTexture("T_LavaPlanet", TEXTURE_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST);
-    resman.LoadTexture("T_Ship", TEXTURE_DIRECTORY"/dnafighter.png", GL_REPEAT);
+    resman.LoadTexture("T_Ship", TEXTURE_DIRECTORY"/dnafighter-combo.png", GL_REPEAT);
     resman.LoadTexture("T_H2", TEXTURE_DIRECTORY"/shiptex.png", GL_REPEAT);
     // resman.LoadTexture("T_LavaPlanet", TEXTURE_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST, 4.0f);
     // resman.LoadTexture("T_SnowPlanet", TEXTURE_DIRECTORY"/snow_planet.png", GL_LINEAR);
@@ -214,6 +215,7 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Tower_s_n", TEXTURE_DIRECTORY"/small_tower_n.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
     resman.LoadTexture("T_Tower_m", TEXTURE_DIRECTORY"/medium_tower.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
     resman.LoadTexture("T_Tower_m_n", TEXTURE_DIRECTORY"/medium_tower_n.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
+    resman.LoadTexture("T_Comp", TEXTURE_DIRECTORY"/computer.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
 
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", TEXTURE_DIRECTORY"/skyboxes/messedup");
@@ -249,7 +251,7 @@ void Game::SetupScenes(void){
     // CreatePlanets();
     // CreateTriggers();
     // // CreateTree();
-    CreateLights();
+    //CreateLights();
     // CreateHUD();
     CreateStory();
 }
@@ -302,13 +304,15 @@ void Game::SetupSpaceScene() {
     planet3->SetCollider(p3col);
     AddColliderToScene(SPACE, planet3);
 
+    auto l2 = std::make_shared<Light>(Colors::Yellow);
+    l2->transform.SetPosition({-300.0, -300.0, 13000.0});
+    scn->AddLight(l2);
+
     auto light = std::make_shared<Light>(Colors::WarmWhite);
     light->transform.SetPosition({300.0, 300.0, 15000.0});
     scn->AddLight(light);
 
-    auto l2 = std::make_shared<Light>(Colors::Yellow);
-    l2->transform.SetPosition({-300.0, -300.0, 15000.0});
-    scn->AddLight(l2);
+
 
     auto sun = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_Sun", "T_Sun");
     sun->transform.SetPosition({300, 300, 15000.0});
@@ -435,6 +439,17 @@ void Game::SetupFPScene(void) {
     camera.SetView(glm::vec3(0.0, 3.0, -0.4), glm::vec3(0.0, 3.0, -0.4) + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+
+    auto light1 = std::make_shared<Light>(Colors::PurpleLight);
+    light1->transform.SetPosition({300.0, 600.0, 0.0});
+    light1->ambient_power = 0.15;
+    scenes[FPTEST]->AddLight(light1);
+
+    auto light2 = std::make_shared<Light>(Colors::Red);
+    light2->transform.SetPosition({-600.0f,-28.0f,-650.0f});
+    light2->ambient_power = 0.0;
+    scenes[FPTEST]->AddLight(light2);
+
 
     auto p = std::make_shared<FP_Player>("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
     p->SetNormalMap("T_MetalNormalMap");
@@ -614,8 +629,28 @@ void Game::SetupFPScene(void) {
     ship->SetCollider(col);
     AddColliderToScene(FPTEST, ship);
 
+    auto comp = std::make_shared<SceneNode>("Obj_Terminal", "M_Comp", "S_NormalMap", "T_Comp");
+    comp->SetNormalMap("T_MetalNormalMap", 10.0f);
+    comp->transform.SetPosition({-600.0f,-80.0f,-700.0f});
+    comp->transform.SetOrientation({0.4, 0.3, 0.0, 0.0});
+    comp->transform.SetScale({300.0, 300.0, 300.0});
+    comp->material.specular_power = 169.0f;
+    //SphereCollider* col = new SphereCollider(*comp, 9.0f);
+    //col->SetCallback([this]() { PlayerHitShip({-5500, 5550, -15000.0}); });
+    //comp->SetCollider(col);
+    scenes[FPTEST]->AddNode(comp);
+
+    auto pill_tower = std::make_shared<SceneNode>("Obj_PillTower", "M_SELTower", "S_InstancedShadow", "T_SpaceMetal");
+    pill_tower->SetNormalMap("T_MetalNormalMap", 1.0f);
+    pill_tower->material.specular_power = 15000.0;
+    pill_tower->transform.SetPosition({-620.0f,t->SampleHeight(-620.0f, -600.0f),-600.0f});
+    pill_tower->transform.Yaw(rng.randfloat(0, 2*PI));
+    pill_tower->transform.SetScale({15.0, 15.0, 150.0});
+    scenes[FPTEST]->AddNode(pill_tower);
+    printf("%f \n", t->SampleHeight(-650.0f, -600.0f));
+
     auto pill = std::make_shared<Item>("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill");
-    pill->transform.SetPosition({-600.0f,-18.0f,-600.0f});
+    pill->transform.SetPosition({-600.0f,-13.0f,-600.0f});
     pill->transform.SetScale({5,5,5});
     pill->SetAlphaEnabled(true);
     pill->SetCollectCallback([this]() { this->CollectEndingItem(PILL); });
@@ -796,17 +831,20 @@ void Game::SetupForestScene() {
     crashed->material.specular_power = 169.0f;
     SphereCollider* crashedcol = new SphereCollider(*crashed, 65.0f);
     crashedcol->oneoff = true;
-    crashedcol->SetCallback([this, &crashed_pos]() {
-        Camera& cam = active_scene->GetCamera();
-        cam.Detach();
-        cam.Reset();
-        cam.transform.SetPosition({442.438568, 80.132055, 353.692505});
-        cam.transform.SetOrientation(glm::angleAxis(-PI/2.0f, glm::vec3(1.0, 0.0, 0.0)));
-        CollectStoryItem(StoryBeat::CRASHED_SHIP);
-    });
-    crashed->SetCollider(crashedcol);
     AddToScene(FOREST, crashed);
-    AddColliderToScene(FOREST, crashed);
+
+
+    // auto investigate_ship = std::make_shared<Toggle>("Obj_Investigate", "", "S_Default", "T_SpiralParticle");
+    // investigate_ship->SetCallback([this, &crashed_pos]() {
+    //     Camera& cam = active_scene->GetCamera();
+    //     cam.Detach();
+    //     cam.Reset();
+    //     cam.transform.SetPosition({442.438568, 80.132055, 353.692505});
+    //     cam.transform.SetOrientation(glm::angleAxis(-PI/2.0f, glm::vec3(1.0, 0.0, 0.0)));
+    //     CollectStoryItem(StoryBeat::CRASHED_SHIP);
+    // });
+    // crashed->SetCollider(crashedcol);
+    // AddColliderToScene(FOREST, crashed);
 
     auto ship_vision = std::make_shared<Toggle>("Obj_Toggle", "", "S_Default", "T_SpiralParticle");
     ship_vision->transform.SetPosition(crashed->transform.GetPosition());
