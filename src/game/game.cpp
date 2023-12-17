@@ -209,6 +209,7 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_YellowLeaf", TEXTURE_DIRECTORY"/yellow_leaf.png", GL_REPEAT, GL_LINEAR);
 
     resman.LoadTexture("T_Picture", TEXTURE_DIRECTORY"/picture.png", GL_REPEAT, GL_LINEAR);
+    resman.LoadTexture("T_Cassette", TEXTURE_DIRECTORY"/cassette.png", GL_REPEAT, GL_LINEAR);
     resman.LoadTexture("T_Tower_t", TEXTURE_DIRECTORY"/tall_tower.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
     resman.LoadTexture("T_Tower_t_n", TEXTURE_DIRECTORY"/tall_tower_n.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
     resman.LoadTexture("T_Tower_s", TEXTURE_DIRECTORY"/small_tower.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
@@ -877,14 +878,15 @@ void Game::SetupDesertScene() {
     auto p = std::make_shared<FP_Player>("Obj_Desert_player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
     p->SetNormalMap("T_MetalNormalMap", 1.0f);
     p->transform.SetPosition({-4250,0,-4000});
-    p->transform.SetScale({3.5, 3.5, 3.5});
+    p->transform.SetScale({3.5, 5.0, 3.5});
     p->transform.SetOrientation(glm::quat(0.346089, {0.000000, -0.938202, 0.000000}));
+    p->speed_ = 1.2f;
     p->SetTargetStartPos(glm::vec3(-4000,0,-4000));
     AddPlayerToScene(DESERT, p);
 
     auto ship = std::make_shared<SceneNode>("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
     ship->SetNormalMap("T_MetalNormalMap", 10.0f);
-    ship->transform.SetPosition({-4040.0f, 120.0f, -4060.0f});
+    ship->transform.SetPosition({-539.714478, 129.786285, 2401.219727});
     ship->transform.SetOrientation({0.334468, 0.0, 0.0, 0.0});
     ship->transform.SetScale({11.0, 11.0, 9.5});
     ship->material.specular_power = 169.0f;
@@ -892,6 +894,25 @@ void Game::SetupDesertScene() {
     col->SetCallback([this]() { PlayerHitShip({-3500.0f, 4200.0f, -6000.0f}); });
     ship->SetCollider(col);
     AddColliderToScene(DESERT, ship);
+
+    std::vector<std::tuple<glm::vec3, StoryBeat>> noteInfo = {
+        {{-2960.904053, 265.117676, -2687.629150}, DESERT_FIRST_RECORDING},
+        {{-2442.374756, 207.676331, -1233.981934}, DESERT_SECOND_RECORDING},
+        {{-2855.364746, 212.761139, 1468.298462}, DESERT_THIRD_RECORDING},
+        {{-816.951538, 171.542725, 2541.980957}, DESERT_FOURTH_RECORDING}
+    };
+
+    for (size_t i = 0; i < noteInfo.size(); i++){
+        auto note = std::make_shared<Item>("Obj_Note"+ std::to_string(i), "M_Sapling", "S_Lit", "T_Cassette", 50.0f);
+        note->transform.SetPosition(std::get<0>(noteInfo[i]));
+        note->transform.SetScale({55,55,55});
+        note->SetCollectCallback([this, noteInfo, i]() { 
+            AddStoryToScene(DESERT, std::get<1>(noteInfo[i])); 
+        });
+        note->DeleteOnCollect(true);
+        AddColliderToScene(DESERT, note);
+    }
+    
 
     std::vector<std::tuple<glm::vec3, std::string>> towerInfo = {
         {{-2950, 225, -2550}, "m"},
@@ -1479,13 +1500,13 @@ void Game::AddStoryToScene(SceneEnum sceneNum, StoryBeat index) {
     if (sceneNum == SceneEnum::ALL) {
         for (auto& scene : scenes) {
             for (const auto& t : STORY.at(index)) {
-                std::shared_ptr<Text> textPtr = std::make_shared<Text>(t);  // Creating a shared_ptr from the existing Text object
+                std::shared_ptr<Text> textPtr = std::make_shared<Text>(t);
                 scene->PushStoryText(textPtr);
             }
         }
     } else {
         for (const auto& t : STORY.at(index)) {
-            std::shared_ptr<Text> textPtr = std::make_shared<Text>(t);  // Creating a shared_ptr from the existing Text object
+            std::shared_ptr<Text> textPtr = std::make_shared<Text>(t);
             scenes[sceneNum]->PushStoryText(textPtr);
         }
     }
@@ -1609,6 +1630,7 @@ void Game::CreateStory() {
     AddStoryToScene(SceneEnum::START, StoryBeat::BEGINNING);
     AddStoryToScene(SceneEnum::SPACE,  StoryBeat::INTRO);
     AddStoryToScene(SceneEnum::FOREST, StoryBeat::FOREST_THOUGHTS);
+    AddStoryToScene(SceneEnum::DESERT, StoryBeat::DESERT_LANDING);
 
     AddStoryToScene(SceneEnum::ENDING, StoryBeat::GOOD_END);
     AddStoryToScene(SceneEnum::ENDING, StoryBeat::CREDITS);
