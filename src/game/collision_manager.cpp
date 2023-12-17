@@ -5,6 +5,7 @@
 #include "game.h"
 
 #include <glm/glm.hpp>
+#include <memory>
 
 
 void CollisionManager::CheckCollisions() {
@@ -30,10 +31,12 @@ void CollisionManager::CheckCollisions() {
         }
     }
 
+
+    RemoveDeletedNodes(rockets);
     for (const auto& asteroid : asteroids) {
         int i = 0;
         for (const Transform& a : asteroid->GetInstances()) {
-            float rad = glm::length(a.GetScale());
+            float rad = a.GetScale().x;
             float player_rad = glm::length(player->transform.GetScale());
             glm::vec3 apos = asteroid->transform.GetPosition() + a.GetPosition();
             if (glm::length(player->transform.GetPosition() - apos) < rad + player_rad) {
@@ -44,18 +47,14 @@ void CollisionManager::CheckCollisions() {
 
             for (auto it = rockets.begin(); it != rockets.end();) {
                 auto rocket = *it;
-                float rocket_rad = glm::length(rocket->transform.GetScale());
-                if (rocket->deleted) {
-                    it = rockets.erase(it);
-                } else if (glm::length(rocket->transform.GetPosition() - apos) < rad + rocket_rad) {
+                float rocket_rad = rocket->transform.GetScale().x;
+                if (glm::length(rocket->transform.GetPosition() - apos) < rad + rocket_rad) {
                     game->SpawnExplosion(rocket->transform.GetPosition(), glm::vec3(1.0f));
                     game->SpawnExplosion(apos, glm::vec3(4.0f));
                     rocket->deleted = true;
                     asteroid->DeleteInstance(i);
-                    it = rockets.erase(it);
-                } else {
-                    ++it;
                 }
+                ++it;
             }
             i++;
         }
@@ -69,20 +68,14 @@ void CollisionManager::CheckCollisions() {
         GetCollision(*beacon, *player);
     }
 
-    for (auto it = othercollideables.begin(); it != othercollideables.end();) {
-        auto other = *it;
+    RemoveDeletedNodes(othercollideables);
+    for (auto other : othercollideables) {
         if(!other) {continue;}
         if (GetCollision(*other, *player) && other->GetCollider()->oneoff) {
-            it = othercollideables.erase(it);
             continue;
-            std::cout << "deleted" << std::endl;
-        } else {
-            it++;
         }
 
-
-        for (auto rit = rockets.begin(); rit != rockets.end();) {
-            auto rocket = *rit;
+        for (auto rocket : rockets) {
 
             float other_rad = other->transform.GetScale().x;
             float rocket_rad = glm::length(rocket->transform.GetScale());
@@ -91,12 +84,8 @@ void CollisionManager::CheckCollisions() {
             if (glm::length(rocket->transform.GetPosition() - opos) < other_rad + rocket_rad) {
                 game->SpawnExplosion(rocket->transform.GetPosition(), glm::vec3(3.0f));
                 rocket->deleted = true;
-                rit = rockets.erase(rit);
-            } else {
-                ++rit;
             }
         }
-
     }
 }
 
@@ -257,4 +246,16 @@ void CollisionManager::Reset()
     blockingCollision.clear();
     player = nullptr;
     // delete player;
+}
+
+
+
+template <typename T>
+void CollisionManager::RemoveDeletedNodes(std::vector<std::shared_ptr<T>>& v) {
+    v.erase(
+        std::remove_if(v.begin(), v.end(),
+            [](std::shared_ptr<SceneNode>&  sn){ return sn->deleted; } 
+        ),
+        v.end()
+    );
 }

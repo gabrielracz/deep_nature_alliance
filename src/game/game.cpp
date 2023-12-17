@@ -660,7 +660,6 @@ void Game::SetupFPScene(void) {
 void Game::SetupForestScene() {
     // resman.SetScreenSpaceShader("S_SSDither");
     CreateFPSCounter(FOREST);
-    CreateMapHUD(FOREST);
 
     scenes[FOREST]->SetResetCallback([this]() { this->SetupForestScene(); });
     Camera& camera = scenes[FOREST]->GetCamera();
@@ -1122,14 +1121,6 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if (keys[GLFW_KEY_ESCAPE]){
         app.ToggleMouseCapture();
         keys[GLFW_KEY_ESCAPE] = false;
-    }
-
-    if(keys[GLFW_KEY_T]) {
-        // for(auto s : scenes) {
-        //     delete s;
-        // }
-        SetupScenes();
-        keys[GLFW_KEY_T] = false;
     }
 
     if(keys[GLFW_KEY_1]) {
@@ -1719,9 +1710,6 @@ void Game::SpawnRocket(glm::vec3 position, glm::quat orientation, glm::vec3 init
     rocket->velocity = initial_velocity;
 
     AddColliderToScene(SPACE, rocket);
-
-    // active_scene->AddNode(rocket);
-    // active_scene->AddCollider(rocket);
 }
 
 void Game::CollectStoryItem(StoryBeat l) {

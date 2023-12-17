@@ -32,6 +32,9 @@ class CollisionManager{
         void SetPlayer(std::shared_ptr<Player> newPlayer) { player = std::move(newPlayer); }
 
     private:
+        template <typename T>
+        void RemoveDeletedNodes(std::vector<std::shared_ptr<T>>& v);
+
 
         bool sphereToSphere(SceneNode& first, SceneNode& second);
         bool sphereToBox(SceneNode& sphereNode, SceneNode& boxNode);

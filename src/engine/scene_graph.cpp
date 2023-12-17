@@ -23,14 +23,21 @@ std::shared_ptr<SceneNode> SceneGraph::GetNode(std::string node_name) const {
 void SceneGraph::Update(double dt) {
 
 
+    // remove deleted nodes
+    node_.erase(
+        std::remove_if(node_.begin(), node_.end(),
+            [](std::shared_ptr<SceneNode>&  sn){ return sn->deleted; } 
+        ),
+        node_.end()
+    );
+
     for(auto it = node_.begin(); it != node_.end();) {
         std::shared_ptr<SceneNode> sn = *it;
-        if(sn->deleted) {
-            it = node_.erase(it);
-        } else {
-            sn->Update(dt);
-            it++;
+        if(sn == nullptr) { // just in case
+            continue;
         }
+        sn->Update(dt);
+        it++;
     }
 
     if (collision_enabled) {
