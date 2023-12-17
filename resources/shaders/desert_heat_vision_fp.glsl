@@ -5,6 +5,8 @@ in vec2 uv_interp;
 out vec3 FragColor;
 
 uniform sampler2D texture_map;
+
+uniform float lastInShade;
 uniform float timer;
 
 void main() {

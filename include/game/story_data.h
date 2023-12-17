@@ -396,19 +396,32 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
     }},
     {DESERT_LANDING,{
             {
-                "Me so hot papi must get to the shade \n",
+                "As the scorching desert sun beats down on me, I can't shake the disorientation from the crash. My ship, my lifeline, is nowhere to be seen.\n"
+                "A distant tower emerges through the haze, a beacon of hope amid the relentless sun. Must find shade, must reach that tower.\n",
                 THOUGHTS
             }
     }},
     {DESERT_FIRST_RECORDING,{
             {
-                "Oh thats nice and cool, why is this planet like this? WHEre the ocean cro? \n",
+                "Ahh thats better.\n"
+                "I didn't think I was gonna make it.\n"
+                "Wait a second. What planet is this. It is __planet name__!\n"
+                "Was my data wrong? __something here about this planet is supposed to be entirely water\n"
+                "The landscape unfolds with more towers stretching into the distance\n"
+                "Who constructed these structures, and what purpose do they serve in an entirely aqueous world?\n"
+                "Only one way to find out...\n",
                 THOUGHTS
             }
     }},
     {DESERT_SECOND_RECORDING,{
             {
-                "second \n",
+                "As I reach the second tower, relief washes over me like a desert breeze.\n"
+                "Wait whats that buried in the sand over there? A tape recorder? Who could possibly live in this hostile environment?\n"
+                "**Static** A young woman screams '!NO PLEASE!' **Static** The haunting cry resonates, revealing the desperation of those who once called this place home\n"
+                "This message confirms my suspicions; This is not the water planet I expected, but rather a place once rich in life, now transformed\n"
+                "The towers, it seems, are remnants of a civilization that once thrived here. Questions multiply as I ponder their fate and the history of this enigmatic world\n"
+                "I must get back to my ship to continue my mission.\n"
+                "The next tower looms in the distance, a daunting silhouette against the relentless desert horizon. It seems so far away, and I barely made it here\n",
                 THOUGHTS
             }
     }},
