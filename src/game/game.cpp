@@ -142,7 +142,12 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Sun", SHADER_DIRECTORY"/lit_vp.glsl", SHADER_DIRECTORY"/sun_fp.glsl");
     resman.LoadShader("S_Skybox", SHADER_DIRECTORY"/skybox_vp.glsl", SHADER_DIRECTORY"/skybox_fp.glsl");
     resman.LoadShader("S_Texture", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/passthrough_fp.glsl");
+
     resman.LoadShader("S_Heatstroke", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/desert_heat_vision_fp.glsl");
+    //big bodge but needed
+    Shader* s = resman.GetShader("S_Heatstroke");
+    s->SetUniform1f(0.0f, "lastInShade");
+
     resman.LoadShader("S_TextureWithTransform", SHADER_DIRECTORY"/passthrough_with_transform_vp.glsl", SHADER_DIRECTORY"/passthrough_fp.glsl");
     resman.LoadShader("S_ShowDepth", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/show_depth_fp.glsl");
     resman.LoadShader("S_Depth", SHADER_DIRECTORY"/depth_vp.glsl", SHADER_DIRECTORY"/depth_fp.glsl");
@@ -156,7 +161,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Violence", SHADER_DIRECTORY"/red_vision_vp.glsl", SHADER_DIRECTORY"/red_vision_fp.glsl");
     resman.LoadShader("S_SSDither", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/dither_fp.glsl");
 
-    resman.SetScreenSpaceShader("S_Texture");
+    resman.SetScreenSpaceShader("S_Heatstroke");
 }
 
 void Game::LoadTextures() {
@@ -255,7 +260,7 @@ void Game::SetupScenes(void){
     SetupStartScene();
     SetupCreditsScene();
 
-    ChangeScene(START);
+    ChangeScene(MAIN_MENU);
 
 
     // // CreateTerrain();

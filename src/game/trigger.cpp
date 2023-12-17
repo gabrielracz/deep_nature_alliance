@@ -1,8 +1,15 @@
 #include "trigger.h"
 
 void Trigger::ActivateTrigger(){
-    action();
-    SetNodeType(TTRIGGER);
+    if (action){
+        action();
+    } else{
+
+    }
+}
+
+void Trigger::SuperJankDesertHeatTrigger() {
+    shd->SetUniform1f(elapsed, "lastInShade");
 }
 
 // void Trigger::ActivateTrigger(){
