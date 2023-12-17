@@ -1,13 +1,11 @@
 #include <iostream>
 #include <iomanip>
-#include <irrKlang.h>
+
 
 #include "application.h"
 #include "defines.h"
 
-#ifdef WIN32
-#pragma comment(lib, "irrKlang.lib")
-#endif // WIN32
+
 
 
 Application::Application() : view(*this, resman), game(*this, resman){}

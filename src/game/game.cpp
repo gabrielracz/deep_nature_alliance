@@ -58,11 +58,21 @@ const float speed_upgrade_g = 0.5f;
 // Materials 
 const std::string material_directory_g = SHADER_DIRECTORY;
 
+Game::~Game(){
+    // if (!audioEngine)
+    //     audioEngine->drop();
+}
+
 void Game::Init(void){
     SetupResources();
     SetupScenes();
     app.SetResizeHandler(std::bind(&Game::ResizeCameras, this, std::placeholders::_1, std::placeholders::_2));
     app.ToggleMouseCapture(); // disable mouse by default
+    audioEngine = irrklang::createIrrKlangDevice();
+	if (!audioEngine)
+		std::cout << "error setting up audio engine" << std::endl;
+    audioEngine->setSoundVolume(0.6);
+	// audioEngine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
 }
    
 void Game::SetupResources(void){
@@ -1239,6 +1249,18 @@ void Game::CheckControls(KeyMap& keys, float dt) {
         std::cout << "player: " << glm::to_string(p) << " " << glm::to_string(o) << "\n"
                   << "camera: " << glm::to_string(c) << " " << glm::to_string(co) << "\n" << std::endl;
         keys[GLFW_KEY_P] = false;
+    }
+
+    if (!leftShiftPressed && glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+        if (active_scene_num == SPACE) {
+            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/explosion.wav");
+            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/rocket.wav", true);
+        }
+        leftShiftPressed = true;
+    } 
+    if (leftShiftPressed && glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
+        audioEngine->stopAllSounds();
+        leftShiftPressed = false;
     }
 
     if(keys[GLFW_KEY_RIGHT_BRACKET]) {
