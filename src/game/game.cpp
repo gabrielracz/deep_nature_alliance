@@ -881,6 +881,7 @@ void Game::SetupDesertScene() {
     p->transform.SetScale({3.5, 5.0, 3.5});
     p->transform.SetOrientation(glm::quat(0.346089, {0.000000, -0.938202, 0.000000}));
     p->speed_ = 1.2f;
+    p->max_walking_angle_ = 45.0f;
     p->SetTargetStartPos(glm::vec3(-4000,0,-4000));
     AddPlayerToScene(DESERT, p);
 
