@@ -833,13 +833,14 @@ void Game::SetupDesertScene() {
     CreateFPSCounter(DESERT);
     scenes[DESERT]->SetResetCallback([this]() { this->SetupDesertScene(); });
     Camera& camera = scenes[DESERT]->GetCamera();
-    camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
+    camera.SetView(glm::vec3(0.0, 3.0, -0.4), glm::vec3(0.0, 3.0, -0.4) + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
     auto p = std::make_shared<FP_Player>("Obj_Desert_player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
     p->SetNormalMap("T_MetalNormalMap", 1.0f);
     p->transform.SetPosition({-4250,0,-4000});
+    p->transform.SetScale({3.5, 3.5, 3.5});
     p->transform.SetOrientation(glm::quat(0.346089, {0.000000, -0.938202, 0.000000}));
     p->SetTargetStartPos(glm::vec3(-4000,0,-4000));
     AddPlayerToScene(DESERT, p);
@@ -886,7 +887,7 @@ void Game::SetupDesertScene() {
     scenes[DESERT]->AddTerrain(terr);
 
     auto light = std::make_shared<Light>(Colors::SunLight);
-    light->transform.SetPosition({300.0, 600.0, 0.0});
+    light->transform.SetPosition({-100.0, 400.0, 300.0});
     light->Attach(&p->transform);
     // light->SetProjMatrix(glm::ortho(-250.0f, 250.0f, -250.0f, 250.0f, 20.0f, 1300.0f));
     scenes[DESERT]->AddLight(light);
@@ -1709,7 +1710,8 @@ void Game::SpawnRocket(glm::vec3 position, glm::quat orientation, glm::vec3 init
     rocket->SetNodeType(TROCKET);
     rocket->velocity = initial_velocity;
 
-    AddColliderToScene(SPACE, rocket);
+    active_scene->AddNode(rocket);
+    active_scene->AddCollider(rocket);
 }
 
 void Game::CollectStoryItem(StoryBeat l) {
