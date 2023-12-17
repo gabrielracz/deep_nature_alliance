@@ -74,7 +74,7 @@ void Game::SetupResources(void){
 void Game::LoadMeshes() {
     std::cout << "loading meshes..." << std::endl;
     // load .obj meshes
-    resman.LoadMesh        ("M_Ship", MESH_DIRECTORY"/dnafighter.obj");
+    resman.LoadMesh        ("M_Ship", MESH_DIRECTORY"/dnafighter-combo.obj");
     resman.LoadMesh        ("M_H2", MESH_DIRECTORY"/h2.obj");
     resman.LoadMesh        ("M_Tree4", MESH_DIRECTORY"/tree4.obj");
     // resman.LoadMesh        ("M_Tree", MESH_DIRECTORY"/oak.obj");
@@ -154,7 +154,7 @@ void Game::LoadTextures() {
     // load textures
     resman.LoadTexture("T_Charmap", TEXTURE_DIRECTORY"/fixedsys_alpha.png", GL_CLAMP_TO_EDGE);
     resman.LoadTexture("T_LavaPlanet", TEXTURE_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST);
-    resman.LoadTexture("T_Ship", TEXTURE_DIRECTORY"/dnafighter.png", GL_REPEAT);
+    resman.LoadTexture("T_Ship", TEXTURE_DIRECTORY"/dnafighter-combo.png", GL_REPEAT);
     resman.LoadTexture("T_H2", TEXTURE_DIRECTORY"/shiptex.png", GL_REPEAT);
     // resman.LoadTexture("T_LavaPlanet", TEXTURE_DIRECTORY"/lava_planet.png", GL_REPEAT, GL_NEAREST, 4.0f);
     // resman.LoadTexture("T_SnowPlanet", TEXTURE_DIRECTORY"/snow_planet.png", GL_LINEAR);
@@ -831,17 +831,20 @@ void Game::SetupForestScene() {
     crashed->material.specular_power = 169.0f;
     SphereCollider* crashedcol = new SphereCollider(*crashed, 65.0f);
     crashedcol->oneoff = true;
-    crashedcol->SetCallback([this, &crashed_pos]() {
-        Camera& cam = active_scene->GetCamera();
-        cam.Detach();
-        cam.Reset();
-        cam.transform.SetPosition({442.438568, 80.132055, 353.692505});
-        cam.transform.SetOrientation(glm::angleAxis(-PI/2.0f, glm::vec3(1.0, 0.0, 0.0)));
-        CollectStoryItem(StoryBeat::CRASHED_SHIP);
-    });
-    crashed->SetCollider(crashedcol);
     AddToScene(FOREST, crashed);
-    AddColliderToScene(FOREST, crashed);
+
+
+    // auto investigate_ship = std::make_shared<Toggle>("Obj_Investigate", "", "S_Default", "T_SpiralParticle");
+    // investigate_ship->SetCallback([this, &crashed_pos]() {
+    //     Camera& cam = active_scene->GetCamera();
+    //     cam.Detach();
+    //     cam.Reset();
+    //     cam.transform.SetPosition({442.438568, 80.132055, 353.692505});
+    //     cam.transform.SetOrientation(glm::angleAxis(-PI/2.0f, glm::vec3(1.0, 0.0, 0.0)));
+    //     CollectStoryItem(StoryBeat::CRASHED_SHIP);
+    // });
+    // crashed->SetCollider(crashedcol);
+    // AddColliderToScene(FOREST, crashed);
 
     auto ship_vision = std::make_shared<Toggle>("Obj_Toggle", "", "S_Default", "T_SpiralParticle");
     ship_vision->transform.SetPosition(crashed->transform.GetPosition());

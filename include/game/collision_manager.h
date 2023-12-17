@@ -20,7 +20,6 @@ class CollisionManager{
         //     : triggers(t), asteroids(a), player(p) {}
 
         void CheckCollisions();
-        void WhyCouldntTheyJustBeInvisible();
 
         void AddNode(std::shared_ptr<SceneNode> node);
 

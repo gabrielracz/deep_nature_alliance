@@ -14,8 +14,7 @@ void Light::SetUniforms(ShaderLight& l) {
     } else{
         l.light_position = pos;
     }
-    
-    l.light_position   = pos;
+
     l.color            = color;
     l.ambient_strength = ambient_power;
     l.ambient_color    = color;
@@ -27,9 +26,10 @@ void Light::Attach(Transform *transform) {
 
 glm::mat4 Light::CalculateViewMatrix(){
     if (parent_transform){
-        glm::quat playerOrientation = parent_transform->GetOrientation();
-        glm::vec3 forwardVector = playerOrientation * glm::vec3(0.0, 0.0, -1.0);
-        return glm::lookAt(parent_transform->GetPosition() + transform.GetPosition(), parent_transform->GetPosition() + lookAhead * forwardVector, glm::vec3(0.0, 1.0, 0.0));
+        return glm::lookAt(parent_transform->GetPosition() + transform.GetPosition(), parent_transform->GetPosition(), glm::vec3(0.0, 1.0, 0.0));
+        // glm::quat playerOrientation = parent_transform->GetOrientation();
+        // glm::vec3 forwardVector = playerOrientation * glm::vec3(0.0, 0.0, -1.0);
+        // return glm::lookAt(parent_transform->GetPosition() + transform.GetPosition(), parent_transform->GetPosition() + lookAhead * forwardVector, glm::vec3(0.0, 1.0, 0.0));
     } else {
         return glm::lookAt(transform.GetPosition(), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
     }

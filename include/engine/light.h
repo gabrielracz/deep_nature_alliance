@@ -28,7 +28,7 @@ public:
 private:
 
 
-    Transform* parent_transform {nullptr};
+    Transform* parent_transform = nullptr;
     glm::vec3 GetColour() const;
 
     glm::mat4 projMatrix;
