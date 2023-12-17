@@ -12,7 +12,7 @@ uniform float timer;
 void main() {
     float distanceToCenter = distance(uv_interp, vec2(0.5, 0.5));
 
-    float fade = smoothstep(0.4, 0.6, distanceToCenter);
+    float fade = smoothstep(0.2, max (0.4, (0.6 - ((timer-lastInShade) * 0.03))), distanceToCenter);
 
     // Interpolate between texture color and black based on the fade value
     FragColor = mix(texture(texture_map, uv_interp).rgb, vec3(0.0), fade);

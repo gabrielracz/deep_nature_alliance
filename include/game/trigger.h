@@ -16,7 +16,7 @@ class Trigger : public SceneNode {
 
         virtual void Update(double dt) override;
         void SetAction(std::function<void()> act) { action = act; }
-        void SetShader();
+        void SetShader(Shader* s);
         void ActivateTrigger();
 
         void SuperJankDesertHeatTrigger();

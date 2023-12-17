@@ -146,6 +146,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Heatstroke", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/desert_heat_vision_fp.glsl");
     //big bodge but needed
     Shader* s = resman.GetShader("S_Heatstroke");
+    s->Use();
     s->SetUniform1f(0.0f, "lastInShade");
 
     resman.LoadShader("S_TextureWithTransform", SHADER_DIRECTORY"/passthrough_with_transform_vp.glsl", SHADER_DIRECTORY"/passthrough_fp.glsl");
@@ -260,7 +261,7 @@ void Game::SetupScenes(void){
     SetupStartScene();
     SetupCreditsScene();
 
-    ChangeScene(MAIN_MENU);
+    ChangeScene(DESERT);
 
 
     // // CreateTerrain();
@@ -933,6 +934,12 @@ void Game::SetupDesertScene() {
         });
         note->DeleteOnCollect(true);
         AddColliderToScene(DESERT, note);
+
+        auto trig = std::make_shared<Trigger>("Obj_Note"+ std::to_string(i), "", "S_Lit", "T_Cassette");
+        trig->transform.SetPosition(std::get<0>(noteInfo[i]));
+        trig->SetCollision(CollisionData(50));
+        trig->SetShader(resman.GetShader("S_Heatstroke"));
+        AddColliderToScene(DESERT, trig);
     }
     
 
