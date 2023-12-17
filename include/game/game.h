@@ -15,6 +15,8 @@
 #pragma comment(lib, "irrKlang.lib")
 #endif // WIN32
 
+using namespace irrklang;
+
 #include "scene_graph.h"
 #include "resource_manager.h"
 #include "camera.h"
@@ -119,7 +121,8 @@ class Game {
         SceneGraph* active_scene;
         SceneEnum active_scene_num = MAIN_MENU;
         std::vector<SceneGraph*> scenes;
-        irrklang::ISoundEngine* audioEngine;
+        ISoundEngine* audioEngine;
+        bool leftShiftPressed = false;
 
         float wind_speed = 1.5f;
         int camera_mode;
