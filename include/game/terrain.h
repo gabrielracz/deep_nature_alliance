@@ -17,7 +17,7 @@ class Terrain : public SceneNode {
 
         Terrain(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, TerrainType type, const std::vector<std::vector<float>> image, float xwidth, float zwidth, float density, Game* game);
 
-        ~Terrain() { std::cout << "deleting terrain fucker " << static_cast<int> (type) << std::endl;}
+        ~Terrain() {}
 
         float SampleHeight(float x, float z);
         float SampleSlope(float x, float z, glm::vec3 dir = {0.0f, 0.0f, 0.0f});

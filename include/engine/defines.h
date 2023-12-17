@@ -56,6 +56,7 @@ namespace Colors {
     const glm::vec4 SeaBlue     = HEXCOLOR(0x83A598);
     const glm::vec4 SeaGreen    = HEXCOLOR(0x33D17A);
     const glm::vec4 Red         = HEXCOLOR(0xFF0010);
+    const glm::vec4 PurpleLight = HEXCOLOR(0xD8B4FF);
     const glm::vec4 Amber       = HEXCOLOR(0xFFAF00);
     const glm::vec4 TranspBlack = HEXCOLORALPH(0x000000, 0.5f);
     const glm::vec4 DarkTranspBlack = HEXCOLORALPH(0x000000, 0.9f);

@@ -17,7 +17,7 @@ void Menu_Player::Update(double dt){
     
     const float imageOffsetForMoreAccurateClickingIDontThinkThisVariableIsDescriptiveEnough = 0.068;
 
-    cursor->transform.SetPosition(glm::vec3(screenX * 2.0f - 1.0f + imageOffsetForMoreAccurateClickingIDontThinkThisVariableIsDescriptiveEnough, 1.0f - screenY * 2.0f - imageOffsetForMoreAccurateClickingIDontThinkThisVariableIsDescriptiveEnough, 0.0));
+    cursor->transform.SetPosition(glm::vec3(screenX * 2.0f - 1.0f - 1.0f + imageOffsetForMoreAccurateClickingIDontThinkThisVariableIsDescriptiveEnough, 1.0f - screenY * 2.0f - imageOffsetForMoreAccurateClickingIDontThinkThisVariableIsDescriptiveEnough, 0.0));
 
     float radius = 1.0f;
     float angularSpeed = 0.2f;

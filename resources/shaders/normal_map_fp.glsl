@@ -177,7 +177,7 @@ void main() {
         if(pixel.a < 0.1)
             discard;
         // vec4 pixel = vec4(color_interp, 1.0);                                                                       // mix with underlying model color
-        float shadow = ShadowCalculation(shadow_space_pos);
+        float shadow = PCSSShadowCalculation(shadow_space_pos);
         // if(shadow > 0.0) {
         //     in_shadow = true;
         //     // accumulator = vec4(1.0, 0.0, 1.0, 1.0);

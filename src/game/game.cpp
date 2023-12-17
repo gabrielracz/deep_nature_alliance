@@ -94,6 +94,7 @@ void Game::LoadMeshes() {
     resman.LoadMesh        ("M_Tower_m", MESH_DIRECTORY"/medium_tower.obj");
     resman.LoadMesh        ("M_Tower_s", MESH_DIRECTORY"/small_tower.obj");
     resman.LoadMesh        ("M_Tower_t", MESH_DIRECTORY"/tall_tower.obj");
+    resman.LoadMesh        ("M_Comp", MESH_DIRECTORY"/computer.obj");
 
     // generate geometry
     resman.CreateSimpleQuad("M_Quad");
@@ -214,6 +215,7 @@ void Game::LoadTextures() {
     resman.LoadTexture("T_Tower_s_n", TEXTURE_DIRECTORY"/small_tower_n.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
     resman.LoadTexture("T_Tower_m", TEXTURE_DIRECTORY"/medium_tower.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
     resman.LoadTexture("T_Tower_m_n", TEXTURE_DIRECTORY"/medium_tower_n.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
+    resman.LoadTexture("T_Comp", TEXTURE_DIRECTORY"/computer.png", GL_CLAMP_TO_EDGE, GL_LINEAR);
 
     resman.LoadCubemap("T_SpaceSkybox", TEXTURE_DIRECTORY"/skyboxes/space");
     resman.LoadCubemap("T_MessedUpSkybox", TEXTURE_DIRECTORY"/skyboxes/messedup");
@@ -249,7 +251,7 @@ void Game::SetupScenes(void){
     // CreatePlanets();
     // CreateTriggers();
     // // CreateTree();
-    CreateLights();
+    //CreateLights();
     // CreateHUD();
     CreateStory();
 }
@@ -269,7 +271,7 @@ void Game::SetupSpaceScene() {
     auto stars = std::make_shared<SceneNode>("Obj_Starcloud", "M_StarCloud", "S_Default", "");
     // scn->AddNode(stars);
 
-    auto planet = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMap", "T_ForestPlanet");
+    auto planet = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMapNoShadow", "T_ForestPlanet");
     planet->transform.SetPosition({0.0, 0.0, -2000.0});
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
@@ -280,7 +282,7 @@ void Game::SetupSpaceScene() {
     planet->SetCollider(col);
     AddColliderToScene(SPACE, planet);
 
-    auto planet2 = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMap", "T_DesertPlanet");
+    auto planet2 = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMapNoShadow", "T_DesertPlanet");
     planet2->transform.SetPosition({-3500, 3000, -6000.0});
     planet2->transform.SetScale({1100, 1100, 1100});
     planet2->transform.SetOrientation(glm::angleAxis(PI/-1.5f, glm::vec3(1.0, 0.0, 0.0)));
@@ -291,7 +293,7 @@ void Game::SetupSpaceScene() {
     planet2->SetCollider(p2col);
     AddColliderToScene(SPACE, planet2);
 
-    auto planet3 = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMap", "T_MoonPlanet");
+    auto planet3 = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMapNoShadow", "T_MoonPlanet");
     planet3->transform.SetPosition({-5500, 5000, -15000.0});
     planet3->transform.SetScale({500, 500, 500});
     planet3->transform.SetOrientation(glm::angleAxis(PI/1.8f, glm::normalize(glm::vec3(0.9, 0.2, 0.0))));
@@ -302,13 +304,15 @@ void Game::SetupSpaceScene() {
     planet3->SetCollider(p3col);
     AddColliderToScene(SPACE, planet3);
 
+    auto l2 = std::make_shared<Light>(Colors::Yellow);
+    l2->transform.SetPosition({-300.0, -300.0, 15000.0});
+    scn->AddLight(l2);
+
     auto light = std::make_shared<Light>(Colors::WarmWhite);
     light->transform.SetPosition({300.0, 300.0, 15000.0});
     scn->AddLight(light);
 
-    auto l2 = std::make_shared<Light>(Colors::Yellow);
-    l2->transform.SetPosition({-300.0, -300.0, 15000.0});
-    scn->AddLight(l2);
+
 
     auto sun = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_Sun", "T_Sun");
     sun->transform.SetPosition({300, 300, 15000.0});
@@ -435,6 +439,17 @@ void Game::SetupFPScene(void) {
     camera.SetView(glm::vec3(0.0, 3.0, -0.4), glm::vec3(0.0, 3.0, -0.4) + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
+
+    auto light1 = std::make_shared<Light>(Colors::PurpleLight);
+    light1->transform.SetPosition({300.0, 600.0, 0.0});
+    light1->ambient_power = 0.15;
+    scenes[FPTEST]->AddLight(light1);
+
+    auto light2 = std::make_shared<Light>(Colors::Red);
+    light2->transform.SetPosition({-600.0f,-28.0f,-650.0f});
+    light2->ambient_power = 0.0;
+    scenes[FPTEST]->AddLight(light2);
+
 
     auto p = std::make_shared<FP_Player>("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
     p->SetNormalMap("T_MetalNormalMap");
@@ -614,8 +629,27 @@ void Game::SetupFPScene(void) {
     ship->SetCollider(col);
     AddColliderToScene(FPTEST, ship);
 
+    auto comp = std::make_shared<SceneNode>("Obj_Terminal", "M_Comp", "S_NormalMap", "T_Comp");
+    comp->SetNormalMap("T_MetalNormalMap", 10.0f);
+    comp->transform.SetPosition({-600.0f,-80.0f,-700.0f});
+    comp->transform.SetOrientation({0.4, 0.3, 0.0, 0.0});
+    comp->transform.SetScale({300.0, 300.0, 300.0});
+    comp->material.specular_power = 169.0f;
+    //SphereCollider* col = new SphereCollider(*comp, 9.0f);
+    //col->SetCallback([this]() { PlayerHitShip({-5500, 5550, -15000.0}); });
+    //comp->SetCollider(col);
+    scenes[FPTEST]->AddNode(comp);
+
+    auto pill_tower = std::make_shared<SceneNode>("Obj_PillTower", "M_SELTower", "S_NormalMap", "T_SpaceMetal");
+    pill_tower->SetNormalMap("T_MetalNormalMap", 1.0f);
+    pill_tower->material.specular_power = 15000.0;
+    pill_tower->transform.SetPosition({-673.0f,-59.0,-570.0f});
+    pill_tower->transform.Yaw(rng.randfloat(0, 2*PI));
+    pill_tower->transform.SetScale({15.0, 15.0, 15.0});
+    scenes[FPTEST]->AddNode(pill_tower);
+
     auto pill = std::make_shared<Item>("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill");
-    pill->transform.SetPosition({-600.0f,-18.0f,-600.0f});
+    pill->transform.SetPosition({-600.0f,-13.0f,-600.0f});
     pill->transform.SetScale({5,5,5});
     pill->SetAlphaEnabled(true);
     pill->SetCollectCallback([this]() { this->CollectEndingItem(PILL); });
@@ -704,18 +738,19 @@ void Game::SetupForestScene() {
     p->SetTerrain(terr);
     scenes[FOREST]->AddTerrain(terr);
 
+    auto hilight = std::make_shared<Light>(Colors::Goldish);
+    // light->transform.SetPosition({1000.0, 1000.0, -2000.0});
+    hilight->transform.SetPosition({300.0, 600.0, 0.0});
+    hilight->ambient_power = 0.025;
+    scenes[FOREST]->AddLight(hilight);
+
     auto light = std::make_shared<Light>(Colors::BrightYellow);
     // light->transform.SetPosition({1000.0, 1000.0, -2000.0});
-    light->transform.SetPosition({300.0, 600.0, 0.0});
+    light->transform.SetPosition({1000.0, 1000.0, 0.0});
     // ship->transform.SetOrientation({0.334468, 0.000000, 0.942407, 0.000000});
     light->ambient_power = 0.15;
     scenes[FOREST]->AddLight(light);
 
-    auto hilight = std::make_shared<Light>(Colors::Goldish);
-    // light->transform.SetPosition({1000.0, 1000.0, -2000.0});
-    hilight->transform.SetPosition({800.0, 1300.0, 0.0});
-    hilight->ambient_power = 0.025;
-    scenes[FOREST]->AddLight(hilight);
 
 
     auto skybox = std::make_shared<SceneNode>("Obj_Skybox", "M_Skybox", "S_Skybox", "T_SpaceSkybox");
@@ -749,7 +784,7 @@ void Game::SetupForestScene() {
             tree->transform.SetScale({s,s,s});
             tree->transform.Yaw(r);
             tree->material.specular_power = 0.0f;
-            tree->SetAlphaEnabled(true);
+            // tree->SetAlphaEnabled(true);
             scenes[FOREST]->AddNode(tree);
         }
     }
@@ -838,13 +873,14 @@ void Game::SetupDesertScene() {
     CreateFPSCounter(DESERT);
     scenes[DESERT]->SetResetCallback([this]() { this->SetupDesertScene(); });
     Camera& camera = scenes[DESERT]->GetCamera();
-    camera.SetView(config::fp_camera_position, config::fp_camera_position + config::camera_look_at, config::camera_up);
+    camera.SetView(glm::vec3(0.0, 3.0, -0.4), glm::vec3(0.0, 3.0, -0.4) + config::camera_look_at, config::camera_up);
     camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, config::camera_far_clip_distance, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
     auto p = std::make_shared<FP_Player>("Obj_Desert_player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
     p->SetNormalMap("T_MetalNormalMap", 1.0f);
     p->transform.SetPosition({-4250,0,-4000});
+    p->transform.SetScale({3.5, 3.5, 3.5});
     p->transform.SetOrientation(glm::quat(0.346089, {0.000000, -0.938202, 0.000000}));
     p->SetTargetStartPos(glm::vec3(-4000,0,-4000));
     AddPlayerToScene(DESERT, p);
@@ -891,7 +927,7 @@ void Game::SetupDesertScene() {
     scenes[DESERT]->AddTerrain(terr);
 
     auto light = std::make_shared<Light>(Colors::SunLight);
-    light->transform.SetPosition({300.0, 600.0, 0.0});
+    light->transform.SetPosition({-100.0, 400.0, 300.0});
     light->Attach(&p->transform);
     // light->SetProjMatrix(glm::ortho(-250.0f, 250.0f, -250.0f, 250.0f, 20.0f, 1300.0f));
     scenes[DESERT]->AddLight(light);
@@ -1714,7 +1750,8 @@ void Game::SpawnRocket(glm::vec3 position, glm::quat orientation, glm::vec3 init
     rocket->SetNodeType(TROCKET);
     rocket->velocity = initial_velocity;
 
-    AddColliderToScene(SPACE, rocket);
+    active_scene->AddNode(rocket);
+    active_scene->AddCollider(rocket);
 }
 
 void Game::CollectStoryItem(StoryBeat l) {

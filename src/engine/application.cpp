@@ -32,7 +32,7 @@ void Application::Start() {
          engine = irrklang::createIrrKlangDevice();
         if (!engine)
             std::cout << "error setting up audio engine" << std::endl;
-        engine->play2D(RESOURCES_DIRECTORY"/audio/unreal.wav", true);
+        engine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
     }
 	while(running){
 		//Get frame rate
