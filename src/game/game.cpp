@@ -162,7 +162,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Violence", SHADER_DIRECTORY"/red_vision_vp.glsl", SHADER_DIRECTORY"/red_vision_fp.glsl");
     resman.LoadShader("S_SSDither", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/dither_fp.glsl");
 
-    resman.SetScreenSpaceShader("S_Heatstroke");
+    resman.SetScreenSpaceShader("S_Texture");
 }
 
 void Game::LoadTextures() {
@@ -261,7 +261,7 @@ void Game::SetupScenes(void){
     SetupStartScene();
     SetupCreditsScene();
 
-    ChangeScene(DESERT);
+    ChangeScene(MAIN_MENU);
 
 
     // // CreateTerrain();
@@ -1700,6 +1700,10 @@ void Game::ChangeScene(int sceneIndex) {
     active_scene_num = SceneEnum(sceneIndex);
     app.SetMouseHandler(std::bind(&Player::MouseControls, active_scene->GetPlayer(), std::placeholders::_1));
     active_scene->SetBackgroundColor(viewport_background_color_g);
+
+    if (active_scene_num == DESERT){
+        resman.SetScreenSpaceShader("S_Heatstroke");
+    }
 }
 
 void Game::ChangeSceneAndSpawn(int sceneIndex, glm::vec3 position) {
