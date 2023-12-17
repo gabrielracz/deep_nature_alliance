@@ -36,6 +36,7 @@ void Application::Start() {
     }
 	while(running){
 		//Get frame rate
+        runtime += dt;
 		frame_counter++;
 		current_time = glfwGetTime();
 		dt = current_time - last_time;

@@ -21,7 +21,7 @@ public:
         RIGHTCENTER
     };
 
-    Text(std::string content, const glm::vec4 col = {1.0f, 1.0f, 1.0f, 1.0f}, const glm::vec4 back_col = {0.0f, 0.0f, 0.0f, 0.5f}, Anchor anchor = Anchor::RIGHTCENTER, const glm::vec3& pos = {1.0, 0.0, 0.0}, float delay = 0.05f);
+    Text(std::string content, const glm::vec4 col = {1.0f, 1.0f, 1.0f, 1.0f}, const glm::vec4 back_col = {0.0f, 0.0f, 0.0f, 0.5f}, Anchor anchor = Anchor::RIGHTCENTER, const glm::vec3& pos = {1.0, 0.0, 0.0}, float delay = 0.05f, float size = 13.125);
     Text(const std::string name, const std::string& mesh_id, const std::string shader_id, const std::string& texture_id, const std::string& content = "");
 
     void Update(double dt, int win_width, int win_height);

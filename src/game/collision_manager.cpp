@@ -8,7 +8,16 @@
 #include <memory>
 
 
+void CollisionManager::CleanupNodes() {
+    RemoveDeletedNodes(rockets);
+    RemoveDeletedNodes(asteroids);
+    RemoveDeletedNodes(items);
+    RemoveDeletedNodes(othercollideables);
+}
+
 void CollisionManager::CheckCollisions() {
+    CleanupNodes();
+
     for (const auto& trig : triggers) {
         if (sphereToSphere(*player, *trig)) {
             trig->ActivateTrigger();
@@ -32,7 +41,6 @@ void CollisionManager::CheckCollisions() {
     }
 
 
-    RemoveDeletedNodes(rockets);
     for (const auto& asteroid : asteroids) {
         int i = 0;
         for (const Transform& a : asteroid->GetInstances()) {
@@ -68,7 +76,6 @@ void CollisionManager::CheckCollisions() {
         GetCollision(*beacon, *player);
     }
 
-    RemoveDeletedNodes(othercollideables);
     for (auto other : othercollideables) {
         if(!other) {continue;}
         if (GetCollision(*other, *player) && other->GetCollider()->oneoff) {

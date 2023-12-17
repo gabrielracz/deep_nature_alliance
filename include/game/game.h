@@ -70,7 +70,7 @@ namespace config
     const glm::vec3 camera_look_at(0.0, 0.0, -1.0);
     const glm::vec3 camera_up(0.0, 1.0, 0.0);
     const glm::vec3 fp_camera_position(0.0, 10.0, 0.0);
-    const glm::vec3 cockpit_cam_pos(0.000000, 0.182572, -0.693709);
+    const glm::vec3 cockpit_cam_pos(0.000000, 0.185284, -0.704252);
     const glm::quat cockpit_cam_ori(0.999998, {0.002136, 0.000000, 0.000000});
 };
 

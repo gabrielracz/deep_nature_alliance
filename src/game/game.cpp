@@ -673,16 +673,13 @@ void Game::SetupForestScene() {
     auto p = std::make_shared<FP_Player>("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
     p->SetNormalMap("T_MetalNormalMap", 1.0f);
     p->material.specular_power = 200.0f;
-    p->transform.SetPosition(player_pos);
+    // p->transform.SetPosition(player_pos); // real pos
+    p->transform.SetPosition({293.913483, 17.500790, 152.102478}); // tmp test
     p->transform.SetOrientation({0.315484, 0.000000, 0.948931, 0.000000});
     p->visible = false;
     p->jump_speed_ = 20;
     p->gravity_ = 9.8* 6;
     AddPlayerToScene(FOREST, p);
-
-    // Tp_Player* p = new Tp_Player("Obj_FP_Player", "M_Ship", "S_NormalMap", "T_Ship", this);
-    // p->SetNormalMap("T_MetalNormalMap", 1.0f);
-    // AddPlayerToScene(FOREST, p);
 
     auto ship = std::make_shared<SceneNode>("Obj_LandedShip", "M_Ship", "S_NormalMap", "T_Ship");
     ship->SetNormalMap("T_MetalNormalMap", 10.0f);
@@ -734,18 +731,11 @@ void Game::SetupForestScene() {
     forest->SetCullInstances(true);
     for(int i = 0; i < sizeof(forest_trees)/sizeof(forest_trees[0]); i++) {
         bool instanced = true;
-        // float x = rng.randfloat(-400, 400);
-        // float z = rng.randfloat(-400, 400);
-        // float y = terr->SampleHeight(x, z);
-        // float s = rng.randfloat(0.5, 3);
-        // float r = rng.randfloat(0, 2*PI);
-
         float x = forest_trees[i][0];
         float z = forest_trees[i][2];
         float y = terr->SampleHeight(x, z);
         float s = forest_trees[i][3];
         float r = forest_trees[i][4];
-        // float s = 1;
         if(instanced) {
             Transform t;
             t.SetPosition({x, y, z});
@@ -787,6 +777,13 @@ void Game::SetupForestScene() {
         scenes[FOREST]->AddNode(htree);
     }
 
+    auto first_tree = std::make_shared<Item>("Obj_FirstTreeDialogue", "", "S_Lit", "T_Pill", 50.0f);
+    first_tree->transform.SetPosition({-388.425018, 21.000000, -272.856903});
+    first_tree->transform.SetScale({55,55,55});
+    first_tree->SetCollectCallback([this]() { AddStoryToScene(FOREST, StoryBeat::FIRST_TREE); });
+    first_tree->DeleteOnCollect(true);
+    AddColliderToScene(FOREST, first_tree);
+
     glm::vec3 crashed_pos = {442.438568, -1.132055, 353.692505};
     auto crashed = std::make_shared<SceneNode>("Obj_CrashedShip", "M_H2", "S_NormalMap", "T_H2");
     crashed->SetNormalMap("T_MetalNormalMap", 10.0f);
@@ -794,26 +791,25 @@ void Game::SetupForestScene() {
     crashed->transform.SetOrientation({0.975208, {0.076261, -0.193031, -0.076759}});
     crashed->transform.SetScale({11.0, 11.0, 9.5});
     crashed->material.specular_power = 169.0f;
-    SphereCollider* crashedcol = new SphereCollider(*crashed, 65.0f);
-    crashedcol->oneoff = true;
     AddToScene(FOREST, crashed);
 
-
-    // auto investigate_ship = std::make_shared<Toggle>("Obj_Investigate", "", "S_Default", "T_SpiralParticle");
-    // investigate_ship->SetCallback([this, &crashed_pos]() {
-    //     Camera& cam = active_scene->GetCamera();
-    //     cam.Detach();
-    //     cam.Reset();
-    //     cam.transform.SetPosition({442.438568, 80.132055, 353.692505});
-    //     cam.transform.SetOrientation(glm::angleAxis(-PI/2.0f, glm::vec3(1.0, 0.0, 0.0)));
-    //     CollectStoryItem(StoryBeat::CRASHED_SHIP);
-    // });
-    // crashed->SetCollider(crashedcol);
-    // AddColliderToScene(FOREST, crashed);
+    float crash_area_radius = 75.0f;
+    auto crash_area = std::make_shared<Item>("Obj_CrashArea", "", "S_Default", "T_SpiralParticle", crash_area_radius);
+    crash_area->transform.SetPosition(crashed_pos);
+    crash_area->SetCollectCallback([this]() {
+        Camera& cam = active_scene->GetCamera();
+        cam.Detach();
+        cam.Reset();
+        cam.transform.SetPosition({442.438568, 80.132055, 353.692505});
+        cam.transform.SetOrientation(glm::angleAxis(-PI/2.0f, glm::vec3(1.0, 0.0, 0.0)));
+        CollectStoryItem(StoryBeat::CRASH_AREA);
+    });
+    crash_area->DeleteOnCollect(true);
+    AddColliderToScene(FOREST, crash_area);
 
     auto ship_vision = std::make_shared<Toggle>("Obj_Toggle", "", "S_Default", "T_SpiralParticle");
     ship_vision->transform.SetPosition(crashed->transform.GetPosition());
-    SphereCollider* col_vision = new SphereCollider(*ship_vision, 65.0f);
+    SphereCollider* col_vision = new SphereCollider(*ship_vision, crash_area_radius + 20.0f);
     ship_vision->SetCollider(col_vision);
     ship_vision->SetOnCallback([this]() { 
         this->resman.SetScreenSpaceShader("S_SSDither"); 
@@ -823,12 +819,18 @@ void Game::SetupForestScene() {
     });
     AddColliderToScene(FOREST, ship_vision);
 
-    auto first_tree = std::make_shared<Item>("Obj_FirstTreeDialogue", "", "S_Lit", "T_Pill", 50.0f);
-    first_tree->transform.SetPosition({-388.425018, 21.000000, -272.856903});
-    first_tree->transform.SetScale({55,55,55});
-    first_tree->SetCollectCallback([this]() { AddStoryToScene(FOREST, StoryBeat::FIRST_TREE); });
-    first_tree->DeleteOnCollect(true);
-    AddColliderToScene(FOREST, first_tree);
+    auto investigate_ship = std::make_shared<Item>("Obj_Investigate", "", "S_Default", "T_SpiralParticle", 15.0f);
+    investigate_ship->transform.SetPosition(crashed_pos);
+    investigate_ship->SetCollectCallback([this]() {
+        Camera& cam = active_scene->GetCamera();
+        cam.Detach();
+        cam.Reset();
+        cam.transform.SetPosition(glm::vec3(448.251495, -4.456905, 341.754303) + glm::vec3(0.000000, 7.083450, 0.000000));
+        cam.transform.SetOrientation(glm::quat(0.992476, {0.000000, -0.122440, 0.000000}) * glm::quat(0.993588, {0.111878, 0.016183, -0.002168}));
+        CollectStoryItem(StoryBeat::INVESTIGATE_SHIP);
+    });
+    investigate_ship->DeleteOnCollect(true);
+    AddColliderToScene(FOREST, investigate_ship);
 
 }
 

@@ -12,7 +12,7 @@ enum StoryBeat {
     INTRO,
     FOREST_THOUGHTS,
     FIRST_TREE,
-    CRASHED_SHIP,
+    CRASH_AREA,
     INVESTIGATE_SHIP,
     PILL,
     PICTURE,
@@ -23,13 +23,14 @@ enum StoryBeat {
     NUM_STORY_BEATS
 };
 
-//                              Text Color     Background Color     Anchor Point              Screen Position   Scroll Delay
+//                              Text Color     Background Color     Anchor Point              Screen Position   Scroll Delay   Font Size (default is 13.125)
 #define FEDERATION_TRANSMISSION Colors::Amber, Colors::TranspBlack, Text::Anchor::LEFTCENTER, {-1.0, 0.0, 0.0}, 0.05f
 #define NARRATION               Colors::White, Colors::TBrown
 #define INTRO_STORY             Colors::White,   Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.04f
 #define INTRO_LOADING           Colors::SlimeGreen, Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.02f
 #define SHIP_ERROR              Colors::Red, Colors::TranspBlack, Text::Anchor::LEFTCENTER, {-1.0, 0.0, 0.0}, 0.05f
 #define THOUGHTS                Colors::SeaBlue, Colors::TranspBlack, Text::Anchor::RIGHTCENTER, {1.0, 0.0, 0.0}, 0.05f
+#define FOREST_INVESTIGATE      Colors::SeaGreen, Colors::DarkTranspBlack, Text::Anchor::TOPCENTER, {0.0, 0.7, 0.0}, 0.05f
 #define ITEM                    Colors::SlimeGreen, Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.04f
 #define NOTE                    Colors::White,   Colors::TBrown, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.04f
 #define BLOOD_NOTE              Colors::Red,   Colors::TBrown, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.04f
@@ -146,18 +147,24 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
             THOUGHTS
         }
     }},
-    {CRASHED_SHIP, {
+    {CRASH_AREA, {
         {
             "There appears to be a corrupting energy\n"
             "radiating from the ship affecting the\n"
             "surrounding trees.",
-            THOUGHTS
+            FOREST_INVESTIGATE
         },
         {
             "Seems the distress beacon is still on\n"
             "but the surrounding forest floor has already\n"
             "begun swallowing the hull.",
-            THOUGHTS
+            FOREST_INVESTIGATE
+        }
+    }},
+    {INVESTIGATE_SHIP, {
+        {
+            "You enter the ship.",
+            FOREST_INVESTIGATE
         }
     }},
     {PICTURE,{

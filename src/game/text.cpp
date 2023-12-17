@@ -6,8 +6,8 @@
 #include <cstring>
 
 // Default Story text constructor
-Text::Text(std::string content, const glm::vec4 col, const glm::vec4 back_col, Anchor anchor, const glm::vec3& position, float delay)
-: SceneNode("Obj_StoryText", "M_Quad", "S_Text", "T_Charmap"), anchor(anchor), color(col), background_color(back_col), content(content) {
+Text::Text(std::string content, const glm::vec4 col, const glm::vec4 back_col, Anchor anchor, const glm::vec3& position, float delay, float size)
+: SceneNode("Obj_StoryText", "M_Quad", "S_Text", "T_Charmap"), anchor(anchor), color(col), background_color(back_col), content(content), size(size) {
     transform.SetPosition(position);
     camera_projection = Camera::Projection::ORTHOGRAPHIC;
     alpha_enabled = true;

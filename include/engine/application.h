@@ -16,7 +16,9 @@ private:
     Game game;
     ResourceManager resman;
     bool running = false;
+    bool sound_enabled = true;
     float fps = 0.0f;
+    float runtime = 0.0f;
 public:
     Application();
     void Init();
@@ -34,6 +36,8 @@ public:
     int GetWinHeight() {return view.GetHeight();}
     Window* GetWindow() { return view.GetWindow(); }
     float GetFPS() {return fps;}
+    float GetRuntime() {return runtime;}
+    void SetSoundEnabled(bool t) {sound_enabled = t;}
 
 };
 

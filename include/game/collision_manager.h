@@ -20,6 +20,7 @@ class CollisionManager{
         //     : triggers(t), asteroids(a), player(p) {}
 
         void CheckCollisions();
+        void WhyCouldntTheyJustBeInvisible();
 
         void AddNode(std::shared_ptr<SceneNode> node);
 
@@ -32,6 +33,7 @@ class CollisionManager{
         void SetPlayer(std::shared_ptr<Player> newPlayer) { player = std::move(newPlayer); }
 
     private:
+        void CleanupNodes();
         template <typename T>
         void RemoveDeletedNodes(std::vector<std::shared_ptr<T>>& v);
 

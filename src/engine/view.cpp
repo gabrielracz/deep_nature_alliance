@@ -83,6 +83,7 @@ void View::RenderPostProcessing(SceneGraph& scene) {
         Mesh* scrquad  = resman.GetMesh("M_Quad");
         Shader* scrshd = resman.GetScreenSpaceShader();
         scrshd->Use();
+        scrshd->SetUniform1f(app.GetRuntime(), "timer");
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, postprocess_tex);
