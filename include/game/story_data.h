@@ -396,8 +396,12 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
     }},
     {DESERT_LANDING,{
             {
-                "As the scorching desert sun beats down on me, I can't shake the disorientation from the crash. My ship, my lifeline, is nowhere to be seen.\n"
-                "A distant tower emerges through the haze, a beacon of hope amid the relentless sun. Must find shade, must reach that tower.\n",
+                "As the scorching desert sun beats down on me,\n"
+                "I can't shake the disorientation from the crash.\n"
+                "My ship, my lifeline, is nowhere to be seen.\n"
+                "A distant tower emerges through the haze, \n"
+                "a beacon of hope amid the relentless sun.\n"
+                "Must find shade, must reach that tower.\n",
                 THOUGHTS
             }
     }},
@@ -405,10 +409,12 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
             {
                 "Ahh thats better.\n"
                 "I didn't think I was gonna make it.\n"
-                "Wait a second. What planet is this. It is __planet name__!\n"
-                "Was my data wrong? __something here about this planet is supposed to be entirely water\n"
+                "Wait a second. What planet is this. It is Aqua Terrarias!\n"
+                "Was my data wrong? From my memory this was an ocean planet, \n"
+                "entirely covered in water.\n"
                 "The landscape unfolds with more towers stretching into the distance\n"
-                "Who constructed these structures, and what purpose do they serve in an entirely aqueous world?\n"
+                "Who constructed these structures, \n"
+                "and what purpose do they serve in an entirely aqueous world?\n"
                 "Only one way to find out...\n",
                 THOUGHTS
             }
@@ -416,24 +422,32 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
     {DESERT_SECOND_RECORDING,{
             {
                 "As I reach the second tower, relief washes over me like a desert breeze.\n"
-                "Wait whats that buried in the sand over there? A tape recorder? Who could possibly live in this hostile environment?\n"
-                "**Static** A young woman screams '!NO PLEASE!' **Static** The haunting cry resonates, revealing the desperation of those who once called this place home\n"
-                "This message confirms my suspicions; This is not the water planet I expected, but rather a place once rich in life, now transformed\n"
-                "The towers, it seems, are remnants of a civilization that once thrived here. Questions multiply as I ponder their fate and the history of this enigmatic world\n"
+                "Wait whats that buried in the sand over there?\n"
+                "A tape recorder? Who could possibly live in this hostile environment?\n"
+                "**Static** A young woman screams '!NO PLEASE!' **Static** \n"
+                "The haunting cry resonates, revealing the desperation \n"
+                "of those who once called this place home\n"
+                "This message confirms my suspicions; This is not the water planet I expected,\n"
+                "but rather a place once rich in life, now transformed\n"
+                "The towers, it seems, are remnants of a civilization that once thrived here.\n"
+                "Questions multiply as I ponder their fate and the history of this enigmatic world\n"
                 "I must get back to my ship to continue my mission.\n"
-                "The next tower looms in the distance, a daunting silhouette against the relentless desert horizon. It seems so far away, and I barely made it here\n",
+                "The next tower looms in the distance,\n"
+                "a daunting silhouette against the relentless desert horizon.\n"
+                "It seems so far away, and I barely made it here\n",
                 THOUGHTS
             }
     }},
     {DESERT_THIRD_RECORDING,{
             {
-                "third \n",
+                "THIRD NOTE PLACEHOLDER\n",
                 THOUGHTS
             }
     }},
     {DESERT_FOURTH_RECORDING,{
             {
-                "fourth \n",
+                "This jetpack will assist me in my many journeys.\n"
+                "Should get back to my ship and continue exploring the solar system.",
                 THOUGHTS
             }
     }}

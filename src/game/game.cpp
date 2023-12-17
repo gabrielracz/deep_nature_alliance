@@ -146,6 +146,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Heatstroke", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/desert_heat_vision_fp.glsl");
     //big bodge but needed
     Shader* s = resman.GetShader("S_Heatstroke");
+    s->Use();
     s->SetUniform1f(0.0f, "lastInShade");
 
     resman.LoadShader("S_TextureWithTransform", SHADER_DIRECTORY"/passthrough_with_transform_vp.glsl", SHADER_DIRECTORY"/passthrough_fp.glsl");
@@ -161,7 +162,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Violence", SHADER_DIRECTORY"/red_vision_vp.glsl", SHADER_DIRECTORY"/red_vision_fp.glsl");
     resman.LoadShader("S_SSDither", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/dither_fp.glsl");
 
-    resman.SetScreenSpaceShader("S_Heatstroke");
+    resman.SetScreenSpaceShader("S_Texture");
 }
 
 void Game::LoadTextures() {
@@ -940,6 +941,12 @@ void Game::SetupDesertScene() {
         });
         note->DeleteOnCollect(true);
         AddColliderToScene(DESERT, note);
+
+        auto trig = std::make_shared<Trigger>("Obj_Note"+ std::to_string(i), "", "S_Lit", "T_Cassette");
+        trig->transform.SetPosition(std::get<0>(noteInfo[i]));
+        trig->SetCollision(CollisionData(50));
+        trig->SetShader(resman.GetShader("S_Heatstroke"));
+        AddColliderToScene(DESERT, trig);
     }
     
 
@@ -1212,19 +1219,19 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     }
 
     if(keys[GLFW_KEY_1]) {
-        ChangeScene(FPTEST);
+        ChangeScene(SPACE);
         keys[GLFW_KEY_1] = false;
     }
     if(keys[GLFW_KEY_2]) {
-        ChangeScene(SPACE);
+        ChangeScene(FOREST);
         keys[GLFW_KEY_2] = false;
     }
     if(keys[GLFW_KEY_3]) {
-        ChangeScene(FOREST);
+        ChangeScene(DESERT);
         keys[GLFW_KEY_3] = false;
     }
     if(keys[GLFW_KEY_4]) {
-        ChangeScene(DESERT);
+        ChangeScene(FPTEST);
         keys[GLFW_KEY_4] = false;
     }
     if(keys[GLFW_KEY_5]) {
@@ -1700,6 +1707,10 @@ void Game::ChangeScene(int sceneIndex) {
     active_scene_num = SceneEnum(sceneIndex);
     app.SetMouseHandler(std::bind(&Player::MouseControls, active_scene->GetPlayer(), std::placeholders::_1));
     active_scene->SetBackgroundColor(viewport_background_color_g);
+
+    if (active_scene_num == DESERT){
+        resman.SetScreenSpaceShader("S_Heatstroke");
+    }
 }
 
 void Game::ChangeSceneAndSpawn(int sceneIndex, glm::vec3 position) {
