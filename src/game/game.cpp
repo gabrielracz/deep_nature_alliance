@@ -271,7 +271,7 @@ void Game::SetupSpaceScene() {
     auto stars = std::make_shared<SceneNode>("Obj_Starcloud", "M_StarCloud", "S_Default", "");
     // scn->AddNode(stars);
 
-    auto planet = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMap", "T_ForestPlanet");
+    auto planet = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMapNoShadow", "T_ForestPlanet");
     planet->transform.SetPosition({0.0, 0.0, -2000.0});
     planet->transform.SetScale({800, 800, 800});
     planet->transform.SetOrientation(glm::angleAxis(PI/1.5f, glm::vec3(1.0, 0.0, 0.0)));
@@ -282,7 +282,7 @@ void Game::SetupSpaceScene() {
     planet->SetCollider(col);
     AddColliderToScene(SPACE, planet);
 
-    auto planet2 = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMap", "T_DesertPlanet");
+    auto planet2 = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMapNoShadow", "T_DesertPlanet");
     planet2->transform.SetPosition({-3500, 3000, -6000.0});
     planet2->transform.SetScale({1100, 1100, 1100});
     planet2->transform.SetOrientation(glm::angleAxis(PI/-1.5f, glm::vec3(1.0, 0.0, 0.0)));
@@ -293,7 +293,7 @@ void Game::SetupSpaceScene() {
     planet2->SetCollider(p2col);
     AddColliderToScene(SPACE, planet2);
 
-    auto planet3 = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMap", "T_MoonPlanet");
+    auto planet3 = std::make_shared<SceneNode>("Obj_Planet", "M_Planet", "S_NormalMapNoShadow", "T_MoonPlanet");
     planet3->transform.SetPosition({-5500, 5000, -15000.0});
     planet3->transform.SetScale({500, 500, 500});
     planet3->transform.SetOrientation(glm::angleAxis(PI/1.8f, glm::normalize(glm::vec3(0.9, 0.2, 0.0))));
@@ -305,7 +305,7 @@ void Game::SetupSpaceScene() {
     AddColliderToScene(SPACE, planet3);
 
     auto l2 = std::make_shared<Light>(Colors::Yellow);
-    l2->transform.SetPosition({-300.0, -300.0, 13000.0});
+    l2->transform.SetPosition({-300.0, -300.0, 15000.0});
     scn->AddLight(l2);
 
     auto light = std::make_shared<Light>(Colors::WarmWhite);
@@ -640,14 +640,13 @@ void Game::SetupFPScene(void) {
     //comp->SetCollider(col);
     scenes[FPTEST]->AddNode(comp);
 
-    auto pill_tower = std::make_shared<SceneNode>("Obj_PillTower", "M_SELTower", "S_InstancedShadow", "T_SpaceMetal");
+    auto pill_tower = std::make_shared<SceneNode>("Obj_PillTower", "M_SELTower", "S_NormalMap", "T_SpaceMetal");
     pill_tower->SetNormalMap("T_MetalNormalMap", 1.0f);
     pill_tower->material.specular_power = 15000.0;
-    pill_tower->transform.SetPosition({-620.0f,t->SampleHeight(-620.0f, -600.0f),-600.0f});
+    pill_tower->transform.SetPosition({-673.0f,-59.0,-570.0f});
     pill_tower->transform.Yaw(rng.randfloat(0, 2*PI));
-    pill_tower->transform.SetScale({15.0, 15.0, 150.0});
+    pill_tower->transform.SetScale({15.0, 15.0, 15.0});
     scenes[FPTEST]->AddNode(pill_tower);
-    printf("%f \n", t->SampleHeight(-650.0f, -600.0f));
 
     auto pill = std::make_shared<Item>("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill");
     pill->transform.SetPosition({-600.0f,-13.0f,-600.0f});
