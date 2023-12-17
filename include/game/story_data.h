@@ -14,6 +14,11 @@ enum StoryBeat {
     FIRST_TREE,
     CRASH_AREA,
     INVESTIGATE_SHIP,
+    DESERT_LANDING,
+    DESERT_FIRST_RECORDING,
+    DESERT_SECOND_RECORDING,
+    DESERT_THIRD_RECORDING,
+    DESERT_FOURTH_RECORDING,
     PILL,
     PICTURE,
     GOOD_END,
@@ -322,6 +327,36 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "Violence Mode [Enabled]\n"
                 "Press [V] to toggle.\n",
                 SHIP_ERROR
+            }
+    }},
+    {DESERT_LANDING,{
+            {
+                "Me so hot papi must get to the shade \n",
+                THOUGHTS
+            }
+    }},
+    {DESERT_FIRST_RECORDING,{
+            {
+                "Oh thats nice and cool, why is this planet like this? WHEre the ocean cro? \n",
+                THOUGHTS
+            }
+    }},
+    {DESERT_SECOND_RECORDING,{
+            {
+                "second \n",
+                THOUGHTS
+            }
+    }},
+    {DESERT_THIRD_RECORDING,{
+            {
+                "third \n",
+                THOUGHTS
+            }
+    }},
+    {DESERT_FOURTH_RECORDING,{
+            {
+                "fourth \n",
+                THOUGHTS
             }
     }}
 };
