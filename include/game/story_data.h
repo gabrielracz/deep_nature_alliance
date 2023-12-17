@@ -131,9 +131,9 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
             {
                 "This planet is way too close\n"
                 "to the sun to support life...\n"
-                "...\n"
                 "They must have built an\n"
                 "artificial atmosphere.\n"
+                " \n"
                 "But my readings indicate lethal\n"
                 "levels of chlorine and ammonia.",
                 THOUGHTS
@@ -154,21 +154,43 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
     }},
     {CRASH_AREA, {
         {
-            "There appears to be a corrupting energy\n"
-            "radiating from the ship affecting the\n"
+            "There appears to be nuclear decay\n"
+            "radiating from the ship. It's affecting the\n"
             "surrounding trees.",
             FOREST_INVESTIGATE
         },
         {
-            "Seems the distress beacon is still on\n"
-            "but the surrounding forest floor has already\n"
-            "begun swallowing the hull.",
+            "I know this jet, they used to fly these\n"
+            "in the early days of the alliance.",
+            FOREST_INVESTIGATE
+        },
+        {
+            "The distress beacon is still active...\n"
+            "but the forest floor has already\n"
+            "begun swallowing the hull.\n",
+            FOREST_INVESTIGATE
+        },
+        {
+            "The canopy seems to be cracked open.",
             FOREST_INVESTIGATE
         }
     }},
     {INVESTIGATE_SHIP, {
         {
-            "You enter the ship.",
+            "You open the canopy and find the cockpit of the crashed fighter in ruins,\n"
+            "a nest of shattered controls and twisted metal.\n"
+            "The space is lined with irradiated organic matter, emitting enough gamma rays to kill\n"
+            "an unprotected soldier in minutes.",
+            FOREST_INVESTIGATE
+        },
+        {
+            "Dim lights flicker off of every surface.\n"
+            "A large red indicator pulses behind the yolk.\n",
+            FOREST_INVESTIGATE
+        },
+        {
+            "Knowing that to be where these old birds keep their avionics unit\n"
+            "you offload the data and find a communications record.",
             FOREST_INVESTIGATE
         }
     }},
