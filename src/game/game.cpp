@@ -880,7 +880,7 @@ void Game::SetupDesertScene() {
     p->transform.SetPosition({-4250,0,-4000});
     p->transform.SetScale({3.5, 5.0, 3.5});
     p->transform.SetOrientation(glm::quat(0.346089, {0.000000, -0.938202, 0.000000}));
-    p->speed_ = 1.2f;
+    p->speed_ = 0.9f;
     p->max_walking_angle_ = 45.0f;
     p->SetTargetStartPos(glm::vec3(-4000,0,-4000));
     AddPlayerToScene(DESERT, p);
@@ -948,12 +948,11 @@ void Game::SetupDesertScene() {
     auto light = std::make_shared<Light>(Colors::SunLight);
     light->transform.SetPosition({-100.0, 400.0, 300.0});
     light->Attach(&p->transform);
-    // light->SetProjMatrix(glm::ortho(-250.0f, 250.0f, -250.0f, 250.0f, 20.0f, 1300.0f));
+    light->SetProjMatrix(glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 20.0f, 1300.0f));
     scenes[DESERT]->AddLight(light);
 
     auto skybox = std::make_shared<SceneNode>("Obj_Skybox", "M_Skybox", "S_Skybox", "T_BlueSkybox");
     skybox->transform.SetScale({1000, 1000, 1000});
-    skybox->transform.SetOrientation(glm::angleAxis(PI_2, glm::vec3(1.0, 0.0, 0.0)));
     scenes[DESERT]->SetSkybox(skybox);
 
     auto cactus1 = std::make_shared<SceneNode>("Obj_Cactus9", "M_Cactus9", "S_InstancedShadow", "T_Cactus9");

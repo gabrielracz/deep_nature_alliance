@@ -91,8 +91,8 @@ float PCSSShadowCalculation(vec4 fragPosLightSpace) {
    float penumbraWidth = 0.0; // Initial penumbra width
 
    // Search for the blocker
-   for(int x = -2; x <= 2; ++x){
-       for(int y = -2; y <= 2; ++y){
+   for(int x = -3; x <= 3; ++x){
+       for(int y = -3; y <= 3; ++y){
            float pcfDepth = texture(shadow_map, projCoords.xy + vec2(x, y) * texelSize).r; 
            if(currentDepth - bias > pcfDepth){
                blockerSearchSize = vec2(x, y) * texelSize;
@@ -102,8 +102,8 @@ float PCSSShadowCalculation(vec4 fragPosLightSpace) {
    }
 
    // Calculate penumbra width
-   for(int x = -2; x <= 2; ++x){
-       for(int y = -2; y <= 2; ++y){
+   for(int x = -3; x <= 3; ++x){
+       for(int y = -3; y <= 3; ++y){
            float pcfDepth = texture(shadow_map, projCoords.xy + vec2(x, y) * texelSize).r; 
            if(currentDepth - bias > pcfDepth){
                penumbraWidth = max(penumbraWidth, length(vec2(x, y) * texelSize - blockerSearchSize));
@@ -113,8 +113,8 @@ float PCSSShadowCalculation(vec4 fragPosLightSpace) {
 
    // Calculate shadow
    float shadow = 0.0;
-   for(int x = -2; x <= 2; ++x){
-       for(int y = -2; y <= 2; ++y){
+   for(int x = -3; x <= 3; ++x){
+       for(int y = -3; y <= 3; ++y){
            float pcfDepth = texture(shadow_map, projCoords.xy + vec2(x, y) * texelSize).r; 
            float distanceFromBlocker = length(vec2(x, y) * texelSize - blockerSearchSize);
            float falloff = smoothstep(0.0, penumbraWidth, distanceFromBlocker);
@@ -122,12 +122,12 @@ float PCSSShadowCalculation(vec4 fragPosLightSpace) {
        }   
    }
 
-   shadow /= 25.0;
+   shadow /= 49.0;
 
    shadow *= 1.25; //darkness modifier
 
    // Outside shadow map
-   if(projCoords.x >= 1.0 || projCoords.x < 0.0 || projCoords.y >= 1.0 || projCoords.y < 0.0) {
+   if(projCoords.x > 1.0 || projCoords.x < 0.0 || projCoords.y > 1.0 || projCoords.y < 0.0) {
        shadow = 0.0;
    }
    return shadow;
