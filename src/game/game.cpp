@@ -71,7 +71,7 @@ void Game::Init(void){
     audioEngine = irrklang::createIrrKlangDevice();
 	if (!audioEngine)
 		std::cout << "error setting up audio engine" << std::endl;
-    audioEngine->setSoundVolume(0.6);
+    audioEngine->setSoundVolume(0.0);
 	// audioEngine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
 }
    
@@ -1254,12 +1254,14 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if (!leftShiftPressed && glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
         if (active_scene_num == SPACE) {
             audioEngine->play2D(RESOURCES_DIRECTORY"/audio/explosion.wav");
-            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/rocket.wav", true);
+            bigJank = audioEngine->play2D(RESOURCES_DIRECTORY"/audio/rocket_boost.wav", true);
         }
         leftShiftPressed = true;
     } 
     if (leftShiftPressed && glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
-        audioEngine->stopAllSounds();
+        if (bigJank)
+            bigJank->stop();
+        audioEngine->play2D(RESOURCES_DIRECTORY"/audio/rocket_winddown.wav");
         leftShiftPressed = false;
     }
 
