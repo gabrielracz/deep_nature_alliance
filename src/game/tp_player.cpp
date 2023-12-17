@@ -89,14 +89,7 @@ void Tp_Player::Update(double dt) {
 
     torque = glm::vec3(0.0f);
 
-    float thrst = 1.0 * dt;
-    if(thrusting) {
-        thrust1->ChangeAmount(thrst);
-        thrust2->ChangeAmount(thrst);
-    } else {
-        thrust1->ChangeAmount(-thrst);
-        thrust2->ChangeAmount(-thrst);
-    }
+    ConfigureThrusters(dt);
     thrusting = false;
     SceneNode::Update(dt);
 }
@@ -111,7 +104,10 @@ void Tp_Player::MouseControls(Mouse& mouse){
 
 void Tp_Player::Control(Controls c, float dt, float damping){
     const float rot_force = damping * 2000.0f;
-    const float thrust_force = damping * move_speed * 25550.0f;
+    float thrust_force = damping * move_speed * 28550.0f;
+    if(limp_mode) {
+        thrust_force *= 0.3;
+    }
     switch(c) {
         case Player::Controls::SHIFT:
             // f;worce += -transform.LocalAxis(FORWARD) * thrust_force;
@@ -140,6 +136,7 @@ void Tp_Player::Control(Controls c, float dt, float damping){
             torque += transform.GetAxis(FORWARD) * rot_force * 2.0f;
             break;
         case Player::Controls::SPACE:{
+            if(limp_mode) {return;}
             glm::vec3 forward_vel = transform.GetOrientation() * glm::vec3(0.0, 0.0, (glm::inverse(transform.GetOrientation()) * velocity).z);
             game->SpawnRocket(transform.GetPosition() + transform.GetOrientation() * glm::vec3(0.0, -0.25, 0.0), transform.GetOrientation(), forward_vel);
             break;}
@@ -148,48 +145,22 @@ void Tp_Player::Control(Controls c, float dt, float damping){
     }
 }
 
-// void Tp_Player::Thrust(int d) {
-//     float speed = glm::length(velocity);
-//     if(d > 0 && speed < move_speed + accel_amt) {
-//         velocity += transform.LocalAxis(FORWARD) * accel_amt;
-//     } else if (d < 0 && speed - accel_amt > -move_speed - accel_amt) { 
-//         velocity -= transform.LocalAxis(FORWARD) * accel_amt;
-//     }
-// }
-
-// void Tp_Player::ShipControl(Controls c, float damping) {
-//     const float rot_force = damping * 2000.0f;
-//     const float thrust_force = damping * move_speed * 25550.0f;
-//     switch(c) {
-//         case Controls::THRUST:
-//             // f;worce += -transform.LocalAxis(FORWARD) * thrust_force;
-//             force += transform.GetAxis(FORWARD) * thrust_force;
-//             break;
-//         case Controls::BRAKE:
-//             braking = true;
-//             break;
-//         case Controls::PITCHD:
-//             torque += transform.GetAxis(SIDE) * -rot_force;
-//             break;
-//         case Controls::PITCHU:
-//             torque += transform.GetAxis(SIDE) * rot_force;
-//             break;
-//         case Controls::YAWL:
-//             torque += transform.GetAxis(UP) * rot_force;
-//             break;
-//         case Controls::YAWR:
-//             torque += transform.GetAxis(UP) * -rot_force;
-//             break;
-//         case Controls::ROLLL:
-//             torque += transform.GetAxis(FORWARD) * -rot_force * 2.0f;
-//             break;
-//         case Controls::ROLLR:
-//             torque += transform.GetAxis(FORWARD) * rot_force * 2.0f;
-//             break;
-//         default:
-//             break;
-//     }
-// }
+void Tp_Player::ConfigureThrusters(double dt) {
+    float thrst = 1.0 * dt;
+    if(thrusting) {
+        if(!limp_mode) {
+            thrust1->ChangeAmount(thrst);
+        }
+        thrust2->ChangeAmount(thrst);
+        thrust3->ChangeAmount(thrst);
+    } else {
+        if(!limp_mode) {
+            thrust1->ChangeAmount(-thrst);
+        }
+        thrust2->ChangeAmount(-thrst);
+        thrust3->ChangeAmount(-thrst);
+    }
+}
 
 
 void Tp_Player::SetUniforms(Shader *shader, const glm::mat4 &view_matrix, const glm::mat4& parent_matrix) {

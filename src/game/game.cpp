@@ -114,7 +114,7 @@ void Game::LoadMeshes() {
     resman.CreatePointCloud("M_StarCloud", 70000, 2000, {0.8, 0.8, 0.8, 0.8});
     resman.CreateSphere    ("M_Planet", 1, 100, 100);
     resman.CreateSphere    ("M_Asteroid", 1, 7, 5);
-    resman.CreatePointCloud("M_Thrust", 1200, 0.25f);
+    resman.CreatePointCloud("M_Thrust", 800, 0.25f);
     resman.CreatePointCloud("M_Explosion", 5000, 0.25f);
     resman.CreateSnowParticles("M_MoonSnow", 10000, 200, 20, 10.0);
     resman.CreateSnowParticles("M_MoonSpirals", 10000, 2000, 20, 0);
@@ -282,7 +282,7 @@ void Game::SetupSpaceScene() {
 
     Camera& camera = scn->GetCamera();
     camera.SetView({0.000000, 8.087938, 20.895229}, config::camera_look_at, config::camera_up);
-    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, 16000.0f, app.GetWinWidth(), app.GetWinHeight());
+    camera.SetPerspective(config::camera_fov, 1.0, 16000.0f, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
     auto stars = std::make_shared<SceneNode>("Obj_Starcloud", "M_StarCloud", "S_Default", "");
@@ -377,28 +377,35 @@ void Game::SetupSpaceScene() {
 
     auto player = std::make_shared<Tp_Player>("Obj_Player", "M_Ship", "S_NormalMap", "T_Ship", this);
     player->transform.SetPosition(glm::vec3(1679.251343, 727.375793, -537.549316));
-
     player->SetNormalMap("T_MetalNormalMap", 1.0);
+    player->SetLimpMode(true);
     camera.Attach(&player->transform, false);
     scn->SetPlayer(player);
     scn->AddNode(player);
 
-    float thrust_scale = 0.05f;
     Thrust* thrust1 = new Thrust("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
-    thrust1->transform.SetPosition(glm::vec3(-0.85, -0.25, 5.0));
+    thrust1->transform.SetPosition(glm::vec3(0.0, -0.2, 2.7));
     thrust1->SetAlphaEnabled(true);
     thrust1->SetAlphaFunc(GL_ONE);
-    // thrust1->transform.SetScale({thrust_scale, thrust_scale, thrust_scale});
     player->AddChild(thrust1);
     player->thrust1 = thrust1;
 
+    float thrust_scale = 0.05f;
     Thrust* thrust2 = new Thrust("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
-    thrust2->transform.SetPosition(glm::vec3(0.85, -0.25, 5.0));
+    thrust2->transform.SetPosition(glm::vec3(-2.7, -0.2, 2.5));
     thrust2->SetAlphaEnabled(true);
     thrust2->SetAlphaFunc(GL_ONE);
-    // thrust2->transform.SetScale({thrust_scale, thrust_scale, thrust_scale});
+    thrust2->transform.SetScale({0.65, 0.65, 0.65});
     player->AddChild(thrust2);
     player->thrust2 = thrust2;
+
+    Thrust* thrust3 = new Thrust("Obj_Ship", "M_Thrust", "S_Thrust", "T_Fire");
+    thrust3->transform.SetPosition(glm::vec3(2.7, -0.2, 2.5));
+    thrust3->SetAlphaEnabled(true);
+    thrust3->SetAlphaFunc(GL_ONE);
+    thrust3->transform.SetScale({0.65, 0.65, 0.65});
+    player->AddChild(thrust3);
+    player->thrust3 = thrust3;
 
     auto beacon1 = std::make_shared<Beacon>("Obj_Beacon", "M_Beacon", "S_Lit", "T_Beacon");
     beacon1->material.specular_coefficient = 0.0f;
@@ -647,7 +654,7 @@ void Game::SetupFPScene(void) {
     AddColliderToScene(FPTEST, ship);
 
     auto comp = std::make_shared<SceneNode>("Obj_Terminal", "M_Comp", "S_NormalMap", "T_Comp");
-    comp->SetNormalMap("T_MetalNormalMap", 10.0f);
+    comp->SetNormalMap("T_M    p->transform.SetPosition({293.913483, 17.500790, 152.102478}); // tmp testetalNormalMap", 10.0f);
     comp->transform.SetPosition({-600.0f,-80.0f,-700.0f});
     comp->transform.SetOrientation({0.4, 0.3, 0.0, 0.0});
     comp->transform.SetScale({300.0, 300.0, 300.0});
@@ -725,8 +732,7 @@ void Game::SetupForestScene() {
     auto p = std::make_shared<FP_Player>("Obj_FP_Player", "M_Soldier", "S_NormalMap", "T_Soldier", &camera);
     p->SetNormalMap("T_MetalNormalMap", 1.0f);
     p->material.specular_power = 200.0f;
-    // p->transform.SetPosition(player_pos); // real pos
-    p->transform.SetPosition({293.913483, 17.500790, 152.102478}); // tmp test
+    p->transform.SetPosition(player_pos); // real pos
     p->transform.SetOrientation({0.315484, 0.000000, 0.948931, 0.000000});
     p->transform.SetScale({3.5, 5.0, 3.5});
     p->visible = false;
@@ -883,6 +889,7 @@ void Game::SetupForestScene() {
         cam.transform.SetOrientation(glm::quat(0.992476, {0.000000, -0.122440, 0.000000}) * glm::quat(0.993588, {0.111878, 0.016183, -0.002168}));
         CollectStoryItem(StoryBeat::INVESTIGATE_SHIP);
         AddStoryToScene(SPACE, StoryBeat::SHIP_SYSTEMS_ACTIVATED);
+        scenes[SPACE]->GetPlayer()->SetLimpMode(false);
     });
     investigate_ship->DeleteOnCollect(true);
     AddColliderToScene(FOREST, investigate_ship);
@@ -1410,6 +1417,8 @@ void Game::CheckControls(KeyMap& keys, float dt) {
             ending_sequence_ = false;
             good_end_ = true;
             ChangeScene(ENDING);
+            audioEngine->stopAllSounds();
+            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/theend.wav", true);
             keys[GLFW_KEY_N] = false;
             return;
         }
@@ -1426,6 +1435,8 @@ void Game::CheckControls(KeyMap& keys, float dt) {
             active_scene->SetCollision(true);
             bad_end_ = true;
             resman.SetScreenSpaceShader("S_Texture");
+            audioEngine->stopAllSounds();
+            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/nebulous.wav", true);
             keys[GLFW_KEY_Y] = false;
             return;
         }
