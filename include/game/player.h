@@ -36,11 +36,11 @@ public:
     void UnlockDash() {dash_unlocked_ = true;}
     void SetLimpMode(bool l) {limp_mode = l;}
 
+    bool dash_unlocked_ = false;
+    bool limp_mode = false;
 protected:
 
     bool player_static_ = false;
-    bool dash_unlocked_ = false;
-    bool limp_mode = false;
 
     glm::vec3 prev_position_ = glm::vec3(0.0f);
 
