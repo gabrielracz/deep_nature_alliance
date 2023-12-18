@@ -1285,7 +1285,9 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     } 
     if (leftShiftPressed && glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
         audioEngine->stopAllSounds();
-        audioEngine->play2D(RESOURCES_DIRECTORY"/audio/rocket_winddown.wav");
+        if (active_scene_num == SPACE) {
+            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/rocket_winddown.wav");
+        }
         leftShiftPressed = false;
     }
 
