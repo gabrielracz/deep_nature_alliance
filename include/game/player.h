@@ -39,7 +39,7 @@ public:
 protected:
 
     bool player_static_ = false;
-    bool dash_unlocked_ = true;
+    bool dash_unlocked_ = false;
     bool limp_mode = false;
 
     glm::vec3 prev_position_ = glm::vec3(0.0f);

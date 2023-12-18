@@ -672,7 +672,7 @@ void Game::SetupFPScene(void) {
     pill_tower->transform.SetScale({15.0, 15.0, 15.0});
     scenes[FPTEST]->AddNode(pill_tower);
 
-    auto pill = std::make_shared<Item>("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill");
+    auto pill = std::make_shared<Item>("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill", 4.0f);
     pill->transform.SetPosition({-600.0f,-13.0f,-600.0f});
     pill->transform.SetScale({5,5,5});
     pill->SetAlphaEnabled(true);
@@ -938,6 +938,7 @@ void Game::SetupDesertScene() {
         note->transform.SetScale({55,55,55});
         note->SetCollectCallback([this, noteInfo, i]() { 
             AddStoryToScene(DESERT, std::get<1>(noteInfo[i])); 
+            UnlockDash();
         });
         note->DeleteOnCollect(true);
         AddColliderToScene(DESERT, note);
