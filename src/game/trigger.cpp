@@ -30,6 +30,11 @@ void Trigger::Update(double dt) {
         }
     }
 
+    if (shd){
+        shd->Use();
+        shd->SetUniform1f(elapsed, "timerJank");
+    }
+
     // Other update logic
     SceneNode::Update(dt);
 }
