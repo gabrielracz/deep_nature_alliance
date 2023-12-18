@@ -1,4 +1,4 @@
-3D space exploration game 
+3D space exploration game with a story!
 
 BUILDING
 
