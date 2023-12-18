@@ -121,8 +121,8 @@ class Game {
         SceneGraph* active_scene;
         SceneEnum active_scene_num;
         std::vector<SceneGraph*> scenes;
-        ISoundEngine* audioEngine;
-        ISound* bigJank;
+        ISoundEngine* audioEngine = nullptr;
+        ISound* bigJank = nullptr;
         bool leftShiftPressed = false;
 
         float wind_speed = 1.5f;

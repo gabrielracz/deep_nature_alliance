@@ -654,7 +654,7 @@ void Game::SetupFPScene(void) {
     AddColliderToScene(FPTEST, ship);
 
     auto comp = std::make_shared<SceneNode>("Obj_Terminal", "M_Comp", "S_NormalMap", "T_Comp");
-    comp->SetNormalMap("T_M    p->transform.SetPosition({293.913483, 17.500790, 152.102478}); // tmp testetalNormalMap", 10.0f);
+    comp->SetNormalMap("T_MetalNormalMap", 10.0f);
     comp->transform.SetPosition({-600.0f,-80.0f,-700.0f});
     comp->transform.SetOrientation({0.4, 0.3, 0.0, 0.0});
     comp->transform.SetScale({300.0, 300.0, 300.0});
@@ -1277,7 +1277,6 @@ void Game::CheckControls(KeyMap& keys, float dt) {
         if (active_scene_num == SPACE) {
             audioEngine->play2D(RESOURCES_DIRECTORY"/audio/explosion.wav");
             ISound* sound = audioEngine->play2D(RESOURCES_DIRECTORY"/audio/rocket_boost.wav", true);
-            std::cout << "sound is" << (sound == nullptr) << std::endl;
             bigJank = sound;
         }
         leftShiftPressed = true;
