@@ -938,7 +938,9 @@ void Game::SetupDesertScene() {
         note->transform.SetScale({55,55,55});
         note->SetCollectCallback([this, noteInfo, i]() { 
             AddStoryToScene(DESERT, std::get<1>(noteInfo[i])); 
-            UnlockDash();
+            if (i == 3){
+                UnlockDash();
+            }
         });
         note->DeleteOnCollect(true);
         AddColliderToScene(DESERT, note);

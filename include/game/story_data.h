@@ -37,7 +37,7 @@ enum StoryBeat {
 #define INTRO_LOADING           Colors::SlimeGreen, Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.02f
 #define SHIP_ERROR              Colors::Red, Colors::TranspBlack, Text::Anchor::LEFTCENTER, {-1.0, 0.0, 0.0}, 0.05f
 #define SHIP_ACTIVATED          Colors::SeaGreen, Colors::TranspBlack, Text::Anchor::LEFTCENTER, {-1.0, 0.0, 0.0}, 0.05f
-#define THOUGHTS                Colors::SeaBlue, Colors::TranspBlack, Text::Anchor::RIGHTCENTER, {1.0, 0.0, 0.0}, 0.1f
+#define THOUGHTS                Colors::SeaBlue, Colors::TranspBlack, Text::Anchor::RIGHTCENTER, {1.0, 0.0, 0.0}, 0.04f
 #define FOREST_INVESTIGATE      Colors::SeaGreen, Colors::DarkTranspBlack, Text::Anchor::TOPCENTER, {0.0, 0.7, 0.0}, 0.03f
 #define COMMS_RECORD            Colors::Amber, Colors::TranspBlack, Text::Anchor::TOPCENTER, {0.0, 0.4, 0.0}, 0.06f
 #define ITEM                    Colors::SlimeGreen, Colors::TranspBlack, Text::Anchor::CENTER, {0.0, 0.0, 0.0}, 0.04f
