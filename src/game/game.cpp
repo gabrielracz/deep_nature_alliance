@@ -421,7 +421,7 @@ void Game::SetupSpaceScene() {
     beacon2->material.diffuse_strength = 2.0f;
     beacon2->transform.SetPosition(planet2->transform.GetPosition());
     beacon2->SetAlphaEnabled(true);
-    beacon2->SetCollectCallback([this]() { this->ChangeSceneAndSpawn(DESERT, {0,100,0}); });
+    beacon2->SetCollectCallback([this]() { this->ChangeSceneAndSpawn(DESERT, {-4250,0,-4000}); });
     beacon2->transform.Translate({0,planet2->transform.GetScale().y,0});
     AddColliderToScene(SPACE, beacon2);
 
