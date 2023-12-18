@@ -120,8 +120,8 @@ class Game {
         SceneGraph* active_scene;
         SceneEnum active_scene_num;
         std::vector<SceneGraph*> scenes;
-        
-        ISoundEngine* audioEngine;
+        ISoundEngine* audioEngine = nullptr;
+        ISound* bigJank = nullptr;
         bool leftShiftPressed = false;
         bool musicPlaying = false;
         bool quietDownFeller = false;

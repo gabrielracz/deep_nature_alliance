@@ -66,7 +66,7 @@ void SceneNode::SetUniforms(Shader* shader, const glm::mat4& view_matrix, const 
     shader->SetUniform1f(material.specular_coefficient,  "specular_coefficient");
 
     // extras
-    shader->SetUniform1f(elapsed, "timer");
+    shader->SetUniform1f(elapsed+0.0001, "timer");
 
     // instances
     if(instances.size() > 0) {

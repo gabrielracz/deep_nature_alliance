@@ -94,10 +94,18 @@ void SceneGraph::ClearEverything() {
 }
 
 void SceneGraph::Reset() {
+    bool player_dash_unlocked = player->dash_unlocked_;
+    bool player_limp_mode = player->limp_mode;
     colman.Reset();
     ClearEverything();
     if (reset_callback) {
         reset_callback();
+    }
+    if(player) {
+        if(player_dash_unlocked) {
+            player->UnlockDash();
+        }
+        player->SetLimpMode(player_limp_mode);
     }
 }
 
