@@ -452,7 +452,26 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
     }},
     {DESERT_THIRD_RECORDING,{
             {
-                "THIRD NOTE PLACEHOLDER\n",
+                "Theres another tape...\n",
+                THOUGHTS
+            },
+            {
+                "Listen here listen all ...\n"
+                " ... this is the first time in history \n"
+                " a resistance force has covertly and organically\n"
+                " been created in a DNA occupied sector ... \n"
+                " ... \n"
+                " We have been able to gather that the MK testing strike \n"
+                " will indeed happen here ... \n"
+                " ... \n"
+                " We have the tech to stop it, it's up to each and everyone\n"
+                " to prepare the MK shield\n"
+                " ... \n"
+                " WE WILL BE SUCCESSFUL! GLORY TO THE X-REVOLUTION!\n",
+                COMMS_RECORD
+            },
+            {
+                "I can only hope they were...\n",
                 THOUGHTS
             }
     }},
