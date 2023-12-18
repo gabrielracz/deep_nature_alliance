@@ -1,5 +1,22 @@
 3D space exploration game 
 
+BUILDING
+
+Visual Studio
+mkdir build
+cd build
+cmake ..
+./dna.sln
+Set dna as startup project
+Choose release build
+run build and run
+
+Linux Build
+mkdir build
+cd build
+cmake ..
+make
+
 Attributions:
 Planetary textures taken from https://www.solarsystemscope.com/textures/ (CC BY 4.0)
 Habitable worlds textures taken from https://www.texturesforplanets.com/texture-packs.shtml
