@@ -831,7 +831,7 @@ void Game::SetupForestScene() {
         glm::vec3 pos = {ht[0], ht[1], ht[2]};
         glm::quat ori = {ht[3], ht[4], ht[5], ht[6]};
         auto htree = std::make_shared<Tree>("Tree", "M_Branch", "S_NormalMap", "T_Bark", 0, 0, 0, this);
-        htree->transform.SetPosition(pos + glm::vec3(0.0, -3.0, 0.0));
+        htree->transform.SetPosition(pos + glm::vec3(0.0, -3.1, 0.0));
         htree->transform.SetOrientation(ori);
         htree->GrowTree();
         scenes[FOREST]->AddNode(htree);
