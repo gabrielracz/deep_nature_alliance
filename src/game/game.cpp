@@ -672,7 +672,7 @@ void Game::SetupFPScene(void) {
     pill_tower->transform.SetScale({15.0, 15.0, 15.0});
     scenes[FPTEST]->AddNode(pill_tower);
 
-    auto pill = std::make_shared<Item>("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill", 4.0f);
+    auto pill = std::make_shared<Item>("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill", 6.0f);
     pill->transform.SetPosition({-600.0f,-13.0f,-600.0f});
     pill->transform.SetScale({5,5,5});
     pill->SetAlphaEnabled(true);
@@ -1885,7 +1885,14 @@ void Game::CollectEndingItem(StoryBeat l) {
 }
 
 void Game::UnlockDash() {
-     for (auto s : scenes) {
-        s->GetPlayer()->UnlockDash();
-     }
+    int i = 0;
+    if(scenes[FOREST]->GetPlayer()) {
+        scenes[FOREST]->GetPlayer()->UnlockDash();
+    }
+    if(scenes[DESERT]->GetPlayer()) {
+        scenes[DESERT]->GetPlayer()->UnlockDash();
+    }
+    if(scenes[FPTEST]->GetPlayer()) {
+        scenes[FPTEST]->GetPlayer()->UnlockDash();
+    }
 }
