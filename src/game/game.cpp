@@ -654,7 +654,7 @@ void Game::SetupFPScene(void) {
     AddColliderToScene(FPTEST, ship);
 
     auto comp = std::make_shared<SceneNode>("Obj_Terminal", "M_Comp", "S_NormalMap", "T_Comp");
-    comp->SetNormalMap("T_M    p->transform.SetPosition({293.913483, 17.500790, 152.102478}); // tmp testetalNormalMap", 10.0f);
+    comp->SetNormalMap("T_MetalNormalMap", 10.0f);
     comp->transform.SetPosition({-600.0f,-80.0f,-700.0f});
     comp->transform.SetOrientation({0.4, 0.3, 0.0, 0.0});
     comp->transform.SetScale({300.0, 300.0, 300.0});
@@ -1709,12 +1709,14 @@ void Game::ChangeScene(int sceneIndex) {
     std::cout << "changing scenes" << std::endl;
     active_scene = scenes[sceneIndex];
     active_scene_num = SceneEnum(sceneIndex);
-    app.SetMouseHandler(std::bind(&Player::MouseControls, active_scene->GetPlayer(), std::placeholders::_1));
-    active_scene->SetBackgroundColor(viewport_background_color_g);
-
-    if (active_scene_num == DESERT){
+    if (active_scene_num == DESERT) {
         resman.SetScreenSpaceShader("S_Heatstroke");
     }
+    else {
+        resman.SetScreenSpaceShader("S_Texture");
+    }
+    app.SetMouseHandler(std::bind(&Player::MouseControls, active_scene->GetPlayer(), std::placeholders::_1));
+    active_scene->SetBackgroundColor(viewport_background_color_g);
 }
 
 void Game::ChangeSceneAndSpawn(int sceneIndex, glm::vec3 position) {

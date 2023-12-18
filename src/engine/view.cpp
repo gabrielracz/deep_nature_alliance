@@ -195,7 +195,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<std::shared_ptr<
         glEnable(GL_BLEND);
         if(node->GetAlphaFunc() == GL_ONE) {
             glDepthMask(GL_FALSE);
-            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
         } else {
             glDepthMask(GL_TRUE);
             glBlendFunc(GL_SRC_ALPHA, node->GetAlphaFunc());
