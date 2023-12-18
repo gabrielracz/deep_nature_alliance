@@ -439,7 +439,11 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "**Static** A young woman screams '!NO PLEASE!' **Static** \n"
                 "The haunting cry resonates, revealing the desperation \n"
                 "of those who once called this place home\n"
-                "This message confirms my suspicions; This is not the water planet I expected,\n"
+                "This message confirms my suspicions.\n",
+                THOUGHTS
+            },
+            {
+                "This is not the water planet I expected,\n"
                 "but rather a place once rich in life, now transformed\n"
                 "The towers, it seems, are remnants of a civilization that once thrived here.\n"
                 "Questions multiply as I ponder their fate and the history of this enigmatic world\n"
