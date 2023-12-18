@@ -282,7 +282,7 @@ void Game::SetupSpaceScene() {
 
     Camera& camera = scn->GetCamera();
     camera.SetView({0.000000, 8.087938, 20.895229}, config::camera_look_at, config::camera_up);
-    camera.SetPerspective(config::camera_fov, 1.0, 16000.0f, app.GetWinWidth(), app.GetWinHeight());
+    camera.SetPerspective(config::camera_fov, config::camera_near_clip_distance, 16000.0f, app.GetWinWidth(), app.GetWinHeight());
     camera.SetOrtho(app.GetWinWidth(), app.GetWinHeight());
 
     auto stars = std::make_shared<SceneNode>("Obj_Starcloud", "M_StarCloud", "S_Default", "");
@@ -831,7 +831,7 @@ void Game::SetupForestScene() {
         glm::vec3 pos = {ht[0], ht[1], ht[2]};
         glm::quat ori = {ht[3], ht[4], ht[5], ht[6]};
         auto htree = std::make_shared<Tree>("Tree", "M_Branch", "S_NormalMap", "T_Bark", 0, 0, 0, this);
-        htree->transform.SetPosition(pos);
+        htree->transform.SetPosition(pos + glm::vec3(0.0, -3.0, 0.0));
         htree->transform.SetOrientation(ori);
         htree->GrowTree();
         scenes[FOREST]->AddNode(htree);
