@@ -96,9 +96,9 @@ class SceneNode {
         float elapsed = 0;
         CollisionData collision;
 
-        std::string mesh_id;
-        std::string shader_id;
-        std::string texture_id;
+        std::string mesh_id = "";
+        std::string shader_id = "";
+        std::string texture_id = "";
         std::string normalmap_id = "";
 
         Camera::Projection camera_projection = Camera::Projection::PERSPECTIVE;

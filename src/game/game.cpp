@@ -1450,6 +1450,7 @@ void Game::CheckControls(KeyMap& keys, float dt) {
 
     if(keys[GLFW_KEY_N]) {
         if(ending_sequence_ && active_scene->StoryTextAmount() == 1) {
+            active_scene->GetPlayer()->SetStatic(false);
             resman.SetScreenSpaceShader("S_Texture");
             ending_sequence_ = false;
             good_end_ = true;
