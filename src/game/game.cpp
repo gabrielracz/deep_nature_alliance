@@ -71,7 +71,7 @@ void Game::Init(void){
     audioEngine = irrklang::createIrrKlangDevice();
 	if (!audioEngine)
 		std::cout << "error setting up audio engine" << std::endl;
-    audioEngine->setSoundVolume(0.0);
+    audioEngine->setSoundVolume(0.6);
 	// audioEngine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
 }
    
@@ -672,7 +672,7 @@ void Game::SetupFPScene(void) {
     pill_tower->transform.SetScale({15.0, 15.0, 15.0});
     scenes[FPTEST]->AddNode(pill_tower);
 
-    auto pill = std::make_shared<Item>("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill");
+    auto pill = std::make_shared<Item>("Obj_Pill", "M_Sapling", "S_Lit", "T_Pill", 6.0f);
     pill->transform.SetPosition({-600.0f,-13.0f,-600.0f});
     pill->transform.SetScale({5,5,5});
     pill->SetAlphaEnabled(true);
@@ -938,6 +938,7 @@ void Game::SetupDesertScene() {
         note->transform.SetScale({55,55,55});
         note->SetCollectCallback([this, noteInfo, i]() { 
             AddStoryToScene(DESERT, std::get<1>(noteInfo[i])); 
+            UnlockDash();
         });
         note->DeleteOnCollect(true);
         AddColliderToScene(DESERT, note);
@@ -1847,7 +1848,14 @@ void Game::CollectEndingItem(StoryBeat l) {
 }
 
 void Game::UnlockDash() {
-     for (auto s : scenes) {
-        s->GetPlayer()->UnlockDash();
-     }
+    int i = 0;
+    if(scenes[FOREST]->GetPlayer()) {
+        scenes[FOREST]->GetPlayer()->UnlockDash();
+    }
+    if(scenes[DESERT]->GetPlayer()) {
+        scenes[DESERT]->GetPlayer()->UnlockDash();
+    }
+    if(scenes[FPTEST]->GetPlayer()) {
+        scenes[FPTEST]->GetPlayer()->UnlockDash();
+    }
 }

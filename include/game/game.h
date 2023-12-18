@@ -59,7 +59,6 @@ enum SceneEnum {
     SPACE = 0,
     FOREST,
     DESERT,
-    MOON,
     FPTEST,
     MAIN_MENU,
     START,
@@ -126,8 +125,7 @@ class Game {
         bool leftShiftPressed = false;
 
         float wind_speed = 1.5f;
-        int camera_mode;
-
+        int camera_mode = 0;
         glm::vec3 current_respawn_position = glm::vec3(0.0);
 
         bool ending_sequence_ = false;

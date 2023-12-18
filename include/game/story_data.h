@@ -439,7 +439,11 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
                 "**Static** A young woman screams '!NO PLEASE!' **Static** \n"
                 "The haunting cry resonates, revealing the desperation \n"
                 "of those who once called this place home\n"
-                "This message confirms my suspicions; This is not the water planet I expected,\n"
+                "This message confirms my suspicions.\n",
+                THOUGHTS
+            },
+            {
+                "This is not the water planet I expected,\n"
                 "but rather a place once rich in life, now transformed\n"
                 "The towers, it seems, are remnants of a civilization that once thrived here.\n"
                 "Questions multiply as I ponder their fate and the history of this enigmatic world\n"
@@ -452,7 +456,26 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
     }},
     {DESERT_THIRD_RECORDING,{
             {
-                "THIRD NOTE PLACEHOLDER\n",
+                "Theres another tape...\n",
+                THOUGHTS
+            },
+            {
+                "Listen here listen all ...\n"
+                " ... this is the first time in history \n"
+                " a resistance force has covertly and organically\n"
+                " been created in a DNA occupied sector ... \n"
+                " ... \n"
+                " We have been able to gather that the MK testing strike \n"
+                " will indeed happen here ... \n"
+                " ... \n"
+                " We have the tech to stop it, it's up to each and everyone\n"
+                " to prepare the MK shield\n"
+                " ... \n"
+                " WE WILL BE SUCCESSFUL! GLORY TO THE X-REVOLUTION!\n",
+                COMMS_RECORD
+            },
+            {
+                "I can only hope they were...\n",
                 THOUGHTS
             }
     }},

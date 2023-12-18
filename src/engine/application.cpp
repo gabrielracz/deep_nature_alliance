@@ -23,13 +23,6 @@ void Application::Start() {
 	unsigned int frame_counter = 0;
     int frame_window = 60;
 
-    irrklang::ISoundEngine* engine = nullptr;
-    if(sound_enabled) {
-         engine = irrklang::createIrrKlangDevice();
-        if (!engine)
-            std::cout << "error setting up audio engine" << std::endl;
-        engine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
-    }
 	while(running){
 		//Get frame rate
         runtime += dt;
@@ -46,9 +39,6 @@ void Application::Start() {
 
         game.Update(dt, view.GetKeys());
         view.Render(game.ActiveScene());
-    }
-    if(engine) {
-        engine->drop(); // delete engine
     }
 }
 
