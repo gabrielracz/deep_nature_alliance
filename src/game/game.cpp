@@ -71,7 +71,7 @@ void Game::Init(void){
     audioEngine = irrklang::createIrrKlangDevice();
 	if (!audioEngine)
 		std::cout << "error setting up audio engine" << std::endl;
-    audioEngine->setSoundVolume(0.0);
+    audioEngine->setSoundVolume(0.6);
 	// audioEngine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
 }
    
