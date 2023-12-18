@@ -1277,17 +1277,52 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     if (!leftShiftPressed && glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
         if (active_scene_num == SPACE) {
             audioEngine->play2D(RESOURCES_DIRECTORY"/audio/explosion.wav");
-            ISound* sound = audioEngine->play2D(RESOURCES_DIRECTORY"/audio/rocket_boost.wav", true);
-            bigJank = sound;
+            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/rocket_boost.wav", true);
         }
         leftShiftPressed = true;
     } 
     if (leftShiftPressed && glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
-        if (bigJank)
-            bigJank->stop();
+        audioEngine->stopAllSounds();
         audioEngine->play2D(RESOURCES_DIRECTORY"/audio/rocket_winddown.wav");
         leftShiftPressed = false;
     }
+
+    if(keys[GLFW_KEY_G]) {
+        if (!musicPlaying && active_scene_num == SPACE){
+            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
+            musicPlaying = true;
+        } else{
+            audioEngine->stopAllSounds();
+            musicPlaying = false;
+        }
+        keys[GLFW_KEY_G] = false;
+    }
+
+    if(keys[GLFW_KEY_H]) {
+        if (!quietDownFeller){
+            audioEngine->setSoundVolume(0.0);
+            quietDownFeller = true;
+        } else{
+            audioEngine->setSoundVolume(0.6);
+            quietDownFeller = false;
+        }
+        keys[GLFW_KEY_H] = false;
+    }
+
+    // if (glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_G) == GLFW_PRESS){
+    //     if (!audioPressed && active_scene_num == SPACE){
+    //         audioEngine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
+    //         audioPressed = true;
+    //     } else{
+    //         audioEngine->stopAllSounds();
+    //     }
+    //     keys[GLFW_KEY_P] = false;
+    // }
+
+    // if (glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_G) == GLFW_RELEASE){
+    //     audioPressed = false;
+    // }
+
 
     if(keys[GLFW_KEY_RIGHT_BRACKET]) {
         app.ToggleRenderMode();
