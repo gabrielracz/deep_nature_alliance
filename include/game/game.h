@@ -9,14 +9,6 @@
 // #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <irrKlang.h>
-
-#ifdef WIN32
-#pragma comment(lib, "irrKlang.lib")
-#endif // WIN32
-
-using namespace irrklang;
-
 #include "scene_graph.h"
 #include "resource_manager.h"
 #include "camera.h"
@@ -120,11 +112,7 @@ class Game {
         SceneGraph* active_scene;
         SceneEnum active_scene_num;
         std::vector<SceneGraph*> scenes;
-        ISoundEngine* audioEngine = nullptr;
-        ISound* bigJank = nullptr;
         bool leftShiftPressed = false;
-        bool musicPlaying = false;
-        bool quietDownFeller = false;
 
         float wind_speed = 1.5f;
         int camera_mode = 0;

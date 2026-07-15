@@ -16,7 +16,11 @@
 #include "terrain.h"
 #include "text.h"
 
-// Class that manages all the objects in a scene
+// Class that manages all the objects in a scene.
+//
+// Engine-side and content-agnostic: it renders and updates whatever SceneNode graph it's
+// handed and has no notion of "the forest scene" or "the desert scene" - that hand-placed
+// content lives entirely in game/game.cpp, not here.
 class SceneGraph {
 public:
     // Scene nodes to render

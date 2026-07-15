@@ -1,3 +1,8 @@
+// This file is the game layer, not the engine: there's no level editor or scene-authoring
+// tool in this project, so every object placement, trigger volume, and story beat below is
+// authored by hand in code instead of data. That's the source of this file's size and
+// coordinate-heavy style - it's a content-authoring tradeoff, not a property of the engine
+// itself (see src/engine/, which stays generic and has no knowledge of specific scenes).
 #include "defines.h"
 #include "fp_player.h"
 #include "glm/gtc/random.hpp"
@@ -59,8 +64,6 @@ const float speed_upgrade_g = 0.5f;
 const std::string material_directory_g = SHADER_DIRECTORY;
 
 Game::~Game(){
-    // if (!audioEngine)
-    //     audioEngine->drop();
 }
 
 void Game::Init(void){
@@ -68,11 +71,6 @@ void Game::Init(void){
     SetupScenes();
     app.SetResizeHandler(std::bind(&Game::ResizeCameras, this, std::placeholders::_1, std::placeholders::_2));
     app.ToggleMouseCapture(); // disable mouse by default
-    audioEngine = irrklang::createIrrKlangDevice();
-	if (!audioEngine)
-		std::cout << "error setting up audio engine" << std::endl;
-    audioEngine->setSoundVolume(0.6);
-	// audioEngine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
 }
    
 void Game::SetupResources(void){
@@ -1277,56 +1275,19 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     }
 
     if (!leftShiftPressed && glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-        if (active_scene_num == SPACE) {
-            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/explosion.wav");
-            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/rocket_boost.wav", true);
-        }
         leftShiftPressed = true;
-    } 
+    }
     if (leftShiftPressed && glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
-        audioEngine->stopAllSounds();
-        if (active_scene_num == SPACE) {
-            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/rocket_winddown.wav");
-        }
         leftShiftPressed = false;
     }
 
     if(keys[GLFW_KEY_G]) {
-        if (!musicPlaying && active_scene_num == SPACE){
-            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
-            musicPlaying = true;
-        } else{
-            audioEngine->stopAllSounds();
-            musicPlaying = false;
-        }
         keys[GLFW_KEY_G] = false;
     }
 
     if(keys[GLFW_KEY_H]) {
-        if (!quietDownFeller){
-            audioEngine->setSoundVolume(0.0);
-            quietDownFeller = true;
-        } else{
-            audioEngine->setSoundVolume(0.6);
-            quietDownFeller = false;
-        }
         keys[GLFW_KEY_H] = false;
     }
-
-    // if (glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_G) == GLFW_PRESS){
-    //     if (!audioPressed && active_scene_num == SPACE){
-    //         audioEngine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
-    //         audioPressed = true;
-    //     } else{
-    //         audioEngine->stopAllSounds();
-    //     }
-    //     keys[GLFW_KEY_P] = false;
-    // }
-
-    // if (glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_G) == GLFW_RELEASE){
-    //     audioPressed = false;
-    // }
-
 
     if(keys[GLFW_KEY_RIGHT_BRACKET]) {
         app.ToggleRenderMode();
@@ -1457,8 +1418,6 @@ void Game::CheckControls(KeyMap& keys, float dt) {
             ending_sequence_ = false;
             good_end_ = true;
             ChangeScene(ENDING);
-            audioEngine->stopAllSounds();
-            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/theend.wav", true);
             keys[GLFW_KEY_N] = false;
             return;
         }
@@ -1475,8 +1434,6 @@ void Game::CheckControls(KeyMap& keys, float dt) {
             active_scene->SetCollision(true);
             bad_end_ = true;
             resman.SetScreenSpaceShader("S_Texture");
-            audioEngine->stopAllSounds();
-            audioEngine->play2D(RESOURCES_DIRECTORY"/audio/nebulous.wav", true);
             keys[GLFW_KEY_Y] = false;
             return;
         }
