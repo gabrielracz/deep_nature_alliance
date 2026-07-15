@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 #pragma optionNV(unroll all)
 
 // Attributes passed from the vertex shader
@@ -7,6 +7,8 @@ in vec3 normal_interp;
 in vec4 color_interp;
 in vec2 uv_interp;
 in vec3 light_pos;
+
+out vec4 FragColor;
 
 struct Light {
     vec3 position;
@@ -67,7 +69,7 @@ void main()
 {
 
 	vec3 n = normalize(normal_interp); 
-    vec4 pixel = texture2D(texture_map, uv_interp * texture_repetition);
+    vec4 pixel = texture(texture_map, uv_interp * texture_repetition);
     if(pixel.a < 0.1)
         discard;
     // pixel *= color_interp;
@@ -78,5 +80,5 @@ void main()
         lit_pixel.a = pixel.a;
         accumulator += lit_pixel;
     }
-    gl_FragColor =  accumulator/num_lights;
+    FragColor =  accumulator/num_lights;
 }

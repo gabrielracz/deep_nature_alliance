@@ -174,42 +174,52 @@ int Shader::SetInstances(std::vector<Transform> &transforms, const glm::mat4& vi
 void Shader::Finalize(int num_lights) {
 }
 
+GLint Shader::GetUniformLocation(const std::string& name) {
+    auto it = uniform_locations.find(name);
+    if(it != uniform_locations.end()) {
+        return it->second;
+    }
+    GLint location = glGetUniformLocation(id, name.c_str());
+    uniform_locations.emplace(name, location);
+    return location;
+}
+
 void Shader::SetUniform1f(float u, const std::string& name) {
-	int location = glGetUniformLocation(id, name.c_str());
+	int location = GetUniformLocation(name);
 	glUniform1f(location, u);
 }
 
 void Shader::SetUniform3f(const glm::vec3& u, const std::string& name) {
-	int location = glGetUniformLocation(id, name.c_str());
+	int location = GetUniformLocation(name);
 	glUniform3f(location, u.x, u.y, u.z);
 }
 
 void Shader::SetUniform4f(const glm::vec4& u, const std::string& name) {
-	int location = glGetUniformLocation(id, name.c_str());
+	int location = GetUniformLocation(name);
 	glUniform4f(location, u.x, u.y, u.z, u.w);
 }
 
 void Shader::SetUniform4m(const glm::mat4& u, const std::string& name) {
-	int location = glGetUniformLocation(id, name.c_str());
+	int location = GetUniformLocation(name);
 	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(u));
 }
 
 void Shader::SetUniform3m(const glm::mat3& u, const std::string& name) {
-	int location = glGetUniformLocation(id, name.c_str());
+	int location = GetUniformLocation(name);
 	glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(u));
 }
 
 void Shader::SetUniform2m(const glm::mat3& u, const std::string& name) {
-	int location = glGetUniformLocation(id, name.c_str());
+	int location = GetUniformLocation(name);
 	glUniformMatrix2fv(location, 1, GL_FALSE, glm::value_ptr(u));
 }
 
 void Shader::SetUniform1i(int u, const std::string& name) {
-    int location = glGetUniformLocation(id, name.c_str());
+    int location = GetUniformLocation(name);
     glUniform1i(location, u);
 }
 
 void Shader::SetUniform1iv(int *v, int len, const std::string &name) {
-    int location = glGetUniformLocation(id, name.c_str());
+    int location = GetUniformLocation(name);
     glUniform1iv(location, len, v);
 }

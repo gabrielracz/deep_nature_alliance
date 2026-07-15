@@ -1,8 +1,10 @@
 // Source code of fragment shader
-#version 330
+#version 330 core
 
 // Attributes passed from the vertex shader
 in vec2 uv_interp;
+
+out vec4 FragColor;
 
 // Texture sampler
 uniform sampler2D onetex;
@@ -80,12 +82,12 @@ void main()
 		//return;
 
         // Draw character
-		vec4 texture_color = texture2D(onetex, fuv);
+		vec4 texture_color = texture(onetex, fuv);
 		vec4 color = texture_color * text_color;
         if(color.a < 0.05f) {
-            gl_FragColor = background_color;
+            FragColor = background_color;
         } else {
-            gl_FragColor = color;
+            FragColor = color;
         }
     } 
 }

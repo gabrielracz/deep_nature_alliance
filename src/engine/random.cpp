@@ -1,11 +1,10 @@
 #include "random.h"
 
 RandGenerator::RandGenerator() {
-	eng = std::default_random_engine(rd());
+	eng = std::mt19937(rd());
 }
 
 RandGenerator::RandGenerator(int seed) {
-	eng = std::default_random_engine(rd());
     eng.seed(seed);
 }
 

@@ -23,7 +23,10 @@ public:
 	std::vector<glm::vec3> generateUniqueRandomPoints(int num_points, float min_dist, float range, bool xz = true);
 private:
 	std::random_device rd;
-	std::default_random_engine eng;
+	// Pinned to mt19937 instead of std::default_random_engine: the default is
+	// implementation-defined (MSVC: mt19937, libc++/macOS: minstd_rand), which
+	// made seeded generation diverge across platforms.
+	std::mt19937 eng;
 	std::uniform_real_distribution<float> float_distr;
 	std::uniform_int_distribution<int> int_distr;
 };

@@ -3,7 +3,8 @@
 in vec3 texture_coordinates;
 uniform samplerCube skybox;
 
+out vec4 FragColor;
+
 void main() {
-        gl_FragColor = texture(skybox, texture_coordinates);
-        // gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+        FragColor = texture(skybox, texture_coordinates);
 }

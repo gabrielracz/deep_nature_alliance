@@ -38,7 +38,7 @@ uniform sampler2D texture_map;
 uniform sampler2D normal_map; // Normal map
 uniform sampler2D shadow_map;
 
-layout(location=0) out vec3 FragColor;
+layout(location=0) out vec4 FragColor;
 
 bool in_shadow;
 
@@ -186,7 +186,7 @@ void main() {
         // lit_pixel.a = 1.0f;
         accumulator += lit_pixel;
     }
-    gl_FragColor = accumulator ;
+    FragColor = accumulator;
     // FragColor = vec3(accumulator);
     // float depth = gl_FragCoord.w * 4 + 0.1;
     // FragColor = vec3(depth, depth, depth);

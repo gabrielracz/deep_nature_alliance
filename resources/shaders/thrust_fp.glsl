@@ -10,6 +10,7 @@ uniform sampler2D texture_map;
 // Simulation parameters (constants)
 uniform vec3 object_color = vec3(0.7, 0.3, 0.03);
 
+out vec4 FragColor;
 
 void main (void)
 {
@@ -22,5 +23,5 @@ void main (void)
     if(outval.a < 0.005) {
         discard;
     }
-    gl_FragColor = outval;
+    FragColor = outval;
 }

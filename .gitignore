@@ -1,6 +1,8 @@
 build/
 .cache/
 .vscode/
+.vs/
+.DS_Store
 include/engine/path_config.h
 compile_commands.json
 

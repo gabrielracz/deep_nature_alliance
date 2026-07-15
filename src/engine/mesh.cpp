@@ -192,11 +192,12 @@ void Mesh::Draw(int instances) {
     glBindVertexArray(VAO);
     if(instances > 0) {
         glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, instances);
-    }
-	if(indices.size() > 0) {
+    } else if(indices.size() > 0) {
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	} else {
-		glDrawArrays(GL_POINTS, 0, vertices.size());
+		// vertices is a flat float buffer, not one entry per vertex.
+		size_t floats_per_vertex = layout.size / sizeof(float);
+		glDrawArrays(GL_POINTS, 0, vertices.size() / floats_per_vertex);
 	}
 
 	glBindVertexArray(0);

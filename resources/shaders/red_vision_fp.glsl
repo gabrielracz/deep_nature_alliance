@@ -7,6 +7,8 @@ in vec2 uv0;
 uniform float timer;
 uniform sampler2D texture_map;
 
+out vec4 FragColor;
+
 const float linecount = 120.0;
 vec4 gradA = vec4(0.00, 0.0, 0.0, 1.0);
 vec4 gradB = vec4(0.8, 0.0, 0.0, 1.0);
@@ -123,5 +125,5 @@ void main()
     // Combine edge color with night vision effect
     //vec4 finalPixel = mix(color_edge, color_night_vision, step(0.1, color_edge.r));
 
-    gl_FragColor = gamma(vision + color_edge, 2.2);
+    FragColor = gamma(vision + color_edge, 2.2);
 }

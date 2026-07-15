@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 #pragma optionNV(unroll all)
 
 // Attributes passed from the vertex shader
@@ -7,6 +7,8 @@ in vec3 normal_interp;
 in vec4 color_interp;
 in vec2 uv_interp;
 in vec3 light_pos;
+
+out vec4 FragColor;
 
 struct Light {
     vec3 position;
@@ -147,7 +149,7 @@ float snoise(in vec3 v) {
 void main() 
 {
 	vec3 n = normalize(normal_interp); 
-    vec4 pixel = texture2D(texture_map, uv_interp * texture_repetition);
+    vec4 pixel = texture(texture_map, uv_interp * texture_repetition);
     vec2 uv = uv_interp;
 
     // take a x-y plane slice of the 3D simplex noise that progresses forwards through time
@@ -167,5 +169,5 @@ void main()
         vec4 lit_pixel = lighting(pixel, i, lv, n);
         accumulator += lit_pixel;
     }
-    gl_FragColor =  accumulator/num_lights;
+    FragColor =  accumulator/num_lights;
 }

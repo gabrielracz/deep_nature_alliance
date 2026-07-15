@@ -47,5 +47,10 @@ void Menu_Player::MouseControls(Mouse& mouse) {
 glm::vec2 Menu_Player::getMousePos() {
     double x, y;
     glfwGetCursorPos(win->ptr, &x, &y);
-    return {x,y};
+
+    // glfwGetCursorPos returns screen points; win->width/height are framebuffer
+    // pixels. Scale into pixel space to match (no-op at 1x content scale).
+    float xscale, yscale;
+    glfwGetWindowContentScale(win->ptr, &xscale, &yscale);
+    return {x * xscale, y * yscale};
 }

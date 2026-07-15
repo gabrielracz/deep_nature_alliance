@@ -21,6 +21,9 @@ void View::Render(SceneGraph& scene) {
         return;
     }
     
+    // Pre-increment: 0 is reserved for "never uploaded" in shader_frame_state.
+    frame_index++;
+
     // DRAW
     const glm::vec4 background_color = {0.0f, 0.0f, 0.0f, 1.0f};
     glClearColor(background_color[0], 
@@ -101,6 +104,10 @@ void View::RenderPostProcessing(SceneGraph& scene) {
     }
 }
 
+// Shadows: one depth pass per light into a single shared shadow map, sampled with PCSS
+// (see the *_fp.glsl shaders) for penumbras that actually soften with distance instead of
+// the usual hard-edged shadow acne. Paired with the shader/uniform caching above, the whole
+// pipeline avoids redundant GL state changes rather than re-uploading per node.
 void View::RenderDepthMap(SceneGraph& scene, std::shared_ptr<Light> light) {
     glViewport(0, 0, DEPTHWIDTH, DEPTHHEIGHT);
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -117,8 +124,16 @@ void View::RenderDepthMap(SceneGraph& scene, std::shared_ptr<Light> light) {
     glm::mat4 view_mat = light->CalculateViewMatrix();
     glm::mat4 proj_mat = light->GetProjMatrix();
 
+    // light_mat is constant for this pass - upload it once per shader instead
+    // of per node. glUniform* targets whichever program is currently bound,
+    // so each shader must be made current before setting its own copy.
+    glm::mat4 light_mat = proj_mat * view_mat;
+    shd->SetUniform4m(light_mat, "light_mat");
+    shdinst->Use();
+    shdinst->SetUniform4m(light_mat, "light_mat");
+    shd->Use();
 
-    std::function<void(SceneNode*)> render_depth = [&render_depth, &shdinst, &scene, &proj_mat, &view_mat, &shd, this](SceneNode* node) {
+    std::function<void(SceneNode*)> render_depth = [&render_depth, &shdinst, &scene, &shd, this](SceneNode* node) {
         Mesh* mesh = resman.GetMesh(node->GetMeshID());
         if(mesh){
             std::vector<Transform>& instances = node->GetInstances();
@@ -126,15 +141,11 @@ void View::RenderDepthMap(SceneGraph& scene, std::shared_ptr<Light> light) {
                 shdinst->Use();
                 shdinst->SetInstances(instances, scene.GetCamera().GetViewMatrix(), node->ShouldCullInstances());
                 shdinst->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
-                // set light_mat
-                shdinst->SetUniform4m(proj_mat * view_mat, "light_mat");
                 mesh->Draw(instances.size());
                 shd->Use();
             } else {
                 // set world_mat
                 shd->SetUniform4m(node->transform.GetWorldMatrix(), "world_mat");
-                // set light_mat
-                shd->SetUniform4m(proj_mat * view_mat, "light_mat");
                 mesh->Draw();
             }
         }
@@ -164,16 +175,21 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<std::shared_ptr<
     Shader* shd = resman.GetShader(shd_id);
 
     shd->Use();
-    // if(active_shader != shd->id) {
-    cam.SetProjectionUniforms(shd, node->GetDesiredProjection());
 
-    shd->SetLights(lights);
-    auto l = lights[0]; //lol all scenes have lights so fine for now
-    glm::mat4 view_mat = l->CalculateViewMatrix();
-    glm::mat4 proj_mat = l->GetProjMatrix();
+    // These don't vary per node - only upload once per shader/projection/frame.
+    Camera::Projection projtype = node->GetDesiredProjection();
+    uint64_t& last_frame_for_proj = shader_frame_state[shd][static_cast<int>(projtype)];
+    if(last_frame_for_proj != frame_index) {
+        cam.SetProjectionUniforms(shd, projtype);
 
+        shd->SetLights(lights);
+        auto l = lights[0]; //lol all scenes have lights so fine for now
+        glm::mat4 view_mat = l->CalculateViewMatrix();
+        glm::mat4 proj_mat = l->GetProjMatrix();
+        shd->SetUniform4m(proj_mat * view_mat, "shadow_light_mat");
 
-    shd->SetUniform4m(proj_mat * view_mat, "shadow_light_mat");
+        last_frame_for_proj = frame_index;
+    }
     node->SetUniforms(shd, cam.GetViewMatrix(), parent_matrix);
 
     // TEXTURE
@@ -253,8 +269,8 @@ void View::InitFramebuffers() {
     // Depth framebuffer
     glGenTextures(1, &depth_tex);
     glBindTexture(GL_TEXTURE_2D, depth_tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
-                DEPTHWIDTH, DEPTHWIDTH, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+                DEPTHWIDTH, DEPTHHEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
@@ -285,7 +301,11 @@ void View::InitWindow(const std::string& title, int width, int height) {
     win.height = height;
     win.title = title;
 
-    // win.ptr = glfwCreateWindow(win.width, win.height, win.title.c_str(), glfwGetPrimaryMonitor(), NULL);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
     win.ptr = glfwCreateWindow(win.width, win.height, win.title.c_str(), NULL, NULL);
 
     if (!win.ptr) {
@@ -293,7 +313,12 @@ void View::InitWindow(const std::string& title, int width, int height) {
         throw(std::runtime_error(std::string("Could not create window")));
     }
 
-    // Make the window's context the current 
+    // Let the window server settle content scale/backing size before reading
+    // the framebuffer size below (avoids a stale size on Retina displays).
+    glfwPollEvents();
+    glfwGetFramebufferSize(win.ptr, &win.width, &win.height);
+
+    // Make the window's context the current
     glfwMakeContextCurrent(win.ptr);
 
     // Initialize the GLEW library to access OpenGL extensions

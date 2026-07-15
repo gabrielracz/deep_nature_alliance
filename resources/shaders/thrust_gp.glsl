@@ -46,7 +46,8 @@ void main(void){
         gl_Position = projection_mat * v[i]; // output expected to be post projection
         // tex_coord = vec2(0.5, 0.5); // clearly wrong -- what should the texture coordinates be?
         tex_coord = uv[fid] + uv[i]; // clearly wrong -- what should the texture coordinates be?
-        frag_color = vec4(particle_color[i].xyz, particle_color[0].a); // Specify only blending value
+        // Input primitive is `points`, so particle_color[] only has index 0.
+        frag_color = particle_color[0];
         EmitVertex();
      }
 

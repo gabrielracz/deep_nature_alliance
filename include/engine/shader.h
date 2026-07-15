@@ -12,6 +12,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 #include "path_config.h"
 #include "transform.h"
 
@@ -88,7 +89,10 @@ private:
     unsigned int lights_ubo;
     unsigned int instanced_ubo;
 
-
+    // Uniform locations are stable for the life of a linked program - cache
+    // them instead of calling glGetUniformLocation every SetUniform* call.
+    GLint GetUniformLocation(const std::string& name);
+    std::unordered_map<std::string, GLint> uniform_locations;
 };
 
 #endif

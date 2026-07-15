@@ -4,6 +4,8 @@ in vec2 uv_interp;
 uniform sampler2D texture_map;
 uniform float timer;
 
+out vec4 FragColor;
+
 #define M_PI 3.14159265358979323846
 
 //	Classic Perlin 3D Noise 
@@ -228,5 +230,5 @@ void main() {
     vec4 pixel = texture(texture_map, uv);
 
     pixel = dither(pixel);
-    gl_FragColor = pixel;
+    FragColor = pixel;
 }

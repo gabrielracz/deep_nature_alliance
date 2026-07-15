@@ -1,4 +1,4 @@
-#version 130
+#version 330 core
 
 // Attributes passed from the vertex shader
 in vec3 position_interp;
@@ -11,14 +11,15 @@ in vec3 light_pos;
 uniform sampler2D texture_map;
 uniform float texture_repetition = 1;
 
+out vec4 FragColor;
 
-void main() 
+void main()
 {
     // Retrieve texture value
 	vec2 uv_use = texture_repetition*uv_interp;
-    vec4 pixel = texture2D(texture_map, uv_use);
+    vec4 pixel = texture(texture_map, uv_use);
 
     // Use texture in determining fragment colour
 
-    gl_FragColor = pixel;
+    FragColor = pixel;
 }

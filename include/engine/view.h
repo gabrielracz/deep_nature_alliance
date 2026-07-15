@@ -5,6 +5,8 @@
 #include <memory>
 #include <unordered_map>
 #include <functional>
+#include <cstdint>
+#include <array>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -67,7 +69,7 @@ private:
     GLuint postprocess_tex;
     GLuint rbo;
 
-    GLuint depth_fbo;    
+    GLuint depth_fbo;
     GLuint depth_tex;
     int DEPTHWIDTH = 8192;
     int DEPTHHEIGHT = 8192;
@@ -76,6 +78,12 @@ private:
 
     int render_mode = RenderMode::FILL;
     int active_shader = -1;
+
+    // Tracks the last frame each (shader, projection type) uploaded lights/
+    // view/projection/shadow matrix, so RenderNode can skip re-uploading them
+    // for other nodes sharing the same shader this frame.
+    uint64_t frame_index = 0;
+    std::unordered_map<Shader*, std::array<uint64_t, 2>> shader_frame_state;
 
     void InitWindow(const std::string &title, int width, int height);
     void InitView();
