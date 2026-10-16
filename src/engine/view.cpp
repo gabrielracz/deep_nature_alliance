@@ -5,13 +5,45 @@
 #include "resource_manager.h"
 #include "scene_graph.h"
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <stdexcept>
 
 View::View(Application& app, ResourceManager& resman)
 : app(app), resman(resman) {}
 
 View::~View() {
+    StopCapture();
     glfwTerminate();
+}
+
+void View::StartCapture(const std::string& cmd) {
+    // %SIZE% is replaced by the framebuffer size, e.g. 1600x900
+    std::string command = cmd;
+    size_t at = command.find("%SIZE%");
+    if(at != std::string::npos) {
+        command.replace(at, 6, std::to_string(win.width) + "x" + std::to_string(win.height));
+    }
+    std::cout << "capturing: " << command << std::endl;
+#ifdef _WIN32
+    capture_pipe = _popen(command.c_str(), "wb");
+#else
+    capture_pipe = popen(command.c_str(), "w");
+#endif
+    if(!capture_pipe) {
+        std::cout << "could not start capture: " << command << std::endl;
+    }
+}
+
+void View::StopCapture() {
+    if(capture_pipe) {
+#ifdef _WIN32
+        _pclose(capture_pipe);
+#else
+        pclose(capture_pipe);
+#endif
+        capture_pipe = nullptr;
+    }
 }
 
 void View::Render(SceneGraph& scene) {
@@ -42,9 +74,28 @@ void View::Render(SceneGraph& scene) {
     glBindFramebuffer(GL_FRAMEBUFFER, postprocess_fbo);
     glViewport(0,0, win.width, win.height);
     RenderScene(scene);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, output_fbo); // 0 unless rendering at a custom resolution
     RenderPostProcessing(scene);
     RenderScreenspace(scene);
+
+    if(!screenshot_path.empty()) {
+        SaveScreenshot(screenshot_path);
+        screenshot_path.clear();
+    }
+    if(capture_pipe) {
+        capture_buffer.resize(win.width * win.height * 3);
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+        glReadPixels(0, 0, win.width, win.height, GL_BGR, GL_UNSIGNED_BYTE, capture_buffer.data());
+        fwrite(capture_buffer.data(), 1, capture_buffer.size(), capture_pipe);
+    }
+
+    if(output_fbo) {
+        // show a scaled preview of the full resolution frame in the window
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, output_fbo);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        glBlitFramebuffer(0, 0, win.width, win.height, 0, 0, display_width, display_height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 
     glfwSwapBuffers(win.ptr);
     glfwPollEvents();
@@ -119,6 +170,9 @@ void View::RenderDepthMap(SceneGraph& scene, std::shared_ptr<Light> light) {
 
 
     std::function<void(SceneNode*)> render_depth = [&render_depth, &shdinst, &scene, &proj_mat, &view_mat, &shd, this](SceneNode* node) {
+        if(!node->cast_shadow) {
+            return;
+        }
         Mesh* mesh = resman.GetMesh(node->GetMeshID());
         if(mesh){
             std::vector<Transform>& instances = node->GetInstances();
@@ -197,7 +251,7 @@ void View::RenderNode(SceneNode* node, Camera& cam, std::vector<std::shared_ptr<
             glDepthMask(GL_FALSE);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
         } else {
-            glDepthMask(GL_TRUE);
+            glDepthMask(node->alpha_depth_write ? GL_TRUE : GL_FALSE);
             glBlendFunc(GL_SRC_ALPHA, node->GetAlphaFunc());
         }
     };
@@ -268,10 +322,37 @@ void View::InitFramebuffers() {
 
 void View::Init(const std::string& title, int width, int height) {
     InitWindow(title, width, height);
+    // DNA_RENDER_SIZE=WxH renders offscreen at that resolution (for high quality captures)
+    const char* render_size = std::getenv("DNA_RENDER_SIZE");
+    int rw = 0, rh = 0;
+    if(render_size && sscanf(render_size, "%dx%d", &rw, &rh) == 2 && rw > 0 && rh > 0) {
+        display_width = win.width;
+        display_height = win.height;
+        win.width = rw;
+        win.height = rh;
+    }
     InitView();
     InitEventHandlers();
     InitControls();
     InitFramebuffers();
+    if(display_width > 0) {
+        glGenFramebuffers(1, &output_fbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, output_fbo);
+        GLuint color, depth;
+        glGenRenderbuffers(1, &color);
+        glBindRenderbuffer(GL_RENDERBUFFER, color);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, win.width, win.height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, color);
+        glGenRenderbuffers(1, &depth);
+        glBindRenderbuffer(GL_RENDERBUFFER, depth);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, win.width, win.height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth);
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            std::cout << "output framebuffer incomplete" << std::endl;
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        std::cout << "rendering at " << win.width << "x" << win.height << std::endl;
+    }
 }
 
 void View::InitWindow(const std::string& title, int width, int height) {
@@ -375,6 +456,12 @@ void View::ResizeCallback(GLFWwindow* window, int width, int height){
     glViewport(0, 0, width, height);
     void* ptr = glfwGetWindowUserPointer(window);
     View *view = (View *) ptr;
+    if(view->output_fbo) {
+        // fixed render resolution, only the preview window changes
+        view->display_width = width;
+        view->display_height = height;
+        return;
+    }
     view->win.width = width;
     view->win.height = height;
     view->mouse.first_captured = true;
@@ -411,6 +498,39 @@ void View::ToggleMouseCapture() {
     glfwSetInputMode(win.ptr, GLFW_CURSOR, mouse.captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
+
+void View::SaveScreenshot(const std::string& path) {
+    int w = win.width;
+    int h = win.height;
+    int row = (w * 3 + 3) & ~3; // bmp rows are padded to 4 bytes
+    std::vector<unsigned char> pixels(row * h);
+    glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    glReadPixels(0, 0, w, h, GL_BGR, GL_UNSIGNED_BYTE, pixels.data());
+
+    unsigned int file_size = 54 + (unsigned int)pixels.size();
+    unsigned char header[54] = {'B', 'M'};
+    auto put32 = [&header](int at, unsigned int v) {
+        for(int i = 0; i < 4; i++) { header[at + i] = (v >> (8 * i)) & 0xFF; }
+    };
+    put32(2, file_size);
+    put32(10, 54);
+    put32(14, 40);
+    put32(18, w);
+    put32(22, h); // positive height: rows bottom-up, same as glReadPixels
+    header[26] = 1;
+    header[28] = 24;
+    put32(34, (unsigned int)pixels.size());
+
+    FILE* f = fopen(path.c_str(), "wb");
+    if(!f) {
+        std::cout << "could not write screenshot " << path << std::endl;
+        return;
+    }
+    fwrite(header, 1, 54, f);
+    fwrite(pixels.data(), 1, pixels.size(), f);
+    fclose(f);
+    std::cout << "saved screenshot " << path << std::endl;
+}
 
 void View::ToggleRenderMode() {
     render_mode = (render_mode + 1) % RenderMode::NUM_RENDERMODES;

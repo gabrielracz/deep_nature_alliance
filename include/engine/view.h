@@ -46,6 +46,11 @@ public:
     void SetResizeHandler(ResizeHandler h) { game_resize_handler = h; }
 
     void ToggleRenderMode();
+    // Saves the next rendered frame as a .bmp at the given path
+    void RequestScreenshot(const std::string& path) { screenshot_path = path; }
+    // Streams every rendered frame as raw bgr24 into the stdin of the given command (e.g. ffmpeg)
+    void StartCapture(const std::string& command);
+    void StopCapture();
 
     KeyMap &GetKeys() { return key_controls; }
     Mouse &GetMouse() { return mouse; }
@@ -76,6 +81,14 @@ private:
 
     int render_mode = RenderMode::FILL;
     int active_shader = -1;
+    std::string screenshot_path;
+    FILE* capture_pipe = nullptr;
+    GLuint output_fbo = 0;
+    int display_width = 0;
+    int display_height = 0;
+    std::vector<unsigned char> capture_buffer;
+
+    void SaveScreenshot(const std::string& path);
 
     void InitWindow(const std::string &title, int width, int height);
     void InitView();

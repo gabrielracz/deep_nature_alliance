@@ -35,6 +35,10 @@ using namespace irrklang;
 #include "mooneye.h"
 #include "mooncloud.h"
 #include "toggle.h"
+#include "horse_audio.h"
+#include <memory>
+
+class Horse;
 
 class Application;
 
@@ -114,11 +118,15 @@ class Game {
         bool GetBadEnd() { return bad_end_; }
         void UnlockDash();
 
+        // desert horse
+        HorseAudio* GetHorseAudio() { return horse_audio_.get(); }
+        void HorseDiscovered();
+
         const std::vector<std::vector<float>> readTerrain(const std::string& filePath);
 
     private:
         SceneGraph* active_scene;
-        SceneEnum active_scene_num;
+        SceneEnum active_scene_num = MAIN_MENU;
         std::vector<SceneGraph*> scenes;
         ISoundEngine* audioEngine = nullptr;
         ISound* bigJank = nullptr;
@@ -135,6 +143,21 @@ class Game {
         bool bad_end_ = false;
         bool good_end_= false;
         bool violence_mode_ = false;
+
+        std::shared_ptr<Horse> desert_horse_;
+        std::unique_ptr<HorseAudio> horse_audio_;
+        bool horse_discovered_ = false;
+        void CreateHorseHUD();
+
+        // scripted input for automated play testing, enabled by the DNA_AUTOTEST env var
+        struct AutoTestStep { float time; std::string cmd; std::string arg; float value; float value2; float value3; };
+        float time_scale_ = 1.0f;
+        std::vector<AutoTestStep> autotest_;
+        std::vector<std::pair<int, float>> autotest_held_;
+        size_t autotest_next_ = 0;
+        float autotest_time_ = -1.0f;
+        void LoadAutoTest();
+        void RunAutoTest(float dt, KeyMap& keys);
 
         void SetupFPScene(void);
         void SetupSpaceScene(void);

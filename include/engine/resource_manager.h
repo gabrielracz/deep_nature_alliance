@@ -40,6 +40,7 @@ class ResourceManager {
         void LoadMesh(const std::string& name, const std::string& path);
         void AddMesh(const std::string& name, std::vector<float> verts, std::vector<unsigned int> inds, Layout layout);
         void LoadTexture(const std::string& name, const std::string& path, int wrap_option = GL_REPEAT, int sample_option = GL_NEAREST);
+        void AddTexture(const std::string& name, unsigned char* data, int width, int height, int n_channels, int wrap_option = GL_REPEAT, int sample_option = GL_LINEAR);
         void LoadCubemap(const std::string& name, const std::string& dir_path, bool legacyLoading = true);
 
         void CreateTorus(std::string object_name, float loop_radius = 0.6, float circle_radius = 0.2, int num_loop_samples = 90, int num_circle_samples = 30);

@@ -33,6 +33,7 @@ public:
     glm::vec3 ang_velocity = {0.0f, 0.0f, 0.0f};
 
     void SetStatic(bool stasis) { player_static_ = stasis; }
+    bool IsStatic() const { return player_static_; }
     void UnlockDash() {dash_unlocked_ = true;}
     void SetLimpMode(bool l) {limp_mode = l;}
 

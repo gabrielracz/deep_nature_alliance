@@ -52,6 +52,10 @@ set(HDRS
     include/game/rocket.h
     include/game/explosion.h
     include/game/toggle.h
+    include/game/horse.h
+    include/game/horse_assets.h
+    include/game/horse_audio.h
+    include/game/dust.h
 )
  
 set(SRCS
@@ -91,6 +95,10 @@ set(SRCS
     src/game/rocket.cpp
     src/game/explosion.cpp
     src/game/toggle.cpp
+    src/game/horse.cpp
+    src/game/horse_assets.cpp
+    src/game/horse_audio.cpp
+    src/game/dust.cpp
 )
 
 # Add path name to configuration file

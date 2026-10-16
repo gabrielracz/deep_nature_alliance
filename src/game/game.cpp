@@ -19,6 +19,9 @@
 #include <time.h>
 #include <sstream>
 #include <functional>
+#include <fstream>
+#include <mutex>
+#include <cstdlib>
 
 #include "asteroid.h"
 #include "game.h"
@@ -34,6 +37,7 @@
 #include "colliders/colliders.h"
 #include "rocket.h"
 #include "explosion.h"
+#include "horse.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -58,7 +62,42 @@ const float speed_upgrade_g = 0.5f;
 // Materials 
 const std::string material_directory_g = SHADER_DIRECTORY;
 
+// Records everything irrKlang mixes into a .wav (used when capturing gameplay video)
+class WavRecorder : public irrklang::ISoundMixedOutputReceiver {
+public:
+    explicit WavRecorder(const std::string& path) : file_(path, std::ios::binary) {
+        char header[44] = {};
+        file_.write(header, 44); // patched with the real sizes on close
+    }
+    ~WavRecorder() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        auto put32 = [this](unsigned int v) { file_.write(reinterpret_cast<const char*>(&v), 4); };
+        auto put16 = [this](unsigned short v) { file_.write(reinterpret_cast<const char*>(&v), 2); };
+        file_.seekp(0);
+        file_.write("RIFF", 4); put32(36 + bytes_); file_.write("WAVEfmt ", 8);
+        put32(16); put16(1); put16(2); put32(rate_); put32(rate_ * 4); put16(4); put16(16);
+        file_.write("data", 4); put32(bytes_);
+    }
+    void OnAudioDataReady(const void* data, int byte_count, int playback_rate) override {
+        std::lock_guard<std::mutex> lock(mutex_);
+        rate_ = playback_rate;
+        file_.write(static_cast<const char*>(data), byte_count);
+        bytes_ += byte_count;
+    }
+private:
+    std::ofstream file_;
+    std::mutex mutex_;
+    unsigned int bytes_ = 0;
+    unsigned int rate_ = 44100;
+};
+
+static std::unique_ptr<WavRecorder> wav_recorder;
+
 Game::~Game(){
+    if (wav_recorder && audioEngine) {
+        audioEngine->setMixedDataOutputReceiver(nullptr);
+        wav_recorder.reset();
+    }
     // if (!audioEngine)
     //     audioEngine->drop();
 }
@@ -68,10 +107,22 @@ void Game::Init(void){
     SetupScenes();
     app.SetResizeHandler(std::bind(&Game::ResizeCameras, this, std::placeholders::_1, std::placeholders::_2));
     app.ToggleMouseCapture(); // disable mouse by default
-    audioEngine = irrklang::createIrrKlangDevice();
+    const char* record_audio = std::getenv("DNA_CAPTURE_AUDIO");
+    if (record_audio) {
+        // only the software WinMM driver exposes the mixed output
+        audioEngine = irrklang::createIrrKlangDevice(irrklang::ESOD_WIN_MM);
+        wav_recorder = std::make_unique<WavRecorder>(record_audio);
+        if (!audioEngine || !audioEngine->setMixedDataOutputReceiver(wav_recorder.get())) {
+            std::cout << "audio capture unavailable" << std::endl;
+        }
+    } else {
+        audioEngine = irrklang::createIrrKlangDevice();
+    }
 	if (!audioEngine)
 		std::cout << "error setting up audio engine" << std::endl;
     audioEngine->setSoundVolume(0.6);
+    horse_audio_ = std::make_unique<HorseAudio>(audioEngine);
+    LoadAutoTest();
 	// audioEngine->play2D(RESOURCES_DIRECTORY"/audio/usd.wav", true);
 }
    
@@ -126,6 +177,8 @@ void Game::LoadMeshes() {
 
     resman.CreateSimpleCube("M_Skybox");
 
+    Horse::LoadAssets(resman);
+
 }
 
 void Game::LoadShaders() {
@@ -161,6 +214,7 @@ void Game::LoadShaders() {
     resman.LoadShader("S_Explosion", SHADER_DIRECTORY"/explosion_vp.glsl", SHADER_DIRECTORY"/explosion_fp.glsl", SHADER_DIRECTORY"/explosion_gp.glsl");
     resman.LoadShader("S_Violence", SHADER_DIRECTORY"/red_vision_vp.glsl", SHADER_DIRECTORY"/red_vision_fp.glsl");
     resman.LoadShader("S_SSDither", SHADER_DIRECTORY"/passthrough_vp.glsl", SHADER_DIRECTORY"/dither_fp.glsl");
+    resman.LoadShader("S_Dust", SHADER_DIRECTORY"/dust_vp.glsl", SHADER_DIRECTORY"/dust_fp.glsl", SHADER_DIRECTORY"/dust_gp.glsl");
 
     resman.SetScreenSpaceShader("S_Texture");
 }
@@ -1064,6 +1118,56 @@ void Game::SetupDesertScene() {
     AddColliderToScene(DESERT, cactus1);
     AddColliderToScene(DESERT, cactus2);
     AddColliderToScene(DESERT, cactus3);
+
+    // A saddled horse waits near the landing site, standing broadside in front of the player
+    auto horse = std::make_shared<Horse>(this, terr, &camera);
+    horse->SetRider(p.get());
+    horse->AddObstacles(*cactus1, 2.5f, 1.0f);
+    horse->AddObstacles(*cactus2, 2.5f, 1.0f);
+    horse->AddObstacles(*cactus3, 2.5f, 1.0f);
+    for (const auto& info : towerInfo) {
+        horse->AddObstacle(std::get<0>(info), 100.0f, 1000.0f);
+    }
+    horse->AddObstacle(ship->transform.GetPosition(), 12.0f, 60.0f);
+    glm::vec3 spawn_fwd = p->transform.GetOrientation() * glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 spawn_right = glm::cross(spawn_fwd, glm::vec3(0.0f, 1.0f, 0.0f));
+    float spawn_yaw = std::atan2(-spawn_fwd.x, -spawn_fwd.z);
+    horse->PlaceAt(p->transform.GetPosition() + spawn_fwd * 75.0f + spawn_right * 18.0f, spawn_yaw + 1.35f);
+    AddToScene(DESERT, horse);
+    desert_horse_ = horse;
+    CreateHorseHUD();
+}
+
+void Game::CreateHorseHUD() {
+    auto prompt = std::make_shared<Text>("Obj_HorsePrompt", "M_Quad", "S_Text", "T_Charmap", "");
+    prompt->transform.SetPosition({0.0f, -0.62f, 0.0f});
+    prompt->SetAnchor(Text::Anchor::CENTER);
+    prompt->SetColor(Colors::White);
+    prompt->SetBackgroundColor(Colors::TranspBlack);
+    prompt->SetSize(16.0f);
+    prompt->SetCallback([this]() -> std::string {
+        return desert_horse_ ? desert_horse_->PromptText() : "";
+    });
+    AddTextToScene(DESERT, prompt);
+
+    auto status = std::make_shared<Text>("Obj_HorseStatus", "M_Quad", "S_Text", "T_Charmap", "");
+    status->transform.SetPosition({-1.0f, -1.0f, 0.0f});
+    status->SetAnchor(Text::Anchor::BOTTOMLEFT);
+    status->SetColor(Colors::Amber);
+    status->SetBackgroundColor(Colors::TranspBlack);
+    status->SetSize(15.0f);
+    status->SetCallback([this]() -> std::string {
+        return desert_horse_ ? desert_horse_->StatusText() : "";
+    });
+    AddTextToScene(DESERT, status);
+}
+
+void Game::HorseDiscovered() {
+    if (horse_discovered_) {
+        return;
+    }
+    horse_discovered_ = true;
+    AddStoryToScene(DESERT, HORSE_DISCOVERY);
 }
 
 
@@ -1202,7 +1306,83 @@ void Game::SetupCreditsScene() {
 }
 
 
+void Game::LoadAutoTest() {
+    const char* path = std::getenv("DNA_AUTOTEST");
+    if (!path) {
+        return;
+    }
+    std::ifstream f(path);
+    std::string line;
+    while (std::getline(f, line)) {
+        std::istringstream in(line);
+        AutoTestStep s{0.0f, "", "", 0.0f, 0.0f, 0.0f};
+        if (!(in >> s.time >> s.cmd)) {
+            continue;
+        }
+        if (s.cmd[0] == '#') {
+            continue;
+        }
+        in >> s.arg;
+        if (s.cmd == "mouse") {
+            s.value = std::stof(s.arg);
+            in >> s.value2;
+        } else {
+            in >> s.value >> s.value2 >> s.value3;
+        }
+        autotest_.push_back(s);
+    }
+    autotest_time_ = 0.0f;
+    std::cout << "autotest: " << autotest_.size() << " steps" << std::endl;
+}
+
+void Game::RunAutoTest(float dt, KeyMap& keys) {
+    if (autotest_time_ < 0.0f) {
+        return;
+    }
+    static const std::unordered_map<std::string, int> names = {
+        {"W", GLFW_KEY_W}, {"A", GLFW_KEY_A}, {"S", GLFW_KEY_S}, {"D", GLFW_KEY_D},
+        {"F", GLFW_KEY_F}, {"B", GLFW_KEY_B}, {"Z", GLFW_KEY_Z}, {"R", GLFW_KEY_R},
+        {"SPACE", GLFW_KEY_SPACE}, {"SHIFT", GLFW_KEY_LEFT_SHIFT}, {"CTRL", GLFW_KEY_LEFT_CONTROL},
+        {"1", GLFW_KEY_1}, {"2", GLFW_KEY_2}, {"3", GLFW_KEY_3}, {"9", GLFW_KEY_9}, {"C", GLFW_KEY_C},
+    };
+    autotest_time_ += dt;
+    while (autotest_next_ < autotest_.size() && autotest_[autotest_next_].time <= autotest_time_) {
+        const AutoTestStep& s = autotest_[autotest_next_++];
+        auto key = names.find(s.arg);
+        if (s.cmd == "press" && key != names.end()) {
+            keys[key->second] = true;
+        } else if (s.cmd == "hold" && key != names.end()) {
+            autotest_held_.push_back({key->second, autotest_time_ + s.value});
+        } else if (s.cmd == "mouse" && active_scene->GetPlayer()) {
+            Mouse m;
+            m.move = glm::vec2(s.value, s.value2);
+            active_scene->GetPlayer()->MouseControls(m);
+        } else if (s.cmd == "cine" && desert_horse_) {
+            desert_horse_->SetCinematic(std::stoi(s.arg), s.value, s.value2, s.value3);
+        } else if (s.cmd == "timescale") {
+            time_scale_ = std::stof(s.arg);
+        } else if (s.cmd == "post") {
+            resman.SetScreenSpaceShader(s.arg);
+        } else if (s.cmd == "shot") {
+            app.RequestScreenshot(s.arg);
+        } else if (s.cmd == "quit") {
+            app.Quit();
+        }
+    }
+    for (auto it = autotest_held_.begin(); it != autotest_held_.end();) {
+        if (autotest_time_ > it->second) {
+            keys[it->first] = false;
+            it = autotest_held_.erase(it);
+        } else {
+            keys[it->first] = true;
+            ++it;
+        }
+    }
+}
+
 void Game::Update(double dt, KeyMap &keys) {
+    RunAutoTest(dt, keys); // script time stays real time, even in slow motion
+    dt *= time_scale_;
     CheckControls(keys, dt);
     active_scene->Update(dt);
 }
@@ -1284,8 +1464,9 @@ void Game::CheckControls(KeyMap& keys, float dt) {
         leftShiftPressed = true;
     } 
     if (leftShiftPressed && glfwGetKey(app.GetWindow()->ptr, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) {
-        audioEngine->stopAllSounds();
+        // only the ship's boost uses shift for sound; galloping must not silence the desert
         if (active_scene_num == SPACE) {
+            audioEngine->stopAllSounds();
             audioEngine->play2D(RESOURCES_DIRECTORY"/audio/rocket_winddown.wav");
         }
         leftShiftPressed = false;
@@ -1328,6 +1509,11 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     // }
 
 
+    if(keys[GLFW_KEY_F12]) {
+        app.RequestScreenshot("screenshot_" + std::to_string(time(nullptr)) + ".bmp");
+        keys[GLFW_KEY_F12] = false;
+    }
+
     if(keys[GLFW_KEY_RIGHT_BRACKET]) {
         app.ToggleRenderMode();
         keys[GLFW_KEY_RIGHT_BRACKET] = false;
@@ -1361,6 +1547,9 @@ void Game::CheckControls(KeyMap& keys, float dt) {
         player->Control(Player::Controls::SPACE, dt);
         keys[GLFW_KEY_SPACE] = false;
     };
+    if(keys[GLFW_KEY_X] && active_scene_num == DESERT && desert_horse_ && desert_horse_->IsMounted()) {
+        keys[GLFW_KEY_X] = false; // the horse owns the camera while riding
+    }
     if(keys[GLFW_KEY_X]) {
         if(active_scene->GetCamera().IsAttached()) {
             active_scene->GetCamera().Drop();
@@ -1504,6 +1693,24 @@ void Game::CheckControls(KeyMap& keys, float dt) {
     //     keys[GLFW_KEY_2] = false;
     // }
 
+    bool riding = active_scene_num == DESERT && desert_horse_ && desert_horse_->IsMounted();
+    if(keys[GLFW_KEY_F]) {
+        if(active_scene_num == DESERT && desert_horse_) {
+            desert_horse_->Interact();
+        }
+        keys[GLFW_KEY_F] = false;
+    }
+    if(keys[GLFW_KEY_B]) {
+        if(active_scene_num == DESERT && desert_horse_) {
+            desert_horse_->Call();
+        }
+        keys[GLFW_KEY_B] = false;
+    }
+
+    if(keys[GLFW_KEY_Z] && riding) {
+        desert_horse_->ToggleCamera();
+        keys[GLFW_KEY_Z] = false;
+    }
     if(keys[GLFW_KEY_Z]) {
         if(active_scene->GetCamera().IsAttached()) {
             if(camera_mode++ % 2 == 0) {
@@ -1747,6 +1954,9 @@ void Game::CreateLights() {
 void Game::ChangeScene(int sceneIndex) {
     current_respawn_position = glm::vec3(0.0f);
     std::cout << "changing scenes" << std::endl;
+    if (active_scene_num == DESERT && sceneIndex != DESERT && desert_horse_) {
+        desert_horse_->OnSceneExit();
+    }
     active_scene = scenes[sceneIndex];
     active_scene_num = SceneEnum(sceneIndex);
     if (active_scene_num == DESERT) {

@@ -5,6 +5,7 @@
 #include <glm/gtc/random.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <stdexcept>
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -88,6 +89,20 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
 	overwrite_emplace(textures, name, Texture(data, width, height, n_channels, wrap_option, sample_option));
 	stbi_image_free(data);
 
+}
+
+void ResourceManager::AddTexture(const std::string& name, unsigned char* data, int width, int height, int n_channels, int wrap_option, int sample_option) {
+	Texture texture(data, width, height, n_channels, wrap_option, sample_option);
+	// fine detail textures shimmer and moire without mipmapped minification
+	if (sample_option == GL_LINEAR) {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		if (GLEW_EXT_texture_filter_anisotropic) {
+			GLfloat max_aniso = 1.0f;
+			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_aniso);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, std::min(8.0f, max_aniso));
+		}
+	}
+	overwrite_emplace(textures, name, std::move(texture));
 }
 
 void ResourceManager::LoadCubemap(const std::string &name, const std::string &dir_path, bool legacyLoading) {

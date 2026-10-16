@@ -29,6 +29,7 @@ public:
 
     void ToggleMouseCapture() { view.ToggleMouseCapture(); }
     void ToggleRenderMode();
+    void RequestScreenshot(const std::string& path) { view.RequestScreenshot(path); }
     void SetMouseHandler(MouseHandler h) {view.SetMouseHandler(h);}
     void SetResizeHandler(ResizeHandler h) {view.SetResizeHandler(h);}
 

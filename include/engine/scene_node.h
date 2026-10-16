@@ -82,6 +82,8 @@ class SceneNode {
         bool active = true;
         bool visible = true;
         bool deleted = false;
+        bool cast_shadow = true;        // rendered into the shadow depth map
+        bool alpha_depth_write = true;  // depth writes for alpha blended (non additive) nodes
         int inverted = 0;
         RenderMode render_mode = FILL;
     protected:

@@ -17,6 +17,26 @@ cd build
 cmake ..
 make
 
+RIDING (desert level)
+A saddled horse waits near the landing site.
+F            mount / dismount (walk up to her first)
+B            whistle - she comes to you from anywhere on the map
+W            trot          SHIFT   gallop (uses stamina)
+CTRL + W     walk          S       brake / back up
+A / D        steer         SPACE   jump while moving, rear up when standing
+Z            toggle third / first person camera, mouse orbits or looks around
+F12          save a screenshot
+
+The horse, rider, tack, dust and all horse sounds are generated procedurally at startup.
+
+Developer: set DNA_AUTOTEST to a script file to drive the game with timed input, e.g.
+  0.5 press 3
+  2.0 hold W 0.45
+  2.9 press F
+  4.0 mouse 650 0
+  4.5 shot C:\path\shot.bmp
+  6.0 quit
+
 Attributions:
 Planetary textures taken from https://www.solarsystemscope.com/textures/ (CC BY 4.0)
 Habitable worlds textures taken from https://www.texturesforplanets.com/texture-packs.shtml

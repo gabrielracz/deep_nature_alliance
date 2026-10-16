@@ -1,5 +1,8 @@
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
+#include <thread>
+#include <chrono>
 #include "application.h"
 #include "defines.h"
 
@@ -23,12 +26,24 @@ void Application::Start() {
 	unsigned int frame_counter = 0;
     int frame_window = 60;
 
+    // DNA_CAPTURE: record every frame through the given command at a fixed 30 fps timestep
+    const char* capture = std::getenv("DNA_CAPTURE");
+    const float capture_dt = 1.0f / 30.0f;
+    if(capture) {
+        view.StartCapture(capture);
+    }
+    long long capture_frames = 0;
+    // audio is recorded live, so only an audio capture has to run at real time.
+    // The simulation is deterministic, so a slower high resolution video pass stays in sync with it.
+    const bool pace_capture = std::getenv("DNA_CAPTURE_AUDIO") != nullptr;
+    double capture_start = 0.0;
+
 	while(running){
 		//Get frame rate
         runtime += dt;
 		frame_counter++;
 		current_time = glfwGetTime();
-		dt = current_time - last_time;
+		dt = capture ? capture_dt : current_time - last_time;
 		acc_delta_time += dt;
 		if(frame_counter % frame_window == 0){
             fps = frame_window/acc_delta_time;
@@ -39,11 +54,27 @@ void Application::Start() {
 
         game.Update(dt, view.GetKeys());
         view.Render(game.ActiveScene());
+
+        if(capture && pace_capture) {
+            // hold frames to a real time 30 fps schedule so recorded audio stays in sync
+            if(capture_frames == 0) {
+                capture_start = glfwGetTime();
+            }
+            double target = capture_start + (++capture_frames) * capture_dt;
+            while(glfwGetTime() < target) {
+                if(target - glfwGetTime() > 0.004) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                } else {
+                    std::this_thread::yield();
+                }
+            }
+        }
     }
 }
 
 void Application::Quit() {
     running = false;
+    view.StopCapture();
 }
 
 void Application::Pause() {

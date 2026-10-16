@@ -27,6 +27,7 @@ enum StoryBeat {
     CREDITS,
     BAD_END,
     TOLKIEN,
+    HORSE_DISCOVERY,
     NUM_STORY_BEATS
 };
 
@@ -483,6 +484,16 @@ static const std::unordered_map<int, std::vector<Text>> STORY = {
             {
                 "This jetpack will assist me in my many journeys.\n"
                 "Should get back to my ship and continue exploring the solar system.",
+                THOUGHTS
+            }
+    }},
+    {HORSE_DISCOVERY,{
+            {
+                "Wait... is that a horse?\n"
+                "Saddled, bridled, and standing out here in all this sand.\n"
+                "Whoever rode her didn't make it, but she waited anyway.\n"
+                "Those towers suddenly don't seem so far away.\n"
+                "[F] to mount when close. [B] to whistle for her.\n",
                 THOUGHTS
             }
     }}

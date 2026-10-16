@@ -5,6 +5,8 @@
 #include "control.h"
 #include "defines.h"
 
+class Horse;
+
 class FP_Player : public Agent
 {
 public:
@@ -19,7 +21,12 @@ public:
     void PlayerJump();
     void Reset();
     void TestMove();
-    
+
+    // While mounted, controls are forwarded to the mount and the mount drives our position
+    void SetMount(Horse* h) { mount_ = h; }
+    Horse* GetMount() const { return mount_; }
+    void SyncToMount(const glm::vec3& position, float yaw);
+
 protected:
     void HeadMovement(float dt);
 
@@ -52,6 +59,7 @@ private:
 //  };
 
  Camera* camera_;
+ Horse* mount_ = nullptr;
 
  // void InitEventHandlers(GLFWwindow *w);
 };

@@ -1,6 +1,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include "fp_player.h"
 #include "colliders/colliders.h"
+#include "horse.h"
 
 #define GLM_FORCE_RADIANS
 
@@ -14,6 +15,10 @@ FP_Player::FP_Player(const std::string name, const std::string &mesh_id, const s
 }
 
 void FP_Player::Control(Controls c, float dt, float damping){
+    if(mount_) {
+        mount_->RiderControl(c, dt);
+        return;
+    }
     switch(c) {
         case Player::Controls::W:
             this->SetForward(); 
@@ -109,6 +114,12 @@ void FP_Player::TestMove()
 
 void FP_Player::Update(double dt)
 {
+    if(mount_) {
+        // the mount positions us, keep the collision rollback point in sync
+        prev_position_ = transform.GetPosition();
+        SceneNode::Update(dt);
+        return;
+    }
     if(player_static_) {
         return;
     }
@@ -122,8 +133,23 @@ void FP_Player::Reset() {
     transform.SetPosition({0.0f, 0.0f, 0.0f});
 }
 
+void FP_Player::SyncToMount(const glm::vec3& position, float yaw)
+{
+    transform.SetPosition(position);
+    transform.SetOrientation(glm::angleAxis(yaw, glm::vec3(0.0f, 1.0f, 0.0f)));
+    prev_position_ = position;
+    target_position_ = position;
+    vertical_velocity_ = 0.0f;
+    vertical_offset_ = 0.0f;
+    jumping_ = false;
+}
+
 void FP_Player::MouseControls(Mouse &mouse)
 {
+    if(mount_) {
+        mount_->RiderMouse(mouse);
+        return;
+    }
     glm::vec2 look = mouse.move * -sensitivity_;
     
     const float max_yaw = 360.0f;
